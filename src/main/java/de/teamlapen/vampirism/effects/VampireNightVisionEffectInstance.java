@@ -14,7 +14,6 @@ public class VampireNightVisionEffectInstance extends MobEffectInstance {
 
     public VampireNightVisionEffectInstance() {
         super(MobEffects.NIGHT_VISION, -1, 0, false, false, false);
-        getCures().clear();
         ((EffectInstanceWithSource) this).setSource(VReference.PERMANENT_INVISIBLE_MOB_EFFECT);
     }
 

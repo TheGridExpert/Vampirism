@@ -8,13 +8,14 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.Animal;
@@ -38,7 +39,7 @@ public class ConvertedGoatEntity extends Goat implements CurableConvertedCreatur
         return Goat.createAttributes().add(Attributes.ATTACK_DAMAGE, BalanceMobProps.mobProps.CONVERTED_MOB_DEFAULT_DMG).add(ModAttributes.SUNDAMAGE, BalanceMobProps.mobProps.VAMPIRE_MOB_SUN_DAMAGE);
     }
 
-    public static boolean checkConvertedGoatSpawnRules(EntityType<? extends Animal> pGoat, LevelAccessor pLevel, MobSpawnType pSpawnType, BlockPos pPos, RandomSource pRandom) {
+    public static boolean checkConvertedGoatSpawnRules(EntityType<? extends Animal> pGoat, LevelAccessor pLevel, EntitySpawnReason pSpawnType, BlockPos pPos, RandomSource pRandom) {
         return pLevel.getDifficulty() != Difficulty.PEACEFUL && Goat.checkGoatSpawnRules(pGoat, pLevel, pSpawnType, pPos, pRandom);
     }
 
@@ -68,8 +69,8 @@ public class ConvertedGoatEntity extends Goat implements CurableConvertedCreatur
     }
 
     @Override
-    public boolean hurtSuper(DamageSource damageSource, float amount) {
-        return super.hurt(damageSource, amount);
+    public boolean hurtSuper(ServerLevel level, DamageSource damageSource, float amount) {
+        return super.hurtServer(level, damageSource, amount);
     }
 
     @Override
@@ -80,7 +81,9 @@ public class ConvertedGoatEntity extends Goat implements CurableConvertedCreatur
 
     @Override
     public void aiStep() {
-        aiStepC(EntityType.GOAT);
+        if (this.level() instanceof ServerLevel serverLevel) {
+            aiStepC(serverLevel, EntityType.GOAT);
+        }
         super.aiStep();
     }
 
@@ -96,8 +99,8 @@ public class ConvertedGoatEntity extends Goat implements CurableConvertedCreatur
     }
 
     @Override
-    public boolean hurt(@NotNull DamageSource pSource, float pAmount) {
-        return this.hurtC(pSource, pAmount);
+    public boolean hurtServer(ServerLevel level, @NotNull DamageSource pSource, float pAmount) {
+        return this.hurtC(level, pSource, pAmount);
     }
 
     @Override

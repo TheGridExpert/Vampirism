@@ -5,7 +5,8 @@
     32
   ],
   "textures": {
-    "0": "vampirism:item/crucifix_iron"
+    "particle": "vampirism:item/crucifix_iron",
+    "texture": "vampirism:item/crucifix_iron"
   },
   "elements": [
     {

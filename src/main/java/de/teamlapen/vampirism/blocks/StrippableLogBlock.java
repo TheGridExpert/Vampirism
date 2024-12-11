@@ -23,8 +23,8 @@ public class StrippableLogBlock extends LogBlock {
         this.strippedBlock = strippedLog;
     }
 
-    public StrippableLogBlock(MapColor color1, MapColor color2, @NotNull Supplier<? extends LogBlock> strippedLog) {
-        super(color1, color2);
+    public StrippableLogBlock(BlockBehaviour.Properties properties, MapColor color1, MapColor color2, @NotNull Supplier<? extends LogBlock> strippedLog) {
+        super(properties, color1, color2);
         this.strippedBlock = strippedLog;
     }
 

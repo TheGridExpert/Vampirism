@@ -8,7 +8,6 @@ import de.teamlapen.vampirism.core.tags.ModTaskTags;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.TagsProvider;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -16,7 +15,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class ModTasksProvider extends TagsProvider<Task> {
 
-    protected ModTasksProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> provider, @Nullable ExistingFileHelper existingFileHelper) {
+    protected ModTasksProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> provider, @SuppressWarnings("removal") @Nullable net.neoforged.neoforge.common.data.ExistingFileHelper existingFileHelper) {
         super(output, VampirismRegistries.Keys.TASK, provider, REFERENCE.MODID, existingFileHelper);
     }
 

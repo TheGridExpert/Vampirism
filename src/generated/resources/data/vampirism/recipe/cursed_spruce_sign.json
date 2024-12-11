@@ -3,12 +3,8 @@
   "category": "misc",
   "group": "wooden_sign",
   "key": {
-    "#": {
-      "item": "vampirism:cursed_spruce_planks"
-    },
-    "X": {
-      "item": "minecraft:stick"
-    }
+    "#": "vampirism:cursed_spruce_planks",
+    "X": "minecraft:stick"
   },
   "pattern": [
     "###",

@@ -4,12 +4,8 @@
   "cookingtime": 100,
   "experience": 0.1,
   "ingredient": [
-    {
-      "item": "vampirism:amulet"
-    },
-    {
-      "item": "vampirism:ring"
-    }
+    "vampirism:amulet",
+    "vampirism:ring"
   ],
   "result": {
     "count": 1,

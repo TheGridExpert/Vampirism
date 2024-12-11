@@ -9,6 +9,8 @@ import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
+import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
+import net.minecraft.client.renderer.entity.state.PlayerRenderState;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.NotNull;
@@ -16,7 +18,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * ModelBiped with a cloak
  */
-public class BipedCloakedModel<T extends LivingEntity> extends PlayerModel<T> {
+public class BipedCloakedModel<T extends PlayerRenderState> extends ClothedModel<T> {
     private static final String CLOAK = "cloak";
     protected final @NotNull ModelPart bipedCloak;
 
@@ -43,11 +45,11 @@ public class BipedCloakedModel<T extends LivingEntity> extends PlayerModel<T> {
     }
 
     @Override
-    public void setupAnim(@NotNull T entity, float pLimbSwing, float pLimbSwingAmount, float pAgeInTicks, float pNetHeadYaw, float pHeadPitch) {
-        super.setupAnim(entity, pLimbSwing, pLimbSwingAmount, pAgeInTicks, pNetHeadYaw, pHeadPitch);
+    public void setupAnim(T state) {
+        super.setupAnim(state);
         float f = 1.0F;
-        if (entity.getFallFlyingTicks() > 4) {
-            f = (float) entity.getDeltaMovement().lengthSqr();
+        if (state.fallFlyingTimeInTicks > 4) {
+            f = state.speedValue;
             f /= 0.2F;
             f *= f * f;
         }
@@ -55,11 +57,12 @@ public class BipedCloakedModel<T extends LivingEntity> extends PlayerModel<T> {
         if (f < 1.0F) {
             f = 1.0F;
         }
-        if (entity.isCrouching()) {
+        if (state.isCrouching) {
             this.bipedCloak.y = 2.0F;
         } else {
             this.bipedCloak.y = 0.0F;
         }
-        this.bipedCloak.xRot = Math.max(Mth.cos(pLimbSwing * 0.6662F) * 1.4F * pLimbSwingAmount / f, Mth.cos(pLimbSwing * 0.6662F + (float) Math.PI) * 1.4F * pLimbSwingAmount / f);
+        this.bipedCloak.xRot = Math.max(Mth.cos(state.walkAnimationPos * 0.6662F) * 1.4F * state.walkAnimationSpeed / f, Mth.cos(state.walkAnimationPos * 0.6662F + (float) Math.PI) * 1.4F * state.walkAnimationSpeed / f);
     }
+
 }

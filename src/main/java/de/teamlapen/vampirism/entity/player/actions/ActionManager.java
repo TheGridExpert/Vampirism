@@ -17,6 +17,6 @@ public class ActionManager implements IActionManager {
     @Override
     public @NotNull List<Holder<IAction<?>>> getActionsForFaction(@NotNull Holder<? extends IPlayableFaction<?>> faction) {
         //noinspection RedundantCast,unchecked
-        return ModRegistries.ACTIONS.holders().filter(action -> IFaction.is(faction, action.value().factions())).map(action -> (Holder<IAction<?>>) (Object) action).collect(Collectors.toList());
+        return ModRegistries.ACTIONS.listElements().filter(action -> IFaction.is(faction, action.value().factions())).map(action -> (Holder<IAction<?>>) (Object) action).collect(Collectors.toList());
     }
 }

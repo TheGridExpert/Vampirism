@@ -11,6 +11,7 @@ import de.teamlapen.vampirism.entity.ai.goals.DefendLeaderGoal;
 import de.teamlapen.vampirism.entity.ai.goals.FindLeaderGoal;
 import de.teamlapen.vampirism.entity.ai.goals.NearestTargetGoalModifier;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.DamageTypeTags;
@@ -60,27 +61,27 @@ public class GhostEntity extends VampirismEntity implements IRemainsEntity, IEnt
         GhostPathNavigation navigation = new GhostPathNavigation(this, pLevel);
         navigation.setCanOpenDoors(false);
         navigation.setCanFloat(true);
-        navigation.setCanPassDoors(true);
+        navigation.setCanOpenDoors(true);
         return navigation;
     }
 
     @Override
-    public boolean isInvulnerableTo(DamageSource pSource) {
-        return pSource.is(DamageTypeTags.IS_PROJECTILE) || pSource.is(ModDamageTypeTags.MOTHER_RESISTANT_TO) && super.isInvulnerableTo(pSource);
+    public boolean isInvulnerableTo(@NotNull ServerLevel level, DamageSource pSource) {
+        return pSource.is(DamageTypeTags.IS_PROJECTILE) || pSource.is(ModDamageTypeTags.MOTHER_RESISTANT_TO) && super.isInvulnerableTo(level, pSource);
     }
 
     @Override
     protected void registerGoals() {
         this.goalSelector.addGoal(1, new GhostMeleeAttackGoal(1, true));
-        this.goalSelector.addGoal(3, new FindLeaderGoal<>(this, VulnerableRemainsDummyEntity.class::isInstance));
+        this.goalSelector.addGoal(3, new FindLeaderGoal<>(this, (entity, level) -> entity instanceof VulnerableRemainsDummyEntity));
         this.goalSelector.addGoal(7, new RandomStrollGoal(this, 0.9F));
         this.goalSelector.addGoal(9, new LookAtPlayerGoal(this, Player.class, 16));
 
         this.targetSelector.addGoal(1, new HurtByTargetGoal(this));
-        NearestAttackableTargetGoal<Player> goal = new NearestAttackableTargetGoal<>(this, Player.class, 0, false, false, VampirismAPI.factionRegistry().getPredicate(ModFactions.VAMPIRE, true, false, true, true, null));
+        NearestAttackableTargetGoal<Player> goal = new NearestAttackableTargetGoal<>(this, Player.class, 0, false, false, VampirismAPI.factionRegistry().getSelector(ModFactions.VAMPIRE, true, false, true, true, null));
         ((NearestTargetGoalModifier) goal).ignoreLineOfSight();
         this.targetSelector.addGoal(3, goal);
-        NearestAttackableTargetGoal<?> goal2 = new NearestAttackableTargetGoal<>(this, PathfinderMob.class, 5, false, false, VampirismAPI.factionRegistry().getPredicate(ModFactions.VAMPIRE, false, true, false, true, null)) {
+        NearestAttackableTargetGoal<?> goal2 = new NearestAttackableTargetGoal<>(this, PathfinderMob.class, 5, false, false, VampirismAPI.factionRegistry().getSelector(ModFactions.VAMPIRE, false, true, false, true, null)) {
             @Override
             protected double getFollowDistance() {
                 return super.getFollowDistance() / 2;
@@ -95,7 +96,7 @@ public class GhostEntity extends VampirismEntity implements IRemainsEntity, IEnt
     public void tick() {
         this.setNoGravity(true);
         this.noPhysics = true;
-        checkInsideBlocks();
+        applyEffectsFromBlocks();
         super.tick();
         this.noPhysics = false;
         this.setNoGravity(true);

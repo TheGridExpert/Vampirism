@@ -2,18 +2,10 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "O": {
-      "tag": "c:obsidians"
-    },
-    "X": {
-      "item": "vampirism:cursed_spruce_planks"
-    },
-    "Y": {
-      "tag": "c:gems/diamond"
-    },
-    "Z": {
-      "item": "vampirism:mother_core"
-    }
+    "O": "#c:obsidians",
+    "X": "vampirism:cursed_spruce_planks",
+    "Y": "#c:gems/diamond",
+    "Z": "vampirism:mother_core"
   },
   "pattern": [
     "XYX",

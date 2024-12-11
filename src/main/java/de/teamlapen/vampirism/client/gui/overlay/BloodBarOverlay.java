@@ -9,6 +9,7 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.LayeredDraw;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
@@ -37,15 +38,15 @@ public class BloodBarOverlay implements LayeredDraw.Layer {
                     int x = left - i * 8 - 9;
 
                     // Draw Background
-                    graphics.blitSprite(BACKGROUND, x, top, 9, 9);
+                    graphics.blitSprite(RenderType::guiTextured, BACKGROUND, x, top, 9, 9);
 
                     if (idx < blood) {
-                        graphics.blitSprite(idx < blood2 ? FULL : HALF, x, top, 9, 9);
+                        graphics.blitSprite(RenderType::guiTextured, idx < blood2 ? FULL : HALF, x, top, 9, 9);
                         if (idx == blood2) {
-                            graphics.blitSprite(THREE_QUARTER, x, top, 9, 9);
+                            graphics.blitSprite(RenderType::guiTextured, THREE_QUARTER, x, top, 9, 9);
                         }
                     } else if (idx == blood) {
-                        graphics.blitSprite(QUARTER, x, top, 9, 9);
+                        graphics.blitSprite(RenderType::guiTextured, QUARTER, x, top, 9, 9);
                     }
                 }
             }

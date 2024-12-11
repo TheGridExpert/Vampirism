@@ -116,7 +116,7 @@ public class SundamageRegistry implements ISundamageRegistry {
     public boolean hasSunDamage(@NotNull LevelAccessor levelAccessor, @NotNull BlockPos pos) {
         DimensionType dimensionType = levelAccessor.dimensionType();
         ResourceKey<Level> level = getLevel(levelAccessor);
-        if (this.registryAccess != null && this.registryAccess.registry(Registries.DIMENSION_TYPE).flatMap(a -> a.getResourceKey(dimensionType)).filter(key -> this.noSunDamageDimensions.contains(key)).isPresent()) {
+        if (this.registryAccess != null && this.registryAccess.lookup(Registries.DIMENSION_TYPE).flatMap(a -> a.getResourceKey(dimensionType)).filter(key -> this.noSunDamageDimensions.contains(key)).isPresent()) {
             return this.sunDamageLevels.contains(level);
         } else {
             if (this.noSunDamageLevels.contains(level)) {
@@ -155,7 +155,7 @@ public class SundamageRegistry implements ISundamageRegistry {
 
     @Override
     public boolean isGettingSundamage(LivingEntity entity, LevelAccessor world) {
-        return Helper.gettingSundamge(entity, world, null);
+        return Helper.gettingSundamge(entity, world);
     }
 
     @Override

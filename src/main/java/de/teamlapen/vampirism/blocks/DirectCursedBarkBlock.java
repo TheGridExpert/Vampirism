@@ -5,14 +5,12 @@ import com.google.common.collect.ImmutableBiMap;
 import de.teamlapen.vampirism.util.Helper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
@@ -37,8 +35,8 @@ public class DirectCursedBarkBlock extends CursedBarkBlock {
     public static final EnumProperty<Type> EAST_TYPE = EnumProperty.create("east_type", Type.class);
     public static final BiMap<Direction, EnumProperty<Type>> SIDE_MAP = ImmutableBiMap.<Direction, EnumProperty<Type>>builder().put(Direction.UP, UP_TYPE).put(Direction.DOWN, DOWN_TYPE).put(Direction.EAST, EAST_TYPE).put(Direction.WEST, WEST_TYPE).put(Direction.NORTH, NORTH_TYPE).put(Direction.SOUTH, SOUTH_TYPE).build();
 
-    public DirectCursedBarkBlock() {
-        super(BlockBehaviour.Properties.of().sound(SoundType.WOOD));
+    public DirectCursedBarkBlock(BlockBehaviour.Properties properties) {
+        super(properties.sound(SoundType.WOOD));
         this.registerDefaultState(this.getStateDefinition().any()
                 .setValue(UP_TYPE, Type.NONE)
                 .setValue(DOWN_TYPE, Type.NONE)
@@ -78,10 +76,10 @@ public class DirectCursedBarkBlock extends CursedBarkBlock {
 
     @NotNull
     @Override
-    public BlockState updateShape(@NotNull BlockState blockState, @NotNull Direction direction, @NotNull BlockState otherState, @NotNull LevelAccessor level, @NotNull BlockPos pos, @NotNull BlockPos otherPos) {
+    public BlockState updateShape(@NotNull BlockState blockState, LevelReader levelReader, ScheduledTickAccess tickAccess, BlockPos pos, @NotNull Direction direction, @NotNull BlockPos pos2, @NotNull BlockState state2, RandomSource randomSource) {
         EnumProperty<Type> property = SIDE_MAP.get(direction);
         if (blockState.getValue(property) != Type.NONE) {
-            if (!canAttachTo(level, otherPos, direction.getOpposite())) {
+            if (!canAttachTo(levelReader, pos2, direction.getOpposite())) {
                 BlockState state = blockState.setValue(property, Type.NONE);
                 if (!anySideAvailable(state)) {
                     state = Blocks.AIR.defaultBlockState();
@@ -91,7 +89,7 @@ public class DirectCursedBarkBlock extends CursedBarkBlock {
         } else if (!anySideAvailable(blockState)) {
             return Blocks.AIR.defaultBlockState();
         }
-        return super.updateShape(blockState, direction, otherState, level, pos, otherPos);
+        return super.updateShape(blockState, levelReader, tickAccess, pos, direction, pos2, state2, randomSource);
     }
 
     private static boolean anySideAvailable(BlockState state) {

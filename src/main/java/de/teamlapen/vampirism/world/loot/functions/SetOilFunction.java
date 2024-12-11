@@ -42,7 +42,7 @@ public class SetOilFunction extends LootItemConditionalFunction {
     protected @NotNull ItemStack run(@NotNull ItemStack pStack, @NotNull LootContext pContext) {
         Holder<IOil> oil = this.oil;
         if (this.random) {
-            List<Holder.Reference<IOil>> values = ModRegistries.OILS.holders().toList();
+            List<Holder.Reference<IOil>> values = ModRegistries.OILS.listElements().toList();
             oil = values.stream().skip((int) (values.size() * pContext.getRandom().nextDouble())).findFirst().orElseThrow(() -> new IllegalStateException("No oils registered"));
         }
         return ItemDataUtils.setOil(pStack, oil);

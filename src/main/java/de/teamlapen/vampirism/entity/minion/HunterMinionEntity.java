@@ -24,6 +24,7 @@ import de.teamlapen.vampirism.entity.player.hunter.skills.HunterSkills;
 import de.teamlapen.vampirism.items.MinionUpgradeItem;
 import de.teamlapen.vampirism.items.crossbow.TechCrossbowItem;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -44,6 +45,7 @@ import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.Consumable;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
@@ -120,10 +122,10 @@ public class HunterMinionEntity extends MinionEntity<HunterMinionEntity.HunterMi
     }
 
     @Override
-    protected boolean canConsume(@NotNull ItemStack stack) {
-        if (!super.canConsume(stack)) return false;
+    protected boolean canConsume(@NotNull ItemStack stack, @NotNull Consumable consumable) {
+        if (!super.canConsume(stack, consumable)) return false;
         boolean fullHealth = this.getHealth() == this.getMaxHealth();
-        FoodProperties foodProperties = stack.getFoodProperties(this);
+        FoodProperties foodProperties = stack.get(DataComponents.FOOD);
         return foodProperties == null || !fullHealth || foodProperties.canAlwaysEat();
     }
 

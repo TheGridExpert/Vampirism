@@ -11,6 +11,8 @@ import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderGetter;
+import net.minecraft.core.NonNullList;
 import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
@@ -21,6 +23,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.ItemLike;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -29,20 +32,20 @@ import java.util.*;
 
 public class ShapelessWeaponTableRecipeBuilder extends ShapelessRecipeBuilder {
 
-    public static @NotNull ShapelessWeaponTableRecipeBuilder shapelessWeaponTable(@NotNull RecipeCategory category, @NotNull ItemLike result, int count) {
-        return new ShapelessWeaponTableRecipeBuilder(category, result, count);
+    public static @NotNull ShapelessWeaponTableRecipeBuilder shapelessWeaponTable(HolderGetter<Item> holderGetter, @NotNull RecipeCategory category, @NotNull ItemLike result, int count) {
+        return new ShapelessWeaponTableRecipeBuilder(holderGetter, category, new ItemStack(result, count));
     }
 
-    public static @NotNull ShapelessWeaponTableRecipeBuilder shapelessWeaponTable(@NotNull RecipeCategory category, @NotNull ItemLike result) {
-        return new ShapelessWeaponTableRecipeBuilder(category, result, 1);
+    public static @NotNull ShapelessWeaponTableRecipeBuilder shapelessWeaponTable(HolderGetter<Item> holderGetter, @NotNull RecipeCategory category, @NotNull ItemLike result) {
+        return new ShapelessWeaponTableRecipeBuilder(holderGetter, category, new ItemStack(result));
     }
 
     private int lava = 1;
     private final List<Holder<ISkill<?>>> skills = new LinkedList<>();
     private int level = 1;
 
-    public ShapelessWeaponTableRecipeBuilder(@NotNull RecipeCategory category, @NotNull ItemLike resultIn, int countIn) {
-        super(category, resultIn, countIn);
+    public ShapelessWeaponTableRecipeBuilder(HolderGetter<Item> holderGetter, @NotNull RecipeCategory category, @NotNull ItemStack resultIn) {
+        super(holderGetter, category, resultIn);
     }
 
     @NotNull
@@ -82,8 +85,8 @@ public class ShapelessWeaponTableRecipeBuilder extends ShapelessRecipeBuilder {
     }
 
     @Override
-    public void save(RecipeOutput output, ResourceLocation id) {
-        this.ensureValid(id);
+    public void save(RecipeOutput output, ResourceKey<Recipe<?>> id) {
+        this.ensureValidMod(id);
         Advancement.Builder advancement$builder = output.advancement()
                 .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(id))
                 .rewards(AdvancementRewards.Builder.recipe(id))
@@ -96,13 +99,13 @@ public class ShapelessWeaponTableRecipeBuilder extends ShapelessRecipeBuilder {
         ShapelessWeaponTableRecipe shapelessrecipe = new ShapelessWeaponTableRecipe(
                 Objects.requireNonNullElse(this.group, ""),
                 RecipeBuilder.determineBookCategory(this.category),
-                this.ingredients,
-                new ItemStack(this.result, this.count),
+                NonNullList.copyOf(this.ingredients),
+                this.result,
                 level,
                 lava,
                 skills
         );
-        output.accept(id, shapelessrecipe, advancement$builder.build(id.withPrefix("recipes/weapontable/")));
+        output.accept(id, shapelessrecipe, advancement$builder.build(id.location().withPrefix("recipes/weapontable/")));
     }
 
     public @NotNull ShapelessWeaponTableRecipeBuilder lava(int amount) {
@@ -124,5 +127,11 @@ public class ShapelessWeaponTableRecipeBuilder extends ShapelessRecipeBuilder {
     public final @NotNull ShapelessWeaponTableRecipeBuilder skills(@NotNull Holder<ISkill<?>>... skills) {
         this.skills.addAll(Arrays.asList(skills));
         return this;
+    }
+
+    private void ensureValidMod(ResourceKey<Recipe<?>> p_379745_) {
+        if (this.criteria.isEmpty()) {
+            throw new IllegalStateException("No way of obtaining recipe " + p_379745_.location());
+        }
     }
 }

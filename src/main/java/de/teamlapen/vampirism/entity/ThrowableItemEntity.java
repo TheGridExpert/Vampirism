@@ -1,13 +1,16 @@
 package de.teamlapen.vampirism.entity;
 
 import de.teamlapen.vampirism.core.ModEntities;
+import de.teamlapen.vampirism.core.ModItems;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.ItemSupplier;
+import net.minecraft.world.entity.projectile.ThrowableItemProjectile;
 import net.minecraft.world.entity.projectile.ThrowableProjectile;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -17,7 +20,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
-public class ThrowableItemEntity extends ThrowableProjectile implements ItemSupplier {
+public class ThrowableItemEntity extends ThrowableItemProjectile {
 
     private final static Logger LOGGER = LogManager.getLogger(ThrowableItemEntity.class);
     private static final EntityDataAccessor<ItemStack> ITEM = SynchedEntityData.defineId(ThrowableItemEntity.class, EntityDataSerializers.ITEM_STACK);
@@ -26,12 +29,18 @@ public class ThrowableItemEntity extends ThrowableProjectile implements ItemSupp
         super(type, worldIn);
     }
 
-    public ThrowableItemEntity(@NotNull Level worldIn, @NotNull LivingEntity thrower) {
-        super(ModEntities.THROWABLE_ITEM.get(), thrower, worldIn);
+    public ThrowableItemEntity(@NotNull ServerLevel level, @NotNull LivingEntity thrower, ItemStack source) {
+        super(ModEntities.THROWABLE_ITEM.get(), thrower, level, source);
+        this.setOwner(thrower);
     }
 
-    public ThrowableItemEntity(@NotNull Level worldIn, double pX, double pY, double pZ) {
-        super(ModEntities.THROWABLE_ITEM.get(), pX, pY, pZ, worldIn);
+    public ThrowableItemEntity(@NotNull Level worldIn, double pX, double pY, double pZ, ItemStack source) {
+        super(ModEntities.THROWABLE_ITEM.get(), pX, pY, pZ, worldIn, source);
+    }
+
+    @Override
+    protected @NotNull Item getDefaultItem() {
+        return ModItems.HOLY_WATER_BOTTLE_NORMAL.get();
     }
 
     @Override
@@ -41,28 +50,6 @@ public class ThrowableItemEntity extends ThrowableProjectile implements ItemSupp
         if (!stack.isEmpty()) {
             compound.put("thrownItem", stack.save(this.registryAccess(), new CompoundTag()));
         }
-    }
-
-    /**
-     * @return Itemstack represented by this entity. Corresponding item is instance of {@link IVampirismThrowableItem}
-     */
-    public
-    @NotNull
-    ItemStack getItem() {
-        return this.getEntityData().get(ITEM);
-    }
-
-    /**
-     * Set's the representing item stack.
-     * Only accepts stacks of {@link IVampirismThrowableItem} tileInventory
-     *
-     * @param stack Corresponding item has to be instance of {@link IVampirismThrowableItem}
-     */
-    public void setItem(@NotNull ItemStack stack) {
-        if (!stack.isEmpty() && !(stack.getItem() instanceof IVampirismThrowableItem)) {
-            throw new IllegalArgumentException("EntityThrowable only accepts IVampirismThrowableItem, but not " + stack);
-        }
-        this.getEntityData().set(ITEM, stack);
     }
 
     @Override

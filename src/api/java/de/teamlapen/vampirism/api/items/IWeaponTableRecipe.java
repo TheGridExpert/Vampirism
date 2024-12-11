@@ -17,19 +17,9 @@ import java.util.List;
  */
 public interface IWeaponTableRecipe extends Recipe<CraftingInput> {
 
-    /**
-     * Returns an Item that is the result of this recipe
-     */
-    @Override
-    @NotNull
-    default ItemStack assemble(@NotNull CraftingInput inv, @NotNull HolderLookup.Provider access) {
-        return getResultItem(access).copy();
-    }
 
     @NotNull
-    default NonNullList<Ingredient> getIngredients() {
-        return NonNullList.create();
-    }
+    List<Ingredient> getIngredients();
 
     /**
      * Measured in 1/5 buckets. Min value=0

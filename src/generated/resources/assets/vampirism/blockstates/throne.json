@@ -1,32 +1,17 @@
 {
   "variants": {
-    "facing=east,part=main": {
+    "facing=east": {
       "model": "vampirism:block/throne",
       "y": 90
     },
-    "facing=east,part=sub": {
-      "model": "vampirism:block/throne",
-      "y": 90
-    },
-    "facing=north,part=main": {
+    "facing=north": {
       "model": "vampirism:block/throne"
     },
-    "facing=north,part=sub": {
-      "model": "vampirism:block/throne"
-    },
-    "facing=south,part=main": {
+    "facing=south": {
       "model": "vampirism:block/throne",
       "y": 180
     },
-    "facing=south,part=sub": {
-      "model": "vampirism:block/throne",
-      "y": 180
-    },
-    "facing=west,part=main": {
-      "model": "vampirism:block/throne",
-      "y": 270
-    },
-    "facing=west,part=sub": {
+    "facing=west": {
       "model": "vampirism:block/throne",
       "y": 270
     }

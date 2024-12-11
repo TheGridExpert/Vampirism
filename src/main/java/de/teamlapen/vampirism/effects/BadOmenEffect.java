@@ -61,13 +61,12 @@ public class BadOmenEffect extends MobEffect {
     }
 
     @Override
-    public boolean applyEffectTick(@NotNull LivingEntity entityLivingBaseIn, int amplifier) {
+    public boolean applyEffectTick(@NotNull ServerLevel level, @NotNull LivingEntity entityLivingBaseIn, int amplifier) {
         if (entityLivingBaseIn instanceof ServerPlayer playerEntity && !entityLivingBaseIn.isSpectator()) {
-            ServerLevel serverWorld = playerEntity.serverLevel();
-            if (serverWorld.getDifficulty() == Difficulty.PEACEFUL) {
+            if (level.getDifficulty() == Difficulty.PEACEFUL) {
                 return true;
             }
-            return !TotemHelper.getTotemNearPos(serverWorld, entityLivingBaseIn.blockPosition(), true).filter(s -> !IFaction.is(s.getControllingFaction(), this.faction)).map(totem -> {
+            return !TotemHelper.getTotemNearPos(level, entityLivingBaseIn.blockPosition(), true).filter(s -> !IFaction.is(s.getControllingFaction(), this.faction)).map(totem -> {
                 return totem.initiateCaptureOrIncreaseBadOmenLevel(this.faction, null, Math.min(amplifier, 4) + 1, 0);
             }).orElse(false);
         }

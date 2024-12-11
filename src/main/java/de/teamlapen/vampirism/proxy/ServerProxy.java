@@ -2,11 +2,16 @@ package de.teamlapen.vampirism.proxy;
 
 import de.teamlapen.vampirism.blocks.CoffinBlock;
 import de.teamlapen.vampirism.blocks.TentBlock;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.crafting.*;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
 
 import static de.teamlapen.vampirism.blocks.TentBlock.FACING;
 import static de.teamlapen.vampirism.blocks.TentBlock.POSITION;
@@ -43,4 +48,13 @@ public class ServerProxy extends CommonProxy {
         }
     }
 
+    @Override
+    public @NotNull RecipeMap recipeMap(Level level) {
+        return level instanceof ServerLevel serverLevel ? serverLevel.recipeAccess().recipeMap() : RecipeMap.EMPTY;
+    }
+
+    @Override
+    public <I extends RecipeInput, T extends Recipe<I>> Optional<RecipeHolder<T>> getRecipeFor(RecipeType<T> type, I input, Level level, RecipeManager.CachedCheck<I, T> check) {
+        return check.getRecipeFor(input, (ServerLevel) level);
+    }
 }

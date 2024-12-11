@@ -59,7 +59,7 @@ public class TaskBoardMenu extends AbstractContainerMenu implements TaskMenu {
         super(ModMenus.TASK_MASTER.get(), id);
         this.factionPlayer = FactionPlayerHandler.getCurrentFactionPlayer(playerInventory.player).orElseThrow(() -> new IllegalStateException("Can't open container without faction"));
         this.factionColor = this.factionPlayer.getFaction().value().getChatColor();
-        this.registry = playerInventory.player.level().registryAccess().registryOrThrow(VampirismRegistries.Keys.TASK);
+        this.registry = playerInventory.player.level().registryAccess().lookupOrThrow(VampirismRegistries.Keys.TASK);
     }
 
     @Override

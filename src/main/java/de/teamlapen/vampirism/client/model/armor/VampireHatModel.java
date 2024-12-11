@@ -14,16 +14,6 @@ public class VampireHatModel extends VampirismArmorModel {
     private static final String BASE = "base";
     private static final String TOP = "top";
 
-    private static VampireHatModel instance;
-
-    public static VampireHatModel getAdjustedInstance(HumanoidModel<?> wearerModel) {
-        if (instance == null) {
-            instance = new VampireHatModel(Minecraft.getInstance().getEntityModels().bakeLayer(ModEntitiesRender.CLOTHING_HAT));
-        }
-        instance.copyFromHumanoid(wearerModel);
-        return instance;
-    }
-
     public final @NotNull ModelPart base;
     public final @NotNull ModelPart top;
 
@@ -37,7 +27,7 @@ public class VampireHatModel extends VampirismArmorModel {
     }
 
     public VampireHatModel(@NotNull ModelPart part) {
-        super();
+        super(part);
         base = part.getChild(BASE);
         top = base.getChild(TOP);
     }

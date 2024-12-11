@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "vampirism:tombstone2"
-    },
-    {
-      "item": "minecraft:cobblestone"
-    }
+    "vampirism:tombstone2",
+    "minecraft:cobblestone"
   ],
   "result": {
     "count": 1,

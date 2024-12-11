@@ -9,6 +9,7 @@ import de.teamlapen.vampirism.data.ServerSkillTreeData;
 import de.teamlapen.vampirism.entity.player.skills.SkillTreeConfiguration;
 import de.teamlapen.vampirism.entity.player.skills.SkillTreeHolder;
 import io.netty.handler.codec.DecoderException;
+import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -19,27 +20,18 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collection;
 import java.util.Map;
 
-public class SkillTreeReloadListener extends SimpleJsonResourceReloadListener {
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
+public class SkillTreeReloadListener extends SimpleJsonResourceReloadListener<SkillTreeConfiguration> {
     private static final String DIRECTORY = "vampirism/configured_skill_tree";
-    private Map<ResourceLocation, SkillTreeHolder> configuration = ImmutableMap.of();
+    private Map<ResourceLocation, SkillTreeConfiguration> configuration = ImmutableMap.of();
 
     public SkillTreeReloadListener() {
-        super(GSON, DIRECTORY);
+        super(SkillTreeConfiguration.CODEC, FileToIdConverter.json(DIRECTORY));
     }
 
     @Override
-    protected void apply(@NotNull Map<ResourceLocation, JsonElement> pObject, @NotNull ResourceManager pResourceManager, @NotNull ProfilerFiller pProfiler) {
-        ImmutableMap.Builder<ResourceLocation, SkillTreeHolder> builder = ImmutableMap.builder();
-        RegistryOps<JsonElement> registryOps = RegistryOps.create(JsonOps.INSTANCE, getRegistryLookup());
-        for (Map.Entry<ResourceLocation, JsonElement> entry : pObject.entrySet()) {
-            builder.put(entry.getKey(), new SkillTreeHolder(entry.getKey(), SkillTreeConfiguration.CODEC.decode(registryOps, entry.getValue()).getOrThrow(DecoderException::new).getFirst()));
-        }
-        this.configuration = builder.build();
-        ServerSkillTreeData.init(this.configuration.values().stream().map(SkillTreeHolder::configuration).toList());
+    protected void apply(@NotNull Map<ResourceLocation, SkillTreeConfiguration> pObject, @NotNull ResourceManager pResourceManager, ProfilerFiller pProfiler) {
+        this.configuration = pObject;
+        ServerSkillTreeData.init(this.configuration.values().stream().toList());
     }
 
-    public Collection<SkillTreeHolder> getTrees() {
-        return this.configuration.values();
-    }
 }

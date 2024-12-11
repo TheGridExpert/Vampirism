@@ -2,11 +2,9 @@
   "type": "vampirism:shapeless_crafting_weapontable",
   "category": "equipment",
   "ingredients": [
+    "vampirism:crossbow_arrow_normal",
     {
-      "item": "vampirism:crossbow_arrow_normal"
-    },
-    {
-      "type": "neoforge:components",
+      "neoforge:ingredient_type": "neoforge:components",
       "components": {
         "vampirism:oil_contents": {
           "oil": "vampirism:vampire_killer"

@@ -1,12 +1,8 @@
 {
   "type": "vampirism:alchemical_cauldron",
   "experience": 2.0,
-  "fluid": {
-    "item": "vampirism:holy_water_bottle_ultimate"
-  },
-  "ingredient": {
-    "item": "vampirism:garlic_diffuser_core"
-  },
+  "fluid": "vampirism:holy_water_bottle_ultimate",
+  "ingredient": "vampirism:garlic_diffuser_core",
   "result": {
     "count": 1,
     "id": "vampirism:garlic_diffuser_core_improved"

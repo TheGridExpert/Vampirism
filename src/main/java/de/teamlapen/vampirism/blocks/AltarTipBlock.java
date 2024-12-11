@@ -3,6 +3,7 @@ package de.teamlapen.vampirism.blocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -25,8 +26,8 @@ public class AltarTipBlock extends VampirismBlock {
         return Shapes.or(a, b, c, d, e);
     }
 
-    public AltarTipBlock() {
-        super(Properties.of().mapColor(MapColor.METAL).strength(1f).noOcclusion());
+    public AltarTipBlock(BlockBehaviour.Properties properties) {
+        super(properties.mapColor(MapColor.METAL).strength(1f).noOcclusion());
     }
 
 

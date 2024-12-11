@@ -15,12 +15,14 @@ import de.teamlapen.vampirism.entity.factions.FactionPlayerHandler;
 import de.teamlapen.vampirism.entity.player.hunter.skills.HunterSkills;
 import de.teamlapen.vampirism.util.DamageHandler;
 import de.teamlapen.vampirism.util.Helper;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Tiers;
+import net.minecraft.world.item.ToolMaterial;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -41,16 +43,16 @@ public class StakeItem extends VampirismSwordItem implements IVampireFinisher {
         return false;
     }
 
-    public StakeItem() {
-        super(Tiers.WOOD, 1, -1, new Properties());
+    public StakeItem(Item.Properties properties) {
+        super(ToolMaterial.WOOD, 1, -1, properties);
     }
 
     @Override
     public boolean hurtEnemy(@NotNull ItemStack stack, @NotNull LivingEntity target, @NotNull LivingEntity attacker) {
-        if (!attacker.getCommandSenderWorld().isClientSide) {
+        if (attacker.getCommandSenderWorld() instanceof ServerLevel level) {
             if (target instanceof IVampireMob || (target instanceof Player && Helper.isVampire(((Player) target)))) {
                 if (canKillInstant(target, attacker)) {
-                    DamageHandler.hurtModded(target, sources -> sources.stake(attacker), 10000F);
+                    DamageHandler.hurtModded(level, target, sources -> sources.stake(attacker), 10000F);
                     if (attacker instanceof ServerPlayer player) {
                         player.awardStat(ModStats.KILLED_WITH_STAKE.get());
                         ModAdvancements.TRIGGER_HUNTER_ACTION.get().trigger(player, HunterActionCriterionTrigger.Action.STAKE);
@@ -61,7 +63,6 @@ public class StakeItem extends VampirismSwordItem implements IVampireFinisher {
 
             }
         }
-
         return super.hurtEnemy(stack, target, attacker);
     }
 }

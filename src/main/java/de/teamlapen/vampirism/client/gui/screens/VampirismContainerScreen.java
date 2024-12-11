@@ -1,5 +1,7 @@
 package de.teamlapen.vampirism.client.gui.screens;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import de.teamlapen.lib.lib.client.gui.GuiRenderer;
 import de.teamlapen.lib.lib.util.UtilLib;
 import de.teamlapen.vampirism.VampirismMod;
 import de.teamlapen.vampirism.api.entity.player.IFactionPlayer;
@@ -18,6 +20,7 @@ import de.teamlapen.vampirism.util.Helper;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ImageButton;
@@ -25,6 +28,7 @@ import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.*;
 import net.minecraft.resources.ResourceLocation;
@@ -52,8 +56,8 @@ public class VampirismContainerScreen extends AbstractContainerScreen<VampirismM
     private static final WidgetSprites REMOVE_ACCESSORY = new WidgetSprites(VResourceLocation.mod("widget/remove_accessory"), VResourceLocation.mod("widget/remove_accessory_highlighted"));
     private static final WidgetSprites LOCATE_TASK_MASTER = new WidgetSprites(VResourceLocation.mod("widget/locate_task_master"), VResourceLocation.mod("widget/locate_task_master_highlighted"));
 
-    private static final int display_width = 234;
-    private static final int display_height = 205;
+    private static final int WIDTH = 234;
+    private static final int HEIGHT = 205;
 
     private final IFactionPlayer<?> factionPlayer;
     private TaskList list;
@@ -62,8 +66,8 @@ public class VampirismContainerScreen extends AbstractContainerScreen<VampirismM
 
     public VampirismContainerScreen(@NotNull VampirismMenu container, @NotNull Inventory playerInventory, @NotNull Component titleIn) {
         super(container, playerInventory, titleIn);
-        this.imageWidth = display_width;
-        this.imageHeight = display_height;
+        this.imageWidth = WIDTH;
+        this.imageHeight = HEIGHT;
         this.inventoryLabelX = 36;
         this.inventoryLabelY = this.imageHeight - 93;
         this.menu.setReloadListener(() -> this.list.updateContent());
@@ -207,9 +211,9 @@ public class VampirismContainerScreen extends AbstractContainerScreen<VampirismM
 
     @Override
     protected void renderBg(@NotNull GuiGraphics graphics, float pPartialTick, int mouseX, int mouseY) {
-        graphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
+        GuiRenderer.resetColor();
         var texture = this.menu.areRefinementsAvailable() ? BACKGROUND_REFINEMENTS : BACKGROUND;
-        graphics.blit(texture, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
+        GuiRenderer.blit(graphics, texture, this.leftPos, this.topPos, this.imageWidth, this.imageHeight);
         InventoryScreen.renderEntityInInventoryFollowsMouse(graphics, this.leftPos + 7, this.topPos + 8, this.leftPos + 56, this.topPos + 78, 30, 0.0625f, mouseX, mouseY, this.minecraft.player);
     }
 

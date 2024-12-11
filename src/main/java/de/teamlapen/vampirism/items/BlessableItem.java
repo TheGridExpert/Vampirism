@@ -22,7 +22,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -63,8 +63,8 @@ public class BlessableItem extends Item {
     }
 
     @Override
-    public @NotNull UseAnim getUseAnimation(@NotNull ItemStack pStack) {
-        return UseAnim.BLOCK;
+    public @NotNull ItemUseAnimation getUseAnimation(@NotNull ItemStack pStack) {
+        return ItemUseAnimation.BLOCK;
     }
 
     @Override
@@ -119,13 +119,14 @@ public class BlessableItem extends Item {
     }
 
     @Override
-    public void releaseUsing(@NotNull ItemStack pStack, @NotNull Level world, @NotNull LivingEntity entity, int duration) {
+    public boolean releaseUsing(@NotNull ItemStack pStack, @NotNull Level world, @NotNull LivingEntity entity, int duration) {
         if (entity.level().isClientSide() && entity instanceof Player player) {
             HunterPlayerSpecialAttribute att = HunterPlayer.get(player).getSpecialAttributes();
             if (att.blessingSoundReference != null) {
                 att.blessingSoundReference.stopPlaying();
             }
         }
+        return false;
     }
 
     public Item getBlessedItem() {

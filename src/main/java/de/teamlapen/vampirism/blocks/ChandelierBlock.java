@@ -7,10 +7,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -30,8 +27,8 @@ public class ChandelierBlock extends VampirismBlock {
 
     private static final Iterable<Vec3> PARTICLE_OFFSETS = ImmutableList.of(new Vec3(0.09375, 0.6875, 0.53125), new Vec3(0.46875, 0.6875, 0.15625), new Vec3(0.46875, 0.6875, 0.90625), new Vec3(0.84375, 0.6875, 0.53125), new Vec3(0.15625, 0.6875, 0.21875), new Vec3(0.15625, 0.6875, 0.84375), new Vec3(0.78125, 0.6875, 0.21875), new Vec3(0.78125, 0.6875, 0.84375));
 
-    public ChandelierBlock() {
-        super(BlockBehaviour.Properties.of().mapColor(MapColor.METAL).strength(2).lightLevel(s -> 14).noOcclusion());
+    public ChandelierBlock(BlockBehaviour.Properties properties) {
+        super(properties.mapColor(MapColor.METAL).strength(2).lightLevel(s -> 14).noOcclusion());
     }
 
     @NotNull
@@ -47,8 +44,8 @@ public class ChandelierBlock extends VampirismBlock {
 
     @NotNull
     @Override
-    public BlockState updateShape(@NotNull BlockState stateIn, @NotNull Direction facing, @NotNull BlockState facingState, @NotNull LevelAccessor worldIn, @NotNull BlockPos currentPos, @NotNull BlockPos facingPos) {
-        return facing == Direction.UP && !this.canSurvive(stateIn, worldIn, currentPos) ? Blocks.AIR.defaultBlockState() : super.updateShape(stateIn, facing, facingState, worldIn, currentPos, facingPos);
+    public BlockState updateShape(@NotNull BlockState stateIn, LevelReader worldIn, ScheduledTickAccess tickAccess, @NotNull BlockPos currentPos, @NotNull Direction facing,  @NotNull BlockPos facingPos, @NotNull BlockState facingState, RandomSource randomSource) {
+        return facing == Direction.UP && !this.canSurvive(stateIn, worldIn, currentPos) ? Blocks.AIR.defaultBlockState() : super.updateShape(stateIn, worldIn, tickAccess, currentPos, facing, facingPos, facingState, randomSource);
     }
 
     @Override

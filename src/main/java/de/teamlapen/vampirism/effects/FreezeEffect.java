@@ -3,6 +3,7 @@ package de.teamlapen.vampirism.effects;
 
 import de.teamlapen.vampirism.config.VampirismConfig;
 import de.teamlapen.vampirism.core.ModEffects;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -19,7 +20,7 @@ public class FreezeEffect extends ConfigAwareEffect {
     }
 
     @Override
-    public boolean applyEffectTick(@NotNull LivingEntity entityLivingBaseIn, int amplifier) {
+    public boolean applyEffectTick(@NotNull ServerLevel level, @NotNull LivingEntity entityLivingBaseIn, int amplifier) {
         if (entityLivingBaseIn.canFreeze()) {
             entityLivingBaseIn.setTicksFrozen(Math.max(Math.min(entityLivingBaseIn.getTicksRequiredToFreeze(), Entity.BASE_TICKS_REQUIRED_TO_FREEZE) + 40, entityLivingBaseIn.getTicksFrozen()));
         }

@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "X": {
-      "item": "vampirism:vampire_book"
-    },
-    "Y": {
-      "tag": "minecraft:planks"
-    }
+    "X": "vampirism:vampire_book",
+    "Y": "#minecraft:planks"
   },
   "pattern": [
     " X ",

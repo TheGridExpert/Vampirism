@@ -20,7 +20,6 @@ import de.teamlapen.vampirism.entity.ai.goals.AttackVillageGoal;
 import de.teamlapen.vampirism.entity.ai.goals.DefendVillageGoal;
 import de.teamlapen.vampirism.entity.ai.goals.RangedHunterCrossbowAttackGoal;
 import de.teamlapen.vampirism.entity.vampire.VampireBaseEntity;
-import de.teamlapen.vampirism.mixin.accessor.HolderSetLookup;
 import de.teamlapen.vampirism.util.IPlayerOverlay;
 import de.teamlapen.vampirism.util.PlayerModelType;
 import de.teamlapen.vampirism.util.RegUtil;
@@ -34,6 +33,7 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.StructureTags;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
@@ -140,8 +140,8 @@ public class AdvancedHunterEntity extends HunterBaseEntity implements IAdvancedH
     }
 
     @Override
-    public boolean doHurtTarget(@NotNull Entity entity) {
-        boolean flag = super.doHurtTarget(entity);
+    public boolean doHurtTarget(ServerLevel level, @NotNull Entity entity) {
+        boolean flag = super.doHurtTarget(level, entity);
         if (flag && this.getMainHandItem().isEmpty()) {
             this.swing(InteractionHand.MAIN_HAND);  //Swing stake if nothing else is held
         }
@@ -311,12 +311,12 @@ public class AdvancedHunterEntity extends HunterBaseEntity implements IAdvancedH
 
     @Nullable
     @Override
-    public SpawnGroupData finalizeSpawn(ServerLevelAccessor pLevel, DifficultyInstance pDifficulty, MobSpawnType pReason, @Nullable SpawnGroupData pSpawnData) {
+    public SpawnGroupData finalizeSpawn(ServerLevelAccessor pLevel, DifficultyInstance pDifficulty, EntitySpawnReason pReason, @Nullable SpawnGroupData pSpawnData) {
         Supporter supporter = SupporterManager.getRandomHunter(random);
         this.getEntityData().set(TYPE, createCustomisationFlag(supporter));
         this.getEntityData().set(NAME, supporter.name());
         this.getEntityData().set(TEXTURE, supporter.texture());
-        List<Holder<Item>> contents = ((HolderSetLookup<Item>) BuiltInRegistries.ITEM.getOrCreateTag(ModItemTags.ADVANCED_HUNTER_CROSSBOW_ARROWS)).getContents();
+        List<Holder<Item>> contents = BuiltInRegistries.ITEM.getOrThrow(ModItemTags.ADVANCED_HUNTER_CROSSBOW_ARROWS).stream().toList();
         this.getEntityData().set(SPECIAL_ARROW, UtilLib.getRandomElementOr(contents, () -> ModItems.CROSSBOW_ARROW_NORMAL).value());
         this.lootBookId = supporter.bookId();
         applyCustomisationItems(supporter);
@@ -352,9 +352,9 @@ public class AdvancedHunterEntity extends HunterBaseEntity implements IAdvancedH
 
 
     @Override
-    protected int getBaseExperienceReward() {
+    protected int getBaseExperienceReward(ServerLevel level) {
         this.xpReward = 10 * (1 + getEntityLevel());
-        return super.getBaseExperienceReward();
+        return super.getBaseExperienceReward(level);
     }
 
     @Override
@@ -398,10 +398,10 @@ public class AdvancedHunterEntity extends HunterBaseEntity implements IAdvancedH
         this.targetSelector.addGoal(1, new HurtByTargetGoal(this));
         this.targetSelector.addGoal(2, new AttackVillageGoal<>(this));
         this.targetSelector.addGoal(2, new DefendVillageGoal<>(this));//Should automatically be mutually exclusive with  attack village
-        this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, Player.class, 5, true, false, VampirismAPI.factionRegistry().getPredicate(getFaction(), true, false, false, false, null)));
-        this.targetSelector.addGoal(5, new NearestAttackableTargetGoal<>(this, PathfinderMob.class, 5, true, false, VampirismAPI.factionRegistry().getPredicate(getFaction(), false, true, false, false, null)));
+        this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, Player.class, 5, true, false, VampirismAPI.factionRegistry().getSelector(getFaction(), true, false, false, false, null)));
+        this.targetSelector.addGoal(5, new NearestAttackableTargetGoal<>(this, PathfinderMob.class, 5, true, false, VampirismAPI.factionRegistry().getSelector(getFaction(), false, true, false, false, null)));
         this.targetSelector.addGoal(6, new NearestAttackableTargetGoal<>(this, Zombie.class, true, true));
-        this.targetSelector.addGoal(7, new NearestAttackableTargetGoal<>(this, PatrollingMonster.class, 5, true, true, (living) -> UtilLib.isInsideStructure(living, StructureTags.VILLAGE)));
+        this.targetSelector.addGoal(7, new NearestAttackableTargetGoal<>(this, PatrollingMonster.class, 5, true, true, (living, level) -> UtilLib.isInsideStructure(living, StructureTags.VILLAGE)));
     }
 
     protected void updateEntityAttributes() {

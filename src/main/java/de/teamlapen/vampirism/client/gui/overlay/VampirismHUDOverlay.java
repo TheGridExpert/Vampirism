@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import de.teamlapen.lib.lib.client.gui.GuiRenderer;
 import de.teamlapen.lib.lib.util.FluidLib;
 import de.teamlapen.vampirism.api.entity.IBiteableEntity;
 import de.teamlapen.vampirism.api.entity.IExtendedCreatureVampirism;
@@ -27,6 +28,7 @@ import net.minecraft.client.Options;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -127,18 +129,17 @@ public class VampirismHUDOverlay {
                 VampirismPlayerAttributes atts = VampirismPlayerAttributes.get(mc.player);
                 if (atts.vampireLevel > 0 && !mc.player.isSpectator() && !atts.getVampSpecial().bat) {
                     VampirePlayer vampire = VampirePlayer.get(mc.player);
-                    Optional<? extends IBiteableEntity> biteableOpt = Optional.empty();
-                    if (entity instanceof IBiteableEntity) {
-                        biteableOpt = Optional.of((IBiteableEntity) entity);
-                    } else if (entity instanceof PathfinderMob && entity.isAlive()) {
-                        biteableOpt = ExtendedCreature.getSafe(entity);
-                    } else if (entity instanceof Player) {
-                        biteableOpt = Optional.of(VampirePlayer.get((Player) entity));
-                    }
+                    Optional<? extends IBiteableEntity> biteableOpt;
+                    biteableOpt = switch (entity) {
+                        case IBiteableEntity biteableEntity -> Optional.of(biteableEntity);
+                        case PathfinderMob pathfinderMob when pathfinderMob.isAlive() -> ExtendedCreature.getSafe(pathfinderMob);
+                        case Player player -> Optional.of(VampirePlayer.get(player));
+                        default -> Optional.empty();
+                    };
                     biteableOpt.filter(iBiteableEntity -> iBiteableEntity.canBeBitten(vampire)).ifPresent(biteable -> {
-                        int color = 0xFF0000;
+                        int color = ARGB.color(255,0,0);
                         if (entity instanceof IHunterMob || ExtendedCreature.getSafe(entity).map(IExtendedCreatureVampirism::hasPoisonousBlood).orElse(false)) {
-                            color = 0x099022;
+                            color = ARGB.color(9, 144, 34);
                         }
                         renderBloodFangs(event.getGuiGraphics(), this.mc.getWindow().getGuiScaledWidth(), this.mc.getWindow().getGuiScaledHeight(), Mth.clamp(biteable.getBloodLevelRelative(), 0.2F, 1F), color);
                         event.setCanceled(true);
@@ -165,7 +166,7 @@ public class VampirismHUDOverlay {
                     if (tile != null) {
                         Optional.ofNullable(Minecraft.getInstance().level.getCapability(Capabilities.FluidHandler.BLOCK, ((BlockHitResult) p).getBlockPos(), block, tile, null)).ifPresent(handler -> {
                             if (FluidLib.getFluidAmount(handler, ModFluids.BLOOD.get()) > 0) {
-                                renderBloodFangs(event.getGuiGraphics(), this.mc.getWindow().getGuiScaledWidth(), this.mc.getWindow().getGuiScaledHeight(), 1, 0xFF0000);
+                                renderBloodFangs(event.getGuiGraphics(), this.mc.getWindow().getGuiScaledWidth(), this.mc.getWindow().getGuiScaledHeight(), 1, ARGB.color(255,0,0));
                                 event.setCanceled(true);
                             }
                         });
@@ -186,8 +187,8 @@ public class VampirismHUDOverlay {
 
                     int l = (int) (progress * 14.0F) + 2;
 
-                    event.getGuiGraphics().blitSprite(PROGRESS_BACKGROUND_SPRITE, x, y, 16, 2);
-                    event.getGuiGraphics().blitSprite(PROGRESS_FOREGROUND_SPRITE, 16, 2, 0, 0, x, y, l, 2);
+                    event.getGuiGraphics().blitSprite(RenderType::guiTextured, PROGRESS_BACKGROUND_SPRITE, x, y, 16, 2);
+                    event.getGuiGraphics().blitSprite(RenderType::guiTextured, PROGRESS_FOREGROUND_SPRITE, 16, 2, 0, 0, x, y, l, 2);
                 }
             }
         }
@@ -219,7 +220,7 @@ public class VampirismHUDOverlay {
             float a = (screenPercentage / 100f) * (screenColor >> 24 & 255) / 255F;
 
             Matrix4f matrix = stack.last().pose();
-            VertexConsumer buffer = event.getGuiGraphics().bufferSource().getBuffer(RenderType.guiOverlay());
+            VertexConsumer buffer = event.getGuiGraphics().bufferSource.getBuffer(RenderType.guiOverlay());
             buffer.addVertex(matrix, 0, h, 0).setColor(r, g, b, a);
             buffer.addVertex(matrix, w, h, 0).setColor(r, g, b, a);
             buffer.addVertex(matrix, w, 0, 0).setColor(r, g, b, a);
@@ -259,29 +260,19 @@ public class VampirismHUDOverlay {
     }
 
     private void renderBloodFangs(@NotNull GuiGraphics graphics, int width, int height, float perc, int color) {
-
-        float r = ((color & 0xFF0000) >> 16) / 256f;
-        float g = ((color & 0xFF00) >> 8) / 256f;
-        float b = (color & 0xFF) / 256f;
         int left = width / 2 - 8;
         int top = height / 2 - 4;
-        RenderSystem.enableBlend();
-        graphics.setColor(1f, 1f, 1f, 0.7F);
-        graphics.blitSprite(FANG_SPRITE, left, top, 16, 10);
-        RenderSystem.setShaderColor(r, g, b, 0.8F);
-        int percHeight = (int) (10 * perc);
-        graphics.blitSprite(FANG_SPRITE, 16, 10, 0, 10 - percHeight, left, top + (10 - percHeight), 16, percHeight);
-        RenderSystem.setShaderColor(1F, 1F, 1F, 1F);
-        RenderSystem.disableBlend();
-
+        graphics.blitSprite(RenderType::guiTextured, FANG_SPRITE, left, top, 16, 10);
+        int percHeight = (int) (10 * (1-perc));
+        GuiRenderer.blitTiledOffset(graphics, FANG_SPRITE, left, top, 16, 10, 0, percHeight, color);
     }
 
     private void renderStakeInstantKill(@NotNull GuiGraphics graphics, int width, int height) {
         RenderSystem.enableBlend();
         if (this.mc.options.getCameraType().isFirstPerson() && this.mc.gameMode.getPlayerMode() != GameType.SPECTATOR) {
             RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.ONE_MINUS_DST_COLOR, GlStateManager.DestFactor.ONE_MINUS_SRC_COLOR, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-            graphics.setColor(158f / 256, 0, 0, 1);
-            graphics.blitSprite(CROSSHAIR_SPRITE, (graphics.guiWidth() - 15) / 2, (graphics.guiHeight() - 15) / 2, 15, 15);
+            RenderSystem.setShaderColor(158f / 256, 0, 0, 1);
+            graphics.blitSprite(RenderType::guiTextured, CROSSHAIR_SPRITE, (graphics.guiWidth() - 15) / 2, (graphics.guiHeight() - 15) / 2, 15, 15);
 
             float f = this.mc.player.getAttackStrengthScale(0.0F);
             boolean flag = false;
@@ -293,13 +284,13 @@ public class VampirismHUDOverlay {
             int j = graphics.guiHeight() / 2 - 7 + 16;
             int k = graphics.guiWidth() / 2 - 8;
             if (flag) {
-                graphics.blitSprite(CROSSHAIR_ATTACK_INDICATOR_FULL_SPRITE, k, j, 16, 16);
+                graphics.blitSprite(RenderType::guiTextured, CROSSHAIR_ATTACK_INDICATOR_FULL_SPRITE, k, j, 16, 16);
             } else if (f < 1.0F) {
                 int l = (int) (f * 17.0F);
-                graphics.blitSprite(CROSSHAIR_ATTACK_INDICATOR_BACKGROUND_SPRITE, k, j, 16, 4);
-                graphics.blitSprite(CROSSHAIR_ATTACK_INDICATOR_PROGRESS_SPRITE, 16, 4, 0, 0, k, j, l, 4);
+                graphics.blitSprite(RenderType::guiTextured, CROSSHAIR_ATTACK_INDICATOR_BACKGROUND_SPRITE, k, j, 16, 4);
+                graphics.blitSprite(RenderType::guiTextured, CROSSHAIR_ATTACK_INDICATOR_PROGRESS_SPRITE, 16, 4, 0, 0, k, j, l, 4);
             }
-            graphics.setColor(1, 1, 1, 1);
+            RenderSystem.setShaderColor(1, 1, 1, 1);
             RenderSystem.defaultBlendFunc();
         }
         RenderSystem.disableBlend();

@@ -26,13 +26,13 @@ public class CursedSpruceBlock extends StrippableLogBlock implements HolyWaterEf
 
     private final Supplier<? extends CursedSpruceBlock> curedBlockSupplier;
 
-    public CursedSpruceBlock(@NotNull Supplier<? extends LogBlock> strippedBlock, Supplier<? extends CursedSpruceBlock> curedBlockSupplier) {
-        super(BlockBehaviour.Properties.of().mapColor(MapColor.CRIMSON_HYPHAE).strength(2.0F).sound(SoundType.WOOD).randomTicks().ignitedByLava(), strippedBlock);
+    public CursedSpruceBlock(BlockBehaviour.Properties properties, @NotNull Supplier<? extends LogBlock> strippedBlock, Supplier<? extends CursedSpruceBlock> curedBlockSupplier) {
+        super(properties.mapColor(MapColor.CRIMSON_HYPHAE).strength(2.0F).sound(SoundType.WOOD).randomTicks().ignitedByLava(), strippedBlock);
         this.curedBlockSupplier = curedBlockSupplier;
     }
 
-    public CursedSpruceBlock(@NotNull Supplier<? extends LogBlock> strippedBlock) {
-        this(strippedBlock, null);
+    public CursedSpruceBlock(BlockBehaviour.Properties properties, @NotNull Supplier<? extends LogBlock> strippedBlock) {
+        this(properties, strippedBlock, null);
     }
 
     public boolean isCured() {

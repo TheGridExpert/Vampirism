@@ -1,6 +1,7 @@
 package de.teamlapen.vampirism.api.entity.factions;
 
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextColor;
@@ -65,5 +66,10 @@ public interface IFaction<T extends IFactionEntity> {
 
     static <T extends IFaction<?>, Z extends IFaction<?>> boolean is(TagKey<Z> first, TagKey<T> second) {
         return first.location().equals(second.location());
+    }
+
+    @SuppressWarnings("unchecked")
+    static <T extends IFaction<?>> boolean contains(HolderSet<T> first, Holder<? extends IFaction<?>> second) {
+        return first.contains((Holder<T>) (Object) second);
     }
 }

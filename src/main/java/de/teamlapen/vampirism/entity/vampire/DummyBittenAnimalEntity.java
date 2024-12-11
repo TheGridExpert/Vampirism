@@ -6,9 +6,9 @@ import de.teamlapen.vampirism.entity.ExtendedCreature;
 import de.teamlapen.vampirism.entity.converted.ConvertedCreatureEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
@@ -20,7 +20,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public class DummyBittenAnimalEntity extends Mob {
 
-    public static boolean spawnPredicate(EntityType<? extends DummyBittenAnimalEntity> entityType, @NotNull LevelAccessor iWorld, MobSpawnType spawnReason, @NotNull BlockPos blockPos, RandomSource random) {
+    public static boolean spawnPredicate(EntityType<? extends DummyBittenAnimalEntity> entityType, @NotNull LevelAccessor iWorld, EntitySpawnReason spawnReason, @NotNull BlockPos blockPos, RandomSource random) {
         return (iWorld.getBlockState(blockPos.below()).getBlock() == Blocks.GRASS_BLOCK || iWorld.getBlockState(blockPos.below()).is(ModBlockTags.CURSED_EARTH));
     }
 
@@ -35,9 +35,9 @@ public class DummyBittenAnimalEntity extends Mob {
             PathfinderMob entity;
             int rand = this.random.nextInt(3);
             entity = switch (rand) {
-                case 0 -> EntityType.PIG.create(level());
-                case 1 -> EntityType.SHEEP.create(level());
-                default -> EntityType.COW.create(level());
+                case 0 -> EntityType.PIG.create(level(), EntitySpawnReason.CONVERSION);
+                case 1 -> EntityType.SHEEP.create(level(), EntitySpawnReason.CONVERSION);
+                default -> EntityType.COW.create(level(), EntitySpawnReason.CONVERSION);
             };
             if (entity == null) return;
             entity.copyPosition(this);

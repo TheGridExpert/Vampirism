@@ -18,9 +18,11 @@ import de.teamlapen.vampirism.entity.player.VampirismPlayerAttributes;
 import de.teamlapen.vampirism.particle.GenericParticleOptions;
 import de.teamlapen.vampirism.util.Helper;
 import de.teamlapen.vampirism.world.fog.FogLevel;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
@@ -106,7 +108,7 @@ public abstract class VampirismEntity extends PathfinderMob implements IEntityWi
     }
 
     @Override
-    public boolean checkSpawnRules(@NotNull LevelAccessor worldIn, @NotNull MobSpawnType spawnReasonIn) {
+    public boolean checkSpawnRules(@NotNull LevelAccessor worldIn, @NotNull EntitySpawnReason spawnReasonIn) {
         return (peaceful || worldIn.getDifficulty() != Difficulty.PEACEFUL) && super.checkSpawnRules(worldIn, spawnReasonIn);
     }
 
@@ -180,8 +182,8 @@ public abstract class VampirismEntity extends PathfinderMob implements IEntityWi
     }
 
     @Override
-    protected void customServerAiStep() {
-        super.customServerAiStep();
+    protected void customServerAiStep(ServerLevel level) {
+        super.customServerAiStep(level);
         if (--this.randomTickDivider <= 0) {
             this.randomTickDivider = 70 + random.nextInt(50);
             onRandomTick();
@@ -270,7 +272,7 @@ public abstract class VampirismEntity extends PathfinderMob implements IEntityWi
     }
 
     /**
-     * Called every 70 to 120 ticks during {@link Mob#customServerAiStep()}
+     * Called every 70 to 120 ticks during {@link Mob#customServerAiStep(ServerLevel)}
      */
     @SuppressWarnings("EmptyMethod")
     protected void onRandomTick() {
@@ -346,7 +348,7 @@ public abstract class VampirismEntity extends PathfinderMob implements IEntityWi
                 }
                 if (convert) {
                     EntityType<?> t = getIMobTypeOpt(!current);
-                    Helper.createEntity(t, this.level()).ifPresent(newEntity -> {
+                    Helper.createEntity(t, this.level(), EntitySpawnReason.CONVERSION).ifPresent(newEntity -> {
                         CompoundTag nbt = new CompoundTag();
                         this.saveWithoutId(nbt);
                         newEntity.load(nbt);

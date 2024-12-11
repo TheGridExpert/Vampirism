@@ -4,6 +4,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import de.teamlapen.vampirism.REFERENCE;
 import de.teamlapen.vampirism.api.util.VResourceLocation;
+import de.teamlapen.vampirism.client.renderer.entity.AdvancedVampireRenderer;
+import de.teamlapen.vampirism.client.renderer.entity.state.AdvancedVampireRenderState;
 import de.teamlapen.vampirism.entity.vampire.AdvancedVampireEntity;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -12,17 +14,16 @@ import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.FastColor;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * Render the eyes over the advanced vampire custom face
  */
-public class AdvancedVampireEyeLayer extends RenderLayer<AdvancedVampireEntity, HumanoidModel<AdvancedVampireEntity>> {
+public class AdvancedVampireEyeLayer extends RenderLayer<AdvancedVampireRenderState, HumanoidModel<AdvancedVampireRenderState>> {
 
     private final ResourceLocation @NotNull [] overlays;
 
-    public AdvancedVampireEyeLayer(@NotNull RenderLayerParent<AdvancedVampireEntity, HumanoidModel<AdvancedVampireEntity>> renderer) {
+    public AdvancedVampireEyeLayer(@NotNull RenderLayerParent<AdvancedVampireRenderState, HumanoidModel<AdvancedVampireRenderState>> renderer) {
         super(renderer);
         overlays = new ResourceLocation[REFERENCE.EYE_TYPE_COUNT];
         for (int i = 0; i < overlays.length; i++) {
@@ -32,8 +33,8 @@ public class AdvancedVampireEyeLayer extends RenderLayer<AdvancedVampireEntity, 
 
 
     @Override
-    public void render(@NotNull PoseStack matrixStack, @NotNull MultiBufferSource iRenderTypeBuffer, int packetLightIn, @NotNull AdvancedVampireEntity advancedVampireEntity, float v, float v1, float v2, float v3, float v4, float v5) {
-        int type = advancedVampireEntity.getEyeType();
+    public void render(@NotNull PoseStack matrixStack, @NotNull MultiBufferSource iRenderTypeBuffer, int packetLightIn, @NotNull AdvancedVampireRenderState advancedVampireEntity, float v, float v1) {
+        int type = advancedVampireEntity.eyeType;
         if (type < 0 || type >= overlays.length) {
             type = 0;
         }

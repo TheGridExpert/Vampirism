@@ -37,6 +37,7 @@ import de.teamlapen.vampirism.entity.minion.VampireMinionEntity;
 import de.teamlapen.vampirism.entity.player.CommonFactionPlayer;
 import de.teamlapen.vampirism.entity.player.IVampirismPlayer;
 import de.teamlapen.vampirism.entity.player.LevelAttributeModifier;
+import de.teamlapen.vampirism.entity.player.VampirismPlayerAttributes;
 import de.teamlapen.vampirism.entity.player.actions.ActionHandler;
 import de.teamlapen.vampirism.entity.player.skills.RefinementHandler;
 import de.teamlapen.vampirism.entity.player.skills.SkillHandler;
@@ -62,6 +63,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.FluidTags;
@@ -221,7 +223,7 @@ public class VampirePlayer extends CommonFactionPlayer<IVampirePlayer> implement
         }
         double dist = player.getAttribute(Attributes.ENTITY_INTERACTION_RANGE).getValue() + 1;
         if (player.distanceToSqr(pos.getX(), pos.getY(), pos.getZ()) > dist * dist) {
-            LOGGER.warn("Block sent by client is not in reach" + pos);
+            LOGGER.warn("Block sent by client is not in reach {}", pos);
         } else {
             biteBlock(pos, player.level().getBlockState(pos), player.level().getBlockEntity(pos));
         }
@@ -272,7 +274,7 @@ public class VampirePlayer extends CommonFactionPlayer<IVampirePlayer> implement
                         break;
                 }
             } else {
-                LOGGER.warn("Entity sent by client is not in reach " + entityId);
+                LOGGER.warn("Entity sent by client is not in reach {}", entityId);
             }
         }
     }
@@ -475,7 +477,7 @@ public class VampirePlayer extends CommonFactionPlayer<IVampirePlayer> implement
     }
 
     /**
-     * You can use {@link de.teamlapen.vampirism.entity.player.VampirismPlayerAttributes#getVampSpecial()} instead if you don't have the vampire player already
+     * You can use {@link VampirismPlayerAttributes#getVampSpecial()} instead if you don't have the vampire player already
      */
     @NotNull
     public VampirePlayerSpecialAttributes getSpecialAttributes() {
@@ -514,7 +516,7 @@ public class VampirePlayer extends CommonFactionPlayer<IVampirePlayer> implement
     @Override
     public boolean isGettingSundamage(LevelAccessor iWorld, boolean forcerefresh) {
         if (forcerefresh) {
-            sundamage_cache = Helper.gettingSundamge(player, iWorld, player.level().getProfiler()) && ModItems.UMBRELLA.get() != player.getMainHandItem().getItem();
+            sundamage_cache = Helper.gettingSundamge(player, iWorld) && ModItems.UMBRELLA.get() != player.getMainHandItem().getItem();
         }
         return sundamage_cache;
     }
@@ -593,7 +595,7 @@ public class VampirePlayer extends CommonFactionPlayer<IVampirePlayer> implement
             this.player.setHealth(0.5f);
             this.player.setForcedPose(Pose.SLEEPING);
             resetNearbyTargetingMobs();
-            boolean flag = player.level().getGameRules().getBoolean(GameRules.RULE_SHOWDEATHMESSAGES);
+            boolean flag = player.level() instanceof ServerLevel level && level.getGameRules().getBoolean(GameRules.RULE_SHOWDEATHMESSAGES);
             if (flag) {
                 dbnoMessage = player.getCombatTracker().getDeathMessage();
             }
@@ -629,12 +631,14 @@ public class VampirePlayer extends CommonFactionPlayer<IVampirePlayer> implement
                 }
                 return true;
             }
-            if (src.is(DamageTypes.ON_FIRE)) {
-                DamageHandler.hurtModded(player, ModDamageSources::vampireOnFire, calculateFireDamage(amt));
-                return true;
-            } else if (src.is(DamageTypes.IN_FIRE) || src.is(DamageTypes.LAVA)) {
-                DamageHandler.hurtModded(player, ModDamageSources::vampireInFire, calculateFireDamage(amt));
-                return true;
+            if (asEntity().level() instanceof ServerLevel level) {
+                if (src.is(DamageTypes.ON_FIRE)) {
+                    DamageHandler.hurtModded(level, player, ModDamageSources::vampireOnFire, calculateFireDamage(amt));
+                    return true;
+                } else if (src.is(DamageTypes.IN_FIRE) || src.is(DamageTypes.LAVA)) {
+                    DamageHandler.hurtModded(level, player, ModDamageSources::vampireInFire, calculateFireDamage(amt));
+                    return true;
+                }
             }
         }
         endFeeding(true);
@@ -734,9 +738,9 @@ public class VampirePlayer extends CommonFactionPlayer<IVampirePlayer> implement
     @Override
     public void onPlayerLoggedOut() {
         endFeeding(false);
-        if (this.isDBNO()) {
+        if (this.isDBNO() && asEntity().level() instanceof ServerLevel level) {
             this.setDBNOTimer(-1);
-            DamageHandler.kill(player, 10000);
+            DamageHandler.kill(level, player, 10000);
         }
     }
 
@@ -756,10 +760,11 @@ public class VampirePlayer extends CommonFactionPlayer<IVampirePlayer> implement
     @Override
     public void onUpdate() {
         Level world = player.getCommandSenderWorld();
-        world.getProfiler().push("vampirism_vampirePlayer");
         if (wasDBNO) {
             wasDBNO = false;
-            DamageHandler.kill(player, 100000);
+            if (world instanceof ServerLevel level) {
+                DamageHandler.kill(level, player, 100000);
+            }
             return;
         } else if (this.dbnoTimer >= 0) {
             if (dbnoTimer > 0) {
@@ -860,7 +865,6 @@ public class VampirePlayer extends CommonFactionPlayer<IVampirePlayer> implement
         if (remainingBarkTicks > 0) {
             --remainingBarkTicks;
         }
-        world.getProfiler().pop();
     }
 
     @Override
@@ -873,9 +877,7 @@ public class VampirePlayer extends CommonFactionPlayer<IVampirePlayer> implement
 
             //Update blood stats
             if (getLevel() > 0 && !isDBNO()) {
-                player.level().getProfiler().push("vampirism_bloodupdate");
                 this.bloodStats.onUpdate();
-                player.level().getProfiler().pop();
             }
 
             if (event.getEntity().level().isClientSide && getTicksInSun() > 0 && !event.getEntity().hasEffect(ModEffects.SUNSCREEN)) {
@@ -1003,7 +1005,9 @@ public class VampirePlayer extends CommonFactionPlayer<IVampirePlayer> implement
             this.player.setForcedPose(null);
             this.player.refreshDimensions();
             this.sync(UpdateParams.all());
-            DamageHandler.hurtModded(this.player, sources -> sources.dbno(msg), 10000);
+            if (asEntity().level() instanceof ServerLevel level) {
+                DamageHandler.hurtModded(level, this.player, sources -> sources.dbno(msg), 10000);
+            }
         }
     }
 
@@ -1264,7 +1268,7 @@ public class VampirePlayer extends CommonFactionPlayer<IVampirePlayer> implement
         if (!player.isAlive() || isRemote || player.getAbilities().instabuild || player.getAbilities().invulnerable) return;
 
         if (ticksInSun == 100 && VampirismConfig.BALANCE.vpSundamageInstantDeath.get()) {
-            DamageHandler.kill(player, 100000);
+            DamageHandler.kill(((ServerLevel) asEntity().level()), player, 100000);
             turnToAsh();
         }
 
@@ -1277,7 +1281,7 @@ public class VampirePlayer extends CommonFactionPlayer<IVampirePlayer> implement
         if (getLevel() >= VampirismConfig.BALANCE.vpSundamageMinLevel.get() && ticksInSun >= 100 && player.tickCount % 40 == 5) {
             float damage = (float) (player.getAttribute(ModAttributes.SUNDAMAGE).getValue());
             if (damage > 0) {
-                DamageHandler.hurtModded(player, ModDamageSources::sunDamage, damage);
+                DamageHandler.hurtModded(((ServerLevel) asEntity().level()), player, ModDamageSources::sunDamage, damage);
             }
             if (!player.isAlive()) {
                 turnToAsh(); //Instead of the normal dying animation, just turn to ash
@@ -1306,8 +1310,8 @@ public class VampirePlayer extends CommonFactionPlayer<IVampirePlayer> implement
             if (e.getTarget() == player) {
                 e.targetSelector.getAvailableGoals().stream().filter(WrappedGoal::isRunning).filter(g -> g.getGoal() instanceof TargetGoal).forEach(WrappedGoal::stop);
             }
-            if (e instanceof NeutralMob) {
-                ((NeutralMob) e).playerDied(player);
+            if (e instanceof NeutralMob && player.level() instanceof ServerLevel level) {
+                ((NeutralMob) e).playerDied(level, player);
             }
         });
     }
@@ -1535,7 +1539,7 @@ public class VampirePlayer extends CommonFactionPlayer<IVampirePlayer> implement
         public void deserializeUpdateNBT(HolderLookup.@NotNull Provider provider, @NotNull CompoundTag nbt) {
             if (nbt.contains("disguise")) {
                 String disguise = nbt.getString("disguise");
-                disguiseAs(Optional.of(disguise).map(ResourceLocation::parse).flatMap(s -> (Optional<Holder<? extends IFaction<?>>>) (Object) ModRegistries.FACTIONS.getHolder(s)).orElse(ModFactions.NEUTRAL));
+                disguiseAs(Optional.of(disguise).map(ResourceLocation::parse).flatMap(s -> (Optional<Holder<? extends IFaction<?>>>) (Object) ModRegistries.FACTIONS.get(s)).orElse(ModFactions.NEUTRAL));
             }
         }
 

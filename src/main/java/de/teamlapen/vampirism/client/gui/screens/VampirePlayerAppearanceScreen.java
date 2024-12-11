@@ -1,5 +1,6 @@
 package de.teamlapen.vampirism.client.gui.screens;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import de.teamlapen.lib.lib.client.gui.components.HoverList;
 import de.teamlapen.lib.util.Color;
 import de.teamlapen.vampirism.REFERENCE;
@@ -94,9 +95,9 @@ public class VampirePlayerAppearanceScreen extends AppearanceScreen<Player> {
 
     @Override
     protected void renderGuiBackground(@NotNull GuiGraphics graphics) {
-        graphics.setColor(color[0], color[1], color[2], 1f);
+        RenderSystem.setShaderColor(color[0], color[1], color[2], 1f);
         super.renderGuiBackground(graphics);
-        graphics.setColor(1, 1, 1, 1);
+        RenderSystem.setShaderColor(1, 1, 1, 1);
     }
 
     private void eye(int eyeType) {

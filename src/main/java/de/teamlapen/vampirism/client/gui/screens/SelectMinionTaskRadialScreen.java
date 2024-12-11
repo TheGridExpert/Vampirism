@@ -1,5 +1,6 @@
 package de.teamlapen.vampirism.client.gui.screens;
 
+import de.teamlapen.lib.lib.client.gui.GuiRenderer;
 import de.teamlapen.lib.lib.client.gui.screens.radialmenu.IRadialMenuSlot;
 import de.teamlapen.lib.lib.client.gui.screens.radialmenu.RadialMenu;
 import de.teamlapen.lib.lib.client.gui.screens.radialmenu.RadialMenuSlot;
@@ -17,6 +18,7 @@ import de.teamlapen.vampirism.util.RegUtil;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
@@ -56,6 +58,10 @@ public class SelectMinionTaskRadialScreen extends DualSwitchingRadialMenu<Select
         }
     }
 
+    @Override
+    public void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    }
+
     private static List<Entry> getTasks(IFactionPlayerHandler playerHandler) {
         if (playerHandler.getLordLevel() == 0) return List.of();
         return playerHandler.getCurrentFactionPlayer().map(player -> {
@@ -72,7 +78,8 @@ public class SelectMinionTaskRadialScreen extends DualSwitchingRadialMenu<Select
     }
 
     private static void drawActionPart(Entry t, GuiGraphics graphics, int posX, int posY, int size, boolean transparent) {
-        graphics.blit(t.getIconLoc(), posX, posY, 0, 0, 0, 16, 16, 16, 16);
+        GuiRenderer.resetColor();
+        GuiRenderer.blit(graphics, t.getIconLoc(), posX, posY, 16, 16, 16, 16);
     }
 
 

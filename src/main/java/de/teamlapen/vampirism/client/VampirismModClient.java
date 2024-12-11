@@ -6,14 +6,21 @@ import de.teamlapen.lib.util.OptifineHandler;
 import de.teamlapen.vampirism.REFERENCE;
 import de.teamlapen.vampirism.VampirismMod;
 import de.teamlapen.vampirism.api.VampirismAPI;
+import de.teamlapen.vampirism.api.util.VResourceLocation;
 import de.teamlapen.vampirism.blocks.LogBlock;
 import de.teamlapen.vampirism.client.config.ModFilter;
 import de.teamlapen.vampirism.client.core.*;
 import de.teamlapen.vampirism.client.gui.ScreenEventHandler;
 import de.teamlapen.vampirism.client.gui.overlay.CustomBossEventOverlay;
 import de.teamlapen.vampirism.client.gui.overlay.VampirismHUDOverlay;
+import de.teamlapen.vampirism.client.model.armor.ArmorModels;
+import de.teamlapen.vampirism.client.renderer.BloodVisionRenderer;
 import de.teamlapen.vampirism.client.renderer.RenderHandler;
 import de.teamlapen.vampirism.client.renderer.VampirismClientEntityRegistry;
+import de.teamlapen.vampirism.client.renderer.item.BloodContainerSpecialRenderer;
+import de.teamlapen.vampirism.client.renderer.item.CoffinSpecialRenderer;
+import de.teamlapen.vampirism.client.renderer.item.MotherTrophyItemRenderer;
+import de.teamlapen.vampirism.items.consume.BloodFoodProperties;
 import de.teamlapen.vampirism.proxy.ClientProxy;
 import de.teamlapen.vampirism.proxy.IProxy;
 import de.teamlapen.vampirism.util.SupporterManager;
@@ -26,6 +33,8 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.RegisterSpecialModelRendererEvent;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.common.NeoForge;
@@ -50,6 +59,8 @@ public class VampirismModClient {
     private final VampirismHUDOverlay overlay;
     private final CustomBossEventOverlay bossInfoOverlay = new CustomBossEventOverlay();
     private final RenderHandler renderHandler;
+    private final BloodVisionRenderer bloodVisionRenderer;
+    private final ArmorModels armorModels = new ArmorModels();
 
     public VampirismModClient(IEventBus modEventBus, ModContainer modContainer) {
         INSTANCE = this;
@@ -58,13 +69,15 @@ public class VampirismModClient {
         ClientRegistryHandler.init(modEventBus);
         this.overlay = new VampirismHUDOverlay(Minecraft.getInstance());
         this.renderHandler = new RenderHandler(Minecraft.getInstance());
-        this.modEventBus.register(this);
+        this.bloodVisionRenderer = new BloodVisionRenderer(Minecraft.getInstance());
 
         this.modContainer.registerExtensionPoint(IConfigScreenFactory.class, (container, parent) -> new ConfigurationScreen(container, parent, new ModFilter()));
 
         this.modEventBus.register(this);
+        this.modEventBus.register(this.armorModels);
+        this.modEventBus.addListener(BloodVisionRenderer::onRegisterStage);
+        this.modEventBus.addListener(this.bloodVisionRenderer::onClientSetup);
 
-        NeoForge.EVENT_BUS.addListener(this::onAddReloadListenerEvent);
         NeoForge.EVENT_BUS.addListener(this::onDataMapsUpdated);
         NeoForge.EVENT_BUS.register(this.overlay);
         NeoForge.EVENT_BUS.register(this.renderHandler);
@@ -72,14 +85,11 @@ public class VampirismModClient {
         NeoForge.EVENT_BUS.register(new ScreenEventHandler());
         NeoForge.EVENT_BUS.register(new ModKeys());
         NeoForge.EVENT_BUS.addListener(this::levelLoaded);
+        NeoForge.EVENT_BUS.register(this.bloodVisionRenderer);
 
         if (OptifineHandler.isOptifineLoaded()) {
             LOGGER.warn("Using Optifine. Expect visual glitches and reduces blood vision functionality if using shaders.");
         }
-    }
-
-    public void onAddReloadListenerEvent(@NotNull AddReloadListenerEvent event) {
-        event.addListener(this.renderHandler);
     }
 
     public static VampirismModClient getINSTANCE() {
@@ -90,7 +100,6 @@ public class VampirismModClient {
     public void setupClient(@NotNull FMLClientSetupEvent event) {
         VampirismMod.proxy.onInitStep(IInitListener.Step.CLIENT_SETUP, event);
         event.enqueueWork(ModBlocksRender::register);
-        event.enqueueWork(ModItemsRender::registerItemModelPropertyUnsafe);
         event.enqueueWork(() -> {
             Sheets.addWoodType(LogBlock.DARK_SPRUCE);
             Sheets.addWoodType(LogBlock.CURSED_SPRUCE);
@@ -126,5 +135,20 @@ public class VampirismModClient {
 
     public RenderHandler getRenderHandler() {
         return renderHandler;
+    }
+
+    public ArmorModels getArmorModels() {
+        return this.armorModels;
+    }
+
+    public BloodVisionRenderer getBloodVisionRenderer() {
+        return this.bloodVisionRenderer;
+    }
+
+    @SubscribeEvent
+    public void onRegisterSpecialModelRenderer(RegisterSpecialModelRendererEvent event) {
+        event.register(VResourceLocation.mod("mother_trophy"), MotherTrophyItemRenderer.Unbaked.MAP_CODEC);
+        event.register(VResourceLocation.mod("blood_container"), BloodContainerSpecialRenderer.Unbaked.MAP_CODEC);
+        event.register(VResourceLocation.mod("coffin"), CoffinSpecialRenderer.Unbaked.MAP_CODEC);
     }
 }

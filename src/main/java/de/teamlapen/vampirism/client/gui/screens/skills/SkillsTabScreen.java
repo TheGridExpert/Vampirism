@@ -1,6 +1,7 @@
 package de.teamlapen.vampirism.client.gui.screens.skills;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import de.teamlapen.lib.lib.client.gui.GuiRenderer;
 import de.teamlapen.vampirism.api.entity.factions.ISkillTree;
 import de.teamlapen.vampirism.api.entity.player.skills.ISkill;
 import de.teamlapen.vampirism.api.entity.player.skills.ISkillHandler;
@@ -14,6 +15,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.advancements.AdvancementTabType;
 import net.minecraft.client.gui.screens.inventory.tooltip.TooltipRenderUtil;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.Holder;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
@@ -73,7 +75,7 @@ public class SkillsTabScreen {
         this.treeWidth = this.treeData.getTreeWidth(skillTree);
         this.treeHeight = this.treeData.getTreeHeight(skillTree);
         this.root = new SkillNodeScreen(minecraft, screen, this, this.treeData.root(skillTree), this.treeData, ((SkillHandler<?>) skillHandler));
-        this.background = VResourceLocation.mod("textures/gui/skills/backgrounds/level.png");
+        this.background = tree.background().map(x -> x.withPath(path -> "textures/" + path + ".png")).orElse(VResourceLocation.mod("textures/gui/skills/backgrounds/level.png"));
         addNode(this.root);
 
         recalculateBorders();
@@ -122,9 +124,9 @@ public class SkillsTabScreen {
 
         pose.scale((float) this.zoom, (float) this.zoom, 1);
 
-        for (int i = -(int) (((SCREEN_WIDTH / 2 + centerX) / 16 / zoom)) - 1; i <= (int) (((SCREEN_WIDTH / 2 - centerX) / 16 / zoom)); ++i) {
+        for (int i = -(int) (((SCREEN_WIDTH / 2f + centerX) / 16 / zoom)) - 1; i <= (int) (((SCREEN_WIDTH / 2f - centerX) / 16 / zoom)); ++i) {
             for (int j = -(int) ((20 + centerY) / 16 / zoom) - 1; j <= (int) ((SCREEN_HEIGHT - centerY) / 16 / zoom); ++j) {
-                graphics.blit(this.background, 16 * i, 16 * j, 0.0F, 0.0F, 16, 16, 16, 16);
+                GuiRenderer.blit(graphics, this.background, 16* i, 16*j, 16, 16, 16, 16);
             }
         }
 
@@ -232,11 +234,11 @@ public class SkillsTabScreen {
         int tooltipX = 7 + x;
         int tooltipY = 17 + y;
         int tooltipHeight = this.minecraft.font.lineHeight * 2;
-        int backgroundColor = 0xF09b0404;//0xF0550404;;
-        int borderColorStart = 0x505f0c0c;
-        int borderColorEnd = (borderColorStart & 0xFEFEFE) >> 1 | borderColorStart & 0xFF000000;
+//        int backgroundColor = 0xF09b0404;//0xF0550404;;
+//        int borderColorStart = 0x505f0c0c;
+//        int borderColorEnd = (borderColorStart & 0xFEFEFE) >> 1 | borderColorStart & 0xFF000000;
 
-        TooltipRenderUtil.renderTooltipBackground(graphics, tooltipX, tooltipY, tooltipTextWidth, tooltipHeight, 400, backgroundColor, backgroundColor, borderColorStart, borderColorEnd);
+        TooltipRenderUtil.renderTooltipBackground(graphics, tooltipX, tooltipY, tooltipTextWidth, tooltipHeight, 400, null);
 
         graphics.pose().pushPose();
         graphics.pose().translate(0, 0, 400);

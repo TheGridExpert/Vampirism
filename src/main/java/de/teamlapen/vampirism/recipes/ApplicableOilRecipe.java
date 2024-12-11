@@ -71,14 +71,9 @@ public class ApplicableOilRecipe extends CustomRecipe {
         return result;
     }
 
-    @Override
-    public boolean canCraftInDimensions(int x, int y) {
-        return x * y >= 2;
-    }
-
     @NotNull
     @Override
-    public RecipeSerializer<?> getSerializer() {
+    public RecipeSerializer<ApplicableOilRecipe> getSerializer() {
         return ModRecipes.APPLICABLE_OIL.get();
     }
 }

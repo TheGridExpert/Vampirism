@@ -13,6 +13,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.redstone.Orientation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,7 +33,7 @@ public class ActiveVulnerableRemainsBlock extends RemainsBlock implements Entity
         return new VulnerableRemainsBlockEntity(pos, state);
     }
 
-    private Optional<VulnerableRemainsBlockEntity> getBlockEntity(Level level, BlockPos pos) {
+    private Optional<VulnerableRemainsBlockEntity> getBlockEntity(LevelReader level, BlockPos pos) {
         BlockEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity instanceof VulnerableRemainsBlockEntity) {
             return Optional.of((VulnerableRemainsBlockEntity) blockEntity);
@@ -54,12 +55,7 @@ public class ActiveVulnerableRemainsBlock extends RemainsBlock implements Entity
     @Override
     public void onNeighborChange(BlockState state, LevelReader level, BlockPos pos, BlockPos neighbor) {
         super.onNeighborChange(state, level, pos, neighbor);
-    }
-
-    @Override
-    public void neighborChanged(@NotNull BlockState pState, @NotNull Level pLevel, @NotNull BlockPos pPos, @NotNull Block pNeighborBlock, @NotNull BlockPos pNeighborPos, boolean pMovedByPiston) {
-        super.neighborChanged(pState, pLevel, pPos, pNeighborBlock, pNeighborPos, pMovedByPiston);
-        getBlockEntity(pLevel, pPos).ifPresent(x -> x.checkNeighbor(pNeighborPos));
+        getBlockEntity(level, pos).ifPresent(x -> x.checkNeighbor(neighbor));
     }
 
     @Override

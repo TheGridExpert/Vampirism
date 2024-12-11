@@ -47,7 +47,7 @@ public record ClientboundRequestMinionSelectPacket(Action action, List<Pair<Inte
 
     public static final Type<ClientboundRequestMinionSelectPacket> TYPE = new Type<>(VResourceLocation.mod("request_minion_select"));
     public static final StreamCodec<RegistryFriendlyByteBuf, ClientboundRequestMinionSelectPacket> CODEC = StreamCodec.composite(
-            ByteBufCodecs.STRING_UTF8.map(Action::valueOf, s -> s.name), ClientboundRequestMinionSelectPacket::action,
+            ByteBufCodecs.STRING_UTF8.map(Action::valueOf, Enum::name), ClientboundRequestMinionSelectPacket::action,
             ByteBufferCodecUtil.pair(ByteBufCodecs.VAR_INT, ComponentSerialization.STREAM_CODEC).apply(ByteBufCodecs.collection(i -> new ArrayList<>())), ClientboundRequestMinionSelectPacket::minions,
             ClientboundRequestMinionSelectPacket::new
     );

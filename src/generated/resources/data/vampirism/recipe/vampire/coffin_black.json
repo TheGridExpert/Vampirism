@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "X": {
-      "tag": "minecraft:planks"
-    },
-    "Y": {
-      "item": "minecraft:black_wool"
-    }
+    "X": "#minecraft:planks",
+    "Y": "minecraft:black_wool"
   },
   "pattern": [
     "XXX",

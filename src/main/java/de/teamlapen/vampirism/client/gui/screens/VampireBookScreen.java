@@ -1,5 +1,6 @@
 package de.teamlapen.vampirism.client.gui.screens;
 
+import de.teamlapen.lib.lib.client.gui.GuiRenderer;
 import de.teamlapen.vampirism.REFERENCE;
 import de.teamlapen.vampirism.api.util.VResourceLocation;
 import de.teamlapen.vampirism.util.VampireBookManager;
@@ -8,6 +9,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.PageButton;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.Style;
@@ -71,7 +73,7 @@ public class VampireBookScreen extends Screen {
     @Override
     public void renderBackground(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
         super.renderBackground(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
-        pGuiGraphics.blit(pageTexture, guiLeft, guiTop, 0, 0, xSize, ySize);
+        GuiRenderer.blit(pGuiGraphics, pageTexture, guiLeft, guiTop, xSize, ySize);
     }
 
     @Override

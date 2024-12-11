@@ -31,6 +31,8 @@ public class MotherTrophyBESR extends VampirismBESR<MotherTrophyBlockEntity> {
         float f1 = RotationSegment.convertToDegrees(value);
         pPoseStack.mulPose(Axis.YP.rotationDegrees(f1));
         this.model.setupAnim2(pBlockEntity.getLevel() != null ? pBlockEntity.getLevel().getGameTime() : 0);
+        pPoseStack.translate(0,0.75,0);
+        pPoseStack.scale(0.5F, 0.5F, 0.5F);
         this.model.renderToBuffer(pPoseStack, pBuffer.getBuffer(RenderType.itemEntityTranslucentCull(GhostRenderer.TEXTURE)), pPackedLight, pPackedOverlay, -1);
         pPoseStack.popPose();
     }

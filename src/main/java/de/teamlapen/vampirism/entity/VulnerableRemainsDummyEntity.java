@@ -11,6 +11,7 @@ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
@@ -62,12 +63,12 @@ public class VulnerableRemainsDummyEntity extends LivingEntity implements IEntit
     }
 
     @Override
-    protected void actuallyHurt(@NotNull DamageSource pDamageSource, float pDamageAmount) {
+    protected void actuallyHurt(@NotNull ServerLevel level, @NotNull DamageSource pDamageSource, float pDamageAmount) {
         getTile().ifPresent(vr -> {
             vr.onDamageDealt(pDamageSource, pDamageAmount);
         });
         if (pDamageSource.getEntity() instanceof LivingEntity attacker) {
-            attacker.hurt(damageSources().thorns(this), 3);
+            attacker.hurtServer(level, damageSources().thorns(this), 3);
         }
     }
 
@@ -81,7 +82,7 @@ public class VulnerableRemainsDummyEntity extends LivingEntity implements IEntit
     }
 
     @Override
-    public boolean isInvulnerableTo(@NotNull DamageSource pSource) {
+    public boolean isInvulnerableTo(@NotNull ServerLevel level, @NotNull DamageSource pSource) {
         return this.isRemoved() || pSource.is(ModDamageTypeTags.MOTHER_RESISTANT_TO);
     }
 
@@ -163,7 +164,7 @@ public class VulnerableRemainsDummyEntity extends LivingEntity implements IEntit
     }
 
     public void spawnDefender(Direction direction) {
-        RemainsDefenderEntity defender = ModEntities.REMAINS_DEFENDER.get().create(this.level());
+        RemainsDefenderEntity defender = ModEntities.REMAINS_DEFENDER.get().create(this.level(), EntitySpawnReason.MOB_SUMMONED);
         getTile().map(BlockEntity::getBlockPos).ifPresent(pos -> {
             defender.setPos(Vec3.atBottomCenterOf(pos.relative(direction)));
             defender.setAttachFace(direction.getOpposite());

@@ -35,18 +35,8 @@ public class AltarInfusionMenu extends ItemCombinerMenu {
     }
 
     public AltarInfusionMenu(int id, @NotNull Inventory playerInventory, @NotNull Container inventory, ContainerLevelAccess worldPosCallable) {
-        super(ModMenus.ALTAR_INFUSION.get(), id, playerInventory, worldPosCallable);
-        ((ItemCombinerMenuAccessor) this).setInputSlots(inventory);
-        this.init(playerInventory);
+        super(ModMenus.ALTAR_INFUSION.get(), id, playerInventory, worldPosCallable, createInputSlotDefinition());
         this.lvlRequirement = VampireLeveling.getInfusionRequirement(FactionPlayerHandler.get(player).getCurrentLevel(ModFactions.VAMPIRE) + 1);
-    }
-
-    protected void init(@NotNull Inventory playerInventory) {
-        this.slots.clear();
-        ((AbstractContainerMenuAccessor) this).getRemoteSlots().clear();
-        ((AbstractContainerMenuAccessor) this).getLastSlots().clear();
-        this.createInputSlots(createInputSlotDefinitions());
-        this.createInventorySlots(playerInventory);
     }
 
     public Optional<VampireLeveling.AltarInfusionRequirements> getRequirement() {
@@ -75,11 +65,6 @@ public class AltarInfusionMenu extends ItemCombinerMenu {
     @Override
     public void createResult() {
 
-    }
-
-    @Override
-    protected @NotNull ItemCombinerMenuSlotDefinition createInputSlotDefinitions() {
-        return createInputSlotDefinition();
     }
 
     @Override

@@ -11,7 +11,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.StringUtil;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
@@ -23,8 +22,8 @@ import java.util.List;
 
 public class VampireBookItem extends Item implements ModDisplayItemGenerator.CreativeTabItemProvider {
 
-    public VampireBookItem() {
-        super(new Properties().rarity(Rarity.UNCOMMON).stacksTo(1));
+    public VampireBookItem(Item.Properties properties) {
+        super(properties.rarity(Rarity.UNCOMMON).stacksTo(1));
     }
 
     @Override
@@ -72,12 +71,12 @@ public class VampireBookItem extends Item implements ModDisplayItemGenerator.Cre
 
     @NotNull
     @Override
-    public InteractionResultHolder<ItemStack> use(@NotNull Level worldIn, @NotNull Player playerIn, @NotNull InteractionHand handIn) {
+    public InteractionResult use(@NotNull Level worldIn, @NotNull Player playerIn, @NotNull InteractionHand handIn) {
         ItemStack stack = playerIn.getItemInHand(handIn);
         if (!worldIn.isClientSide && playerIn instanceof ServerPlayer serverPlayer) {
             serverPlayer.connection.send(new ClientboundOpenVampireBookPacket(VampireBookContents.get(stack).id()));
         }
-        return new InteractionResultHolder<>(InteractionResult.SUCCESS, stack);
+        return InteractionResult.SUCCESS_SERVER;
     }
 
 }

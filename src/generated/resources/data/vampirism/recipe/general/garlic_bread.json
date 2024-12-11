@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "tag": "c:crops/garlic"
-    },
-    {
-      "item": "minecraft:bread"
-    }
+    "#c:crops/garlic",
+    "minecraft:bread"
   ],
   "result": {
     "count": 1,

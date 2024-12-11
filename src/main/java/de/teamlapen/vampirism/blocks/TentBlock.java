@@ -11,23 +11,22 @@ import de.teamlapen.vampirism.entity.player.VampirismPlayerAttributes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.BedBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.BlockHitResult;
@@ -48,7 +47,7 @@ import static net.minecraft.world.level.block.state.properties.BlockStatePropert
  * Position property contains the position within the 4 block arrangement
  */
 public class TentBlock extends VampirismBlock {
-    public static final DirectionProperty FACING = HORIZONTAL_FACING;
+    public static final EnumProperty<Direction> FACING = HORIZONTAL_FACING;
     /**
      * Arrangement
      * 23
@@ -200,8 +199,8 @@ public class TentBlock extends VampirismBlock {
                 Block.box(0, 1, 0, 1, 15.85, 1));
     }
 
-    public TentBlock() {
-        super(Properties.of().mapColor(MapColor.WOOL).ignitedByLava().strength(0.6f).sound(SoundType.WOOL).noOcclusion());
+    public TentBlock(BlockBehaviour.Properties properties) {
+        super(properties.mapColor(MapColor.WOOL).ignitedByLava().strength(0.6f).sound(SoundType.WOOL).noOcclusion());
         this.registerDefaultState(this.getStateDefinition().any().setValue(FACING, Direction.NORTH).setValue(POSITION, 0).setValue(OCCUPIED, false));
     }
 
@@ -211,7 +210,7 @@ public class TentBlock extends VampirismBlock {
     }
 
     @Override
-    public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level, BlockPos pos, Player player) {
+    public ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state, boolean includeData, Player player) {
         return ModItems.ITEM_TENT.get().getDefaultInstance();
     }
 
@@ -252,17 +251,15 @@ public class TentBlock extends VampirismBlock {
         return shapes.get(blockState.getValue(FACING), blockState.getValue(POSITION));
     }
 
-
     @Override
-    public @NotNull BlockState updateShape(@NotNull BlockState stateIn, Direction facing, BlockState facingState, LevelAccessor worldIn, BlockPos currentPos, BlockPos facingPos) {
-        Direction thisFacing = stateIn.getValue(FACING);
-        int thisPos = stateIn.getValue(POSITION);
-        if (facing == thisFacing.getClockWise() || (thisPos == 0 || thisPos == 2) && facing == thisFacing.getOpposite() || (thisPos == 1 || thisPos == 3) && facing == thisFacing) {
-            return facingState.getBlock() instanceof TentBlock ? stateIn.setValue(OCCUPIED, facingState.getValue(OCCUPIED)) : Blocks.AIR.defaultBlockState();
+    protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess tickAccess, BlockPos pos1, Direction direction, BlockPos pos2, BlockState state1, RandomSource randomSource) {
+        Direction thisFacing = state.getValue(FACING);
+        int thisPos = state.getValue(POSITION);
+        if (direction == thisFacing.getClockWise() || (thisPos == 0 || thisPos == 2) && direction == thisFacing.getOpposite() || (thisPos == 1 || thisPos == 3) && direction == thisFacing) {
+            return state1.getBlock() instanceof TentBlock ? state.setValue(OCCUPIED, state1.getValue(OCCUPIED)) : Blocks.AIR.defaultBlockState();
         }
-        return super.updateShape(stateIn, facing, facingState, worldIn, currentPos, facingPos);
+        return super.updateShape(state, level, tickAccess, pos1, direction, pos2, state1, randomSource);
     }
-
 
     @Override
     public BlockState playerWillDestroy(@NotNull Level worldIn, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull Player player) {
@@ -291,9 +288,9 @@ public class TentBlock extends VampirismBlock {
 
 
     @Override
-    public void updateEntityAfterFallOn(@NotNull BlockGetter worldIn, @NotNull Entity entityIn) {
+    public void updateEntityMovementAfterFallOn(@NotNull BlockGetter worldIn, @NotNull Entity entityIn) {
         if (entityIn.isShiftKeyDown()) {
-            super.updateEntityAfterFallOn(worldIn, entityIn);
+            super.updateEntityMovementAfterFallOn(worldIn, entityIn);
         } else {
             Vec3 vec3d = entityIn.getDeltaMovement();
             if (vec3d.y < 0.0D) {

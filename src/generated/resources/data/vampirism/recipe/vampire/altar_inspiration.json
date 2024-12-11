@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "X": {
-      "tag": "minecraft:planks"
-    },
-    "Y": {
-      "item": "vampirism:blood_container"
-    }
+    "X": "#minecraft:planks",
+    "Y": "vampirism:blood_container"
   },
   "pattern": [
     "X X",

@@ -11,7 +11,6 @@ import de.teamlapen.vampirism.api.entity.player.vampire.IVampirePlayer;
 import de.teamlapen.vampirism.api.items.IBloodChargeable;
 import de.teamlapen.vampirism.api.items.IFactionExclusiveItem;
 import de.teamlapen.vampirism.api.items.IFactionLevelItem;
-import de.teamlapen.vampirism.api.items.IItemWithTier;
 import de.teamlapen.vampirism.api.util.VResourceLocation;
 import de.teamlapen.vampirism.config.VampirismConfig;
 import de.teamlapen.vampirism.core.ModDataComponents;
@@ -27,7 +26,6 @@ import de.teamlapen.vampirism.particle.FlyingBloodParticleOptions;
 import de.teamlapen.vampirism.particle.GenericParticleOptions;
 import de.teamlapen.vampirism.util.DamageHandler;
 import de.teamlapen.vampirism.util.Helper;
-import de.teamlapen.vampirism.util.ToolMaterial;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
@@ -39,21 +37,18 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.util.Unit;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.function.Supplier;
 
 public abstract class VampireSwordItem extends VampirismSwordItem implements IBloodChargeable, IFactionExclusiveItem, IFactionLevelItem<IVampirePlayer> {
 
@@ -62,9 +57,9 @@ public abstract class VampireSwordItem extends VampirismSwordItem implements IBl
      */
     private final float trainedAttackSpeedIncrease;
 
-    public VampireSwordItem(@NotNull VampireSwordMaterial material, int attackDamage, @NotNull Properties prop) {
-        super(material, attackDamage, material.getSpeed(), prop);
-        this.trainedAttackSpeedIncrease = material.getTrainedSpeedIncrease();
+    public VampireSwordItem(@NotNull ToolMaterial material, int attackDamage, float trainSpeedIncrease, @NotNull Properties prop) {
+        super(material, attackDamage, material.speed(), prop);
+        this.trainedAttackSpeedIncrease = trainSpeedIncrease;
     }
 
     @Override
@@ -143,7 +138,9 @@ public abstract class VampireSwordItem extends VampirismSwordItem implements IBl
             IRefinementHandler<IVampirePlayer> refinementHandler = VampirePlayer.get(player).getRefinementHandler();
             double relTh = VampirismConfig.BALANCE.vsSwordFinisherMaxHealth.get() * (skillHandler.isSkillEnabled(VampireSkills.SWORD_FINISHER) ? (refinementHandler.isRefinementEquipped(ModRefinements.SWORD_FINISHER) ? VampirismConfig.BALANCE.vrSwordFinisherThresholdMod.get() : 1d) : 0d);
             if (relTh > 0 && target.getHealth() <= target.getMaxHealth() * relTh) {
-                DamageHandler.hurtModded(target, s -> s.getPlayerAttackWithBypassArmor(player), 10000f);
+                if (player.level() instanceof ServerLevel level) {
+                    DamageHandler.hurtModded(level, target, s -> s.getPlayerAttackWithBypassArmor(player), 10000f);
+                }
                 Vec3 center = Vec3.atLowerCornerOf(target.blockPosition());
                 center.add(0, target.getBbHeight() / 2d, 0);
                 ModParticles.spawnParticlesServer(target.level(), new GenericParticleOptions(VResourceLocation.mc("effect_4"), 12, 0xE02020), center.x, center.y, center.z, 15, 0.5, 0.5, 0.5, 0);
@@ -251,17 +248,17 @@ public abstract class VampireSwordItem extends VampirismSwordItem implements IBl
 
     @NotNull
     @Override
-    public InteractionResultHolder<ItemStack> use(@NotNull Level worldIn, @NotNull Player playerIn, @NotNull InteractionHand handIn) {
+    public InteractionResult use(@NotNull Level worldIn, @NotNull Player playerIn, @NotNull InteractionHand handIn) {
         ItemStack stack = playerIn.getItemInHand(handIn);
         VampirePlayer vampire = VampirePlayer.get(playerIn);
-        if (vampire.getLevel() == 0) return new InteractionResultHolder<>(InteractionResult.PASS, stack);
+        if (vampire.getLevel() == 0) return InteractionResult.PASS;
 
         if (this.canBeCharged(stack) && playerIn.isShiftKeyDown() && vampire.getSkillHandler().isSkillEnabled(VampireSkills.BLOOD_CHARGE) && (playerIn.isCreative() || vampire.getBloodLevel() >= (vampire.getRefinementHandler().isRefinementEquipped(ModRefinements.BLOOD_CHARGE_SPEED) ? VampirismConfig.BALANCE.vrBloodChargeSpeedMod.get() : 2))) {
             playerIn.startUsingItem(handIn);
-            return new InteractionResultHolder<>(InteractionResult.SUCCESS, stack);
+            return InteractionResult.SUCCESS;
         }
 
-        return new InteractionResultHolder<>(InteractionResult.PASS, stack);
+        return InteractionResult.PASS;
     }
 
     protected float getAttackDamageModifier(@NotNull ItemStack stack) {
@@ -327,17 +324,4 @@ public abstract class VampireSwordItem extends VampirismSwordItem implements IBl
         ModParticles.spawnParticleClient(player.getCommandSenderWorld(), new FlyingBloodParticleOptions((int) (4.0F / (player.getRandom().nextFloat() * 0.6F + 0.1F)), true, pos.x, pos.y, pos.z), playerPos.x, playerPos.y, playerPos.z);
     }
 
-    public static class VampireSwordMaterial extends ToolMaterial.Tiered {
-
-        private final float trainedSpeedIncrease;
-
-        public VampireSwordMaterial(IItemWithTier.TIER tier, TagKey<Block> incorrectTier, int uses, float speed, float damage, int enchantmentValue, Supplier<Ingredient> repairIngredient, float trainedSpeedIncrease) {
-            super(tier, incorrectTier, uses, speed, damage, enchantmentValue, repairIngredient);
-            this.trainedSpeedIncrease = trainedSpeedIncrease;
-        }
-
-        public float getTrainedSpeedIncrease() {
-            return trainedSpeedIncrease;
-        }
-    }
 }

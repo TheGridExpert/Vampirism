@@ -70,7 +70,7 @@ public class ModSounds {
     private static final Map<ResourceKey<SoundEvent>, Music> music = new HashMap<>();
 
     public static Music getMusic(ResourceKey<SoundEvent> soundEvent) {
-        return music.computeIfAbsent(soundEvent, sound -> BuiltInRegistries.SOUND_EVENT.getHolder(sound).map(event -> new Music(event, 0, 0, true)).orElse(Musics.GAME));
+        return music.computeIfAbsent(soundEvent, sound -> BuiltInRegistries.SOUND_EVENT.get(sound).map(event -> new Music(event, 0, 0, true)).orElse(Musics.GAME));
     }
 
 }

@@ -2,28 +2,14 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "tag": "c:ingots/iron"
-    },
-    {
-      "tag": "c:ingots/iron"
-    },
-    {
-      "tag": "c:ingots/iron"
-    },
+    "#c:ingots/iron",
+    "#c:ingots/iron",
+    "#c:ingots/iron",
     [
-      {
-        "item": "vampirism:pure_blood_0"
-      },
-      {
-        "item": "vampirism:pure_blood_1"
-      },
-      {
-        "item": "vampirism:pure_blood_2"
-      },
-      {
-        "item": "vampirism:pure_blood_3"
-      }
+      "vampirism:pure_blood_0",
+      "vampirism:pure_blood_1",
+      "vampirism:pure_blood_2",
+      "vampirism:pure_blood_3"
     ]
   ],
   "result": {

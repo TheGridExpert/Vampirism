@@ -1,0 +1,14 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "vampirism:hunter_coat_ultimate"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "vampirism:hunter_coat_ultimate"
+      }
+    ]
+  }
+}

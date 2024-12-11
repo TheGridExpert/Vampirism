@@ -24,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Optional;
 
 public class Trades {
-    public static final VillagerTrades.ItemListing[] converted_trades = new VillagerTrades.ItemListing[] {new net.minecraft.world.entity.npc.VillagerTrades.EmeraldForItems(ModItems.HUMAN_HEART.get(), 9, 2, 2), new VillagerTrades.ItemsForEmeralds(ModItems.HUMAN_HEART.get(), 3, 9, 2), new ItemsForEmeraldsTradeWithDamage(BloodBottleItem.getStackWithDamage(9), 1, 1, 20, 2)};
+    public static final VillagerTrades.ItemListing[] converted_trades = new VillagerTrades.ItemListing[] {new net.minecraft.world.entity.npc.VillagerTrades.EmeraldForItems(ModItems.HUMAN_HEART.get(), 9, 2, 2), new VillagerTrades.ItemsForEmeralds(ModItems.HUMAN_HEART.get(), 3, 9, 2), new ItemsForEmeraldsTradeWithDamage(BloodBottleItem.getStackWithBlood(9), 1, 1, 20, 2)};
 
     /**
      * copy of {@link VillagerTrades.ItemsForEmeralds} with damage to {@link ItemStack}

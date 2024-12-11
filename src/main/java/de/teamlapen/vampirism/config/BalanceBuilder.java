@@ -90,7 +90,7 @@ public class BalanceBuilder {
                     try {
                         modifier.accept(c);
                     } catch (Exception e) {
-                        LOGGER.error("Failed to apply balance config modifier for " + fullName, e);
+                        LOGGER.error("Failed to apply balance config modifier for {}", fullName, e);
                     }
                 }
                 ModConfigSpec.ConfigValue<?> val = c.build(builder);

@@ -21,7 +21,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.util.random.WeightedEntry;
 import net.minecraft.util.random.WeightedRandom;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
@@ -66,7 +66,7 @@ public abstract class RefinementItem extends Item implements IRefinementItem, Mo
     private final AccessorySlotType type;
 
     public RefinementItem(@NotNull Properties properties, AccessorySlotType type) {
-        super(properties.durability(MAX_DAMAGE).setNoRepair());
+        super(properties.durability(MAX_DAMAGE));
         this.type = type;
     }
 
@@ -121,11 +121,11 @@ public abstract class RefinementItem extends Item implements IRefinementItem, Mo
 
     @NotNull
     @Override
-    public InteractionResultHolder<ItemStack> use(@NotNull Level worldIn, @NotNull Player playerIn, @NotNull InteractionHand handIn) {
+    public InteractionResult use(@NotNull Level worldIn, @NotNull Player playerIn, @NotNull InteractionHand handIn) {
         if (!worldIn.isClientSide()) {
             ItemStack stack = playerIn.getItemInHand(handIn);
             if (IRefinementHandler.get(playerIn).map(sh -> sh.equipRefinementItem(stack)).orElse(false)) {
-                return InteractionResultHolder.consume(ItemStack.EMPTY);
+                return InteractionResult.CONSUME;
             }
 
         }

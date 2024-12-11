@@ -1,7 +1,7 @@
 {
   "variants": {
     "axis=x": {
-      "model": "vampirism:block/cursed_spruce_wood_cured_horizontal",
+      "model": "vampirism:block/cursed_spruce_wood_cured",
       "x": 90,
       "y": 90
     },
@@ -9,7 +9,7 @@
       "model": "vampirism:block/cursed_spruce_wood_cured"
     },
     "axis=z": {
-      "model": "vampirism:block/cursed_spruce_wood_cured_horizontal",
+      "model": "vampirism:block/cursed_spruce_wood_cured",
       "x": 90
     }
   }

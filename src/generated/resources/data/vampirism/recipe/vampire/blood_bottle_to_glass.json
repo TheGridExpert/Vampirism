@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "vampirism:blood_bottle"
-    }
+    "vampirism:blood_bottle"
   ],
   "result": {
     "count": 1,

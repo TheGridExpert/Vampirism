@@ -34,28 +34,23 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(LevelRenderer.class)
 public class LevelRendererMixin {
 
-    @Inject(method = "renderLevel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/OutlineBufferSource;endOutlineBatch()V", shift = At.Shift.AFTER))
-    private void test(DeltaTracker p_348530_, boolean p_109603_, Camera p_109604_, GameRenderer p_109605_, LightTexture p_109606_, Matrix4f p_254120_, Matrix4f p_323920_, CallbackInfo ci) {
-        VampirismModClient.getINSTANCE().getRenderHandler().endBloodVisionBatch();
-    }
+//    @WrapOperation(method = "renderLevel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;shouldEntityAppearGlowing(Lnet/minecraft/world/entity/Entity;)Z"))
+//    private boolean vampireGlowing(Minecraft instance, Entity pEntity, Operation<Boolean> original, @Share("renderVampireColor") LocalBooleanRef color) {
+//        if (Helper.isHunter(instance.player) && pEntity.distanceToSqr(instance.player) < 256 && Helper.appearsAsVampire(instance.player, pEntity) && HunterPlayer.get(instance.player).getActionHandler().isActionActive(HunterActions.AWARENESS_HUNTER)) {
+//            if (instance.player.hasLineOfSight(pEntity)) {
+//                color.set(true);
+//                return true;
+//            }
+//        }
+//        color.set(false);
+//        return original.call(instance, pEntity);
+//    }
 
-    @WrapOperation(method = "renderLevel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;shouldEntityAppearGlowing(Lnet/minecraft/world/entity/Entity;)Z"))
-    private boolean vampireGlowing(Minecraft instance, Entity pEntity, Operation<Boolean> original, @Share("renderVampireColor") LocalBooleanRef color) {
-        if (Helper.isHunter(instance.player) && pEntity.distanceToSqr(instance.player) < 256 && Helper.appearsAsVampire(instance.player, pEntity) && HunterPlayer.get(instance.player).getActionHandler().isActionActive(HunterActions.AWARENESS_HUNTER)) {
-            if (instance.player.hasLineOfSight(pEntity)) {
-                color.set(true);
-                return true;
-            }
-        }
-        color.set(false);
-        return original.call(instance, pEntity);
-    }
-
-    @WrapOperation(method = "renderLevel", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;getTeamColor()I"))
-    private int color(Entity instance, Operation<Integer> original, @Share("renderVampireColor") LocalBooleanRef color) {
-        if (color.get()) {
-            return Color.RED.getRGB();
-        }
-        return original.call(instance);
-    }
+//    @WrapOperation(method = "renderLevel", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;getTeamColor()I"))
+//    private int color(Entity instance, Operation<Integer> original, @Share("renderVampireColor") LocalBooleanRef color) {
+//        if (color.get()) {
+//            return Color.RED.getRGB();
+//        }
+//        return original.call(instance);
+//    }
 }

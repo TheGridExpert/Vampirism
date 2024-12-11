@@ -1,5 +1,6 @@
 package de.teamlapen.vampirism.client.gui.screens;
 
+import de.teamlapen.lib.lib.client.gui.GuiRenderer;
 import de.teamlapen.vampirism.VampirismMod;
 import de.teamlapen.vampirism.api.util.VResourceLocation;
 import de.teamlapen.vampirism.blockentity.VampireBeaconBlockEntity;
@@ -13,6 +14,7 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.CommonComponents;
@@ -114,9 +116,10 @@ public class VampireBeaconScreen extends AbstractContainerScreen<VampireBeaconMe
     }
 
     protected void renderBg(GuiGraphics pGuiGraphics, float pPartialTick, int pMouseX, int pMouseY) {
+        GuiRenderer.resetColor();
         int i = (this.width - this.imageWidth) / 2;
         int j = (this.height - this.imageHeight) / 2;
-        pGuiGraphics.blit(BEACON_LOCATION, i, j, 0, 0, this.imageWidth, this.imageHeight);
+        GuiRenderer.blit(pGuiGraphics, BEACON_LOCATION, i, j, this.imageWidth, this.imageHeight);
         pGuiGraphics.pose().pushPose();
         pGuiGraphics.pose().translate(0.0F, 0.0F, 100.0F);
         pGuiGraphics.renderItem(new ItemStack(ModItems.PURE_BLOOD_0.get()), i + 41, j + 109);
@@ -211,7 +214,7 @@ public class VampireBeaconScreen extends AbstractContainerScreen<VampireBeaconMe
         }
 
         protected void renderIcon(GuiGraphics pGuiGraphics) {
-            pGuiGraphics.blit(this.getX() + 2, this.getY() + 2, 0, 18, 18, this.sprite);
+            pGuiGraphics.blitSprite(RenderType::guiTextured, this.sprite,this.getX() + 2, this.getY() + 2, 0, 18, 18);
         }
 
         public void updateStatus(int pBeaconTier) {
@@ -248,7 +251,7 @@ public class VampireBeaconScreen extends AbstractContainerScreen<VampireBeaconMe
                 resourcelocation = BUTTON_SPRITE;
             }
 
-            pGuiGraphics.blitSprite(resourcelocation, this.getX(), this.getY(), this.width, this.height);
+            pGuiGraphics.blitSprite(RenderType::guiTextured, resourcelocation, this.getX(), this.getY(), this.width, this.height);
             this.renderIcon(pGuiGraphics);
         }
 
@@ -278,7 +281,7 @@ public class VampireBeaconScreen extends AbstractContainerScreen<VampireBeaconMe
         }
 
         protected void renderIcon(GuiGraphics pGuiGraphics) {
-            pGuiGraphics.blitSprite(this.sprite, this.getX() + 2, this.getY() + 2, 18, 18);
+            pGuiGraphics.blitSprite(RenderType::guiTextured, this.sprite, this.getX() + 2, this.getY() + 2, 18, 18);
         }
     }
 

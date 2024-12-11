@@ -38,6 +38,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -63,7 +64,7 @@ public class Helper {
      * Checks if the entity can get sundamage at its current position.
      * It is recommended to cache the value for a few ticks.
      */
-    public static boolean gettingSundamge(LivingEntity entity, LevelAccessor world, @Nullable ProfilerFiller profiler) {
+    public static boolean gettingSundamge(LivingEntity entity, LevelAccessor world) {
         if (entity instanceof Player && entity.isSpectator()) return false;
         if (VampirismAPI.sundamageRegistry().hasSunDamage(world, entity.blockPosition())) {
             if (!(world instanceof Level) || !((Level) world).isRaining()) {
@@ -102,7 +103,7 @@ public class Helper {
                         }
                     } else if (state.canOcclude() && (state.isFaceSturdy(world, pos, Direction.DOWN) || state.isFaceSturdy(world, pos, Direction.UP))) { //solid block blocks the light (fence is solid too?)
                         return false;
-                    } else if (state.getLightBlock(world, blockpos) > 0) { //if not solid, but propagates no light
+                    } else if (state.getLightBlock() > 0) { //if not solid, but propagates no light
                         return false;
                     }
                 }
@@ -223,7 +224,7 @@ public class Helper {
     }
 
     public static ResourceLocation getBiomeId(@NotNull CommonLevelAccessor world, @NotNull Holder<Biome> biome) {
-        return biome.unwrap().map(ResourceKey::location, b -> world.registryAccess().registryOrThrow(Registries.BIOME).getKey(b));
+        return biome.unwrap().map(ResourceKey::location, b -> world.registryAccess().lookupOrThrow(Registries.BIOME).getKey(b));
     }
 
     /**
@@ -256,8 +257,8 @@ public class Helper {
         return false;
     }
 
-    public static <T extends Entity> @NotNull Optional<T> createEntity(@NotNull EntityType<T> type, @NotNull Level world) {
-        T e = type.create(world);
+    public static <T extends Entity> @NotNull Optional<T> createEntity(@NotNull EntityType<T> type, @NotNull Level world, EntitySpawnReason spawnReason) {
+        T e = type.create(world, spawnReason);
         if (e == null) {
             LOGGER.warn("Failed to create entity of type {}", RegUtil.id(type));
             return Optional.empty();

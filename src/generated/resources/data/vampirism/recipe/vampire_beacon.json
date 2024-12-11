@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "C": {
-      "item": "vampirism:mother_core"
-    },
-    "G": {
-      "item": "minecraft:glass"
-    },
-    "O": {
-      "tag": "c:obsidians"
-    }
+    "C": "vampirism:mother_core",
+    "G": "minecraft:glass",
+    "O": "#c:obsidians"
   },
   "pattern": [
     "GGG",

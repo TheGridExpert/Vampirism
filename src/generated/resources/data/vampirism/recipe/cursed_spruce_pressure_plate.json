@@ -3,9 +3,7 @@
   "category": "redstone",
   "group": "wooden_pressure_plate",
   "key": {
-    "#": {
-      "item": "vampirism:cursed_spruce_planks"
-    }
+    "#": "vampirism:cursed_spruce_planks"
   },
   "pattern": [
     "##"

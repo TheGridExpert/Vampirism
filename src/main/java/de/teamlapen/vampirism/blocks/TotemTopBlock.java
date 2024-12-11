@@ -24,10 +24,12 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
+import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -71,8 +73,8 @@ public class TotemTopBlock extends BaseEntityBlock {
     public final Holder<? extends IFaction<?>> faction;
     private final boolean crafted;
 
-    public TotemTopBlock(boolean crafted, @Nullable Holder<? extends IFaction<?>> faction) {
-        this(crafted, faction, Properties.of().mapColor(MapColor.STONE).strength(12, 2000).sound(SoundType.STONE).pushReaction(PushReaction.BLOCK));
+    public TotemTopBlock(BlockBehaviour.Properties properties, boolean crafted, @Nullable Holder<? extends IFaction<?>> faction) {
+        this(crafted, faction, properties.mapColor(MapColor.STONE).strength(12, 2000).sound(SoundType.STONE).pushReaction(PushReaction.BLOCK));
     }
 
     /**
@@ -107,7 +109,7 @@ public class TotemTopBlock extends BaseEntityBlock {
     }
 
     @Override
-    public void neighborChanged(@NotNull BlockState state, @NotNull Level worldIn, @NotNull BlockPos pos, @NotNull Block blockIn, @NotNull BlockPos fromPos, boolean isMoving) {
+    public void neighborChanged(@NotNull BlockState state, @NotNull Level worldIn, @NotNull BlockPos pos, @NotNull Block blockIn, @NotNull Orientation orientation, boolean isMoving) {
         if (worldIn.isClientSide) return;
         BlockEntity tile = worldIn.getBlockEntity(pos);
         if (tile instanceof TotemBlockEntity) {

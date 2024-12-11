@@ -10,12 +10,12 @@ import de.teamlapen.vampirism.entity.player.skills.SkillHandler;
 import de.teamlapen.vampirism.misc.VampirismLogger;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.common.EffectCure;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -31,12 +31,7 @@ public class OblivionEffect<T extends IFactionPlayer<T> & ISkillPlayer<T>> exten
     }
 
     @Override
-    public void fillEffectCures(Set<EffectCure> cures, MobEffectInstance effectInstance) {
-    }
-
-    @Override
-    public boolean applyEffectTick(@NotNull LivingEntity entityLivingBaseIn, int amplifier) {
-        if (!entityLivingBaseIn.getCommandSenderWorld().isClientSide) {
+    public boolean applyEffectTick(@NotNull ServerLevel level, @NotNull LivingEntity entityLivingBaseIn, int amplifier) {
             if (entityLivingBaseIn instanceof Player player) {
                 entityLivingBaseIn.addEffect(new MobEffectInstance(MobEffects.CONFUSION, getTickDuration(amplifier), 5, false, false, false, null));
                 return FactionPlayerHandler.get(player).<T>getSkillHandler().map(handler ->
@@ -56,7 +51,6 @@ public class OblivionEffect<T extends IFactionPlayer<T> & ISkillPlayer<T>> exten
                         return false;
                     }
                 }).orElse(true);
-            }
         }
         return true;
     }

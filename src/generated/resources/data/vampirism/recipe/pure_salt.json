@@ -5,9 +5,7 @@
     "amount": 1,
     "id": "minecraft:water"
   },
-  "ingredient": {
-    "tag": "c:crops/garlic"
-  },
+  "ingredient": "#c:crops/garlic",
   "result": {
     "count": 4,
     "id": "vampirism:pure_salt"

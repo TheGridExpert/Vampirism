@@ -2,6 +2,7 @@ package de.teamlapen.vampirism.client.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import de.teamlapen.vampirism.client.renderer.entity.state.RemainsDefenderRenderState;
 import de.teamlapen.vampirism.entity.RemainsDefenderEntity;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -9,7 +10,7 @@ import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 import org.jetbrains.annotations.NotNull;
 
-public class RemainsDefenderModel extends EntityModel<RemainsDefenderEntity> {
+public class RemainsDefenderModel extends EntityModel<RemainsDefenderRenderState> {
 
     private static final String PART1 = "part1";
     private static final String PART2 = "part2";
@@ -28,17 +29,8 @@ public class RemainsDefenderModel extends EntityModel<RemainsDefenderEntity> {
     }
 
     public RemainsDefenderModel(ModelPart part) {
+        super(part);
         this.part1 = part.getChild(PART1);
         this.part2 = part.getChild(PART2);
-    }
-
-    @Override
-    public void setupAnim(RemainsDefenderEntity pEntity, float pLimbSwing, float pLimbSwingAmount, float pAgeInTicks, float pNetHeadYaw, float pHeadPitch) {
-    }
-
-    @Override
-    public void renderToBuffer(PoseStack pPoseStack, VertexConsumer pBuffer, int pPackedLight, int pPackedOverlay, int color) {
-        this.part1.render(pPoseStack, pBuffer, pPackedLight, pPackedOverlay, color);
-        this.part2.render(pPoseStack, pBuffer, pPackedLight, pPackedOverlay, color);
     }
 }

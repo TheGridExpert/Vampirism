@@ -1,7 +1,9 @@
 package de.teamlapen.vampirism.inventory;
 
+import de.teamlapen.vampirism.VampirismMod;
 import de.teamlapen.vampirism.core.ModMenus;
 import de.teamlapen.vampirism.core.ModRecipes;
+import de.teamlapen.vampirism.recipes.BrewingRecipeInput;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -12,6 +14,7 @@ import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
@@ -94,7 +97,7 @@ public class AlchemyTableMenu extends AbstractContainerMenu {
                     if (!this.moveItemStackTo(itemstack1, INGREDIENT_SLOT, INGREDIENT_SLOT + 1, false)) {
                         return ItemStack.EMPTY;
                     }
-                } else if (OilSlot.mayPlaceItem(player.level(), itemstack) && itemstack.getCount() == 1) {
+                } else if (itemstack.getCount() == 1) {
                     if (!this.moveItemStackTo(itemstack1, OIL_SLOT_1, OIL_SLOT_2 + 1, false)) {
                         return ItemStack.EMPTY;
                     }
@@ -144,7 +147,7 @@ public class AlchemyTableMenu extends AbstractContainerMenu {
         }
 
         public static boolean mayPlaceItem(@NotNull Level world, @NotNull ItemStack itemstack) {
-            return world.getRecipeManager().getAllRecipesFor(ModRecipes.ALCHEMICAL_TABLE_TYPE.get()).stream().anyMatch(recipe -> recipe.value().isIngredient(itemstack));
+            return VampirismMod.proxy.recipeMap(world).byType(ModRecipes.ALCHEMICAL_TABLE_TYPE.get()).stream().anyMatch(recipe -> recipe.value().isIngredient(itemstack));
         }
 
         public boolean mayPlace(@NotNull ItemStack stack) {
@@ -166,7 +169,7 @@ public class AlchemyTableMenu extends AbstractContainerMenu {
         }
 
         public boolean mayPlace(@NotNull ItemStack stack) {
-            return this.world.getRecipeManager().getAllRecipesFor(ModRecipes.ALCHEMICAL_TABLE_TYPE.get()).stream().anyMatch(recipe -> recipe.value().isInput(stack));
+            return true;
         }
 
         public int getMaxStackSize() {

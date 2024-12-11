@@ -161,6 +161,15 @@ public class LootTablesProvider {
             this.add(ModEntities.VAMPIRE_MINION.get(), LootTable.lootTable());
             this.add(ModEntities.HUNTER_MINION.get(), LootTable.lootTable());
             this.add(ModEntities.GHOST.get(), LootTable.lootTable());
+            this.add(ModEntities.THROWABLE_ITEM.get(), LootTable.lootTable());
+            this.add(ModEntities.dummy_sit_entity.get(), LootTable.lootTable());
+            this.add(ModEntities.CROSSBOW_ARROW.get(), LootTable.lootTable());
+            this.add(ModEntities.DARK_BLOOD_PROJECTILE.get(), LootTable.lootTable());
+            this.add(ModEntities.SOUL_ORB.get(), LootTable.lootTable());
+            this.add(ModEntities.HUNTER_TRAINER_DUMMY.get(), LootTable.lootTable());
+            this.add(ModEntities.PARTICLE_CLOUD.get(), LootTable.lootTable());
+            this.add(ModEntities.REMAINS_DEFENDER.get(), LootTable.lootTable());
+            this.add(ModEntities.VULNERABLE_REMAINS_DUMMY.get(), LootTable.lootTable());
         }
     }
 
@@ -538,7 +547,7 @@ public class LootTablesProvider {
             this.dropSelf(ModBlocks.CHISELED_DARK_STONE_BRICKS.get());
             this.otherWhenSilkTouch(ModBlocks.INFESTED_DARK_STONE.get(), ModBlocks.DARK_STONE.get());
             this.dropSelf(ModBlocks.BAT_CAGE.get());
-            this.add(ModBlocks.CURSED_HANGING_ROOTS.get(), ModBlockLootTables::createShearsOnlyDrop);
+            this.add(ModBlocks.CURSED_HANGING_ROOTS.get(), this::createShearsOnlyDrop);
             this.add(ModBlocks.MOTHER.get(),
                     createSingleItemTable(ModItems.MOTHER_CORE.get())
                             .withPool(applyExplosionCondition(ModBlocks.MOTHER_TROPHY.get(), LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F)).add(LootItem.lootTableItem(ModBlocks.MOTHER_TROPHY.get()))))

@@ -92,7 +92,7 @@ public class RefinementItemReward extends ItemReward {
         if (faction == null) {
             if (baseItem != null) {
                 TagKey<IFaction<?>> exclusiveFaction = baseItem.getExclusiveFaction(baseItem.asItem().getDefaultInstance());
-                List<Holder<IFaction<?>>> list = ModRegistries.FACTIONS.getTag(exclusiveFaction).stream().flatMap(HolderSet.ListBacked::stream).filter(s -> s.value() instanceof IPlayableFaction<?> faction1 && faction1.hasRefinements()).toList();
+                List<Holder<IFaction<?>>> list = ModRegistries.FACTIONS.get(exclusiveFaction).stream().flatMap(HolderSet.ListBacked::stream).filter(s -> s.value() instanceof IPlayableFaction<?> faction1 && faction1.hasRefinements()).toList();
                 //noinspection unchecked,RedundantCast
                 faction = list.isEmpty() ? null : (Holder<? extends IPlayableFaction<?>>) (Object) list.get(random.nextInt(list.size() - 1));
             } else {
@@ -126,7 +126,7 @@ public class RefinementItemReward extends ItemReward {
     @Nullable
     private static Holder<? extends IPlayableFaction<?>> getRandomFactionWithAccessories(RandomSource random) {
         //noinspection unchecked,RedundantCast
-        List<Holder<? extends IPlayableFaction<?>>> factions = ModRegistries.FACTIONS.holders().filter(s -> s.value() instanceof IPlayableFaction<?>).map(s -> ((Holder<? extends IPlayableFaction<?>>) (Object) s)).filter(s -> s.value().hasRefinements()).collect(Collectors.toUnmodifiableList());
+        List<Holder<? extends IPlayableFaction<?>>> factions = ModRegistries.FACTIONS.listElements().filter(s -> s.value() instanceof IPlayableFaction<?>).map(s -> ((Holder<? extends IPlayableFaction<?>>) (Object) s)).filter(s -> s.value().hasRefinements()).collect(Collectors.toUnmodifiableList());
         if (factions.isEmpty()) return null;
         return factions.get(random.nextInt(factions.size()) - 1);
     }

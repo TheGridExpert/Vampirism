@@ -92,7 +92,7 @@ public class VampireDungeonFeature extends MonsterRoomFeature {
                             if (!blockstate.is(Blocks.CHEST) && !blockstate.is(Blocks.SPAWNER)) {
                                 this.safeSetBlock(worldgenlevel, blockpos2, CAVE_AIR, predicate);
                             }
-                        } else if (blockpos2.getY() >= worldgenlevel.getMinBuildHeight() && !worldgenlevel.getBlockState(blockpos2.below()).isSolid()) {
+                        } else if (blockpos2.getY() >= worldgenlevel.getMinY() && !worldgenlevel.getBlockState(blockpos2.below()).isSolid()) {
                             worldgenlevel.setBlock(blockpos2, CAVE_AIR, 2);
                         } else if (blockstate.isSolid() && !blockstate.is(Blocks.CHEST)) {
                             if (i4 == -1 && randomsource.nextInt(4) != 0) {
@@ -134,7 +134,7 @@ public class VampireDungeonFeature extends MonsterRoomFeature {
             if (blockentity instanceof SpawnerBlockEntity) {
                 ((SpawnerBlockEntity) blockentity).getSpawner().setEntityId(ModEntities.VAMPIRE.get(), null, randomsource, blockpos);
             } else {
-                LOGGER.error("Failed to fetch mob spawner entity at ({}, {}, {})", blockpos.getX(), blockpos.getY(), blockpos.getZ());
+                LOGGER.error("Failed to fetch vampirism mob spawner entity at ({}, {}, {})", blockpos.getX(), blockpos.getY(), blockpos.getZ());
             }
 
             return true;

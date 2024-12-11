@@ -9,13 +9,15 @@ import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.data.recipes.RecipeOutput;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.ItemLike;
 import net.neoforged.neoforge.fluids.FluidStack;
 import org.jetbrains.annotations.NotNull;
@@ -47,14 +49,14 @@ public class AlchemicalCauldronRecipeBuilder implements RecipeBuilder {
     }
 
     @Override
-    public void save(RecipeOutput recipeOutput, @NotNull ResourceLocation resourceLocation) {
+    public void save(RecipeOutput recipeOutput, @NotNull ResourceKey<Recipe<?>> resourceLocation) {
         Advancement.Builder builder = recipeOutput.advancement()
                 .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(resourceLocation))
                 .rewards(AdvancementRewards.Builder.recipe(resourceLocation))
                 .requirements(AdvancementRequirements.Strategy.OR);
         this.criteria.forEach(builder::addCriterion);
         var recipe = new AlchemicalCauldronRecipe(Objects.requireNonNullElse(this.group, ""), this.ingredient, this.fluid, this.result, this.skills, this.reqLevel, this.cookTime, this.exp);
-        recipeOutput.accept(resourceLocation, recipe, builder.build(resourceLocation.withPrefix("recipes/alchemical_cauldron/")));
+        recipeOutput.accept(resourceLocation, recipe, builder.build(resourceLocation.location().withPrefix("recipes/alchemical_cauldron/")));
     }
 
     @Override
@@ -88,8 +90,8 @@ public class AlchemicalCauldronRecipeBuilder implements RecipeBuilder {
         return this;
     }
 
-    public @NotNull AlchemicalCauldronRecipeBuilder withFluid(@NotNull TagKey<Item> tag) {
-        this.fluid = Either.left(Ingredient.of(tag));
+    public @NotNull AlchemicalCauldronRecipeBuilder withFluid(HolderGetter<Item> lookup, @NotNull TagKey<Item> tag) {
+        this.fluid = Either.left(Ingredient.of(lookup.getOrThrow(tag)));
         return this;
     }
 
@@ -103,23 +105,13 @@ public class AlchemicalCauldronRecipeBuilder implements RecipeBuilder {
         return this;
     }
 
-    public @NotNull AlchemicalCauldronRecipeBuilder withFluid(@NotNull ItemStack... stacks) {
-        this.fluid = Either.left(Ingredient.of(stacks));
-        return this;
-    }
-
     public @NotNull AlchemicalCauldronRecipeBuilder withIngredient(@NotNull ItemLike... items) {
         this.ingredient = Ingredient.of(items);
         return this;
     }
 
-    public @NotNull AlchemicalCauldronRecipeBuilder withIngredient(@NotNull ItemStack... stacks) {
-        this.ingredient = Ingredient.of(stacks);
-        return this;
-    }
-
-    public @NotNull AlchemicalCauldronRecipeBuilder withIngredient(@NotNull TagKey<Item> tag) {
-        this.ingredient = Ingredient.of(tag);
+    public @NotNull AlchemicalCauldronRecipeBuilder withIngredient(HolderGetter<Item> lookup, @NotNull TagKey<Item> tag) {
+        this.ingredient = Ingredient.of(lookup.getOrThrow(tag));
         return this;
     }
 

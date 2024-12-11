@@ -1,5 +1,7 @@
 package de.teamlapen.vampirism.client.gui.screens;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import de.teamlapen.lib.lib.client.gui.GuiRenderer;
 import de.teamlapen.lib.lib.client.gui.components.SimpleList;
 import de.teamlapen.vampirism.api.entity.minion.IMinionTask;
 import de.teamlapen.vampirism.api.util.VResourceLocation;
@@ -10,6 +12,7 @@ import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.LockIconButton;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -67,12 +70,12 @@ public class MinionScreen extends AbstractContainerScreen<MinionContainer> {
 
     @Override
     protected void renderBg(@NotNull GuiGraphics graphics, float partialTicks, int mouseX, int mouseY) {
-        graphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
+        GuiRenderer.resetColor();
         int i = (this.width - this.imageWidth) / 2;
         int j = (this.height - this.imageHeight) / 2;
-        graphics.blit(BACKGROUND, i, j, 0, 0, this.imageWidth, this.imageHeight);
+        GuiRenderer.blit(graphics, BACKGROUND, i, j, this.imageWidth, this.imageHeight);
         for (int k = extraSlots; k < 15; k++) {
-            graphics.blitSprite(LOCKED_SPRITE, i + 29 + 18 * (k / 3), j + 44 + 18 * (k % 3), 13, 13);
+            graphics.blitSprite(RenderType::guiTextured, LOCKED_SPRITE, i + 29 + 18 * (k / 3), j + 44 + 18 * (k % 3), 13, 13);
         }
     }
 

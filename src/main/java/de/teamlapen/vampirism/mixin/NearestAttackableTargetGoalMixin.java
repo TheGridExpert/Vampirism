@@ -1,9 +1,11 @@
 package de.teamlapen.vampirism.mixin;
 
+import de.teamlapen.lib.lib.util.AndTargetSelector;
 import de.teamlapen.vampirism.api.entity.factions.IFactionEntity;
 import de.teamlapen.vampirism.entity.ai.goals.NearestTargetGoalModifier;
 import de.teamlapen.vampirism.mixin.accessor.TargetConditionAccessor;
 import de.teamlapen.vampirism.util.Helper;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
@@ -27,22 +29,22 @@ public class NearestAttackableTargetGoalMixin implements NearestTargetGoalModifi
     @Unique
     private static final BiPredicate<Mob, LivingEntity> vampirism$nonVampireCheck = (mob, target) -> !Helper.appearsAsVampire(target, mob);
     @Unique
-    private static final Predicate<LivingEntity> vampirism$noFactionEntityCheck = entity -> !(entity instanceof IFactionEntity);
+    private static final TargetingConditions.Selector vampirism$noFactionEntityCheck = (entity, level) -> !(entity instanceof IFactionEntity);
 
     @Override
     public void ignoreVampires(Mob mob) {
-        Predicate<LivingEntity> predicate = l -> vampirism$nonVampireCheck.test(mob, l);
+        TargetingConditions.Selector predicate = (l, level) -> vampirism$nonVampireCheck.test(mob, l);
         if (((TargetConditionAccessor) this.targetConditions).getSelector() != null) {
-            predicate = predicate.and(((TargetConditionAccessor) this.targetConditions).getSelector());
+            predicate = new AndTargetSelector(predicate, ((TargetConditionAccessor) this.targetConditions).getSelector());
         }
         this.targetConditions.selector(predicate);
     }
 
     @Override
     public void ignoreFactionEntities() {
-        Predicate<LivingEntity> predicate = vampirism$noFactionEntityCheck;
+        TargetingConditions.Selector predicate = vampirism$noFactionEntityCheck;
         if (((TargetConditionAccessor) this.targetConditions).getSelector() != null) {
-            predicate = predicate.and(((TargetConditionAccessor) this.targetConditions).getSelector());
+            predicate = new AndTargetSelector(predicate, ((TargetConditionAccessor) this.targetConditions).getSelector());
         }
         this.targetConditions.selector(predicate);
     }

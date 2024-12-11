@@ -34,7 +34,7 @@ public class HunterTableMenu extends ItemCombinerMenu {
 
 
     public HunterTableMenu(int id, @NotNull Inventory playerInventory, ContainerLevelAccess worldPosCallable) {
-        super(ModMenus.HUNTER_TABLE.get(), id, playerInventory, worldPosCallable);
+        super(ModMenus.HUNTER_TABLE.get(), id, playerInventory, worldPosCallable, createInputSlotDefinitions(playerInventory.player));
         int hunterLevel = FactionPlayerHandler.get(playerInventory.player).getCurrentLevel(ModFactions.HUNTER);
         this.tableRequirement = HunterLeveling.getTrainerRequirement(hunterLevel + 1).map(HunterLeveling.HunterTrainerRequirement::tableRequirement);
     }
@@ -47,12 +47,13 @@ public class HunterTableMenu extends ItemCombinerMenu {
         return this.tableRequirement;
     }
 
-    @Override
-    protected @NotNull ItemCombinerMenuSlotDefinition createInputSlotDefinitions() {
+    protected static @NotNull ItemCombinerMenuSlotDefinition createInputSlotDefinitions(Player player) {
+        int hunterLevel = FactionPlayerHandler.get(player).getCurrentLevel(ModFactions.HUNTER);
+        var tableRequirement = HunterLeveling.getTrainerRequirement(hunterLevel + 1).map(HunterLeveling.HunterTrainerRequirement::tableRequirement);
         return ItemCombinerMenuSlotDefinition.create()
                 .withSlot(0, 15, 28, stack -> stack.is(Items.BOOK))
                 .withSlot(1, 42, 28, stack -> stack.is(ModItems.VAMPIRE_FANG.get()))
-                .withSlot(2, 69, 28, stack -> this.tableRequirement.filter(req -> req.pureBloodLevel() <= (stack.getItem() instanceof PureBloodItem pure ? pure.getLevel() : -1)).isPresent())
+                .withSlot(2, 69, 28, stack -> tableRequirement.filter(req -> req.pureBloodLevel() <= (stack.getItem() instanceof PureBloodItem pure ? pure.getLevel() : -1)).isPresent())
                 .withSlot(3, 96, 28, stack -> stack.is(ModItems.VAMPIRE_BOOK.get()))
                 .withResultSlot(4, 146, 28)
                 .build();

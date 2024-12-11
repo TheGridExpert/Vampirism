@@ -13,6 +13,10 @@ public class VResourceLocation {
         return ResourceLocation.fromNamespaceAndPath(VReference.MODID, path);
     }
 
+    public static String modString(String path) {
+        return VReference.MODID + ":" + path;
+    }
+
     public static ResourceLocation common(String path) {
         return ResourceLocation.fromNamespaceAndPath("c", path);
     }

@@ -67,7 +67,7 @@ public class TaskManager<T extends ITaskPlayer<T>> implements ITaskManager, IDef
         this.faction = faction;
         this.player = player;
         this.factionPlayer = factionPlayer;
-        this.registry = player.level().registryAccess().registryOrThrow(VampirismRegistries.Keys.TASK);
+        this.registry = player.level().registryAccess().lookupOrThrow(VampirismRegistries.Keys.TASK);
     }
 
     // interface -------------------------------------------------------------------------------------------------------
@@ -119,7 +119,7 @@ public class TaskManager<T extends ITaskPlayer<T>> implements ITaskManager, IDef
     }
 
     private Task getTask(ResourceKey<Task> key) {
-        return this.registry.get(key.location());
+        return this.registry.getValue(key.location());
     }
 
     @Override
@@ -260,7 +260,7 @@ public class TaskManager<T extends ITaskPlayer<T>> implements ITaskManager, IDef
 
     @Override
     public void resetUniqueTask(@NotNull ResourceKey<Task> id) {
-        this.registry.getHolder(id).filter(a -> a.is(ModTaskTags.IS_UNIQUE)).ifPresent(task -> {
+        this.registry.get(id).filter(a -> a.is(ModTaskTags.IS_UNIQUE)).ifPresent(task -> {
             this.completedTasks.remove(task.key());
             TaskWrapper wrapper = this.taskWrapperMap.get(UNIQUE_TASKS);
             if (wrapper != null) {
@@ -370,7 +370,7 @@ public class TaskManager<T extends ITaskPlayer<T>> implements ITaskManager, IDef
                 neededStat = stats.get(requirement.id()) + requirement.getAmount(this.factionPlayer);
             }
             case ENTITY_TAG -> {
-                actualStat += BuiltInRegistries.ENTITY_TYPE.getTag((TagKey<EntityType<?>>) requirement.getStat(this.factionPlayer)).stream().flatMap(HolderSet.ListBacked::stream).map(Holder::value).mapToInt(type -> this.player.getStats().getValue(Stats.ENTITY_KILLED.get(type))).sum();
+                actualStat += BuiltInRegistries.ENTITY_TYPE.get((TagKey<EntityType<?>>) requirement.getStat(this.factionPlayer)).stream().flatMap(HolderSet.ListBacked::stream).map(Holder::value).mapToInt(type -> this.player.getStats().getValue(Stats.ENTITY_KILLED.get(type))).sum();
                 neededStat = stats.get(requirement.id()) + requirement.getAmount(this.factionPlayer);
             }
             case ITEMS -> {
@@ -402,7 +402,7 @@ public class TaskManager<T extends ITaskPlayer<T>> implements ITaskManager, IDef
         }
         wrapper.taskAmount = wrapper.taskAmount < 0 ? player.getRandom().nextInt(VampirismConfig.BALANCE.taskMasterMaxTaskAmount.get()) + 1 - wrapper.lessTasks : wrapper.taskAmount;
         if (wrapper.tasks.size() < wrapper.taskAmount) {
-            List<Holder.Reference<Task>> tasks = this.registry.holders().collect(Collectors.toList());
+            List<Holder.Reference<Task>> tasks = this.registry.listElements().collect(Collectors.toList());
             Collections.shuffle(tasks);
             wrapper.tasks.putAll(tasks.stream().filter(this::matchesFaction).filter(task -> !task.is(ModTaskTags.IS_UNIQUE)).filter(this::isTaskUnlocked).limit(wrapper.taskAmount - wrapper.tasks.size()).map(task -> new TaskInstance(task, taskBoardId, this.factionPlayer, this.getTaskTimeConfig() * 1200L)).collect(Collectors.toMap(TaskInstance::getId, t -> t)));
         }
@@ -424,7 +424,7 @@ public class TaskManager<T extends ITaskPlayer<T>> implements ITaskManager, IDef
             this.removeLockedTasks(uniqueTasks.values());
         }
         Collection<ResourceKey<Task>> tasks = uniqueTasks.values().stream().map(ITaskInstance::getTask).collect(Collectors.toSet());
-        uniqueTasks.putAll(this.registry.holders().filter(this::matchesFaction).filter(t -> t.is(ModTaskTags.IS_UNIQUE)).filter(task -> !tasks.contains(task.key())).filter(task -> !this.completedTasks.contains(task.key())).filter(this::isTaskUnlocked).map(task -> new TaskInstance(task, UNIQUE_TASKS, this.factionPlayer, 0)).collect(Collectors.toMap(TaskInstance::getId, a -> a)));
+        uniqueTasks.putAll(this.registry.listElements().filter(this::matchesFaction).filter(t -> t.is(ModTaskTags.IS_UNIQUE)).filter(task -> !tasks.contains(task.key())).filter(task -> !this.completedTasks.contains(task.key())).filter(this::isTaskUnlocked).map(task -> new TaskInstance(task, UNIQUE_TASKS, this.factionPlayer, 0)).collect(Collectors.toMap(TaskInstance::getId, a -> a)));
         wrapper.tasks.putAll(uniqueTasks);
         this.updateStats(uniqueTasks.values());
         return uniqueTasks.values();
@@ -442,7 +442,7 @@ public class TaskManager<T extends ITaskPlayer<T>> implements ITaskManager, IDef
      * @return whether the task's faction is applicant to the taskManager's {@link #faction}
      */
     private boolean matchesFaction(@NotNull ResourceKey<Task> task) {
-        return this.registry.getHolder(task).map(this::matchesFaction).orElse(false);
+        return this.registry.get(task).map(this::matchesFaction).orElse(false);
     }
 
     private boolean matchesFaction(@NotNull Holder<Task> task) {
@@ -491,7 +491,7 @@ public class TaskManager<T extends ITaskPlayer<T>> implements ITaskManager, IDef
                 case STATS -> reqStats.putIfAbsent(requirement.id(), this.player.getStats().getValue(Stats.CUSTOM.get((ResourceLocation) requirement.getStat(this.factionPlayer))));
                 case ENTITY -> reqStats.putIfAbsent(requirement.id(), this.player.getStats().getValue(Stats.ENTITY_KILLED.get((EntityType<?>) requirement.getStat(this.factionPlayer))));
                 case ENTITY_TAG ->
-                        reqStats.putIfAbsent(requirement.id(), BuiltInRegistries.ENTITY_TYPE.getTag((TagKey<EntityType<?>>) requirement.getStat(this.factionPlayer)).stream().flatMap(s -> s.stream()).map(s -> s.value()).mapToInt(type -> this.player.getStats().getValue(Stats.ENTITY_KILLED.get(type))).sum());
+                        reqStats.putIfAbsent(requirement.id(), BuiltInRegistries.ENTITY_TYPE.get((TagKey<EntityType<?>>) requirement.getStat(this.factionPlayer)).stream().flatMap(s -> s.stream()).map(s -> s.value()).mapToInt(type -> this.player.getStats().getValue(Stats.ENTITY_KILLED.get(type))).sum());
                 default -> {
                 }
             }

@@ -35,6 +35,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.StructureTags;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
@@ -159,7 +160,7 @@ public class BasicHunterEntity extends HunterBaseEntity implements IBasicHunter,
                             LOGGER.error("Failed to get minion slot");
                             return;
                         }
-                        HunterMinionEntity minion = ModEntities.HUNTER_MINION.get().create(this.level());
+                        HunterMinionEntity minion = ModEntities.HUNTER_MINION.get().create(this.level(), EntitySpawnReason.CONVERSION);
                         minion.claimMinionSlot(id, controller);
                         minion.copyPosition(this);
                         minion.markAsConverted();
@@ -204,8 +205,8 @@ public class BasicHunterEntity extends HunterBaseEntity implements IBasicHunter,
     }
 
     @Override
-    public boolean doHurtTarget(@NotNull Entity entity) {
-        boolean flag = super.doHurtTarget(entity);
+    public boolean doHurtTarget(ServerLevel level, @NotNull Entity entity) {
+        boolean flag = super.doHurtTarget(level, entity);
         if (flag && this.getMainHandItem().isEmpty()) {
             this.swing(InteractionHand.MAIN_HAND);  //Swing stake if nothing else is held
         }
@@ -214,8 +215,8 @@ public class BasicHunterEntity extends HunterBaseEntity implements IBasicHunter,
 
     @Nullable
     @Override
-    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor worldIn, @NotNull DifficultyInstance difficultyIn, @NotNull MobSpawnType reason, @Nullable SpawnGroupData spawnDataIn) {
-        if (!(reason == MobSpawnType.SPAWN_EGG || reason == MobSpawnType.BUCKET || reason == MobSpawnType.CONVERSION || reason == MobSpawnType.COMMAND) && this.getRandom().nextInt(50) == 0) {
+    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor worldIn, @NotNull DifficultyInstance difficultyIn, @NotNull EntitySpawnReason reason, @Nullable SpawnGroupData spawnDataIn) {
+        if (!(reason == EntitySpawnReason.SPAWN_ITEM_USE || reason == EntitySpawnReason.BUCKET || reason == EntitySpawnReason.CONVERSION || reason == EntitySpawnReason.COMMAND) && this.getRandom().nextInt(50) == 0) {
             this.setItemSlot(EquipmentSlot.HEAD, HunterVillage.createBanner(worldIn.registryAccess()));
         }
         getEntityData().set(TYPE, this.getRandom().nextInt(TYPES));
@@ -358,9 +359,9 @@ public class BasicHunterEntity extends HunterBaseEntity implements IBasicHunter,
     }
 
     @Override
-    protected int getBaseExperienceReward() {
+    protected int getBaseExperienceReward(ServerLevel level) {
         this.xpReward = 6 + getEntityLevel();
-        return super.getBaseExperienceReward();
+        return super.getBaseExperienceReward(level);
     }
 
     //IMob -------------------------------------------------------------------------------------------------------------
@@ -382,7 +383,7 @@ public class BasicHunterEntity extends HunterBaseEntity implements IBasicHunter,
                         trainee = player;
                         this.getNavigation().stop();
                     } else {
-                        player.sendSystemMessage(Component.translatable("text.vampirism.i_am_busy_right_now"));
+                        player.displayClientMessage(Component.translatable("text.vampirism.i_am_busy_right_now"), true);
                     }
                     return InteractionResult.SUCCESS;
                 } else if (hunterLevel > 0) {
@@ -471,15 +472,15 @@ public class BasicHunterEntity extends HunterBaseEntity implements IBasicHunter,
         this.targetSelector.addGoal(1, new HurtByTargetGoal(this, IHunterMob.class));
         this.targetSelector.addGoal(2, new AttackVillageGoal<>(this));
         this.targetSelector.addGoal(2, new DefendVillageGoal<>(this));//Should automatically be mutually exclusive with  attack village
-        this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, Player.class, 5, true, false, VampirismAPI.factionRegistry().getPredicate(getFaction(), true, false, false, false, null)));
-        this.targetSelector.addGoal(5, new NearestAttackableTargetGoal<>(this, PathfinderMob.class, 5, true, false, VampirismAPI.factionRegistry().getPredicate(getFaction(), false, true, false, false, null)) {
+        this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, Player.class, 5, true, false, VampirismAPI.factionRegistry().getSelector(getFaction(), true, false, false, false, null)));
+        this.targetSelector.addGoal(5, new NearestAttackableTargetGoal<>(this, PathfinderMob.class, 5, true, false, VampirismAPI.factionRegistry().getSelector(getFaction(), false, true, false, false, null)) {
             @Override
             protected double getFollowDistance() {
                 return super.getFollowDistance() / 2;
             }
         });
         this.targetSelector.addGoal(6, new NearestAttackableTargetGoal<>(this, Zombie.class, true, true));
-        this.targetSelector.addGoal(7, new NearestAttackableTargetGoal<>(this, PatrollingMonster.class, 5, true, true, (living) -> UtilLib.isInsideStructure(living, StructureTags.VILLAGE)));        //Also check the priority of tasks that are dynamically added. See top of class
+        this.targetSelector.addGoal(7, new NearestAttackableTargetGoal<>(this, PatrollingMonster.class, 5, true, true, (living, level) -> UtilLib.isInsideStructure(living, StructureTags.VILLAGE)));        //Also check the priority of tasks that are dynamically added. See top of class
     }
 
     protected void updateEntityAttributes() {

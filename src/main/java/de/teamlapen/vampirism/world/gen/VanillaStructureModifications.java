@@ -68,7 +68,7 @@ public class VanillaStructureModifications {
         // return if temples should not be modified
         if (!VampirismConfig.COMMON.villageReplaceTemples.get()) return;
         // get jigsaw registry
-        dynamicRegistries.registry(Registries.TEMPLATE_POOL).ifPresent(jigsawRegistry -> {
+        dynamicRegistries.lookup(Registries.TEMPLATE_POOL).ifPresent(jigsawRegistry -> {
             // for every desired pools
             patternReplacements.forEach((pool, replacements) ->
                     // get the pool if present
@@ -122,7 +122,7 @@ public class VanillaStructureModifications {
      */
     private static void addHunterTrainerHouse(@NotNull RegistryAccess reg, @NotNull Map<ResourceLocation, VanillaStructureModifications.BiomeType> pools) {
         // get jigsaw registry
-        reg.registry(Registries.TEMPLATE_POOL).ifPresent(patternRegistry -> {
+        reg.lookup(Registries.TEMPLATE_POOL).ifPresent(patternRegistry -> {
             // for every desired pools
             pools.forEach((pool, type) -> {
                 // get the pool if present
@@ -151,7 +151,7 @@ public class VanillaStructureModifications {
 
         StructurePoolElement totem = singleJigsawPiece(reg.lookupOrThrow(Registries.PROCESSOR_LIST), "village/totem", TOTEM_FACTION_PROCESSOR);
 
-        reg.registry(Registries.TEMPLATE_POOL).ifPresent((patternRegistry) -> pools.forEach((pool, type) -> {
+        reg.lookup(Registries.TEMPLATE_POOL).ifPresent((patternRegistry) -> pools.forEach((pool, type) -> {
             // get the pool if present
             patternRegistry.getOptional(pool).ifPresent((pattern) -> {
                 // add totem with weight

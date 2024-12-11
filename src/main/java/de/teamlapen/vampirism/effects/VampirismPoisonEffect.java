@@ -2,6 +2,7 @@ package de.teamlapen.vampirism.effects;
 
 import de.teamlapen.vampirism.core.ModEffects;
 import de.teamlapen.vampirism.util.DamageHandler;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSources;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -18,10 +19,10 @@ public class VampirismPoisonEffect extends VampirismEffect {
     }
 
     @Override
-    public boolean applyEffectTick(@NotNull LivingEntity entityLivingBaseIn, int amplifier) {
+    public boolean applyEffectTick(ServerLevel level, @NotNull LivingEntity entityLivingBaseIn, int amplifier) {
         float damage = amplifier >= DEADLY_AMPLIFIER ? amplifier : Math.min(entityLivingBaseIn.getHealth() - 1, Math.max(1, amplifier));
         if (damage > 0) {
-            DamageHandler.hurtVanilla(entityLivingBaseIn, DamageSources::magic, damage);
+            DamageHandler.hurtVanilla(level, entityLivingBaseIn, DamageSources::magic, damage);
         }
         return true;
     }

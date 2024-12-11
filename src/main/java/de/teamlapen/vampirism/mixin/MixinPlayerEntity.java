@@ -24,9 +24,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(Player.class)
 public abstract class MixinPlayerEntity extends LivingEntity implements IVampirismPlayer {
 
-    @Shadow
-    public abstract Either<Player.BedSleepingProblem, Unit> startSleepInBed(BlockPos pBedPos);
-
     @Unique
     private final VampirismPlayerAttributes vampirismPlayerAttributes = new VampirismPlayerAttributes();
 
@@ -38,15 +35,5 @@ public abstract class MixinPlayerEntity extends LivingEntity implements IVampiri
     @Override
     public VampirismPlayerAttributes getVampAtts() {
         return vampirismPlayerAttributes;
-    }
-
-    @Inject(method = "canTakeItem", at = @At("HEAD"), cancellable = true)
-    private void canTakeItem(ItemStack stack, CallbackInfoReturnable<Boolean> cir) {
-        if (stack.getItem() instanceof IFactionExclusiveItem item) {
-            @NotNull TagKey<IFaction<?>> exclusiveFaction = item.getExclusiveFaction(stack);
-            if (!IFaction.is(this.vampirismPlayerAttributes.faction(), exclusiveFaction)) {
-                cir.setReturnValue(false);
-            }
-        }
     }
 }

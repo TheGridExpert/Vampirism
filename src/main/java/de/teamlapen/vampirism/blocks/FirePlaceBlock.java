@@ -11,6 +11,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.LevelWriter;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -25,8 +26,8 @@ public class FirePlaceBlock extends VampirismBlock {
     }
 
 
-    public FirePlaceBlock() {
-        super(Properties.of().mapColor(MapColor.WOOD).lightLevel(s -> 15).strength(1).ignitedByLava().noOcclusion());
+    public FirePlaceBlock(BlockBehaviour.Properties properties) {
+        super(properties.mapColor(MapColor.WOOD).lightLevel(s -> 15).strength(1).ignitedByLava().noOcclusion());
 
     }
 

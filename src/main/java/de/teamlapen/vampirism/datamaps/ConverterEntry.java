@@ -65,9 +65,5 @@ public record ConverterEntry(Converter converter, Optional<ResourceLocation> ove
                 x -> x.attributeModifier.entrySet().stream().map(s -> com.mojang.datafixers.util.Pair.of(s.getKey(), com.mojang.datafixers.util.Pair.of(s.getValue().getFirst(), s.getValue().getSecond()))).collect(Collectors.toList())
         );
 
-        public com.mojang.datafixers.util.Pair<FloatProvider, Double> modifier(Attribute attribute) {
-            return attributeModifier.get(attribute);
-        }
-
     }
 }

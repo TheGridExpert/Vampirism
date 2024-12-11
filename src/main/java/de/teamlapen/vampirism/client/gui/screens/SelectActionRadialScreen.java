@@ -1,5 +1,7 @@
 package de.teamlapen.vampirism.client.gui.screens;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import de.teamlapen.lib.lib.client.gui.GuiRenderer;
 import de.teamlapen.lib.lib.client.gui.screens.radialmenu.IRadialMenuSlot;
 import de.teamlapen.lib.lib.client.gui.screens.radialmenu.RadialMenu;
 import de.teamlapen.lib.lib.client.gui.screens.radialmenu.RadialMenuSlot;
@@ -17,6 +19,7 @@ import de.teamlapen.vampirism.network.ServerboundToggleActionPacket;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -57,6 +60,10 @@ public class SelectActionRadialScreen<T extends ISkillPlayer<T>> extends DualSwi
         }
     }
 
+    @Override
+    public void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    }
+
     private static RadialMenu<Holder<IAction<?>>> getRadialMenu(List<Holder<IAction<?>>> actions) {
         Player player = Minecraft.getInstance().player;
         List<IRadialMenuSlot<Holder<IAction<?>>>> parts = actions.stream().filter(s -> s.value().showInSelectAction(player)).map(a -> (IRadialMenuSlot<Holder<IAction<?>>>) new RadialMenuSlot<>(a.value().getName(), a, Collections.emptyList())).toList();
@@ -67,8 +74,8 @@ public class SelectActionRadialScreen<T extends ISkillPlayer<T>> extends DualSwi
 
     private static void drawActionPart(Holder<IAction<?>> action, GuiGraphics graphics, int posX, int posY, int size, boolean transparent) {
         var texture = action.unwrapKey().map(ResourceKey::location).map(s -> s.withPath("textures/actions/" + s.getPath() + ".png")).orElseThrow();
-        graphics.setColor(1, 1, 1, 1);
-        graphics.blit(texture, posX, posY, 0, 0, 0, 16, 16, 16, 16);
+        GuiRenderer.resetColor();
+        GuiRenderer.blit(graphics, texture, posX, posY, 16, 16, 16, 16);
     }
 
     @Override

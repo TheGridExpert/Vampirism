@@ -5,8 +5,10 @@ import de.teamlapen.vampirism.REFERENCE;
 import de.teamlapen.vampirism.advancements.critereon.FactionSubPredicate;
 import de.teamlapen.vampirism.advancements.critereon.PlayerFactionSubPredicate;
 import de.teamlapen.vampirism.api.VEnums;
+import de.teamlapen.vampirism.api.VReference;
 import de.teamlapen.vampirism.api.VampirismRegistries;
 import de.teamlapen.vampirism.api.entity.convertible.Converter;
+import de.teamlapen.vampirism.api.util.VResourceLocation;
 import de.teamlapen.vampirism.datamaps.EntityExistsCondition;
 import de.teamlapen.vampirism.entity.*;
 import de.teamlapen.vampirism.entity.converted.*;
@@ -21,8 +23,11 @@ import net.minecraft.advancements.critereon.EntitySubPredicate;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.syncher.EntityDataSerializer;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ambient.Bat;
+import net.minecraft.world.entity.vehicle.Boat;
+import net.minecraft.world.entity.vehicle.ChestBoat;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -89,6 +94,10 @@ public class ModEntities {
     public static final DeferredHolder<EntityType<?>, EntityType<GhostEntity>> GHOST = prepareEntityType("ghost", () -> EntityType.Builder.of(GhostEntity::new, VEnums.VAMPIRE_CATEGORY.getValue()).sized(0.35F, 0.5F).setTrackingRange(10).setUpdateInterval(20).fireImmune(), true);
     public static final DeferredHolder<EntityType<?>, EntityType<ConvertedCamelEntity>> CONVERTED_CAMEL = prepareEntityType("converted_camel", () -> EntityType.Builder.of(ConvertedCamelEntity::new, MobCategory.CREATURE).sized(1.7F, 2.375F), false);
     public static final DeferredHolder<EntityType<?>, EntityType<ConvertedCatEntity>> CONVERTED_CAT = prepareEntityType("converted_cat", () -> EntityType.Builder.of(ConvertedCatEntity::new, MobCategory.CREATURE).sized(0.6F, 0.7F), false);
+    public static final DeferredHolder<EntityType<?>, EntityType<Boat>> DARK_SPRUCE_BOAT = prepareEntityType("dark_spruce_boat", () -> EntityType.Builder.of(EntityType.boatFactory(ModItems.DARK_SPRUCE_BOAT::get), MobCategory.MISC).noLootTable().sized(1.375f,0.5625f).eyeHeight(0.5625f).clientTrackingRange(10), false);
+    public static final DeferredHolder<EntityType<?>, EntityType<Boat>> CURSED_SPRUCE_BOAT = prepareEntityType("cursed_spruce_boat", () -> EntityType.Builder.of(EntityType.boatFactory(ModItems.CURSED_SPRUCE_BOAT::get), MobCategory.MISC).noLootTable().sized(1.375f,0.5625f).eyeHeight(0.5625f).clientTrackingRange(10), false);
+    public static final DeferredHolder<EntityType<?>, EntityType<ChestBoat>> DARK_SPRUCE_CHEST_BOAT = prepareEntityType("dark_spruce_chest_boat", () -> EntityType.Builder.of(EntityType.chestBoatFactory(ModItems.DARK_SPRUCE_CHEST_BOAT::get), MobCategory.MISC).noLootTable().sized(1.375f,0.5625f).eyeHeight(0.5625f).clientTrackingRange(10), false);
+    public static final DeferredHolder<EntityType<?>, EntityType<ChestBoat>> CURSED_SPRUCE_CHEST_BOAT = prepareEntityType("cursed_spruce_chest_boat", () -> EntityType.Builder.of(EntityType.chestBoatFactory(ModItems.CURSED_SPRUCE_CHEST_BOAT::get), MobCategory.MISC).noLootTable().sized(1.375f,0.5625f).eyeHeight(0.5625f).clientTrackingRange(10), false);
 
 
     public static final DeferredHolder<MapCodec<? extends Converter>, MapCodec<? extends Converter>> DEFAULT_CONVERTER = CONVERTING_HELPER.register("default", () -> DefaultConverter.CODEC);
@@ -183,7 +192,7 @@ public class ModEntities {
             if (!spawnable) {
                 type.noSummon();
             }
-            return type.build(REFERENCE.MODID + ":" + id);
+            return type.build(ResourceKey.create(Registries.ENTITY_TYPE, VResourceLocation.mod(id)));
         });
     }
 

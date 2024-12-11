@@ -41,6 +41,7 @@ public class ModPacketDispatcher {
         registrar.playToClient(ClientboundAddFogEmitterPacket.TYPE, ClientboundAddFogEmitterPacket.CODEC, (msg, context) -> ClientPayloadHandler.handleAddFogEmitterPacket(msg, context));
         registrar.playToClient(ClientboundRemoveFogEmitterPacket.TYPE, ClientboundRemoveFogEmitterPacket.CODEC, (msg, context) -> ClientPayloadHandler.handleRemoveFogEmitterPacket(msg, context));
         registrar.playToClient(ClientboundPlaySoundEventPacket.TYPE, ClientboundPlaySoundEventPacket.CODEC, (msg, context) -> ClientPayloadHandler.handlePlaySoundEventPacket(msg, context));
+        registrar.playToClient(ClientboundRecipesPacket.TYPE, ClientboundRecipesPacket.CODEC, (msg, context) -> ClientPayloadHandler.handleRecipesPacket(msg, context));
 
         registrar.playToServer(ServerboundSelectMinionTaskPacket.TYPE, ServerboundSelectMinionTaskPacket.CODEC, (msg, context) -> ServerPayloadHandler.handleSelectMinionTaskPacket(msg, context));
         registrar.playToServer(ServerboundAppearancePacket.TYPE, ServerboundAppearancePacket.CODEC, (msg, context) -> ServerPayloadHandler.handleAppearancePacket(msg, context));

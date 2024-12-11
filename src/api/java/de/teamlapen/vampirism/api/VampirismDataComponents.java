@@ -45,5 +45,6 @@ public class VampirismDataComponents {
         public static final ResourceLocation BOTTLE_BLOOD = VResourceLocation.mod( "bottle_blood");
         public static final ResourceLocation FRUGALITY = VResourceLocation.mod( "frugality");
         public static final ResourceLocation IS_FACTION_BANNER = VResourceLocation.mod("is_faction_banner");
+        public static final ResourceLocation VAMPIRE_FOOD = VResourceLocation.mod("vampire_food");
     }
 }

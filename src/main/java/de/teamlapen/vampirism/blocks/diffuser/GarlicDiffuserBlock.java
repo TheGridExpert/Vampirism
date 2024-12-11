@@ -2,22 +2,23 @@ package de.teamlapen.vampirism.blocks.diffuser;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import de.teamlapen.vampirism.api.BlockPropertiesExtension;
 import de.teamlapen.vampirism.api.EnumStrength;
+import de.teamlapen.vampirism.api.ItemPropertiesExtension;
 import de.teamlapen.vampirism.blockentity.diffuser.DiffuserBlockEntity;
 import de.teamlapen.vampirism.blockentity.diffuser.GarlicDiffuserBlockEntity;
 import de.teamlapen.vampirism.config.VampirismConfig;
 import de.teamlapen.vampirism.core.ModTiles;
-import de.teamlapen.vampirism.world.garlic.GarlicLevel;
 import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.MapColor;
 import org.jetbrains.annotations.NotNull;
@@ -36,8 +37,8 @@ public class GarlicDiffuserBlock extends DiffuserBlock {
 
     private final Type type;
 
-    public GarlicDiffuserBlock(@NotNull Type type) {
-        this(type, Properties.of().mapColor(MapColor.STONE).strength(40.0F, 1200.0F).sound(SoundType.STONE).noOcclusion());
+    public GarlicDiffuserBlock(BlockBehaviour.Properties properties, @NotNull Type type) {
+        this(type, BlockPropertiesExtension.descriptionWithout(properties, "_weak|_improved|_normal").mapColor(MapColor.STONE).strength(40.0F, 1200.0F).sound(SoundType.STONE).noOcclusion());
     }
 
     public GarlicDiffuserBlock(@NotNull Type type, @NotNull Properties properties) {
@@ -88,11 +89,6 @@ public class GarlicDiffuserBlock extends DiffuserBlock {
         tooltip.add(Component.translatable("block.vampirism.garlic_diffuser.tooltip1").withStyle(ChatFormatting.GRAY));
         int c = VampirismConfig.BALANCE.hsGarlicDiffuserEnhancedDist == null /* During game start config is not yet set*/ ? 1 : 1 + 2 * (type == Type.IMPROVED ? VampirismConfig.BALANCE.hsGarlicDiffuserEnhancedDist.get() : (type == Type.WEAK ? VampirismConfig.BALANCE.hsGarlicDiffuserWeakDist.get() : VampirismConfig.BALANCE.hsGarlicDiffuserNormalDist.get()));
         tooltip.add(Component.translatable("block.vampirism.garlic_diffuser.tooltip2", c, c).withStyle(ChatFormatting.GRAY));
-    }
-
-    @Override
-    public @NotNull String getDescriptionId() {
-        return "block.vampirism.garlic_diffuser";
     }
 
     public enum Type implements StringRepresentable {

@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "vampirism:soul_orb_vampire"
-    },
-    {
-      "item": "minecraft:soul_lantern"
-    }
+    "vampirism:soul_orb_vampire",
+    "minecraft:soul_lantern"
   ],
   "result": {
     "count": 1,

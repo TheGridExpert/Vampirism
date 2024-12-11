@@ -56,6 +56,9 @@ public class ModItemTags {
     public static final TagKey<Item> HUNTER_ARMOR = tag("armors/hunter_armor");
 
     public static final TagKey<Item> ADVANCED_HUNTER_CROSSBOW_ARROWS = tag("advanced_hunter_crossbow_arrows");
+    public static final TagKey<Item> CROSSBOW_REPAIRABLE = tag("repairable/crossbow");
+    public static final TagKey<Item> VAMPIRE_SWORD_REPAIRABLE_SIMPLE = tag("repairable/vampire_sword/simple");
+    public static final TagKey<Item> VAMPIRE_SWORD_REPAIRABLE_ENHANCED = tag("repairable/vampire_sword/enhanced");
 
     private static @NotNull TagKey<Item> tag(@NotNull String name) {
         return ItemTags.create(VResourceLocation.mod(name));

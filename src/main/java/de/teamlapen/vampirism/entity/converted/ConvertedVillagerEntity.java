@@ -89,7 +89,9 @@ public class ConvertedVillagerEntity extends VampirismVillagerEntity implements 
 
     @Override
     public void aiStep() {
-        aiStepC(EntityType.VILLAGER);
+        if (this.level() instanceof ServerLevel serverLevel) {
+            aiStepC(serverLevel, EntityType.VILLAGER);
+        }
         bloodTimer++;
         super.aiStep();
     }
@@ -123,13 +125,13 @@ public class ConvertedVillagerEntity extends VampirismVillagerEntity implements 
     }
 
     @Override
-    public boolean doHurtTarget(@NotNull Entity entity) {
+    public boolean doHurtTarget(ServerLevel level, @NotNull Entity entity) {
         if (!level().isClientSide && wantsBlood() && entity instanceof Player player && !Helper.isHunter(player) && !UtilLib.canReallySee(player, this, true)) {
             int amt = VampirePlayer.get(player).onBite(this);
             drinkBlood(amt, IBloodStats.MEDIUM_SATURATION, new DrinkBloodContext(player));
             return true;
         }
-        return super.doHurtTarget(entity);
+        return super.doHurtTarget(level, entity);
     }
 
     @Override
@@ -165,13 +167,13 @@ public class ConvertedVillagerEntity extends VampirismVillagerEntity implements 
     }
 
     @Override
-    public boolean hurtSuper(DamageSource damageSource, float amount) {
-        return super.hurt(damageSource, amount);
+    public boolean hurtSuper(ServerLevel level, DamageSource damageSource, float amount) {
+        return super.hurtServer(level, damageSource, amount);
     }
 
     @Override
-    public boolean hurt(@NotNull DamageSource src, float amount) {
-        return this.hurtC(src, amount);
+    public boolean hurtServer(ServerLevel level, @NotNull DamageSource src, float amount) {
+        return this.hurtC(level, src, amount);
     }
 
     @Override
@@ -199,7 +201,7 @@ public class ConvertedVillagerEntity extends VampirismVillagerEntity implements 
     @Override
     public boolean isGettingSundamage(LevelAccessor iWorld, boolean forceRefresh) {
         if (!forceRefresh) return sundamageCache;
-        return (sundamageCache = Helper.gettingSundamge(this, iWorld, this.level().getProfiler()));
+        return (sundamageCache = Helper.gettingSundamge(this, iWorld));
     }
 
     @Override

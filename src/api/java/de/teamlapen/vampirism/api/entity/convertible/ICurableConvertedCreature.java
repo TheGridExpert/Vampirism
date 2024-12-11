@@ -11,6 +11,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.player.Player;
@@ -47,7 +48,7 @@ public interface ICurableConvertedCreature<T extends PathfinderMob> extends ICon
      * @return the new entity
      */
     default T createCuredEntity(@NotNull PathfinderMob entity, @NotNull EntityType<T> newType) {
-        T newEntity = newType.create(entity.level());
+        T newEntity = newType.create(entity.level(), EntitySpawnReason.CONVERSION);
         assert newEntity != null;
         newEntity.load(entity.saveWithoutId(new CompoundTag()));
         newEntity.yBodyRot = entity.yBodyRot;

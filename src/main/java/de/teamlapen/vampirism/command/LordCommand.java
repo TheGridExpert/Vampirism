@@ -43,9 +43,6 @@ public class LordCommand extends BasicCommand {
         for (ServerPlayer player : players) {
             FactionPlayerHandler handler = FactionPlayerHandler.get(player);
             Holder<? extends IPlayableFaction<?>> faction = handler.getFaction();
-            if (faction == null) {
-                throw NO_FACTION.create();
-            }
             int maxLevel = faction.value().getHighestReachableLevel();
             if (handler.getCurrentLevel() == maxLevel && !handler.setFactionLevel(faction, maxLevel)) {
                 throw LEVEL_UP_FAILED.create();

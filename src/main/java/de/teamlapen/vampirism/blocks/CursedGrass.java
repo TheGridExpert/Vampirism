@@ -18,7 +18,7 @@ import net.minecraft.data.worldgen.placement.VegetationPlacements;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -104,7 +104,7 @@ public class CursedGrass extends SpreadingSnowyDirtBlock implements Bonemealable
     public void performBonemeal(@NotNull ServerLevel level, @NotNull RandomSource random, @NotNull BlockPos pos, @NotNull BlockState state) {
         BlockPos blockpos = pos.above();
         BlockState blockstate = Blocks.SHORT_GRASS.defaultBlockState();
-        Optional<Holder.Reference<PlacedFeature>> optional = level.registryAccess().registryOrThrow(Registries.PLACED_FEATURE).getHolder(VegetationPlacements.GRASS_BONEMEAL);
+        Optional<Holder.Reference<PlacedFeature>> optional = level.registryAccess().lookupOrThrow(Registries.PLACED_FEATURE).get(VegetationPlacements.GRASS_BONEMEAL);
 
 
         label46:
@@ -127,7 +127,7 @@ public class CursedGrass extends SpreadingSnowyDirtBlock implements Bonemealable
                 Holder<PlacedFeature> holder;
                 if (random.nextInt(8) == 0) {
                     BlockPos finalBlockpos = blockpos1;
-                    List<ConfiguredFeature<?, ?>> list = level.registryAccess().registry(Registries.BIOME).flatMap(x -> x.getHolder(ModBiomes.VAMPIRE_FOREST).map(Holder.Reference::value)).orElseGet(() -> level.getBiome(finalBlockpos).value()).getGenerationSettings().getFlowerFeatures();
+                    List<ConfiguredFeature<?, ?>> list = level.registryAccess().lookup(Registries.BIOME).flatMap(x -> x.get(ModBiomes.VAMPIRE_FOREST).map(Holder.Reference::value)).orElseGet(() -> level.getBiome(finalBlockpos).value()).getGenerationSettings().getFlowerFeatures();
                     if (list.isEmpty()) {
                         continue;
                     }
@@ -147,7 +147,7 @@ public class CursedGrass extends SpreadingSnowyDirtBlock implements Bonemealable
     }
 
     @Override
-    public ItemInteractionResult useItemOn(ItemStack stack, @NotNull BlockState state, @NotNull Level worldIn, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand handIn, @NotNull BlockHitResult hit) {
+    public InteractionResult useItemOn(ItemStack stack, @NotNull BlockState state, @NotNull Level worldIn, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand handIn, @NotNull BlockHitResult hit) {
         Item heldItem = stack.getItem();
         if (heldItem instanceof HolyWaterBottleItem && !(heldItem instanceof HolyWaterSplashBottleItem)) {
             int uses = heldItem == ModItems.HOLY_WATER_BOTTLE_ULTIMATE.get() ? 100 : (heldItem == ModItems.HOLY_WATER_BOTTLE_ENHANCED.get() ? 50 : 25);
@@ -155,7 +155,7 @@ public class CursedGrass extends SpreadingSnowyDirtBlock implements Bonemealable
                 stack.setCount(stack.getCount() - 1);
             }
             worldIn.setBlockAndUpdate(pos, Blocks.GRASS_BLOCK.defaultBlockState());
-            return ItemInteractionResult.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
         return super.useItemOn(stack, state, worldIn, pos, player, handIn, hit);
     }

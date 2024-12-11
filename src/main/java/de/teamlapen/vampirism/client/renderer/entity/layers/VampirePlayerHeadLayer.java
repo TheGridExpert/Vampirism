@@ -4,20 +4,23 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import de.teamlapen.vampirism.REFERENCE;
 import de.teamlapen.vampirism.api.util.VResourceLocation;
+import de.teamlapen.vampirism.client.renderer.entity.state.VampirismRenderState;
 import de.teamlapen.vampirism.config.VampirismConfig;
 import de.teamlapen.vampirism.entity.player.VampirismPlayerAttributes;
 import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
+import net.minecraft.client.renderer.entity.state.PlayerRenderState;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
 
-public class VampirePlayerHeadLayer<T extends Player, Q extends HumanoidModel<T>> extends RenderLayer<T, Q> {
+public class VampirePlayerHeadLayer<T extends PlayerRenderState, Q extends PlayerModel> extends RenderLayer<T, Q> {
 
     private final ResourceLocation @NotNull [] eyeOverlays;
     private final ResourceLocation @NotNull [] fangOverlays;
@@ -35,10 +38,10 @@ public class VampirePlayerHeadLayer<T extends Player, Q extends HumanoidModel<T>
     }
 
     @Override
-    public void render(@NotNull PoseStack stack, @NotNull MultiBufferSource iRenderTypeBuffer, int i, @NotNull T player, float v, float v1, float v2, float v3, float v4, float v5) {
-        if (!VampirismConfig.CLIENT.renderVampireEyes.get() || !player.isAlive()) return;
-        VampirismPlayerAttributes atts = VampirismPlayerAttributes.get(player);
-        if (atts.vampireLevel > 0 && !atts.getVampSpecial().disguised && !player.isInvisible()) {
+    public void render(@NotNull PoseStack stack, @NotNull MultiBufferSource iRenderTypeBuffer, int i, @NotNull T player, float v, float v1) {
+        if (!VampirismConfig.CLIENT.renderVampireEyes.get() || player.deathTime > 0) return;
+        VampirismPlayerAttributes atts = ((VampirismRenderState) player).vampirismAttributes();
+        if (atts.vampireLevel > 0 && !atts.getVampSpecial().disguised && !player.isInvisible) {
             int eyeType = Math.max(0, Math.min(atts.getVampSpecial().eyeType, eyeOverlays.length - 1));
             int fangType = Math.max(0, Math.min(atts.getVampSpecial().fangType, fangOverlays.length - 1));
             RenderType eyeRenderType = atts.getVampSpecial().glowingEyes ? RenderType.eyes(eyeOverlays[eyeType]) : RenderType.entityCutoutNoCull(eyeOverlays[eyeType]);

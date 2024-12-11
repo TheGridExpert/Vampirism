@@ -133,6 +133,15 @@ public class FactionPlayerHandler extends Attachment implements IFactionPlayerHa
     }
 
     @Override
+    public <T extends IFactionPlayer<T>> Optional<T> factionPlayer(Holder<IFaction<T>> faction) {
+        if (IFaction.is(currentFaction, faction)) {
+            return Optional.of(factionPlayer());
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    @Override
     public <T extends IFactionPlayer<T>> Optional<T> getCurrentFactionPlayer() {
         return Optional.of(factionPlayer());
     }
@@ -288,7 +297,7 @@ public class FactionPlayerHandler extends Attachment implements IFactionPlayerHa
      */
     public void resetLordTasks() {
         getTaskManager().ifPresent(manager -> {
-            this.player.level().registryAccess().registryOrThrow(VampirismRegistries.Keys.TASK).getTagOrEmpty(ModTaskTags.AWARDS_LORD_LEVEL).forEach(holder -> {
+            this.player.level().registryAccess().lookupOrThrow(VampirismRegistries.Keys.TASK).getTagOrEmpty(ModTaskTags.AWARDS_LORD_LEVEL).forEach(holder -> {
                 holder.unwrapKey().ifPresent(manager::resetUniqueTask);
             });
         });
@@ -370,12 +379,6 @@ public class FactionPlayerHandler extends Attachment implements IFactionPlayerHa
         }
         sync(Objects.equals(old, currentFaction) ? UpdateParams.ignoreChanged() : UpdateParams.all());
         if (player instanceof ServerPlayer serverPlayer) {
-            if (old != faction) {
-                ModAdvancements.TRIGGER_FACTION.get().revokeAll(serverPlayer);
-                ModAdvancements.revoke(ModAdvancements.TRIGGER_MOTHER_WIN.get(), serverPlayer);
-            } else if (oldLevel > level) {
-                ModAdvancements.TRIGGER_FACTION.get().revokeLevel(serverPlayer, faction, FactionCriterionTrigger.Type.LEVEL, level);
-            }
             ModAdvancements.TRIGGER_FACTION.get().trigger(serverPlayer, currentFaction, currentLevel, currentLordLevel);
         }
         return true;
@@ -421,13 +424,13 @@ public class FactionPlayerHandler extends Attachment implements IFactionPlayerHa
         setFactionAndLevel(ModFactions.NEUTRAL, 0);
         player.displayClientMessage(Component.translatable("command.vampirism.base.level.successful", player.getName(), oldFaction.value().getName(), 0), true);
         if (die) {
-            DamageHandler.kill(player, 10000);
+            DamageHandler.kill((ServerLevel) this.player.level(), player, 10000);
         }
     }
 
     @SuppressWarnings({"unchecked", "RedundantCast"})
     private @NotNull Holder<? extends IPlayableFaction<?>> getFactionFromKey(ResourceLocation key) {
-        Holder<IFaction<?>> faction = ModRegistries.FACTIONS.getHolder(key).orElse(null);
+        Holder<IFaction<?>> faction = ModRegistries.FACTIONS.get(key).orElse(null);
         if (faction != null && faction.value() instanceof IPlayableFaction<?>) {
             return (Holder<? extends IPlayableFaction<?>>) (Object) faction;
         }
@@ -439,7 +442,7 @@ public class FactionPlayerHandler extends Attachment implements IFactionPlayerHa
         for (String s : boundActions.getAllKeys()) {
             try {
                 ActionKeys actionKey = ActionKeys.valueOf(s);
-                ModRegistries.ACTIONS.getHolder(ResourceLocation.parse(boundActions.getString(s))).ifPresentOrElse(h -> this.boundActions.put(actionKey, h), () -> LOGGER.warn("Cannot find bound action {}", boundActions.getString(s)));
+                ModRegistries.ACTIONS.get(ResourceLocation.parse(boundActions.getString(s))).ifPresentOrElse(h -> this.boundActions.put(actionKey, h), () -> LOGGER.warn("Cannot find bound action {}", boundActions.getString(s)));
             } catch (IllegalArgumentException e) {
                 LOGGER.warn("Invalid action key {}", s);
             }
@@ -449,8 +452,8 @@ public class FactionPlayerHandler extends Attachment implements IFactionPlayerHa
     @Override
     public void checkSkillTreeLocks() {
         if (this.player.level() instanceof ServerLevel level) {
-            Registry<ISkillTree> registryAccess = this.player.level().registryAccess().registryOrThrow(VampirismRegistries.Keys.SKILL_TREE);
-            getSkillHandler().ifPresent(handler -> handler.updateUnlockedSkillTrees(registryAccess.holders().filter(s -> s.value().unlockPredicate().matches(level, null, this.player)).collect(Collectors.toList())));
+            Registry<ISkillTree> registryAccess = this.player.level().registryAccess().lookupOrThrow(VampirismRegistries.Keys.SKILL_TREE);
+            getSkillHandler().ifPresent(handler -> handler.updateUnlockedSkillTrees(registryAccess.listElements().filter(s -> s.value().unlockPredicate().matches(level, null, this.player)).collect(Collectors.toList())));
         }
     }
 
@@ -498,9 +501,6 @@ public class FactionPlayerHandler extends Attachment implements IFactionPlayerHa
             VampirismLogger.info(VampirismLogger.LORD_LEVEL, "{} has now lord level {}", this.player.getName().getString(), level);
         }
         if (player instanceof ServerPlayer serverPlayer) {
-            if (currentLordLevel < oldLevel) {
-                ModAdvancements.TRIGGER_FACTION.get().revokeLevel(serverPlayer, currentFaction, FactionCriterionTrigger.Type.LORD, currentLordLevel);
-            }
             ModAdvancements.TRIGGER_FACTION.get().trigger(serverPlayer, currentFaction, currentLevel, currentLordLevel);
         }
         if (sync) sync();

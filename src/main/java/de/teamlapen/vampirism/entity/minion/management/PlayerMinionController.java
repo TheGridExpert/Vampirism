@@ -25,6 +25,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -196,8 +197,8 @@ public class PlayerMinionController implements INBTSerializable<CompoundTag> {
         if (type == null) {
             LOGGER.warn("Cannot create minion because type does not exist");
         } else {
-            return Helper.createEntity(type, p.getCommandSenderWorld()).map(m -> {
-                if (faction == null || VampirismAPI.factionRegistry().isEntityOfFaction(m, faction)) {
+            return Helper.createEntity(type, p.getCommandSenderWorld(), EntitySpawnReason.LOAD).map(m -> {
+                if (faction == null || !VampirismAPI.factionRegistry().isEntityOfFaction(m, faction)) {
                     LOGGER.warn("Specified minion entity is of wrong faction. This: {} Minion: {}", faction, m.getFaction());
                     m.discard();
                     return null;
@@ -237,7 +238,7 @@ public class PlayerMinionController implements INBTSerializable<CompoundTag> {
     @Override
     public void deserializeNBT(HolderLookup.Provider provider, @NotNull CompoundTag nbt) {
         //noinspection unchecked,RedundantCast
-        Optional<? extends Holder<? extends IPlayableFaction<?>>> faction = ModRegistries.FACTIONS.getHolder(ResourceLocation.parse(nbt.getString("faction"))).filter(s -> s.value() instanceof IPlayableFaction<?>).map(s -> (Holder<? extends IPlayableFaction<?>>) (Object) s);
+        Optional<? extends Holder<? extends IPlayableFaction<?>>> faction = ModRegistries.FACTIONS.get(ResourceLocation.parse(nbt.getString("faction"))).filter(s -> s.value() instanceof IPlayableFaction<?>).map(s -> (Holder<? extends IPlayableFaction<?>>) (Object) s);
         if (faction.isEmpty()) {
             this.maxMinions = 0;
             return;
@@ -265,7 +266,7 @@ public class PlayerMinionController implements INBTSerializable<CompoundTag> {
             }
 
             //noinspection unchecked
-            EntityType<? extends MinionEntity<?>> type = (EntityType<? extends MinionEntity<?>>) BuiltInRegistries.ENTITY_TYPE.get(entityTypeID);
+            EntityType<? extends MinionEntity<?>> type = (EntityType<? extends MinionEntity<?>>) BuiltInRegistries.ENTITY_TYPE.getValue(entityTypeID);
 
             MinionInfo i = new MinionInfo(id, d, type);
             i.deathCooldown = tag.getInt("death_timer");

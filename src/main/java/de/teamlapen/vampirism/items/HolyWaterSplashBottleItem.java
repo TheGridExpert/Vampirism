@@ -7,17 +7,20 @@ import de.teamlapen.vampirism.entity.ThrowableItemEntity;
 import de.teamlapen.vampirism.util.DamageHandler;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Position;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ProjectileItem;
+import net.minecraft.world.item.ThrowablePotionItem;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.Level;
@@ -37,8 +40,8 @@ import java.util.List;
  */
 public class HolyWaterSplashBottleItem extends HolyWaterBottleItem implements ThrowableItemEntity.IVampirismThrowableItem, ProjectileItem {
 
-    public HolyWaterSplashBottleItem(TIER tier) {
-        super(tier, new Properties());
+    public HolyWaterSplashBottleItem(TIER tier, Item.Properties properties) {
+        super(tier, properties);
     }
 
     @Override
@@ -46,7 +49,7 @@ public class HolyWaterSplashBottleItem extends HolyWaterBottleItem implements Th
         if (!remote) {
             impactEntities(entity, stack, result, remote);
             impactBlocks(entity, stack, result, remote);
-            entity.getCommandSenderWorld().levelEvent(2002, entity.blockPosition(), PotionContents.getColor(Potions.MUNDANE));
+            entity.getCommandSenderWorld().levelEvent(2002, entity.blockPosition(), new PotionContents(Potions.MUNDANE).getColor());
         }
     }
 
@@ -88,34 +91,24 @@ public class HolyWaterSplashBottleItem extends HolyWaterBottleItem implements Th
 
     @NotNull
     @Override
-    public InteractionResultHolder<ItemStack> use(@NotNull Level worldIn, @NotNull Player playerIn, @NotNull InteractionHand handIn) {
+    public InteractionResult use(@NotNull Level level, @NotNull Player playerIn, @NotNull InteractionHand handIn) {
         ItemStack stack = playerIn.getItemInHand(handIn);
 
 
-        worldIn.playSound(null, playerIn.getX(), playerIn.getY(), playerIn.getZ(), SoundEvents.SPLASH_POTION_THROW, SoundSource.NEUTRAL, 0.5F, 0.4F / (playerIn.getRandom().nextFloat() * 0.4F + 0.8F));
+        level.playSound(null, playerIn.getX(), playerIn.getY(), playerIn.getZ(), SoundEvents.SPLASH_POTION_THROW, SoundSource.NEUTRAL, 0.5F, 0.4F / (playerIn.getRandom().nextFloat() * 0.4F + 0.8F));
 
-        if (!worldIn.isClientSide) {
-            ThrowableItemEntity entityThrowable = new ThrowableItemEntity(worldIn, playerIn);
-            ItemStack throwStack = stack.copy();
-            throwStack.setCount(1);
-            entityThrowable.setItem(throwStack);
-            entityThrowable.shootFromRotation(playerIn, playerIn.getXRot(), playerIn.getYRot(), -20.0F, 0.5F, 1.0F);
-            worldIn.addFreshEntity(entityThrowable);
+        if (level instanceof ServerLevel serverLevel) {
+            Projectile.spawnProjectileFromRotation(ThrowableItemEntity::new, serverLevel, stack, playerIn, -20, ThrowablePotionItem.PROJECTILE_SHOOT_POWER, 1);
         }
 
-        if (!playerIn.getAbilities().instabuild) {
-            stack.shrink(1);
-        }
-        return new InteractionResultHolder<>(InteractionResult.SUCCESS, stack);
+        playerIn.awardStat(Stats.ITEM_USED.get(this));
+        stack.consume(1, playerIn);
+        return InteractionResult.SUCCESS;
 
     }
 
     @Override
     public Projectile asProjectile(Level pLevel, Position pPos, ItemStack pStack, Direction pDirection) {
-        ThrowableItemEntity entityThrowable = new ThrowableItemEntity(pLevel, pPos.x(), pPos.y(), pPos.z());
-        ItemStack throwStack = pStack.copy();
-        throwStack.setCount(1);
-        entityThrowable.setItem(throwStack);
-        return entityThrowable;
+        return new ThrowableItemEntity(pLevel, pPos.x(), pPos.y(), pPos.z(), pStack.copy());
     }
 }

@@ -20,7 +20,7 @@ class APIUtil {
 
     @SuppressWarnings("unchecked")
     static <T> Supplier<DataComponentType<T>> supplyDataComponent(ResourceLocation key) {
-        return Suppliers.memoize(() -> Objects.requireNonNull((DataComponentType<T>) BuiltInRegistries.DATA_COMPONENT_TYPE.get(key)));
+        return Suppliers.memoize(() -> Objects.requireNonNull((DataComponentType<T>) BuiltInRegistries.DATA_COMPONENT_TYPE.getValue(key)));
     }
 
     @SuppressWarnings({"unchecked", "UnstableApiUsage"})
@@ -30,7 +30,7 @@ class APIUtil {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     static <T> Supplier<T> supplyRegistry(ResourceKey<T> key) {
-        return Suppliers.memoize(() -> Objects.requireNonNull((T) BuiltInRegistries.REGISTRY.get((ResourceKey) key)));
+        return Suppliers.memoize(() -> Objects.requireNonNull((T) BuiltInRegistries.REGISTRY.getValue((ResourceKey) key)));
     }
 
     static <T> ResourceKey<Registry<T>> registryKey(String name) {

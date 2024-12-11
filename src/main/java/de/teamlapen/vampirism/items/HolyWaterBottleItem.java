@@ -1,6 +1,7 @@
 package de.teamlapen.vampirism.items;
 
 import de.teamlapen.vampirism.api.EnumStrength;
+import de.teamlapen.vampirism.api.ItemPropertiesExtension;
 import de.teamlapen.vampirism.api.entity.factions.IFaction;
 import de.teamlapen.vampirism.api.items.IFactionExclusiveItem;
 import de.teamlapen.vampirism.api.items.IItemWithTier;
@@ -22,12 +23,8 @@ import java.util.List;
 public class HolyWaterBottleItem extends Item implements IItemWithTier, IFactionExclusiveItem {
     private final TIER tier;
 
-    public HolyWaterBottleItem(TIER tier) {
-        this(tier, new Properties());
-    }
-
-    protected HolyWaterBottleItem(TIER tier, @NotNull Properties props) {
-        super(props);
+    public HolyWaterBottleItem(TIER tier, @NotNull Properties props) {
+        super(ItemPropertiesExtension.descriptionWithout(props, "_normal|_enhanced|_ultimate"));
         this.tier = tier;
     }
 
@@ -58,16 +55,4 @@ public class HolyWaterBottleItem extends Item implements IItemWithTier, IFaction
         return tier;
     }
 
-
-    private String descriptionId;
-
-    @Override
-    @NotNull
-    protected String getOrCreateDescriptionId() {
-        if (this.descriptionId == null) {
-            this.descriptionId = super.getOrCreateDescriptionId().replaceAll("_normal|_enhanced|_ultimate", "");
-        }
-
-        return this.descriptionId;
-    }
 }

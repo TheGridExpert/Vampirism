@@ -163,7 +163,7 @@ public class MinionCommand extends BasicCommand {
     @SuppressWarnings("SameReturnValue")
     private static int purge(@NotNull CommandSourceStack ctx, ServerPlayer player) throws CommandSyntaxException {
         MinionWorldData.getData(ctx.getServer()).purgeController(player.getUUID());
-        ((Player) player).displayClientMessage(Component.literal("Reload world"), false);
+        player.displayClientMessage(Component.literal("Reload world"), false);
         return 0;
     }
 }

@@ -1,7 +1,7 @@
 {
   "type": "vampirism:alchemical_table",
   "ingredient": {
-    "type": "neoforge:components",
+    "neoforge:ingredient_type": "neoforge:components",
     "components": {
       "vampirism:oil_contents": {
         "oil": "vampirism:plant"
@@ -9,9 +9,7 @@
     },
     "items": "vampirism:oil_bottle"
   },
-  "input": {
-    "item": "vampirism:vampire_blood_bottle"
-  },
+  "input": "vampirism:vampire_blood_bottle",
   "result": {
     "components": {
       "vampirism:oil_contents": {

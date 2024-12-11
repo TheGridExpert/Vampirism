@@ -5,6 +5,7 @@
     32
   ],
   "textures": {
+    "particle": "vampirism:item/pitchfork",
     "0": "vampirism:item/pitchfork"
   },
   "elements": [

@@ -3,6 +3,7 @@ package de.teamlapen.vampirism.client.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import de.teamlapen.vampirism.client.renderer.entity.VampireBaronRenderer;
 import de.teamlapen.vampirism.entity.vampire.VampireBaronEntity;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -17,7 +18,7 @@ import org.jetbrains.annotations.NotNull;
  * Attire designed for the female vampire baroness - RebelT
  * Created using Tabula 7.1.0
  */
-public class BaronessAttireModel extends EntityModel<VampireBaronEntity> {
+public class BaronessAttireModel extends EntityModel<VampireBaronRenderer.VampireBaronRenderState> {
     private static final String VEIL = "veil";
     private static final String DRESS_ARM_LEFT = "dress_arm_left";
     private static final String DRESS_ARM_RIGHT = "dress_arm_right";
@@ -39,8 +40,6 @@ public class BaronessAttireModel extends EntityModel<VampireBaronEntity> {
     public final @NotNull ModelPart veil;
     public final @NotNull ModelPart cloak;
 
-    private float enragedProgress = 0;
-
     public static @NotNull LayerDefinition createLayer() {
         MeshDefinition mesh = new MeshDefinition();
         PartDefinition part = mesh.getRoot();
@@ -57,6 +56,7 @@ public class BaronessAttireModel extends EntityModel<VampireBaronEntity> {
     }
 
     public BaronessAttireModel(@NotNull ModelPart part) {
+        super(part);
         dressTorso = part.getChild(DRESS_TORSO);
         dressArmBandLeft = part.getChild(DRESS_ARM_LEFT);
         dressArmBandRight = part.getChild(DRESS_ARM_RIGHT);
@@ -69,40 +69,26 @@ public class BaronessAttireModel extends EntityModel<VampireBaronEntity> {
 
     }
 
-    @Override
-    public void prepareMobModel(@NotNull VampireBaronEntity entityIn, float limbSwing, float limbSwingAmount, float partialTick) {
-        enragedProgress = entityIn.getEnragedProgress();
-    }
+//    @Override
+//    public void renderToBuffer(@NotNull PoseStack matrixStackIn, @NotNull VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, int color) {
+//        this.dressArmBandLeft.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, color);
+//        this.dressArmBandRight.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, color);
+//        this.dressTorso.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, color);
+//        this.hat.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, color);
+//        matrixStackIn.pushPose();
+//        matrixStackIn.scale(1 - 0.5f * enragedProgress, 1 - 0.7f * enragedProgress, 1 - 0.5f * enragedProgress);
+//        this.hood.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, color);
+//        matrixStackIn.popPose();
+//    }
 
     @Override
-    public void renderToBuffer(@NotNull PoseStack matrixStackIn, @NotNull VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, int color) {
-        this.dressArmBandLeft.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, color);
-        this.dressArmBandRight.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, color);
-        this.dressTorso.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, color);
-        this.hat.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, color);
-        matrixStackIn.pushPose();
-        matrixStackIn.scale(1 - 0.5f * enragedProgress, 1 - 0.7f * enragedProgress, 1 - 0.5f * enragedProgress);
-        this.hood.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, color);
-        matrixStackIn.popPose();
-    }
-
-    /**
-     * This is a helper function from Tabula to set the rotation of model parts
-     */
-    public void setRotateAngle(@NotNull ModelPart renderer, float x, float y, float z) {
-        renderer.xRot = x;
-        renderer.yRot = y;
-        renderer.zRot = z;
-    }
-
-    @Override
-    public void setupAnim(@NotNull VampireBaronEntity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+    public void setupAnim(@NotNull VampireBaronRenderer.VampireBaronRenderState state) {
         float bodyRotateY = 0;
         float headRotateY = 0;
-        headRotateY = netHeadYaw * ((float) Math.PI / 180f);
-        if (this.attackTime > 0.0F) {
-            HumanoidArm handside = this.getSwingingSide(entityIn);
-            float f1 = this.attackTime;
+        headRotateY = state.yRot * ((float) Math.PI / 180f);
+        if (state.attackTime > 0.0F) {
+            HumanoidArm handside = state.attackArm;
+            float f1 = state.attackTime;
             bodyRotateY = Mth.sin(Mth.sqrt(f1) * ((float) Math.PI * 2F)) * 0.2F;
             if (handside == HumanoidArm.LEFT) {
                 bodyRotateY *= -1.0F;
@@ -118,10 +104,5 @@ public class BaronessAttireModel extends EntityModel<VampireBaronEntity> {
         this.dressTorso.yRot = bodyRotateY;
         this.dressArmBandLeft.yRot = bodyRotateY;
         this.dressArmBandRight.yRot = bodyRotateY;
-    }
-
-    protected @NotNull HumanoidArm getSwingingSide(@NotNull VampireBaronEntity entity) {
-        HumanoidArm handside = entity.getMainArm();
-        return entity.swingingArm == InteractionHand.MAIN_HAND ? handside : handside.getOpposite();
     }
 }

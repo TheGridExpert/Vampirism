@@ -27,7 +27,7 @@ public class TentSpawnerCondition implements LootItemCondition {
 
     @Override
     public boolean test(@NotNull LootContext lootContext) {
-        BlockEntity t = lootContext.getParamOrNull(LootContextParams.BLOCK_ENTITY);
+        BlockEntity t = lootContext.getOptionalParameter(LootContextParams.BLOCK_ENTITY);
         if (t instanceof TentBlockEntity) {
             return ((TentBlockEntity) t).isSpawner();
         }

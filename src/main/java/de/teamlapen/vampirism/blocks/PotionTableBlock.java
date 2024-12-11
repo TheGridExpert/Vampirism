@@ -89,7 +89,7 @@ public class PotionTableBlock extends VampirismBlockContainer {
             }
         }
 
-        return InteractionResult.sidedSuccess(worldIn.isClientSide);
+        return InteractionResult.SUCCESS_SERVER;
     }
 
     @Override

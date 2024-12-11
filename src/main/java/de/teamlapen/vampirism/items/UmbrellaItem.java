@@ -21,8 +21,8 @@ public class UmbrellaItem extends Item {
 
     private final Supplier<ItemAttributeModifiers> mainHandAttributes;
 
-    public UmbrellaItem() {
-        super(new Properties().stacksTo(1));
+    public UmbrellaItem(Item.Properties properties) {
+        super(properties.stacksTo(1));
 
         this.mainHandAttributes = Suppliers.memoize(() -> {
             ItemAttributeModifiers.Builder builder1 = ItemAttributeModifiers.builder();

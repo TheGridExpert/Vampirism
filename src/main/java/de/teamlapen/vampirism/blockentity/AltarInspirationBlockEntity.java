@@ -21,6 +21,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.player.Player;
@@ -100,6 +101,10 @@ public class AltarInspirationBlockEntity extends BlockEntity implements FluidTan
         }
     }
 
+    public float getFillPercentage() {
+        return Math.clamp(this.tank.getFluidAmount() / (float) CAPACITY, 0f, 1f);
+    }
+
     @Override
     public void onTankContentChanged() {
         setChanged();
@@ -148,7 +153,7 @@ public class AltarInspirationBlockEntity extends BlockEntity implements FluidTan
 
         switch (blockEntity.ritualTicksLeft) {
             case 5 -> {
-                LightningBolt lightningboltentity = EntityType.LIGHTNING_BOLT.create(level);
+                LightningBolt lightningboltentity = EntityType.LIGHTNING_BOLT.create(level, EntitySpawnReason.EVENT);
                 lightningboltentity.moveTo(Vec3.atBottomCenterOf(pos));
                 lightningboltentity.setVisualOnly(true);
                 level.addFreshEntity(lightningboltentity);

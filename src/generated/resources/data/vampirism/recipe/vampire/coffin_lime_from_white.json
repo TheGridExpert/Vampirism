@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "vampirism:coffin_white"
-    },
-    {
-      "item": "minecraft:lime_dye"
-    }
+    "vampirism:coffin_white",
+    "minecraft:lime_dye"
   ],
   "result": {
     "count": 1,

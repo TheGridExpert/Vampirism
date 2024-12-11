@@ -1,6 +1,8 @@
 package de.teamlapen.vampirism.client.gui.screens.skills;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import de.teamlapen.lib.lib.client.gui.GuiRenderer;
 import de.teamlapen.lib.lib.inventory.InventoryHelper;
 import de.teamlapen.vampirism.REFERENCE;
 import de.teamlapen.vampirism.VampirismMod;
@@ -22,6 +24,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
@@ -35,6 +38,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.system.NonnullDefault;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -118,9 +122,9 @@ public class SkillsScreen extends Screen {
         }));
         if ((this.factionPlayer.getLevel() < 2 || this.minecraft.player.getInventory().countItem(ModItems.OBLIVION_POTION.get()) <= 0) && !test) {
             this.resetSkills.active = false;
-            this.resetSkills.setTooltip(Tooltip.create(Component.translatable("text.vampirism.skills.reset_consume", ModItems.OBLIVION_POTION.get().getDescription())));
+            this.resetSkills.setTooltip(Tooltip.create(Component.translatable("text.vampirism.skills.reset_consume", Component.translatable(ModItems.OBLIVION_POTION.get().getDescriptionId()))));
         } else {
-            this.resetSkills.setTooltip(Tooltip.create(Component.translatable("text.vampirism.skills.reset_req", ModItems.OBLIVION_POTION.get().getDescription())));
+            this.resetSkills.setTooltip(Tooltip.create(Component.translatable("text.vampirism.skills.reset_req", Component.translatable(ModItems.OBLIVION_POTION.get().getDescriptionId()))));
         }
     }
 
@@ -152,8 +156,8 @@ public class SkillsScreen extends Screen {
     }
 
     public void renderWindow(@NotNull GuiGraphics graphics, int mouseX, int mouseY, int x, int y) {
-        graphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
-        graphics.blit(WINDOW_LOCATION, x, y, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+        GuiRenderer.resetColor();
+        GuiRenderer.blit(graphics, WINDOW_LOCATION, x, y, SCREEN_WIDTH, SCREEN_HEIGHT);
         if (this.tabs.size() > 1) {
 
             for (SkillsTabScreen skillTab : this.tabs) {
@@ -179,7 +183,7 @@ public class SkillsScreen extends Screen {
 
     public void renderTooltip(@NotNull GuiGraphics graphics, int mouseX, int mouseY, int guiLeft, int guiTop) {
         if (this.minecraft.player.getEffect(ModEffects.OBLIVION) != null) return;
-        graphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         if (this.selectedTab != null) {
             PoseStack pose = graphics.pose();
             pose.pushPose();

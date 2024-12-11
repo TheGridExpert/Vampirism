@@ -12,6 +12,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
@@ -87,8 +88,8 @@ public class RemainsDefenderEntity extends Mob implements IRemainsEntity {
     }
 
     @Override
-    public boolean isInvulnerableTo(@NotNull DamageSource pSource) {
-        return pSource.is(ModDamageTypeTags.MOTHER_RESISTANT_TO) || pSource.is(DamageTypes.IN_WALL) || pSource.is(DamageTypes.DROWN) || super.isInvulnerableTo(pSource);
+    public boolean isInvulnerableTo(@NotNull ServerLevel level, @NotNull DamageSource pSource) {
+        return pSource.is(ModDamageTypeTags.MOTHER_RESISTANT_TO) || pSource.is(DamageTypes.IN_WALL) || pSource.is(DamageTypes.DROWN) || super.isInvulnerableTo(level, pSource);
     }
 
     @Nullable
@@ -144,8 +145,8 @@ public class RemainsDefenderEntity extends Mob implements IRemainsEntity {
     }
 
     @Override
-    public boolean hurt(@NotNull DamageSource pSource, float pAmount) {
-        if (super.hurt(pSource, pAmount)) {
+    public boolean hurtServer(@NotNull ServerLevel level, @NotNull DamageSource pSource, float pAmount) {
+        if (super.hurtServer(level, pSource, pAmount)) {
             this.getDummy().ifPresent(vehicle -> vehicle.childrenIsHurt(pSource, this.dead, getAttachFace()));
             return true;
         }
@@ -153,8 +154,8 @@ public class RemainsDefenderEntity extends Mob implements IRemainsEntity {
     }
 
     @Override
-    protected void actuallyHurt(@NotNull DamageSource pDamageSource, float pDamageAmount) {
-        super.actuallyHurt(pDamageSource, pDamageAmount);
+    protected void actuallyHurt(@NotNull ServerLevel level, @NotNull DamageSource pDamageSource, float pDamageAmount) {
+        super.actuallyHurt(level, pDamageSource, pDamageAmount);
         this.invulnerableTime *= 2;
     }
 
@@ -211,7 +212,7 @@ public class RemainsDefenderEntity extends Mob implements IRemainsEntity {
     }
 
     @Override
-    protected @NotNull AABB makeBoundingBox() {
+    protected @NotNull AABB makeBoundingBox(Vec3 pos) {
         Direction attachFace = getAttachFace().getOpposite();
         AABB box = new AABB(BlockPos.ZERO);
         return (switch (attachFace.getAxis()) {
@@ -293,7 +294,7 @@ public class RemainsDefenderEntity extends Mob implements IRemainsEntity {
     static class RemainsDefenderAttackTargetGoal extends NearestAttackableTargetGoal<LivingEntity> {
 
         public RemainsDefenderAttackTargetGoal(RemainsDefenderEntity entity) {
-            super(entity, LivingEntity.class, 10, true, false, target -> {
+            super(entity, LivingEntity.class, 10, true, false, (target, level) -> {
                 if (target instanceof ServerPlayer player && entity.getDummy().flatMap(VulnerableRemainsDummyEntity::getTile).flatMap(VulnerableRemainsBlockEntity::getMother).map(MotherBlockEntity::involvedPlayers).stream().anyMatch(s -> s.contains(player))) {
                     return true;
                 } else {

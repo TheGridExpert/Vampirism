@@ -1,13 +1,14 @@
 package de.teamlapen.vampirism.entity;
 
 import de.teamlapen.vampirism.util.DamageHandler;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.npc.Villager;
@@ -47,15 +48,15 @@ public class VampirismVillagerEntity extends Villager {
     }
 
     @Override
-    public boolean checkSpawnRules(@NotNull LevelAccessor worldIn, @NotNull MobSpawnType spawnReasonIn) {
+    public boolean checkSpawnRules(@NotNull LevelAccessor worldIn, @NotNull EntitySpawnReason spawnReasonIn) {
         return (peaceful || worldIn.getDifficulty() != Difficulty.PEACEFUL) && super.checkSpawnRules(worldIn, spawnReasonIn);
     }
 
     @Override
-    public boolean hurt(@NotNull DamageSource src, float amount) {
-        if (this.isInvulnerableTo(src)) {
+    public boolean hurtServer(ServerLevel level, @NotNull DamageSource src, float amount) {
+        if (this.isInvulnerableTo(level, src)) {
             return false;
-        } else if (super.hurt(src, amount)) {
+        } else if (super.hurtServer(level, src, amount)) {
             Entity entity = src.getEntity();
             if (entity instanceof LivingEntity) {
                 this.setTarget((LivingEntity) entity);
@@ -75,8 +76,8 @@ public class VampirismVillagerEntity extends Villager {
     }
 
     @Override
-    protected void customServerAiStep() {
-        super.customServerAiStep();
+    protected void customServerAiStep(ServerLevel level) {
+        super.customServerAiStep(level);
         if (--this.randomTickDivider <= 0) {
             this.randomTickDivider = 200;
         }

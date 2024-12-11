@@ -5,6 +5,7 @@ import de.teamlapen.lib.HelperLib;
 import de.teamlapen.lib.lib.storage.ISyncable;
 import de.teamlapen.lib.lib.storage.UpdateParams;
 import de.teamlapen.vampirism.VampirismMod;
+import de.teamlapen.vampirism.api.entity.factions.IFaction;
 import de.teamlapen.vampirism.api.entity.minion.IMinionEntity;
 import de.teamlapen.vampirism.api.entity.minion.IMinionInventory;
 import de.teamlapen.vampirism.api.entity.minion.IMinionTask;
@@ -30,6 +31,7 @@ import de.teamlapen.vampirism.world.LevelDamage;
 import de.teamlapen.vampirism.world.MinionWorldData;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -55,7 +57,8 @@ import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.item.ItemUseAnimation;
+import net.minecraft.world.item.component.Consumable;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.SkullBlockEntity;
@@ -202,14 +205,14 @@ public abstract class MinionEntity<T extends MinionData> extends VampirismEntity
      * TODO 1.22
      */
     @Override
-    public boolean doHurtTarget(Entity pEntity) {
+    public boolean doHurtTarget(ServerLevel level, Entity pEntity) {
         float f = (float) this.getAttributeValue(Attributes.ATTACK_DAMAGE);
         DamageSource damagesource = LevelDamage.get(this.level()).minion(this);
         if (this.level() instanceof ServerLevel serverlevel) {
             f = EnchantmentHelper.modifyDamage(serverlevel, this.getWeaponItem(), pEntity, damagesource, f);
         }
 
-        boolean flag = pEntity.hurt(damagesource, f);
+        boolean flag = pEntity.hurtServer(level,damagesource, f);
         if (flag) {
             float f1 = this.getKnockback(pEntity, damagesource);
             if (f1 > 0.0F && pEntity instanceof LivingEntity livingentity) {
@@ -239,18 +242,13 @@ public abstract class MinionEntity<T extends MinionData> extends VampirismEntity
     }
 
     @Override
-    public boolean isAlliedTo(@NotNull Entity pEntity) {
-        return getLordOpt().map(s -> s.getPlayer() == pEntity).orElseGet(() -> super.isAlliedTo(pEntity));
+    protected boolean considersEntityAsAlly(Entity pEntity) {
+        return getLordOpt().map(s -> s.getPlayer() == pEntity).orElseGet(() -> super.considersEntityAsAlly(pEntity));
     }
 
-    @NotNull
-    @Override
-    public ItemStack eat(@NotNull Level world, @NotNull ItemStack stack, FoodProperties properties) {
-        if (stack.getFoodProperties(this) != null) {
-            float healAmount = properties.nutrition() / 2f;
-            this.heal(healAmount);
-        }
-        return super.eat(world, stack);
+    public void eat(@NotNull Level world, @NotNull ItemStack stack, FoodProperties properties) {
+        float healAmount = properties.nutrition() / 2f;
+        this.heal(healAmount);
     }
 
     /**
@@ -327,7 +325,8 @@ public abstract class MinionEntity<T extends MinionData> extends VampirismEntity
         return this.skinProfile;
     }
 
-    public float getScale() {
+    @Override
+    protected float sanitizeScale(float scale) {
         return 0.8f + convertCounter / (float) CONVERT_DURATION * 0.2f;
     }
 
@@ -453,7 +452,7 @@ public abstract class MinionEntity<T extends MinionData> extends VampirismEntity
     }
 
     public @NotNull Predicate<ItemStack> getEquipmentPredicate(EquipmentSlot slotType) {
-        return itemStack -> !(itemStack.getItem() instanceof IFactionExclusiveItem) || this.getFaction().equals(((IFactionExclusiveItem) itemStack.getItem()).getExclusiveFaction(itemStack));
+        return itemStack -> !(itemStack.getItem() instanceof IFactionExclusiveItem) || IFaction.is(this.getFaction(), ((IFactionExclusiveItem) itemStack.getItem()).getExclusiveFaction(itemStack));
 
     }
 
@@ -514,16 +513,18 @@ public abstract class MinionEntity<T extends MinionData> extends VampirismEntity
         convertCounter = additionalData.readVarInt();
     }
 
-    protected boolean canConsume(@NotNull ItemStack stack) {
-        if (!(stack.getUseAnimation() == UseAnim.DRINK || stack.getUseAnimation() == UseAnim.EAT)) return false;
-        return !stack.isEmpty();
+    protected boolean canConsume(@NotNull ItemStack stack, @NotNull Consumable consumable) {
+        return consumable.animation() == ItemUseAnimation.EAT || consumable.animation() == ItemUseAnimation.DRINK;
     }
 
     protected void consumeOffhand() {
         if (isUsingItem()) return;
         if (this.targetSelector.getAvailableGoals().stream().anyMatch(WrappedGoal::isRunning)) return;
         ItemStack stack = this.getInventory().map(i -> i.getItem(1)).orElse(ItemStack.EMPTY);
-        if (!canConsume(stack)) return;
+        if (stack.isEmpty()) return;
+        Consumable consumable = stack.get(DataComponents.CONSUMABLE);
+        if (consumable == null) return;
+        if (!canConsume(stack, consumable)) return;
         this.startUsingItem(InteractionHand.OFF_HAND);
         this.setYRot(this.getYHeadRot());
     }
@@ -605,7 +606,7 @@ public abstract class MinionEntity<T extends MinionData> extends VampirismEntity
      * Checkout the minion data from the playerMinionController (if available).
      * Call as early as possible but only if being added to world
      * Can be called from different locations. Only executes if not checkout already.
-     * Happens either in {@link net.minecraft.world.entity.Entity#onAddedToLevel()} or if tracking starts before during {@link de.teamlapen.lib.lib.storage.ISyncable#serializeUpdateNBT(net.minecraft.core.HolderLookup.Provider, boolean)}
+     * Happens either in {@link net.minecraft.world.entity.Entity#onAddedToLevel()} or if tracking starts before during {@link de.teamlapen.lib.lib.storage.ISyncable#serializeUpdateNBT(HolderLookup.Provider, UpdateParams)}
      */
     private void checkoutMinionData(HolderLookup.Provider provider) {
         if (playerMinionController != null && minionData == null) {

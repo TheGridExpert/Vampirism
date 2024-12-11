@@ -14,6 +14,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.registries.callback.AddCallback;
 import net.neoforged.neoforge.registries.callback.BakeCallback;
@@ -41,7 +42,7 @@ public class FactionRegistry implements IFactionRegistry {
         } else if (entity instanceof IFactionEntity factionEntity) {
             return factionEntity.getFaction();
         }
-        return ModRegistries.FACTIONS.holders().filter(s -> s.value().getTag(Registries.ENTITY_TYPE).flatMap(BuiltInRegistries.ENTITY_TYPE::getTag).filter(tag -> entity.getType().is(tag)).isPresent()).findFirst().orElse(null);
+        return ModRegistries.FACTIONS.listElements().filter(s -> s.value().getTag(Registries.ENTITY_TYPE).flatMap(BuiltInRegistries.ENTITY_TYPE::get).filter(tag -> entity.getType().is(tag)).isPresent()).findFirst().orElse(null);
     }
 
     @Nullable
@@ -51,13 +52,13 @@ public class FactionRegistry implements IFactionRegistry {
 
     @Override
     public Collection<Holder<? extends IFaction<?>>> factions() {
-        return ModRegistries.FACTIONS.holders().collect(Collectors.toList());
+        return ModRegistries.FACTIONS.listElements().collect(Collectors.toList());
     }
 
     @SuppressWarnings({"unchecked", "RedundantCast"})
     @Override
     public List<Holder<? extends IPlayableFaction<?>>> playableFactions() {
-        return ModRegistries.FACTIONS.holders().filter(s -> s.value() instanceof IPlayableFaction<?>).map(s -> ((Holder<? extends IPlayableFaction<?>>) (Object) s)).collect(Collectors.toList());
+        return ModRegistries.FACTIONS.listElements().filter(s -> s.value() instanceof IPlayableFaction<?>).map(s -> ((Holder<? extends IPlayableFaction<?>>) (Object) s)).collect(Collectors.toList());
     }
 
     public Predicate<LivingEntity> getPredicate(@NotNull Holder<? extends IFaction<?>> thisFaction, boolean ignoreDisguise) {

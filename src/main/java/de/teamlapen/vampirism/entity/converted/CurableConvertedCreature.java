@@ -63,16 +63,16 @@ public interface CurableConvertedCreature<T extends PathfinderMob, Z extends Pat
     /**
      * return in {@link PathfinderMob#hurt(DamageSource, float)}
      */
-    default boolean hurtC(DamageSource damageSource, float amount) {
+    default boolean hurtC(ServerLevel level, DamageSource damageSource, float amount) {
         PathfinderMob entity = ((PathfinderMob) this);
         if (data().vulnerableToFire) {
             if (damageSource.is(DamageTypes.IN_FIRE)) {
-                return DamageHandler.hurtModded(entity, ModDamageSources::vampireInFire, calculateFireDamage(amount));
+                return DamageHandler.hurtModded(level, entity, ModDamageSources::vampireInFire, calculateFireDamage(amount));
             } else if (damageSource.is(DamageTypes.ON_FIRE)) {
-                return DamageHandler.hurtModded(entity, ModDamageSources::vampireOnFire, calculateFireDamage(amount));
+                return DamageHandler.hurtModded(level, entity, ModDamageSources::vampireOnFire, calculateFireDamage(amount));
             }
         }
-        return hurtSuper(damageSource, amount);
+        return hurtSuper(level, damageSource, amount);
     }
 
     /**
@@ -132,7 +132,7 @@ public interface CurableConvertedCreature<T extends PathfinderMob, Z extends Pat
         if (!forceRefresh) {
             return data().sundamageCache;
         }
-        return (data().sundamageCache = Helper.gettingSundamge(((PathfinderMob) this), iWorld, ((PathfinderMob) this).level().getProfiler()));
+        return (data().sundamageCache = Helper.gettingSundamge(((PathfinderMob) this), iWorld));
     }
 
     @Override
@@ -143,9 +143,9 @@ public interface CurableConvertedCreature<T extends PathfinderMob, Z extends Pat
     /**
      * call in {@link PathfinderMob#aiStep()}
      */
-    default void aiStepC(@NotNull EntityType<T> originalType) {
+    default void aiStepC(ServerLevel level, @NotNull EntityType<T> originalType) {
         PathfinderMob entity = ((PathfinderMob) this);
-        if (!entity.level().isClientSide && entity.isAlive() && this.isConverting(entity)) {
+        if (entity.isAlive() && this.isConverting(entity)) {
             --data().conversionTime;
             if (data().conversionTime <= 0 && net.neoforged.neoforge.event.EventHooks.canLivingConvert(entity, originalType, (timer) -> data().conversionTime = timer)) {
                 this.cureEntity((ServerLevel) entity.level(), entity, originalType);
@@ -157,11 +157,10 @@ public interface CurableConvertedCreature<T extends PathfinderMob, Z extends Pat
         if (entity.tickCount % REFERENCE.REFRESH_SUNDAMAGE_TICKS == 2) {
             isGettingSundamage(entity.level(), true);
         }
-        if (!entity.level().isClientSide) {
             if (isGettingSundamage(entity.level()) && entity.tickCount % 40 == 11) {
                 double dmg = entity.getAttribute(ModAttributes.SUNDAMAGE).getValue();
                 if (dmg > 0) {
-                    DamageHandler.hurtModded(entity, ModDamageSources::sunDamage, (float) dmg);
+                    DamageHandler.hurtModded(level, entity, ModDamageSources::sunDamage, (float) dmg);
                 }
             }
             if (isGettingGarlicDamage(entity.level()) != EnumStrength.NONE) {
@@ -173,7 +172,6 @@ public interface CurableConvertedCreature<T extends PathfinderMob, Z extends Pat
                     entity.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 80, 0));
                 }
             }
-        }
     }
 
     /**
@@ -255,8 +253,8 @@ public interface CurableConvertedCreature<T extends PathfinderMob, Z extends Pat
     default void tickDeathC() {
         PathfinderMob entity = ((PathfinderMob) this);
         if (entity.deathTime == 19) {
-            if (!entity.level().isClientSide && (data().dropSoul && entity.level().getGameRules().getBoolean(GameRules.RULE_DOMOBLOOT))) {
-                entity.level().addFreshEntity(new SoulOrbEntity(entity.level(), entity.getX(), entity.getY(), entity.getZ(), SoulOrbEntity.VARIANT.VAMPIRE));
+            if (entity.level() instanceof ServerLevel level && data().dropSoul && level.getGameRules().getBoolean(GameRules.RULE_DOMOBLOOT)) {
+                level.addFreshEntity(new SoulOrbEntity(entity.level(), entity.getX(), entity.getY(), entity.getZ(), SoulOrbEntity.VARIANT.VAMPIRE));
             }
         }
     }
@@ -276,8 +274,8 @@ public interface CurableConvertedCreature<T extends PathfinderMob, Z extends Pat
         entity.goalSelector.addGoal(15, new RandomLookAroundGoal(entity));
 
         entity.targetSelector.addGoal(1, new HurtByTargetGoal(entity));
-        entity.targetSelector.addGoal(5, new NearestAttackableTargetGoal<>(entity, Player.class, 5, true, false, VampirismAPI.factionRegistry().getPredicate(getFaction(), true, false, true, false, null)));
-        entity.targetSelector.addGoal(6, new NearestAttackableTargetGoal<>(entity, PathfinderMob.class, 5, true, false, VampirismAPI.factionRegistry().getPredicate(getFaction(), false, false, false, false, null)));
+        entity.targetSelector.addGoal(5, new NearestAttackableTargetGoal<>(entity, Player.class, 5, true, false, VampirismAPI.factionRegistry().getSelector(getFaction(), true, false, true, false, null)));
+        entity.targetSelector.addGoal(6, new NearestAttackableTargetGoal<>(entity, PathfinderMob.class, 5, true, false, VampirismAPI.factionRegistry().getSelector(getFaction(), false, false, false, false, null)));
     }
 
     @Override
@@ -300,7 +298,7 @@ public interface CurableConvertedCreature<T extends PathfinderMob, Z extends Pat
     /**
      * implement as super call for {@link PathfinderMob#hurt(DamageSource, float)}
      */
-    boolean hurtSuper(DamageSource damageSource, float amount);
+    boolean hurtSuper(ServerLevel level, DamageSource damageSource, float amount);
 
     static <T extends PathfinderMob, Z extends PathfinderMob & ICurableConvertedCreature<T>> void createFrom() {
 

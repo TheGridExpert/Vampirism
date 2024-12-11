@@ -55,8 +55,8 @@ public class RefinementHandler<T extends IRefinementPlayer<T>> implements IRefin
 
     @Override
     public void damageRefinements() {
-        Registry<Enchantment> enchantments = this.player.asEntity().registryAccess().registryOrThrow(Registries.ENCHANTMENT);
-        Holder.Reference<Enchantment> unbreaking = enchantments.getHolderOrThrow(Enchantments.UNBREAKING);
+        Registry<Enchantment> enchantments = this.player.asEntity().registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
+        Holder.Reference<Enchantment> unbreaking = enchantments.getOrThrow(Enchantments.UNBREAKING);
         this.refinementItems.stream().filter(s -> !s.isEmpty()).forEach(stack -> {
             IRefinementSet set = ((IRefinementItem) stack.getItem()).getRefinementSet(stack);
             int damage = 40 + (set.getRarity().weight - 1) * 10 + this.player.asEntity().getRandom().nextInt(60);

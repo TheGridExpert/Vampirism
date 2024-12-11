@@ -13,8 +13,8 @@ import java.util.function.Consumer;
 public class PlayerSkinHelper {
 
     public static void obtainPlayerSkinPropertiesAsync(final GameProfile input, @NotNull Consumer<Pair<ResourceLocation, PlayerModelType>> callback) {
-        Minecraft.getInstance().getSkinManager().getOrLoad(input).thenAccept(skin -> {
-            callback.accept(Pair.of(skin.texture(), fromVanilla(skin.model())));
+        Minecraft.getInstance().getSkinManager().getOrLoad(input).thenAccept(opt -> {
+            opt.ifPresent(skin -> callback.accept(Pair.of(skin.texture(), fromVanilla(skin.model()))));
         });
     }
 

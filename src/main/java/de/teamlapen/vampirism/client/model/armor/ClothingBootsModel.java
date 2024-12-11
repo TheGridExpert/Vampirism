@@ -27,16 +27,6 @@ public class ClothingBootsModel extends VampirismArmorModel {
         return LayerDefinition.create(mesh, 32, 16);
     }
 
-    private static ClothingBootsModel instance;
-
-    public static ClothingBootsModel getAdjustedInstance(HumanoidModel<?> wearerModel) {
-        if (instance == null) {
-            instance = new ClothingBootsModel(Minecraft.getInstance().getEntityModels().bakeLayer(ModEntitiesRender.CLOTHING_BOOTS));
-        }
-        instance.copyFromHumanoid(wearerModel);
-        return instance;
-    }
-
     public final @NotNull ModelPart rightBoot;
     public final @NotNull ModelPart leftBoot;
     public final @NotNull ModelPart leftToes;
@@ -44,7 +34,7 @@ public class ClothingBootsModel extends VampirismArmorModel {
 
 
     public ClothingBootsModel(@NotNull ModelPart part) {
-        super();
+        super(part);
         this.rightBoot = part.getChild(RIGHT_BOOT);
         this.rightToes = part.getChild(RIGHT_TOES);
         this.leftBoot = part.getChild(LEFT_BOOT);

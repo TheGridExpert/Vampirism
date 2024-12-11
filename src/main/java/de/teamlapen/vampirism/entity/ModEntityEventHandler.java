@@ -259,9 +259,7 @@ public class ModEntityEventHandler {
     @SubscribeEvent
     public void onLivingUpdate(EntityTickEvent.Post event) {
         if (event.getEntity() instanceof PathfinderMob) {
-            event.getEntity().getCommandSenderWorld().getProfiler().push("vampirism_extended_creature");
             ExtendedCreature.getSafe(event.getEntity()).ifPresent(IExtendedCreatureVampirism::tick);
-            event.getEntity().getCommandSenderWorld().getProfiler().pop();
 
         }
     }

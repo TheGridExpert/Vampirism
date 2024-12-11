@@ -11,6 +11,7 @@ import de.teamlapen.vampirism.inventory.HunterTrainerMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -75,11 +76,6 @@ public class HunterTrainerEntity extends HunterBaseEntity implements ForceLookEn
         }
     }
 
-    @Override
-    public boolean hurt(@NotNull DamageSource source, float amount) {
-        return super.hurt(source, amount);
-    }
-
     /**
      * @return The player which has the trainings gui open.
      */
@@ -101,7 +97,7 @@ public class HunterTrainerEntity extends HunterBaseEntity implements ForceLookEn
 
     @Nullable
     @Override
-    public SpawnGroupData finalizeSpawn(ServerLevelAccessor pLevel, DifficultyInstance pDifficulty, MobSpawnType pReason, @Nullable SpawnGroupData pSpawnData) {
+    public SpawnGroupData finalizeSpawn(ServerLevelAccessor pLevel, DifficultyInstance pDifficulty, EntitySpawnReason pReason, @Nullable SpawnGroupData pSpawnData) {
         this.setItemSlot(EquipmentSlot.HEAD, HatType.HAT_0.getHeadItem());
         return super.finalizeSpawn(pLevel, pDifficulty, pReason, pSpawnData);
     }
@@ -138,11 +134,11 @@ public class HunterTrainerEntity extends HunterBaseEntity implements ForceLookEn
                         this.trainee = player;
                         this.getNavigation().stop();
                     } else {
-                        player.sendSystemMessage(Component.translatable("text.vampirism.i_am_busy_right_now"));
+                        player.displayClientMessage(Component.translatable("text.vampirism.i_am_busy_right_now"), false);
                     }
 
                 } else {
-                    player.sendSystemMessage(Component.translatable("text.vampirism.hunter_trainer.trainer_level_wrong"));
+                    player.displayClientMessage(Component.translatable("text.vampirism.hunter_trainer.trainer_level_wrong"), false);
                 }
 
             }
@@ -167,8 +163,8 @@ public class HunterTrainerEntity extends HunterBaseEntity implements ForceLookEn
 
         this.targetSelector.addGoal(1, new HurtByTargetGoal(this));
 
-        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, 5, true, false, VampirismAPI.factionRegistry().getPredicate(getFaction(), true, false, false, false, null)));
-        this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, PathfinderMob.class, 5, true, false, VampirismAPI.factionRegistry().getPredicate(getFaction(), false, true, false, false, null)));
+        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, 5, true, false, VampirismAPI.factionRegistry().getSelector(getFaction(), true, false, false, false, null)));
+        this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, PathfinderMob.class, 5, true, false, VampirismAPI.factionRegistry().getSelector(getFaction(), false, true, false, false, null)));
     }
 
 

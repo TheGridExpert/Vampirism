@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "minecraft:block/oak_leaves"
+      "model": "vampirism:block/dark_spruce_leaves"
     }
   }
 }

@@ -3,12 +3,8 @@
   "category": "misc",
   "group": "hanging_sign",
   "key": {
-    "#": {
-      "item": "vampirism:stripped_dark_spruce_log"
-    },
-    "X": {
-      "item": "minecraft:chain"
-    }
+    "#": "vampirism:stripped_dark_spruce_log",
+    "X": "minecraft:chain"
   },
   "pattern": [
     "X X",

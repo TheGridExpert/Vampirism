@@ -27,7 +27,7 @@ public class ByteBufferCodecUtil {
     public static final StreamCodec<ByteBuf, UUID> UUID = UUIDUtil.STREAM_CODEC;
 
     public static <B, T, Z> StreamCodec<B, Pair<T, Z>> pair(StreamCodec<? super B, T> stream1, StreamCodec<? super B, Z> stream2) {
-        return new StreamCodec<B, Pair<T, Z>>() {
+        return new StreamCodec<>() {
             @Override
             public @NotNull Pair<T, Z> decode(@NotNull B buffer) {
                 return Pair.of(stream1.decode(buffer), stream2.decode(buffer));

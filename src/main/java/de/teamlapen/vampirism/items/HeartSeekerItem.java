@@ -3,11 +3,13 @@ package de.teamlapen.vampirism.items;
 import de.teamlapen.vampirism.api.items.IItemWithTier;
 import de.teamlapen.vampirism.config.VampirismConfig;
 import de.teamlapen.vampirism.core.ModItems;
+import de.teamlapen.vampirism.core.tags.ModItemTags;
 import net.minecraft.network.chat.Component;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,15 +17,15 @@ import java.util.List;
 
 public class HeartSeekerItem extends VampireSwordItem implements IItemWithTier {
 
-    public static final VampireSwordMaterial NORMAL = new VampireSwordMaterial(TIER.NORMAL, BlockTags.INCORRECT_FOR_IRON_TOOL, 500, -3.6f, 1.7F, 14, () -> Ingredient.of(ModItems.BLOOD_INFUSED_IRON_INGOT.get()), 1.3f);
-    public static final VampireSwordMaterial ENHANCED = new VampireSwordMaterial(TIER.ENHANCED, BlockTags.INCORRECT_FOR_DIAMOND_TOOL, 1750, -3.5f, 2.7F, 14, () -> Ingredient.of(ModItems.BLOOD_INFUSED_ENHANCED_IRON_INGOT.get()), 1.4f);
-    public static final VampireSwordMaterial ULTIMATE = new VampireSwordMaterial(TIER.ULTIMATE, BlockTags.INCORRECT_FOR_NETHERITE_TOOL, 2500, -3.4f, 3.7F, 14, () -> Ingredient.of(ModItems.BLOOD_INFUSED_ENHANCED_IRON_INGOT.get()), 1.5f);
+    public static final ToolMaterial NORMAL = new ToolMaterial(BlockTags.INCORRECT_FOR_IRON_TOOL, 500, -3.6f, 1.7F, 14, ModItemTags.VAMPIRE_SWORD_REPAIRABLE_SIMPLE);
+    public static final ToolMaterial ENHANCED = new ToolMaterial(BlockTags.INCORRECT_FOR_DIAMOND_TOOL, 1750, -3.5f, 2.7F, 14, ModItemTags.VAMPIRE_SWORD_REPAIRABLE_ENHANCED);
+    public static final ToolMaterial ULTIMATE = new ToolMaterial(BlockTags.INCORRECT_FOR_NETHERITE_TOOL, 2500, -3.4f, 3.7F, 14, ModItemTags.VAMPIRE_SWORD_REPAIRABLE_ENHANCED);
 
     private final @NotNull TIER tier;
 
-    public HeartSeekerItem(@NotNull VampireSwordMaterial material) {
-        super(material, 3, new Properties());
-        this.tier = material.getTier();
+    public HeartSeekerItem(@NotNull ToolMaterial material, @NotNull TIER tier, float trainIncrease, Item.Properties properties) {
+        super(material, 3, trainIncrease, properties);
+        this.tier = tier;
     }
 
     @Override

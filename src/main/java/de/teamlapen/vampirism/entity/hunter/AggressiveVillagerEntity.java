@@ -45,7 +45,7 @@ public class AggressiveVillagerEntity extends VampirismVillagerEntity implements
      * @param villager Is not modified or removed
      */
     public static @NotNull AggressiveVillagerEntity makeHunter(@NotNull Villager villager) {
-        AggressiveVillagerEntity hunter = ModEntities.VILLAGER_ANGRY.get().create(villager.level());
+        AggressiveVillagerEntity hunter = ModEntities.VILLAGER_ANGRY.get().create(villager.level(), EntitySpawnReason.EVENT);
         assert hunter != null;
         CompoundTag nbt = new CompoundTag();
         if (villager.isSleeping()) {
@@ -112,7 +112,7 @@ public class AggressiveVillagerEntity extends VampirismVillagerEntity implements
     }
 
     @Override
-    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor worldIn, @NotNull DifficultyInstance difficultyIn, @NotNull MobSpawnType reason, @Nullable SpawnGroupData spawnDataIn) {
+    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor worldIn, @NotNull DifficultyInstance difficultyIn, @NotNull EntitySpawnReason reason, @Nullable SpawnGroupData spawnDataIn) {
         SpawnGroupData data = super.finalizeSpawn(worldIn, difficultyIn, reason, spawnDataIn);
         this.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(ModItems.PITCHFORK.get()));
         return data;
@@ -124,7 +124,7 @@ public class AggressiveVillagerEntity extends VampirismVillagerEntity implements
 
     @Override
     public void stopVillageAttackDefense() {
-        Villager villager = EntityType.VILLAGER.create(this.level());
+        Villager villager = EntityType.VILLAGER.create(this.level(), EntitySpawnReason.EVENT);
         assert villager != null;
         this.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
         CompoundTag nbt = new CompoundTag();
@@ -151,9 +151,9 @@ public class AggressiveVillagerEntity extends VampirismVillagerEntity implements
         this.goalSelector.addGoal(8, new MoveThroughVillageGoal(this, 0.55, false, 400, () -> true));
 
         this.targetSelector.addGoal(1, new HurtByTargetGoal(this));
-        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, 5, true, false, VampirismAPI.factionRegistry().getPredicate(getFaction(), true, false, false, false, null)));
+        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, 5, true, false, VampirismAPI.factionRegistry().getSelector(getFaction(), true, false, false, false, null)));
         this.targetSelector.addGoal(3, new DefendVillageGoal<>(this));
-        this.targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(this, PathfinderMob.class, 5, true, false, VampirismAPI.factionRegistry().getPredicate(getFaction(), false, true, false, false, null)) {
+        this.targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(this, PathfinderMob.class, 5, true, false, VampirismAPI.factionRegistry().getSelector(getFaction(), false, true, false, false, null)) {
 
             @Override
             protected double getFollowDistance() {

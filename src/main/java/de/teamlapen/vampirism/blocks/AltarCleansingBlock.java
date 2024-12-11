@@ -13,6 +13,7 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.BlockHitResult;
@@ -38,8 +39,8 @@ public class AltarCleansingBlock extends VampirismHorizontalBlock {
     }
 
 
-    public AltarCleansingBlock() {
-        super(Properties.of().mapColor(MapColor.WOOD).ignitedByLava().strength(0.5f).noOcclusion());
+    public AltarCleansingBlock(BlockBehaviour.Properties properties) {
+        super(properties.mapColor(MapColor.WOOD).ignitedByLava().strength(0.5f).noOcclusion().overrideDescription("block.vampirism.church_altar"));
         this.registerDefaultState(this.getStateDefinition().any().setValue(FACING, Direction.NORTH));
     }
 
@@ -57,13 +58,6 @@ public class AltarCleansingBlock extends VampirismHorizontalBlock {
     public BlockState getStateForPlacement(@NotNull BlockPlaceContext ctx) {
         return this.defaultBlockState().setValue(FACING, ctx.getHorizontalDirection().getOpposite());
     }
-
-    @NotNull
-    @Override
-    public String getDescriptionId() {
-        return "block.vampirism.church_altar";
-    }
-
 
     @NotNull
     @Override

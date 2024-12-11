@@ -1,0 +1,19 @@
+{
+  "model": {
+    "type": "minecraft:range_dispatch",
+    "entries": [
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "vampirism:item/basic_double_crossbow_unloaded"
+        },
+        "threshold": 0.99
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "vampirism:item/basic_double_crossbow"
+    },
+    "property": "minecraft:crossbow/pull"
+  }
+}

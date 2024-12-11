@@ -4,7 +4,6 @@ import de.teamlapen.lib.HelperRegistry;
 import de.teamlapen.lib.lib.entity.IPlayerEventListener;
 import de.teamlapen.lib.lib.storage.IAttachedSyncable;
 import de.teamlapen.lib.lib.util.IInitListener;
-import de.teamlapen.lib.util.Color;
 import de.teamlapen.vampirism.api.VReference;
 import de.teamlapen.vampirism.api.VampirismAPI;
 import de.teamlapen.vampirism.api.util.VResourceLocation;
@@ -33,8 +32,6 @@ import de.teamlapen.vampirism.items.BloodBottleItem;
 import de.teamlapen.vampirism.items.crossbow.CrossbowArrowHandler;
 import de.teamlapen.vampirism.misc.SettingsProvider;
 import de.teamlapen.vampirism.misc.VampirismLogger;
-import de.teamlapen.vampirism.mixin.accessor.ReloadableServerResourcesAccessor;
-import de.teamlapen.vampirism.mixin.accessor.TagManagerAccessor;
 import de.teamlapen.vampirism.modcompat.IMCHandler;
 import de.teamlapen.vampirism.modcompat.TerraBlenderCompat;
 import de.teamlapen.vampirism.network.ModPacketDispatcher;
@@ -47,7 +44,6 @@ import de.teamlapen.vampirism.world.BloodConversionRegistry;
 import de.teamlapen.vampirism.world.biome.OverworldModifications;
 import de.teamlapen.vampirism.world.gen.VanillaStructureModifications;
 import net.minecraft.core.Direction;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.crafting.ShapedRecipePattern;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
@@ -124,7 +120,7 @@ public class VampirismMod {
 
     public void onAddReloadListenerEvent(@NotNull AddReloadListenerEvent event) {
         event.addListener(new SingleJigsawReloadListener());
-        event.addListener(new SundamageReloadListener(((TagManagerAccessor) ((ReloadableServerResourcesAccessor) event.getServerResources()).getTagManager()).getRegistryAccess()));
+        event.addListener(new SundamageReloadListener(event.getRegistryAccess()));
         event.addListener(new SkillTreeReloadListener());
     }
 

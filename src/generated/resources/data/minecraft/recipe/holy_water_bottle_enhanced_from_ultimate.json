@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "vampirism:holy_water_bottle_ultimate"
-    },
-    {
-      "item": "vampirism:pure_salt_water"
-    }
+    "vampirism:holy_water_bottle_ultimate",
+    "vampirism:pure_salt_water"
   ],
   "result": {
     "count": 2,

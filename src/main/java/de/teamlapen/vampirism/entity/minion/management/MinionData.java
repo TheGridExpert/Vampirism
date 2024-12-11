@@ -17,6 +17,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 import org.apache.logging.log4j.LogManager;
@@ -38,7 +39,7 @@ public abstract class MinionData implements INBTSerializable<CompoundTag>, IMini
     @Nullable
     public static <T extends MinionData> T fromNBT(HolderLookup.Provider provider, @NotNull CompoundTag nbt) {
         ResourceLocation dataType = ResourceLocation.parse(nbt.getString("data_type"));
-        return Optional.ofNullable(ModRegistries.MINIONS.get(dataType)).map(IMinionEntry::data).map(Supplier::get).map(s -> {
+        return Optional.ofNullable(ModRegistries.MINIONS.getValue(dataType)).map(IMinionEntry::data).map(Supplier::get).map(s -> {
             try {
                 @SuppressWarnings("unchecked")
                 T t = (T) s;
@@ -196,6 +197,7 @@ public abstract class MinionData implements INBTSerializable<CompoundTag>, IMini
     }
 
     public void shrinkInventory(@NotNull MinionEntity<?> entity) {
+        if (!(entity.level() instanceof ServerLevel serverLevel)) return;
         Optional<MinionInventory> invOpt = entity.getMinionData().map(MinionData::getInventory);
         if (invOpt.isPresent()) {
             MinionInventory inv = invOpt.get();
@@ -213,7 +215,7 @@ public abstract class MinionData implements INBTSerializable<CompoundTag>, IMini
                     if (!stack.isEmpty()) {
                         entity.getLordOpt().ifPresent(lord -> {
                             if (!lord.getPlayer().addItem(stack)) {
-                                entity.spawnAtLocation(stack);
+                                entity.spawnAtLocation(serverLevel, stack);
                             }
                         });
                     }

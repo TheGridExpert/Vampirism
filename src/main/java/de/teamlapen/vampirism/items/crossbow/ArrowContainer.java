@@ -3,7 +3,9 @@ package de.teamlapen.vampirism.items.crossbow;
 import de.teamlapen.vampirism.api.items.IArrowContainer;
 import de.teamlapen.vampirism.api.items.IVampirismCrossbowArrow;
 import de.teamlapen.vampirism.core.ModDataComponents;
+import de.teamlapen.vampirism.core.ModItems;
 import de.teamlapen.vampirism.items.component.ContainedProjectiles;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.sounds.SoundEvents;
@@ -39,11 +41,13 @@ public class ArrowContainer extends Item implements IArrowContainer {
     @Override
     public void appendHoverText(@NotNull ItemStack stack, @Nullable TooltipContext context, @NotNull List<Component> texts, @NotNull TooltipFlag flag) {
         getArrows(stack).stream().map(ItemStack::getItem).collect(Collectors.groupingBy(a -> a)).forEach((item, items) -> texts.add(item.getName(item.getDefaultInstance()).copy().append(" " + items.size())));
+        texts.add(Component.translatable("item.vampirism.tech_crossbow_ammo_package.tooltip", Component.translatable(ModItems.BASIC_TECH_CROSSBOW.get().getDescriptionId())).withStyle(ChatFormatting.GRAY));
+        texts.add(Component.translatable("item.vampirism.arrow_clip.right_click").withStyle(ChatFormatting.GRAY));
     }
 
     @Override
     public @NotNull Component getName(@NotNull ItemStack stack) {
-        return ((MutableComponent) super.getName(stack)).append(" (" + getArrows(stack).size() + "/" + this.maxCount + ")");
+        return super.getName(stack).copy().append(" (" + getArrows(stack).size() + "/" + this.maxCount + ")");
     }
 
     @Override
@@ -56,7 +60,7 @@ public class ArrowContainer extends Item implements IArrowContainer {
         ArrayList<ItemStack> arrows = new ArrayList<>(getArrows(container));
         if (arrows.size() >= maxCount) return false;
         arrows.add(arrow);
-        container.set(ModDataComponents.CONTAINED_PROJECTILES, ContainedProjectiles.of(arrows));
+        container.set(ModDataComponents.CONTAINED_PROJECTILES, ContainedProjectiles.of(arrows, getMaxArrows(container)));
         return true;
     }
 
@@ -69,7 +73,7 @@ public class ArrowContainer extends Item implements IArrowContainer {
             arrows.add(next);
             iterator.remove();
         }
-        container.set(ModDataComponents.CONTAINED_PROJECTILES, ContainedProjectiles.of(arrows));
+        container.set(ModDataComponents.CONTAINED_PROJECTILES, ContainedProjectiles.of(arrows, getMaxArrows(container)));
     }
 
     @Override
@@ -90,7 +94,7 @@ public class ArrowContainer extends Item implements IArrowContainer {
         for (int i = 0; i < arrows.size(); i++) {
             if (ItemStack.matches(arrows.get(i), arrow)) {
                 arrows.remove(i);
-                container.set(ModDataComponents.CONTAINED_PROJECTILES, ContainedProjectiles.of(arrows));
+                container.set(ModDataComponents.CONTAINED_PROJECTILES, ContainedProjectiles.of(arrows, getMaxArrows(container)));
                 return true;
             }
         }

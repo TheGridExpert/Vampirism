@@ -15,6 +15,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -115,7 +116,7 @@ public class VulnerableRemainsBlockEntity extends BlockEntity {
             }
             dummy_entity_id = null;
         }
-        return SpawnHelper.spawn(ModEntities.VULNERABLE_REMAINS_DUMMY, level, entity -> {
+        return SpawnHelper.spawn(ModEntities.VULNERABLE_REMAINS_DUMMY, level, EntitySpawnReason.STRUCTURE, entity -> {
             entity.setPos(Vec3.atCenterOf(blockPos).add(0, -0.51f, 0));
             entity.setOwnerLocation(blockPos);
             this.dummy_entity_id = entity.getUUID();

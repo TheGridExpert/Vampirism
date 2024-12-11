@@ -12,6 +12,7 @@ import de.teamlapen.vampirism.util.RegUtil;
 import net.minecraft.Util;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.RandomSource;
@@ -90,7 +91,7 @@ public class CollectResourcesTask<Q extends MinionData> extends DefaultMinionTas
             List<ItemStack> stacks = Stream.of(data.getInventory().getInventoryArmor(), data.getInventory().getInventoryHands()).flatMap(Collection::stream).filter(stack -> !stack.isEmpty()).toList();
             if (!stacks.isEmpty()) {
                 ItemStack stack = stacks.get(rng.nextInt(stacks.size()));
-                if (stack.isRepairable() && stack.getDamageValue() > 0) {
+                if (stack.get(DataComponents.REPAIRABLE) != null && stack.getDamageValue() > 0) {
                     stack.setDamageValue(Math.max(0, stack.getDamageValue() - VampirismConfig.BALANCE.miEquipmentRepairAmount.get()));
                 }
             }

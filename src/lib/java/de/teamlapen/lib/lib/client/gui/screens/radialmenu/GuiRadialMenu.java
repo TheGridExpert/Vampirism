@@ -31,29 +31,33 @@ package de.teamlapen.lib.lib.client.gui.screens.radialmenu;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import de.teamlapen.lib.util.GuiGraphicsAccessor;
+import de.teamlapen.lib.util.KeyMappingAccessor;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.player.Input;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.player.Input;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.client.event.MovementInputUpdateEvent;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
-@EventBusSubscriber(Dist.CLIENT)
+//@EventBusSubscriber(Dist.CLIENT)
 public abstract class GuiRadialMenu<T> extends Screen {
     private static final float PRECISION = 5.0f;
     protected static final int MAX_SLOTS = 30;
@@ -86,13 +90,13 @@ public abstract class GuiRadialMenu<T> extends Screen {
         this.selectedItem = -1;
     }
 
-    @SubscribeEvent
-    public static void updateInputEvent(MovementInputUpdateEvent event) {
-        if (Minecraft.getInstance().screen instanceof GuiRadialMenu<?> screen) {
-
-            screen.processInputEvent(event);
-        }
-    }
+//    @SubscribeEvent
+//    public static void updateInputEvent(MovementInputUpdateEvent event) {
+//        if (Minecraft.getInstance().screen instanceof GuiRadialMenu<?> screen) {
+//
+//            screen.processInputEvent(event);
+//        }
+//    }
 
     @Override
     public void tick() {
@@ -111,7 +115,7 @@ public abstract class GuiRadialMenu<T> extends Screen {
         PoseStack pose = graphics.pose();
 
         float openAnimation = closing ? 1.0f - totalTime / OPEN_ANIMATION_LENGTH : totalTime / OPEN_ANIMATION_LENGTH;
-        float currTick = minecraft.getTimer().getGameTimeDeltaTicks();
+        float currTick = minecraft.getDeltaTracker().getGameTimeDeltaTicks();
         totalTime += (currTick + extraTick - prevTick) / 20f;
         extraTick = 0;
         prevTick = currTick;
@@ -135,7 +139,7 @@ public abstract class GuiRadialMenu<T> extends Screen {
         }
 
         pose.pushPose();
-        graphics.setColor(1, 1, 1, 1);
+        RenderSystem.setShaderColor(1,1,1,1);
 
 
         boolean hasMouseOver = false;
@@ -167,17 +171,20 @@ public abstract class GuiRadialMenu<T> extends Screen {
             }
         }
 
-        graphics.setColor(1, 1, 1, 1);
+        RenderSystem.setShaderColor(1,1,1,1);
+        pose.translate(0, 0, 50);
 
         if (hasMouseOver && mousedOverSlot != -1) {
             int adjusted = ((mousedOverSlot + (numberOfSlices / 2 + 1)) % numberOfSlices) - 1;
             adjusted = adjusted == -1 ? numberOfSlices - 1 : adjusted;
             Component component = radialMenuSlots.get(adjusted).slotName();
-            pose.translate(0, 0, 50);
             graphics.drawCenteredString(font, component, width / 2, (height - font.lineHeight) / 2, Optional.ofNullable(component.getStyle().getColor()).map(TextColor::getValue).orElse(16777215));
         }
 
+
         pose.pushPose();
+        pose.translate(0, 0, 50);
+
         for (int i = 0; i < numberOfSlices; i++) {
             ItemStack stack = new ItemStack(Blocks.DIRT);
             float angle1 = ((i / (float) numberOfSlices) - 0.25f) * 2 * (float) Math.PI;
@@ -187,12 +194,13 @@ public abstract class GuiRadialMenu<T> extends Screen {
             float posX = centerOfScreenX - 8 + itemRadius * (float) Math.cos(angle1);
             float posY = centerOfScreenY - 8 + itemRadius * (float) Math.sin(angle1);
 
-            RenderSystem.disableDepthTest();
+//            RenderSystem.disableDepthTest();
 
             T primarySlotIcon = radialMenuSlots.get(i).primarySlotIcon();
             List<T> secondarySlotIcons = radialMenuSlots.get(i).secondarySlotIcons();
             if (primarySlotIcon != null) {
-                graphics.setColor(1, 1, 1, 1);
+                RenderSystem.setShaderColor(1,1,1,1);
+
                 radialMenu.drawIcon(primarySlotIcon, graphics, (int) posX, (int) posY, 16);
                 if (secondarySlotIcons != null && !secondarySlotIcons.isEmpty()) {
                     drawSecondaryIcons(graphics, (int) posX, (int) posY, secondarySlotIcons);
@@ -273,7 +281,7 @@ public abstract class GuiRadialMenu<T> extends Screen {
         endAngle = (float) Math.toRadians(endAngle);
         angle = endAngle - startAngle;
 
-        var buffer = guiGraphics.bufferSource().getBuffer(RenderType.gui());
+        var buffer = ((GuiGraphicsAccessor)guiGraphics).bufferSource().getBuffer(RenderType.gui());
 
         for (int i = 0; i < sections; i++) {
             float angle1 = startAngle + (i / (float) sections) * angle;
@@ -302,33 +310,41 @@ public abstract class GuiRadialMenu<T> extends Screen {
         return false;
     }
 
-    protected void processInputEvent(MovementInputUpdateEvent event) {
-        Options settings = Minecraft.getInstance().options;
-        Input eInput = event.getInput();
-        eInput.up = isKeyDown0(settings.keyUp);
-        eInput.down = isKeyDown0(settings.keyDown);
-        eInput.left = isKeyDown0(settings.keyLeft);
-        eInput.right = isKeyDown0(settings.keyRight);
+//    @SubscribeEvent
+//    protected static void updateMovement(InputEvent.Key event) {
+//        if (Minecraft.getInstance().screen instanceof GuiRadialMenu<?>) {
+//            InputConstants.Key key = InputConstants.getKey(event.getKey(), event.getScanCode());
+//            Options options = Minecraft.getInstance().options;
+//            Stream.of(options.keyUp, options.keyDown, options.keyLeft, options.keyRight, options.keyJump, options.keyShift, options.keySprint).filter(x -> x.getKey() == key).forEach(x -> {
+//                x.setDown(true);
+//                ((KeyMappingAccessor) x).clicked();
+//            });
+//        }
+//    }
 
-        eInput.forwardImpulse = eInput.up == eInput.down ? 0.0F : (eInput.up ? 1.0F : -1.0F);
-        eInput.leftImpulse = eInput.left == eInput.right ? 0.0F : (eInput.left ? 1.0F : -1.0F);
-        eInput.jumping = isKeyDown0(settings.keyJump);
-        eInput.shiftKeyDown = isKeyDown0(settings.keyShift);
-        if (Minecraft.getInstance().player.isMovingSlowly()) {
-            eInput.leftImpulse = (float) ((double) eInput.leftImpulse * 0.3D);
-            eInput.forwardImpulse = (float) ((double) eInput.forwardImpulse * 0.3D);
-        }
-    }
+//    protected void processInputEvent(MovementInputUpdateEvent event) {
+//        Options settings = Minecraft.getInstance().options;
+//        Input eInput = event.getInput().keyPresses;
+//        var up = isKeyDown0(settings.keyUp);
+//        var down = isKeyDown0(settings.keyDown);
+//        var left = isKeyDown0(settings.keyLeft);
+//        var right = isKeyDown0(settings.keyRight);
+//
+//        var jumping = isKeyDown0(settings.keyJump);
+//        var shiftKeyDown = isKeyDown0(settings.keyShift);
+//        var sprint = isKeyDown0(settings.keySprint);
+//        event.getInput().keyPresses = new Input(up, down, left, right, jumping, shiftKeyDown, sprint);
+//    }
 
-    private static boolean isKeyDown0(KeyMapping keybind) {
-        if (keybind.isUnbound()) {
-            return false;
-        }
-
-        return switch (keybind.getKey().getType()) {
-            case KEYSYM -> InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), keybind.getKey().getValue());
-            case MOUSE -> GLFW.glfwGetMouseButton(Minecraft.getInstance().getWindow().getWindow(), keybind.getKey().getValue()) == GLFW.GLFW_PRESS;
-            default -> false;
-        };
-    }
+//    private static boolean isKeyDown0(KeyMapping keybind) {
+//        if (keybind.isUnbound()) {
+//            return false;
+//        }
+//
+//        return switch (keybind.getKey().getType()) {
+//            case KEYSYM -> InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), keybind.getKey().getValue());
+//            case MOUSE -> GLFW.glfwGetMouseButton(Minecraft.getInstance().getWindow().getWindow(), keybind.getKey().getValue()) == GLFW.GLFW_PRESS;
+//            default -> false;
+//        };
+//    }
 }

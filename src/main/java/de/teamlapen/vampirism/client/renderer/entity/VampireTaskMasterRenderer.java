@@ -6,6 +6,7 @@ import de.teamlapen.vampirism.api.util.VResourceLocation;
 import de.teamlapen.vampirism.client.core.ModEntitiesRender;
 import de.teamlapen.vampirism.client.renderer.entity.layers.TaskMasterTypeLayer;
 import de.teamlapen.vampirism.client.renderer.entity.layers.VampireEntityLayer;
+import de.teamlapen.vampirism.client.renderer.entity.state.VampireTaskMasterRenderState;
 import de.teamlapen.vampirism.entity.vampire.VampireTaskMasterEntity;
 import de.teamlapen.vampirism.util.Helper;
 import net.minecraft.client.Minecraft;
@@ -20,34 +21,37 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Render the advanced vampire with overlays
  */
-public class VampireTaskMasterRenderer extends MobRenderer<VampireTaskMasterEntity, VillagerModel<VampireTaskMasterEntity>> {
+public class VampireTaskMasterRenderer extends MobRenderer<VampireTaskMasterEntity, VampireTaskMasterRenderState, VillagerModel> {
     private final static ResourceLocation texture = VResourceLocation.mc("textures/entity/villager/villager.png");
     private final static ResourceLocation vampireOverlay = VResourceLocation.mod("textures/entity/vanilla/villager_overlay.png");
     private final static ResourceLocation overlay = VResourceLocation.mod("textures/entity/vampire_task_master_overlay.png");
 
     public VampireTaskMasterRenderer(EntityRendererProvider.@NotNull Context context) {
-        super(context, new VillagerModel<>(context.bakeLayer(ModEntitiesRender.TASK_MASTER)), 0.5F);
-//        this.addLayer(new HeldItemLayer<>(this));
+        super(context, new VillagerModel(context.bakeLayer(ModEntitiesRender.TASK_MASTER)), 0.5F);
         this.addLayer(new VampireEntityLayer<>(this, vampireOverlay));
         this.addLayer(new TaskMasterTypeLayer<>(this, overlay));
     }
 
+    @Override
+    public @NotNull VampireTaskMasterRenderState createRenderState() {
+        return new VampireTaskMasterRenderState();
+    }
+
     @NotNull
     @Override
-    public ResourceLocation getTextureLocation(@NotNull VampireTaskMasterEntity entity) {
+    public ResourceLocation getTextureLocation(@NotNull VampireTaskMasterRenderState entity) {
         return texture;
     }
 
     @Override
-    protected void renderNameTag(@NotNull VampireTaskMasterEntity entityIn, @NotNull Component displayNameIn, @NotNull PoseStack matrixStackIn, @NotNull MultiBufferSource bufferIn, int packedLightIn, float partialTicks) {
-        double dist = this.entityRenderDispatcher.distanceToSqr(entityIn);
-        if (dist <= 128) {
-            super.renderNameTag(entityIn, displayNameIn, matrixStackIn, bufferIn, packedLightIn, packedLightIn);
+    protected void renderNameTag(VampireTaskMasterRenderState state, @NotNull Component name, @NotNull PoseStack stack, @NotNull MultiBufferSource bufferSource, int packedLight) {
+        if (state.distanceToCameraSq < 128) {
+            super.renderNameTag(state, name, stack, bufferSource, packedLight);
         }
     }
 
     @Override
-    protected boolean shouldShowName(@NotNull VampireTaskMasterEntity pEntity) {
-        return Helper.isVampire(Minecraft.getInstance().player) && super.shouldShowName(pEntity);
+    protected boolean shouldShowName(@NotNull VampireTaskMasterEntity entity, double p_364446_) {
+        return Helper.isVampire(entity) && super.shouldShowName(entity, p_364446_);
     }
 }

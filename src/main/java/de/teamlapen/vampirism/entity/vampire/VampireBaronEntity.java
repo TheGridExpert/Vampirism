@@ -39,6 +39,7 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.ServerLevelAccessor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.jmx.Server;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -53,7 +54,7 @@ public class VampireBaronEntity extends VampireBaseEntity implements IVampireBar
     private static final EntityDataAccessor<Boolean> LADY = SynchedEntityData.defineId(VampireBaronEntity.class, EntityDataSerializers.BOOLEAN);
     private final static int ENRAGED_TRANSITION_TIME = 15;
 
-    public static boolean spawnPredicateBaron(@NotNull EntityType<? extends VampireBaronEntity> entityType, @NotNull LevelAccessor world, MobSpawnType spawnReason, @NotNull BlockPos blockPos, RandomSource random) {
+    public static boolean spawnPredicateBaron(@NotNull EntityType<? extends VampireBaronEntity> entityType, @NotNull LevelAccessor world, EntitySpawnReason spawnReason, @NotNull BlockPos blockPos, RandomSource random) {
         return world.getBiome(blockPos).is(ModBiomeTags.HasFaction.IS_VAMPIRE_BIOME) && world.getDifficulty() != net.minecraft.world.Difficulty.PEACEFUL && Mob.checkMobSpawnRules(entityType, world, spawnReason, blockPos, random);
     }
 
@@ -82,7 +83,7 @@ public class VampireBaronEntity extends VampireBaseEntity implements IVampireBar
     private int enragedTransitionTime = 0;
 
     public VampireBaronEntity(EntityType<? extends VampireBaronEntity> type, Level world) {
-        super(type, world, true);
+        super(type, world);
         this.garlicResist = EnumStrength.MEDIUM;
         this.hasArms = true;
     }
@@ -137,7 +138,7 @@ public class VampireBaronEntity extends VampireBaseEntity implements IVampireBar
     }
 
     @Override
-    public boolean checkSpawnRules(@NotNull LevelAccessor worldIn, @NotNull MobSpawnType spawnReasonIn) {
+    public boolean checkSpawnRules(@NotNull LevelAccessor worldIn, @NotNull EntitySpawnReason spawnReasonIn) {
         int i = Mth.floor(this.getBoundingBox().minY);
         //Only spawn on the surface
         if (i < 60) return false;
@@ -151,8 +152,8 @@ public class VampireBaronEntity extends VampireBaseEntity implements IVampireBar
     }
 
     @Override
-    public boolean doHurtTarget(@NotNull Entity entity) {
-        boolean flag = super.doHurtTarget(entity);
+    public boolean doHurtTarget(ServerLevel level, @NotNull Entity entity) {
+        boolean flag = super.doHurtTarget(level, entity);
         if (flag && entity instanceof LivingEntity) {
             float tm = 1f;
             int mr = 1;
@@ -176,9 +177,9 @@ public class VampireBaronEntity extends VampireBaseEntity implements IVampireBar
 
     @Nullable
     @Override
-    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor worldIn, @NotNull DifficultyInstance difficultyIn, @NotNull MobSpawnType reason, @Nullable SpawnGroupData spawnDataIn) {
+    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor worldIn, @NotNull DifficultyInstance difficultyIn, @NotNull EntitySpawnReason reason, @Nullable SpawnGroupData spawnDataIn) {
         this.getEntityData().set(LADY, this.getRandom().nextBoolean());
-        if (reason == MobSpawnType.COMMAND || reason == MobSpawnType.SPAWN_EGG) {
+        if (reason == EntitySpawnReason.COMMAND || reason == EntitySpawnReason.SPAWN_ITEM_USE) {
             this.setEntityLevel(getRandom().nextInt(getMaxEntityLevel() + 1));
         }
         return super.finalizeSpawn(worldIn, difficultyIn, reason, spawnDataIn);
@@ -249,9 +250,9 @@ public class VampireBaronEntity extends VampireBaseEntity implements IVampireBar
     }
 
     @Override
-    public boolean hurt(@NotNull DamageSource damageSource, float amount) {
+    public boolean hurtServer(ServerLevel level, @NotNull DamageSource damageSource, float amount) {
         attackDecisionCounter++;
-        return super.hurt(damageSource, amount);
+        return super.hurtServer(level, damageSource, amount);
     }
 
     public boolean isEnraged() {
@@ -323,9 +324,9 @@ public class VampireBaronEntity extends VampireBaseEntity implements IVampireBar
     }
 
     @Override
-    protected int getBaseExperienceReward() {
+    protected int getBaseExperienceReward(ServerLevel level) {
         this.xpReward = 20 + 5 * getEntityLevel();
-        return super.getBaseExperienceReward();
+        return super.getBaseExperienceReward(level);
     }
 
     @Override
@@ -334,7 +335,7 @@ public class VampireBaronEntity extends VampireBaseEntity implements IVampireBar
         this.goalSelector.addGoal(4, new FleeGarlicVampireGoal(this, 0.9F, false));
         this.goalSelector.addGoal(5, new BaronAIAttackMelee(this, 1.0F));
         this.goalSelector.addGoal(6, new BaronAIAttackRanged(this, 60, 64, 6, 4));
-        this.goalSelector.addGoal(6, new AvoidEntityGoal<>(this, Player.class, 6.0F, 0.6, 0.7F, input -> input != null && !isLowerLevel(input)));//Works only partially. Pathfinding somehow does not find escape routes
+        this.goalSelector.addGoal(6, new AvoidEntityGoal<>(this, Player.class, 6.0F, 0.6, 0.7F, (input) -> input != null && !isLowerLevel(input, input.level())));//Works only partially. Pathfinding somehow does not find escape routes
         this.goalSelector.addGoal(7, new RandomStrollGoal(this, 0.2));
         this.goalSelector.addGoal(9, new LookAtClosestVisibleGoal(this, Player.class, 10.0F));
         this.goalSelector.addGoal(10, new RandomLookAroundGoal(this));
@@ -358,7 +359,7 @@ public class VampireBaronEntity extends VampireBaseEntity implements IVampireBar
         this.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(BalanceMobProps.mobProps.VAMPIRE_BARON_ATTACK_DAMAGE * Math.pow(BalanceMobProps.mobProps.VAMPIRE_BARON_IMPROVEMENT_PER_LEVEL, getEntityLevel()));
     }
 
-    private boolean isLowerLevel(LivingEntity player) {
+    private boolean isLowerLevel(LivingEntity player, Level level) {
         if (player instanceof Player) {
             int playerLevel = FactionPlayerHandler.get((Player) player).getCurrentLevel();
             return (playerLevel - 8) / 2F - VampireBaronEntity.this.getEntityLevel() <= 0;

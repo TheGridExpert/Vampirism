@@ -2,15 +2,9 @@
   "type": "vampirism:shaped_crafting_weapontable",
   "category": "equipment",
   "key": {
-    "X": {
-      "tag": "c:ingots/iron"
-    },
-    "Y": {
-      "item": "minecraft:string"
-    },
-    "Z": {
-      "tag": "c:gems/diamond"
-    }
+    "X": "#c:ingots/iron",
+    "Y": "minecraft:string",
+    "Z": "#c:gems/diamond"
   },
   "lava": 5,
   "pattern": [

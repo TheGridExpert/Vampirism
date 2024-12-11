@@ -2,12 +2,8 @@
   "type": "vampirism:shaped_crafting_weapontable",
   "category": "equipment",
   "key": {
-    "X": {
-      "tag": "c:ingots/iron"
-    },
-    "Y": {
-      "item": "minecraft:black_wool"
-    }
+    "X": "#c:ingots/iron",
+    "Y": "minecraft:black_wool"
   },
   "lava": 1,
   "pattern": [

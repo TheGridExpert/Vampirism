@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "X": {
-      "item": "minecraft:bucket"
-    },
-    "Y": {
-      "tag": "c:ingots/iron"
-    },
-    "Z": {
-      "tag": "c:storage_blocks/iron"
-    }
+    "X": "minecraft:bucket",
+    "Y": "#c:ingots/iron",
+    "Z": "#c:storage_blocks/iron"
   },
   "pattern": [
     "X  ",

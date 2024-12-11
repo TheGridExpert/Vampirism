@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "X": {
-      "tag": "minecraft:planks"
-    },
-    "Y": {
-      "tag": "vampirism:holy_water"
-    }
+    "X": "#minecraft:planks",
+    "Y": "#vampirism:holy_water"
   },
   "pattern": [
     " X ",

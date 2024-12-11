@@ -1,6 +1,7 @@
 package de.teamlapen.vampirism.entity.vampire;
 
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -24,12 +25,10 @@ public class TrainingDummyVampireEntity extends BasicVampireEntity {
     }
 
     @Override
-    public boolean hurt(@NotNull DamageSource damageSource, float amount) {
-        if (!this.level().isClientSide) {
-            this.level().getNearbyPlayers(PREDICATE, this, this.getBoundingBox().inflate(40)).forEach(p -> p.displayClientMessage(Component.literal("Damage " + amount + " from " + damageSource.type().msgId()), false));
-            if (this.startTicks != 0) this.damageTaken += amount;
-        }
-        return super.hurt(damageSource, amount);
+    public boolean hurtServer(ServerLevel level, @NotNull DamageSource damageSource, float amount) {
+        level.getNearbyPlayers(PREDICATE, this, this.getBoundingBox().inflate(40)).forEach(p -> p.displayClientMessage(Component.literal("Damage " + amount + " from " + damageSource.type().msgId()), false));
+        if (this.startTicks != 0) this.damageTaken += amount;
+        return super.hurtServer(level, damageSource, amount);
 
     }
 
@@ -39,9 +38,9 @@ public class TrainingDummyVampireEntity extends BasicVampireEntity {
     }
 
     @Override
-    protected void actuallyHurt(@NotNull DamageSource damageSrc, float damageAmount) {
+    protected void actuallyHurt(ServerLevel level, @NotNull DamageSource damageSrc, float damageAmount) {
         if (damageSrc.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
-            super.actuallyHurt(damageSrc, damageAmount);
+            super.actuallyHurt(level, damageSrc, damageAmount);
         }
     }
 

@@ -1,29 +1,24 @@
 package de.teamlapen.vampirism.items;
 
-import com.google.common.base.Suppliers;
 import de.teamlapen.vampirism.api.items.IItemWithTier;
-import de.teamlapen.vampirism.api.util.VResourceLocation;
-import de.teamlapen.vampirism.mixin.accessor.ArmorItemAccessor;
-import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EquipmentSlotGroup;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.component.ItemAttributeModifiers;
+import net.minecraft.world.item.equipment.ArmorMaterial;
+import net.minecraft.world.item.equipment.ArmorType;
+import net.minecraft.world.item.equipment.Equippable;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.function.Supplier;
 
 public class ArmorOfSwiftnessItem extends HunterArmorItem implements IItemWithTier {
 
@@ -37,12 +32,12 @@ public class ArmorOfSwiftnessItem extends HunterArmorItem implements IItemWithTi
         };
     }
 
-    public ArmorOfSwiftnessItem(@NotNull Holder<net.minecraft.world.item.ArmorMaterial> material, @NotNull ArmorItem.Type type, @NotNull TIER tier) {
-        super(material, type, new Item.Properties());
+    public ArmorOfSwiftnessItem(@NotNull ArmorMaterial material, @NotNull ArmorType type, @NotNull TIER tier, Item.Properties properties) {
+        super(material, type, properties);
         this.tier = tier;
-        Supplier<ItemAttributeModifiers> defaultModifiers = ((ArmorItemAccessor) this).getDefaultModifiers();
-        defaultModifiers = Suppliers.compose((ItemAttributeModifiers modifiers) -> modifiers.withModifierAdded(Attributes.MOVEMENT_SPEED, new AttributeModifier(VResourceLocation.mod("armor_modifier_" + type.getSerializedName()), getSpeedReduction(tier), AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL), EquipmentSlotGroup.bySlot(type.getSlot())), defaultModifiers::get);
-        ((ArmorItemAccessor) this).setDefaultModifiers(defaultModifiers);
+//        Supplier<ItemAttributeModifiers> defaultModifiers = ((ArmorItemAccessor) this).getDefaultModifiers();
+//        defaultModifiers = Suppliers.compose((ItemAttributeModifiers modifiers) -> modifiers.withModifierAdded(Attributes.MOVEMENT_SPEED, new AttributeModifier(VResourceLocation.mod("armor_modifier_" + type.getSerializedName()), getSpeedReduction(tier), AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL), EquipmentSlotGroup.bySlot(type.getSlot())), defaultModifiers::get);
+//        ((ArmorItemAccessor) this).setDefaultModifiers(defaultModifiers);
     }
 
     @Override
@@ -60,7 +55,8 @@ public class ArmorOfSwiftnessItem extends HunterArmorItem implements IItemWithTi
     public void inventoryTick(ItemStack pStack, Level pLevel, Entity pEntity, int pSlotId, boolean pIsSelected) {
         super.inventoryTick(pStack, pLevel, pEntity, pSlotId, pIsSelected);
         if (pEntity.tickCount % 45 == 3 && pSlotId >= 36 && pSlotId <= 39 && pEntity instanceof Player player) {
-            if (this.getType() == Type.CHESTPLATE) {
+            Equippable equippable = components().get(DataComponents.EQUIPPABLE);
+            if (equippable != null && equippable.slot() == EquipmentSlot.CHEST) {
                 boolean flag = true;
                 int boost = Integer.MAX_VALUE;
                 for (ItemStack stack : player.getInventory().armor) {

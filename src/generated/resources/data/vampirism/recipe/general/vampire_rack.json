@@ -2,21 +2,11 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": {
-      "item": "vampirism:vampire_fang"
-    },
-    "B": {
-      "item": "minecraft:glass_bottle"
-    },
-    "C": {
-      "item": "minecraft:honeycomb"
-    },
-    "X": {
-      "tag": "minecraft:planks"
-    },
-    "Y": {
-      "item": "minecraft:book"
-    }
+    "A": "vampirism:vampire_fang",
+    "B": "minecraft:glass_bottle",
+    "C": "minecraft:honeycomb",
+    "X": "#minecraft:planks",
+    "Y": "minecraft:book"
   },
   "pattern": [
     "XYX",

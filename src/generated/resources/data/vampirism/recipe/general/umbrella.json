@@ -8,15 +8,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "#": {
-      "tag": "minecraft:wool"
-    },
-    "A": {
-      "tag": "c:rods/wooden"
-    },
-    "B": {
-      "item": "vampirism:vampire_orchid"
-    }
+    "#": "#minecraft:wool",
+    "A": "#c:rods/wooden",
+    "B": "vampirism:vampire_orchid"
   },
   "pattern": [
     "###",

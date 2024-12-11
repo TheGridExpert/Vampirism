@@ -5,6 +5,7 @@ import de.teamlapen.vampirism.entity.VampirismEntity;
 import de.teamlapen.vampirism.entity.vampire.VampireBaseEntity;
 import de.teamlapen.vampirism.util.Helper;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
@@ -57,11 +58,11 @@ public class DummyHunterTrainerEntity extends VampirismEntity implements ICaptur
         boolean flag = !stack.isEmpty() && stack.getItem() instanceof SpawnEggItem;
 
         if (!flag && this.isAlive() && !player.isShiftKeyDown()) {
-            if (!this.level().isClientSide) {
+            if (player instanceof ServerPlayer serverPlayer) {
                 if (Helper.isHunter(player)) {
-                    player.sendSystemMessage(Component.translatable("text.vampirism.trainer_disabled_hunter"));
+                    serverPlayer.sendSystemMessage(Component.translatable("text.vampirism.trainer_disabled_hunter"));
                 } else {
-                    player.sendSystemMessage(Component.translatable("text.vampirism.trainer_disabled"));
+                    serverPlayer.sendSystemMessage(Component.translatable("text.vampirism.trainer_disabled"));
                 }
             }
             return InteractionResult.SUCCESS;

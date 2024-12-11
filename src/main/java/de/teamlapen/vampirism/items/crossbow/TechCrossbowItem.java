@@ -13,7 +13,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Tier;
+import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.Tags;
 
@@ -24,8 +24,8 @@ import java.util.function.Predicate;
 
 public class TechCrossbowItem extends HunterCrossbowItem {
 
-    public TechCrossbowItem(Item.Properties properties, float arrowVelocity, int chargeTime, Tier itemTier, Holder<ISkill<?>> requiredSkill) {
-        super(properties, arrowVelocity, chargeTime, itemTier, requiredSkill);
+    public TechCrossbowItem(Item.Properties properties, float arrowVelocity, int chargeTime, ToolMaterial itemTier, Holder<ISkill<?>> requiredSkill) {
+        super(properties.repairable(Tags.Items.INGOTS_IRON), arrowVelocity, chargeTime, itemTier, requiredSkill);
     }
 
 
@@ -40,7 +40,7 @@ public class TechCrossbowItem extends HunterCrossbowItem {
         super.onShoot(shooter, crossbow);
         if (shooter instanceof Player player) {
             boolean faster = HunterPlayer.get(player).getSkillHandler().isSkillEnabled(HunterSkills.CROSSBOW_TECHNIQUE);
-            player.getCooldowns().addCooldown(this, faster ? 5 : 10); // add cooldown if projectiles left
+            player.getCooldowns().addCooldown(crossbow, faster ? 5 : 10); // add cooldown if projectiles left
         }
     }
 
@@ -52,11 +52,6 @@ public class TechCrossbowItem extends HunterCrossbowItem {
             return List.of(availableProjectiles.removeFirst());
         }
         return List.of(availableProjectiles.getFirst());
-    }
-
-    @Override
-    public boolean isValidRepairItem(@Nonnull ItemStack crossbow, ItemStack repairItem) {
-        return repairItem.is(Tags.Items.INGOTS_IRON);
     }
 
     @Override

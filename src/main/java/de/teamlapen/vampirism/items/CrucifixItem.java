@@ -7,6 +7,7 @@ import de.teamlapen.vampirism.api.entity.player.skills.ISkill;
 import de.teamlapen.vampirism.api.items.IFactionExclusiveItem;
 import de.teamlapen.vampirism.api.items.IFactionLevelItem;
 import de.teamlapen.vampirism.api.items.IItemWithTier;
+import de.teamlapen.vampirism.api.util.VResourceLocation;
 import de.teamlapen.vampirism.core.ModEffects;
 import de.teamlapen.vampirism.core.ModFactions;
 import de.teamlapen.vampirism.core.ModRefinements;
@@ -19,11 +20,14 @@ import de.teamlapen.vampirism.entity.vampire.VampireBaronEntity;
 import de.teamlapen.vampirism.mixin.accessor.EntityAccessor;
 import de.teamlapen.vampirism.util.Helper;
 import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -31,33 +35,30 @@ import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.item.component.UseCooldown;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 
 public class CrucifixItem extends Item implements IItemWithTier, IFactionExclusiveItem, IFactionLevelItem<IHunterPlayer> {
 
     private final static String baseRegName = "crucifix";
     private final TIER tier;
-    /**
-     * All crucifix items are added to this set. This is used to add cooldown for all existing crucifix items at once.
-     * Synchronized set, so no issues during Mod creation. Later on no synchronicity needed.
-     */
-    private static final Set<CrucifixItem> all_crucifix = Collections.synchronizedSet(new HashSet<>());
+    private static final ResourceLocation COOLDOWN_GROUP = VResourceLocation.mod("crucifix");
 
-    public CrucifixItem(IItemWithTier.TIER tier) {
-        super(new Properties().stacksTo(1));
+    public CrucifixItem(TIER tier, Item.Properties properties) {
+        super(properties.stacksTo(1).component(DataComponents.USE_COOLDOWN, new UseCooldown( switch (tier) {
+            case NORMAL -> 7;
+            case ENHANCED -> 5;
+            case ULTIMATE -> 3;
+        }, Optional.of(COOLDOWN_GROUP))));
         this.tier = tier;
-        all_crucifix.add(this);
     }
 
     @Override
@@ -83,16 +84,16 @@ public class CrucifixItem extends Item implements IItemWithTier, IFactionExclusi
     }
 
     @Override
-    public @NotNull UseAnim getUseAnimation(ItemStack p_77661_1_) {
-        return UseAnim.NONE;
+    public @NotNull ItemUseAnimation getUseAnimation(ItemStack p_77661_1_) {
+        return ItemUseAnimation.NONE;
     }
 
 
     @Override
-    public @NotNull InteractionResultHolder<ItemStack> use(Level world, @NotNull Player player, InteractionHand hand) {
+    public @NotNull InteractionResult use(Level world, @NotNull Player player, InteractionHand hand) {
         ItemStack itemstack = player.getItemInHand(hand);
         player.startUsingItem(hand);
-        return InteractionResultHolder.consume(itemstack);
+        return InteractionResult.CONSUME;
     }
 
     @Override
@@ -114,24 +115,14 @@ public class CrucifixItem extends Item implements IItemWithTier, IFactionExclusi
         }
     }
 
-    protected boolean affectsEntity(@NotNull LivingEntity e) {
+    protected boolean affectsEntity(@NotNull LivingEntity e, Level level) {
         return e.getType().is(EntityTypeTags.UNDEAD) || Helper.isVampire(e);
     }
 
 
     @Override
-    public void releaseUsing(ItemStack stack, Level world, LivingEntity entity, int p_77615_4_) {
-        if (entity instanceof Player) {
-            all_crucifix.forEach(item -> ((Player) entity).getCooldowns().addCooldown(item, getCooldown(stack)));
-        }
-    }
-
-    protected int getCooldown(ItemStack stack) {
-        return switch (tier) {
-            case ENHANCED -> 100;
-            case ULTIMATE -> 60;
-            default -> 140;
-        };
+    public boolean releaseUsing(ItemStack stack, Level world, LivingEntity entity, int p_77615_4_) {
+        return true;
     }
 
     @Override
@@ -178,29 +169,30 @@ public class CrucifixItem extends Item implements IItemWithTier, IFactionExclusi
 
     @Override
     public void onUseTick(@NotNull Level level, @NotNull LivingEntity entity, @NotNull ItemStack stack, int count) {
-        for (LivingEntity nearbyEntity : entity.level().getNearbyEntities(LivingEntity.class, TargetingConditions.forCombat().selector(this::affectsEntity), entity, entity.getBoundingBox().inflate(getRange(stack)))) {
-            Vec3 baseVector = entity.position().subtract(nearbyEntity.position()).multiply(1, 0, 1).normalize(); //Normalized horizontal (xz) vector giving the direction towards the holder of this crucifix
-            Vec3 oldDelta = nearbyEntity.getDeltaMovement();
-            Vec3 horizontalDelta = oldDelta.multiply(1, 0, 1);
-            double parallelScale = baseVector.dot(horizontalDelta);
-            if (parallelScale > 0) {
-                Vec3 parallelPart = baseVector.scale(parallelScale); //Part of delta that is parallel to baseVector
-                double scale = determineSlowdown(determineEntityTier(nearbyEntity));
-                Vec3 newDelta = oldDelta.subtract(parallelPart.scale(scale)); //Substract parallel part from old Delta (scaled to still allow some movement)
-                if (newDelta.lengthSqr() > oldDelta.lengthSqr()) { //Just to make sure we do not speed up the movement even though this should not be possible
-                    newDelta = Vec3.ZERO;
-                }
-                //Unfortunately, Vanilla converts y-collision with ground into forward movement later on (in #move)
-                //Therefore, we check for collision here and remove any y component if entity would collide with ground
-                Vec3 collisionDelta = ((EntityAccessor) nearbyEntity).invoke_collide(newDelta);
-                if (collisionDelta.y != newDelta.y && newDelta.y < 0) {
-                    newDelta = newDelta.multiply(1, 0, 1);
-                }
+        if (level instanceof ServerLevel serverLevel) {
+            for (LivingEntity nearbyEntity : serverLevel.getNearbyEntities(LivingEntity.class, TargetingConditions.forCombat().selector(this::affectsEntity), entity, entity.getBoundingBox().inflate(getRange(stack)))) {
+                Vec3 baseVector = entity.position().subtract(nearbyEntity.position()).multiply(1, 0, 1).normalize(); //Normalized horizontal (xz) vector giving the direction towards the holder of this crucifix
+                Vec3 oldDelta = nearbyEntity.getDeltaMovement();
+                Vec3 horizontalDelta = oldDelta.multiply(1, 0, 1);
+                double parallelScale = baseVector.dot(horizontalDelta);
+                if (parallelScale > 0) {
+                    Vec3 parallelPart = baseVector.scale(parallelScale); //Part of delta that is parallel to baseVector
+                    double scale = determineSlowdown(determineEntityTier(nearbyEntity));
+                    Vec3 newDelta = oldDelta.subtract(parallelPart.scale(scale)); //Substract parallel part from old Delta (scaled to still allow some movement)
+                    if (newDelta.lengthSqr() > oldDelta.lengthSqr()) { //Just to make sure we do not speed up the movement even though this should not be possible
+                        newDelta = Vec3.ZERO;
+                    }
+                    //Unfortunately, Vanilla converts y-collision with ground into forward movement later on (in #move)
+                    //Therefore, we check for collision here and remove any y component if entity would collide with ground
+                    Vec3 collisionDelta = ((EntityAccessor) nearbyEntity).invoke_collide(newDelta);
+                    if (collisionDelta.y != newDelta.y && newDelta.y < 0) {
+                        newDelta = newDelta.multiply(1, 0, 1);
+                    }
 
-                nearbyEntity.setDeltaMovement(newDelta);
+                    nearbyEntity.setDeltaMovement(newDelta);
+                }
             }
         }
     }
-
 
 }

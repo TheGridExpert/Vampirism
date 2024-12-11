@@ -211,7 +211,7 @@ public class ExtendedCreature extends Attachment implements IExtendedCreatureVam
         }
         blood -= amt;
         if (blood == 0) {
-            DamageHandler.hurtModded(entity, ModDamageSources::noBlood, 1000);
+            DamageHandler.hurtModded(((ServerLevel)entity.level()), entity, ModDamageSources::noBlood, 1000);
         }
 
         this.sync();
@@ -254,13 +254,13 @@ public class ExtendedCreature extends Attachment implements IExtendedCreatureVam
 
     @Override
     public void tick() {
-        if (!entity.getCommandSenderWorld().isClientSide) {
+        if (entity.getCommandSenderWorld() instanceof ServerLevel level) {
             /*
              * Make sure all entities with no blood die
              * check for sanguinare as the entity might be converting instead of dying
              */
             if (blood == 0 && entity.tickCount % 20 == 10 && entity.getEffect(ModEffects.SANGUINARE) == null) {
-                DamageHandler.hurtModded(entity, ModDamageSources::noBlood, 1000);
+                DamageHandler.hurtModded(level, entity, ModDamageSources::noBlood, 1000);
             }
             if (blood > 0 && blood < getMaxBlood() && entity.tickCount % 40 == 8) {
                 if (blood < getMaxBlood() * 0.5) {

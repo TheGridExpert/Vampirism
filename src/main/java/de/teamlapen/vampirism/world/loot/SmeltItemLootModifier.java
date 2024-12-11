@@ -39,8 +39,8 @@ public class SmeltItemLootModifier extends LootModifier {
     @NotNull
     @Override
     protected ObjectArrayList<ItemStack> doApply(@NotNull ObjectArrayList<ItemStack> generatedLoot, @NotNull LootContext context) {
-        ItemStack stack = context.getParamOrNull(LootContextParams.TOOL);
-        Entity entity = context.getParamOrNull(LootContextParams.THIS_ENTITY);
+        ItemStack stack = context.getOptionalParameter(LootContextParams.TOOL);
+        Entity entity = context.getOptionalParameter(LootContextParams.THIS_ENTITY);
         if (!(entity instanceof LivingEntity) || stack == null || OilUtils.getAppliedOil(stack).filter(oil -> oil == ModOils.SMELT.get()).isEmpty()) {
             return generatedLoot;
         }
@@ -50,8 +50,8 @@ public class SmeltItemLootModifier extends LootModifier {
     }
 
     private ObjectArrayList<ItemStack> trySmelting(@NotNull ObjectArrayList<ItemStack> generatedLoot, @NotNull ServerLevel level) {
-        RecipeManager recipeManager = level.getRecipeManager();
-        return generatedLoot.stream().map(stack -> recipeManager.getRecipeFor(RecipeType.SMELTING, new SingleRecipeInput(stack), level).map(recipe -> recipe.value().getResultItem(level.registryAccess())).filter(result -> !result.isEmpty()).orElse(stack)).collect(Collector.of(ObjectArrayList::new, ObjectArrayList::add, (left, right) -> {
+        RecipeManager recipeManager = level.recipeAccess();
+        return generatedLoot.stream().map(stack -> recipeManager.getRecipeFor(RecipeType.SMELTING, new SingleRecipeInput(stack), level).map(recipe -> recipe.value().assemble(new SingleRecipeInput(ItemStack.EMPTY), level.registryAccess())).filter(result -> !result.isEmpty()).orElse(stack)).collect(Collector.of(ObjectArrayList::new, ObjectArrayList::add, (left, right) -> {
             left.addAll(right);
             return left;
         }));

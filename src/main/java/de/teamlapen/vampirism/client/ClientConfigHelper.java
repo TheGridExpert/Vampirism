@@ -132,7 +132,7 @@ public class ClientConfigHelper {
     }
 
     public static List<Holder<IAction<?>>> getDefaultActionOrder(Holder<? extends IPlayableFaction<?>> faction) {
-        return ModRegistries.ACTIONS.holders().filter(s -> s.value().matchesFaction(faction)).collect(Collectors.toList());
+        return ModRegistries.ACTIONS.listElements().filter(s -> s.value().matchesFaction(faction)).collect(Collectors.toList());
     }
 
     /**
@@ -205,7 +205,7 @@ public class ClientConfigHelper {
             List<Holder<IAction<?>>> actions = new ArrayList<>();
             in.beginArray();
             while (in.hasNext()) {
-                ModRegistries.ACTIONS.getHolder(ResourceLocation.parse(in.nextString())).ifPresent(actions::add);
+                ModRegistries.ACTIONS.get(ResourceLocation.parse(in.nextString())).ifPresent(actions::add);
             }
             in.endArray();
             return actions;

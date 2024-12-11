@@ -53,7 +53,7 @@ public class ConvertedCreatureEntity<T extends PathfinderMob> extends VampireBas
     private static final EntityDataAccessor<Boolean> CONVERTING = SynchedEntityData.defineId(ConvertedCreatureEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<String> OVERLAY_TEXTURE = SynchedEntityData.defineId(ConvertedCreatureEntity.class, EntityDataSerializers.STRING);
 
-    public static boolean spawnPredicate(EntityType<? extends ConvertedCreatureEntity<?>> entityType, @NotNull LevelAccessor iWorld, MobSpawnType spawnReason, @NotNull BlockPos blockPos, RandomSource random) {
+    public static boolean spawnPredicate(EntityType<? extends ConvertedCreatureEntity<?>> entityType, @NotNull LevelAccessor iWorld, EntitySpawnReason spawnReason, @NotNull BlockPos blockPos, RandomSource random) {
         return (iWorld.getBlockState(blockPos.below()).getBlock() == Blocks.GRASS_BLOCK || iWorld.getBlockState(blockPos.below()).is(ModBlockTags.CURSED_EARTH)) && iWorld.getRawBrightness(blockPos, 0) > 8;
     }
 
@@ -64,7 +64,7 @@ public class ConvertedCreatureEntity<T extends PathfinderMob> extends VampireBas
     private final Data<T> convertibleData = new Data<>();
 
     public ConvertedCreatureEntity(EntityType<? extends ConvertedCreatureEntity<?>> type, Level world) {
-        super(type, world, false);
+        super(type, world);
         this.enableImobConversion();
         this.xpReward = 2;
     }
@@ -90,8 +90,8 @@ public class ConvertedCreatureEntity<T extends PathfinderMob> extends VampireBas
     }
 
     @Override
-    public boolean hurtSuper(DamageSource damageSource, float amount) {
-        return super.hurt(damageSource, amount);
+    public boolean hurtSuper(ServerLevel level, DamageSource damageSource, float amount) {
+        return super.hurtServer(level, damageSource, amount);
     }
 
     @Override
@@ -104,8 +104,10 @@ public class ConvertedCreatureEntity<T extends PathfinderMob> extends VampireBas
 
     @Override
     public void aiStep() {
-        //noinspection unchecked
-        this.entityCreature.ifPresent(creature -> aiStepC((EntityType<T>) creature.getType()));
+        if (this.level() instanceof ServerLevel serverLevel) {
+            //noinspection unchecked
+            this.entityCreature.ifPresent(creature -> aiStepC(serverLevel, (EntityType<T>) creature.getType()));
+        }
         super.aiStep();
     }
 
@@ -121,8 +123,8 @@ public class ConvertedCreatureEntity<T extends PathfinderMob> extends VampireBas
     }
 
     @Override
-    public boolean hurt(@NotNull DamageSource pSource, float pAmount) {
-        return this.hurtC(pSource, pAmount);
+    public boolean hurtServer(ServerLevel level, @NotNull DamageSource pSource, float pAmount) {
+        return this.hurtC(level, pSource, pAmount);
     }
 
     @Override
@@ -218,7 +220,7 @@ public class ConvertedCreatureEntity<T extends PathfinderMob> extends VampireBas
     public void deserializeUpdateNBT(HolderLookup.@NotNull Provider provider, @NotNull CompoundTag nbt) {
         if (nbt.contains("entity_old", Tag.TAG_COMPOUND)) {
             //noinspection unchecked
-            setEntityCreature((T) EntityType.create(nbt.getCompound("entity_old"), getCommandSenderWorld()).orElse(null));
+            setEntityCreature((T) EntityType.create(nbt.getCompound("entity_old"), getCommandSenderWorld(), EntitySpawnReason.LOAD).orElse(null));
         }
     }
 
@@ -228,7 +230,7 @@ public class ConvertedCreatureEntity<T extends PathfinderMob> extends VampireBas
         this.readAdditionalSaveDataC(nbt);
         if (nbt.contains("entity_old")) {
             //noinspection unchecked
-            setEntityCreature((T) EntityType.create(nbt.getCompound("entity_old"), level()).orElse(null));
+            setEntityCreature((T) EntityType.create(nbt.getCompound("entity_old"), level(), EntitySpawnReason.LOAD).orElse(null));
             if (entityCreature.isEmpty()) {
                 LOGGER.warn("Failed to create old entity {}. Maybe the entity does not exist anymore", nbt.getCompound("entity_old"));
             }
@@ -287,12 +289,12 @@ public class ConvertedCreatureEntity<T extends PathfinderMob> extends VampireBas
 
     @Nullable
     @Override
-    public ItemEntity spawnAtLocation(@NotNull ItemStack stack, float offsetY) {
+    public ItemEntity spawnAtLocation(ServerLevel level, @NotNull ItemStack stack, float offsetY) {
         ItemStack actualDrop = stack;
         if (stack.is(ItemTags.MEAT)) {
             actualDrop = new ItemStack(Items.ROTTEN_FLESH, stack.getCount()); //Replace all meat with rotten flesh
         }
-        return super.spawnAtLocation(actualDrop, offsetY);
+        return super.spawnAtLocation(level, actualDrop, offsetY);
     }
 
     @NotNull
@@ -328,8 +330,8 @@ public class ConvertedCreatureEntity<T extends PathfinderMob> extends VampireBas
 
     @NotNull
     @Override
-    protected ResourceKey<LootTable> getDefaultLootTable() {
-        return this.entityCreature.map(Mob::getLootTable).orElseGet(super::getDefaultLootTable);
+    public Optional<ResourceKey<LootTable>> getLootTable() {
+        return this.entityCreature.flatMap(Mob::getLootTable).or(super::getLootTable);
     }
 
     protected void updateEntityAttributes() {
@@ -351,7 +353,7 @@ public class ConvertedCreatureEntity<T extends PathfinderMob> extends VampireBas
                 creature.discard();
                 nbt.put("entity_old", entity);
             } catch (Exception e) {
-                LOGGER.error(String.format("Failed to write old entity (%s) to NBT. If this happens more often please report this to the mod author.", creature), e);
+                LOGGER.error("Failed to write old entity ({}) to NBT. If this happens more often please report this to the mod author.", creature, e);
                 this.setEntityCreature(null);
             }
         });

@@ -57,7 +57,7 @@ public class CoffinModel extends Model {
     }
 
     public CoffinModel(@NotNull ModelPart part) {
-        super(RenderType::entitySolid);
+        super(part, RenderType::entitySolid);
         this.leftPlate = part.getChild(LEFT_PLATE);
         this.rightPlate = part.getChild(RIGHT_PLATE);
         this.backPlate = part.getChild(BACK_PLATE);
@@ -68,11 +68,6 @@ public class CoffinModel extends Model {
         this.leftHandle = part.getChild(LEFT_HANDLE);
         this.rightHandle = part.getChild(RIGHT_HANDLE);
         modelParts = ImmutableList.of(this.leftPlate, this.rightPlate, this.backPlate, this.topPlate, this.bottomPlate, this.leftLid, this.rightLid, this.leftHandle, this.rightHandle);
-    }
-
-    @Override
-    public void renderToBuffer(@NotNull PoseStack matrixStack, @NotNull VertexConsumer iVertexBuilder, int packedLight, int overlay, int color) {
-        modelParts.forEach(part -> part.render(matrixStack, iVertexBuilder, packedLight, overlay, color));
     }
 
     public void rotateLid(float angle) {

@@ -42,7 +42,7 @@ public class HunterTrainerMenu extends ItemCombinerMenu {
     }
 
     public HunterTrainerMenu(int id, @NotNull Inventory playerInventory, @Nullable HunterTrainerEntity trainer) {
-        super(ModMenus.HUNTER_TRAINER.get(), id, playerInventory, trainer == null ? ContainerLevelAccess.NULL : ContainerLevelAccess.create(trainer.level(), trainer.blockPosition()));
+        super(ModMenus.HUNTER_TRAINER.get(), id, playerInventory, trainer == null ? ContainerLevelAccess.NULL : ContainerLevelAccess.create(trainer.level(), trainer.blockPosition()), createInputSlotDefinitions(playerInventory.player));
         this.player = playerInventory.player;
         this.entity = trainer;
         this.lvlRequirement = HunterLeveling.getTrainerRequirement(FactionPlayerHandler.get(player).getCurrentLevel(ModFactions.HUNTER) + 1);
@@ -66,12 +66,12 @@ public class HunterTrainerMenu extends ItemCombinerMenu {
     public void createResult() {
     }
 
-    @Override
-    protected @NotNull ItemCombinerMenuSlotDefinition createInputSlotDefinitions() {
+    protected static @NotNull ItemCombinerMenuSlotDefinition createInputSlotDefinitions(Player player) {
+        var lvlRequirement = HunterLeveling.getTrainerRequirement(FactionPlayerHandler.get(player).getCurrentLevel(ModFactions.HUNTER) + 1);
         return ModifiedItemCombinerMenuSlotDefinition.createWithoutResult()
-                .withSlot(0, 27, 26, stack -> this.lvlRequirement.filter(req -> req.ironQuantity() > 0).isPresent() && stack.is(Items.IRON_INGOT))
-                .withSlot(1, 57, 26, stack -> this.lvlRequirement.filter(req -> req.goldQuantity() > 0).isPresent() && stack.is(Items.GOLD_INGOT))
-                .withSlot(2, 86, 26, stack -> this.lvlRequirement.map(req -> req.tableRequirement().resultIntelItem().get()).filter(stack::is).isPresent())
+                .withSlot(0, 27, 26, stack -> lvlRequirement.filter(req -> req.ironQuantity() > 0).isPresent() && stack.is(Items.IRON_INGOT))
+                .withSlot(1, 57, 26, stack -> lvlRequirement.filter(req -> req.goldQuantity() > 0).isPresent() && stack.is(Items.GOLD_INGOT))
+                .withSlot(2, 86, 26, stack -> lvlRequirement.map(req -> req.tableRequirement().resultIntelItem().get()).filter(stack::is).isPresent())
                 .build();
     }
 

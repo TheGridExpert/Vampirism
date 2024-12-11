@@ -1,9 +1,10 @@
 package de.teamlapen.vampirism.client.renderer.entity.layers;
 
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.PoseStack;
+import de.teamlapen.vampirism.client.model.ClothedModel;
 import de.teamlapen.vampirism.client.renderer.entity.DualBipedRenderer;
+import de.teamlapen.vampirism.client.renderer.entity.state.MinionRenderState;
+import de.teamlapen.vampirism.client.renderer.entity.state.VisibilityPlayerRenderState;
 import de.teamlapen.vampirism.entity.minion.MinionEntity;
 import de.teamlapen.vampirism.util.IPlayerOverlay;
 import net.minecraft.client.Minecraft;
@@ -11,52 +12,49 @@ import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.FastColor;
+import net.minecraft.util.ColorRGBA;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * This layer is supposed to render the minion with its texture or the player's body texture instead.
  * <br>
  * In this implementation the minion must use a {@link de.teamlapen.vampirism.client.renderer.entity.layers.PlayerBodyOverlayLayer.VisibilityPlayerModel} model which allows this layer to render the model depending on the relevant parts without changing the visibility of the {@link ModelPart}s
  *
- * @param <T> The minion entity
- * @param <M> The no rendering dummy minion model
  */
-public class PlayerBodyOverlayLayer<T extends MinionEntity<?> & IPlayerOverlay, M extends PlayerBodyOverlayLayer.VisibilityPlayerModel<T>> extends RenderLayer<T, M> {
+public class PlayerBodyOverlayLayer<S extends MinionRenderState, M extends PlayerBodyOverlayLayer.VisibilityPlayerModel<S>> extends RenderLayer<S, M> {
 
-    public PlayerBodyOverlayLayer(@NotNull DualBipedRenderer<T, M> entityRendererIn) {
+    public PlayerBodyOverlayLayer(@NotNull RenderLayerParent<S, M> entityRendererIn) {
         super(entityRendererIn);
     }
 
     @Override
-    public void render(@NotNull PoseStack matrixStackIn, @NotNull MultiBufferSource bufferIn, int packedLightIn, @NotNull T entitylivingbaseIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
-        ResourceLocation texture = getTextureLocation(entitylivingbaseIn);
-        RenderType type = getParentModel().getRenderType(this.getParentModel(), texture, entitylivingbaseIn);
+    public void render(@NotNull PoseStack stack, @NotNull MultiBufferSource bufferSource, int packedLight, S state, float p_117353_, float p_117354_) {
+        ResourceLocation texture = state.skin.texture();
+        RenderType type = getParentModel().getRenderType(getParentModel(), texture, state);
 
-        if (entitylivingbaseIn.shouldRenderLordSkin()) {
+        if (state.renderLordSkin) {
             if (type != null) {
                 getParentModel().setVisibility(VisibilityPlayerModel.Visibility.HEAD);
-                getParentModel().renderToBuffer(matrixStackIn, bufferIn.getBuffer(type), packedLightIn, OverlayTexture.NO_OVERLAY, FastColor.ARGB32.color(255, 255, 255, 255));
+                getParentModel().renderToBuffer(stack, bufferSource.getBuffer(type), packedLight, OverlayTexture.NO_OVERLAY, -1);
             }
 
-            texture = entitylivingbaseIn.getPlayerOverlay().map(s -> Minecraft.getInstance().getSkinManager().getInsecureSkin(s)).map(PlayerSkin::texture).orElse(texture);
-            RenderType bodyType = getParentModel().getRenderType(this.getParentModel(), texture, entitylivingbaseIn);
+            texture = state.skin.texture();
+            RenderType bodyType = getParentModel().getRenderType(this.getParentModel(), texture, state);
             if (bodyType != null) {
                 getParentModel().setVisibility(VisibilityPlayerModel.Visibility.BODY);
-                getParentModel().renderToBuffer(matrixStackIn, bufferIn.getBuffer(bodyType), packedLightIn, OverlayTexture.NO_OVERLAY, FastColor.ARGB32.color(255, 255, 255, 255));
+                getParentModel().renderToBuffer(stack, bufferSource.getBuffer(bodyType), packedLight, OverlayTexture.NO_OVERLAY, -1);
             }
         } else if (type != null) {
             getParentModel().setVisibility(VisibilityPlayerModel.Visibility.ALL);
-            getParentModel().renderToBuffer(matrixStackIn, bufferIn.getBuffer(type), packedLightIn, OverlayTexture.NO_OVERLAY, FastColor.ARGB32.color(255, 255, 255, 255));
+            getParentModel().renderToBuffer(stack, bufferSource.getBuffer(type), packedLight, OverlayTexture.NO_OVERLAY, -1);
         }
         getParentModel().setVisibility(VisibilityPlayerModel.Visibility.NONE);
     }
@@ -64,45 +62,29 @@ public class PlayerBodyOverlayLayer<T extends MinionEntity<?> & IPlayerOverlay, 
     /**
      * Default {@link PlayerModel} implementation that allows to hide the head and body parts without changing the {@link ModelPart#visible} property.
      */
-    public static class VisibilityPlayerModel<T extends MinionEntity<?>> extends PlayerModel<T> {
+    public static class VisibilityPlayerModel<T extends VisibilityPlayerRenderState> extends ClothedModel<T> {
 
-        private @NotNull Visibility visibility = Visibility.NONE;
-        private final @NotNull Collection<ModelPart> hatList = Collections.singleton(super.hat);
+        protected final List<ModelPart> bodyWithCloth;
+        protected final List<ModelPart> headWithCloth;
+        protected final List<ModelPart> all;
 
         public VisibilityPlayerModel(ModelPart pRoot, boolean pSlim) {
             super(pRoot, pSlim);
-        }
-
-        @Override
-        protected @NotNull Iterable<ModelPart> headParts() {
-            if (this.visibility.head) {
-                return Iterables.concat(super.headParts(), this.hatList);
-            } else {
-                return Collections.emptyList();
-            }
-        }
-
-        @Override
-        protected @NotNull Iterable<ModelPart> bodyParts() {
-            if (this.visibility.body) {
-                List<ModelPart> parts = Lists.newArrayList(super.bodyParts());
-                parts.remove(this.hat);
-                return parts;
-            } else {
-                return Collections.emptyList();
-            }
+            this.bodyWithCloth = List.of(this.body, this.leftArm, this.rightArm, this.leftLeg, this.rightLeg, this.leftSleeve, this.rightSleeve, this.leftPants, this.rightPants, this.jacket);
+            this.headWithCloth = List.of(this.head, this.hat);
+            this.all = Stream.concat(this.bodyWithCloth.stream(), this.headWithCloth.stream()).toList();
         }
 
         public void setVisibility(@NotNull Visibility type) {
-            this.visibility = type;
+            this.bodyWithCloth.forEach(s -> s.visible = type.body);
+            this.headWithCloth.forEach(s -> s.visible = type.head);
         }
 
         @Nullable
-        public RenderType getRenderType(PlayerModel<T> model, ResourceLocation location, T entity) {
-            Minecraft minecraft = Minecraft.getInstance();
-            boolean pBodyVisible = !entity.isInvisible();
-            boolean translucent = !pBodyVisible && !entity.isInvisibleTo(minecraft.player);
-            boolean flag2 = minecraft.shouldEntityAppearGlowing(entity);
+        public RenderType getRenderType(ClothedModel<T> model, ResourceLocation location, T state) {
+            boolean pBodyVisible = !state.isInvisible;
+            boolean translucent = !pBodyVisible && !state.isInvisibleToPlayer;
+            boolean flag2 = state.appearsGlowing;
             if (translucent) {
                 return RenderType.itemEntityTranslucentCull(location);
             } else if (pBodyVisible) {

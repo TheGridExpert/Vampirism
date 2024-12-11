@@ -2,18 +2,10 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "G": {
-      "tag": "c:ingots/gold"
-    },
-    "X": {
-      "tag": "c:obsidians"
-    },
-    "Y": {
-      "tag": "minecraft:planks"
-    },
-    "Z": {
-      "item": "vampirism:blood_bottle"
-    }
+    "G": "#c:ingots/gold",
+    "X": "#c:obsidians",
+    "Y": "#minecraft:planks",
+    "Z": "vampirism:blood_bottle"
   },
   "pattern": [
     "GYG",

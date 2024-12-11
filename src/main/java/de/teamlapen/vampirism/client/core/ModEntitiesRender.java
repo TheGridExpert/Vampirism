@@ -1,28 +1,33 @@
 package de.teamlapen.vampirism.client.core;
 
-import de.teamlapen.lib.lib.client.render.RenderAreaParticleCloud;
 import de.teamlapen.vampirism.api.util.VResourceLocation;
 import de.teamlapen.vampirism.client.model.*;
 import de.teamlapen.vampirism.client.model.armor.*;
 import de.teamlapen.vampirism.client.renderer.entity.*;
 import de.teamlapen.vampirism.client.renderer.entity.layers.ConvertedVampireEntityLayer;
 import de.teamlapen.vampirism.client.renderer.entity.layers.VampirePlayerHeadLayer;
+import de.teamlapen.vampirism.client.renderer.entity.state.ConvertedOverlayRenderState;
 import de.teamlapen.vampirism.core.ModEntities;
-import net.minecraft.client.model.EntityModel;
-import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.model.PlayerModel;
-import net.minecraft.client.model.VillagerModel;
+import de.teamlapen.vampirism.entity.converted.ConvertedDonkeyEntity;
+import net.minecraft.client.model.*;
 import net.minecraft.client.model.geom.LayerDefinitions;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
+import net.minecraft.client.renderer.blockentity.ChestRenderer;
 import net.minecraft.client.renderer.entity.*;
+import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
+import net.minecraft.client.renderer.entity.state.PlayerRenderState;
 import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.animal.horse.Horse;
 import net.minecraft.world.entity.player.Player;
+import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Arrays;
 
 /**
  * Handles entity render registration
@@ -52,15 +57,19 @@ public class ModEntitiesRender {
     public static final ModelLayerLocation TASK_MASTER = new ModelLayerLocation(VResourceLocation.mod("task_master"), "main");
     public static final ModelLayerLocation REMAINS_DEFENDER = new ModelLayerLocation(VResourceLocation.mod("remains_defender"), "main");
     public static final ModelLayerLocation GHOST = new ModelLayerLocation(VResourceLocation.mod("ghost"), "main");
+    public static final ModelLayerLocation DARK_SPRUCE_BOAT = new ModelLayerLocation(VResourceLocation.mod("boat/dark_spruce"), "main");
+    public static final ModelLayerLocation DARK_SPRUCE_CHEST_BOAT = new ModelLayerLocation(VResourceLocation.mod("chest_boat/dark_spruce"), "main");
+    public static final ModelLayerLocation CURSED_SPRUCE_BOAT = new ModelLayerLocation(VResourceLocation.mod("boat/cursed_spruce"), "main");
+    public static final ModelLayerLocation CURSED_SPRUCE_CHEST_BOAT = new ModelLayerLocation(VResourceLocation.mod("chest_boat/cursed_spruce"), "main");
 
 
     static void onRegisterRenderers(EntityRenderersEvent.@NotNull RegisterRenderers event) {
         event.registerEntityRenderer(ModEntities.BLINDING_BAT.get(), BatRenderer::new);
         event.registerEntityRenderer(ModEntities.CONVERTED_CREATURE_IMOB.get(), ConvertedCreatureRenderer::new);
         event.registerEntityRenderer(ModEntities.CONVERTED_CREATURE.get(), (ConvertedCreatureRenderer::new));
-        event.registerEntityRenderer(ModEntities.CONVERTED_HORSE.get(), convertedRenderer(HorseRenderer::new));
-        event.registerEntityRenderer(ModEntities.CONVERTED_DONKEY.get(), convertedRenderer(context -> new ConvertedChestedHorseRenderer<>(context, 0.87f, ModelLayers.DONKEY)));
-        event.registerEntityRenderer(ModEntities.CONVERTED_MULE.get(), convertedRenderer(context -> new ConvertedChestedHorseRenderer<>(context, 0.92F, ModelLayers.MULE)));
+        event.registerEntityRenderer(ModEntities.CONVERTED_HORSE.get(), convertedRenderer(context -> new HorseRenderer(context)));
+        event.registerEntityRenderer(ModEntities.CONVERTED_DONKEY.get(), convertedRenderer(context -> new DonkeyRenderer<>(context, ModelLayers.DONKEY, ModelLayers.DONKEY_BABY, false)));
+        event.registerEntityRenderer(ModEntities.CONVERTED_MULE.get(), convertedRenderer(context -> new DonkeyRenderer<>(context, ModelLayers.MULE, ModelLayers.MULE_BABY, true)));
         event.registerEntityRenderer(ModEntities.CONVERTED_SHEEP.get(), convertedRenderer(SheepRenderer::new));
         event.registerEntityRenderer(ModEntities.CONVERTED_COW.get(), convertedRenderer(CowRenderer::new));
         event.registerEntityRenderer(ModEntities.HUNTER.get(), (BasicHunterRenderer::new));
@@ -76,7 +85,7 @@ public class ModEntitiesRender {
         event.registerEntityRenderer(ModEntities.VILLAGER_CONVERTED.get(), convertedRenderer(VillagerRenderer::new));
         event.registerEntityRenderer(ModEntities.VILLAGER_ANGRY.get(), HunterVillagerRenderer::new);
         event.registerEntityRenderer(ModEntities.CROSSBOW_ARROW.get(), (CrossbowArrowRenderer::new));
-        event.registerEntityRenderer(ModEntities.PARTICLE_CLOUD.get(), (RenderAreaParticleCloud::new));
+        event.registerEntityRenderer(ModEntities.PARTICLE_CLOUD.get(), (NoopRenderer::new));
         event.registerEntityRenderer(ModEntities.THROWABLE_ITEM.get(), ThrowableItemRenderer::new);
         event.registerEntityRenderer(ModEntities.DARK_BLOOD_PROJECTILE.get(), (DarkBloodProjectileRenderer::new));
         event.registerEntityRenderer(ModEntities.SOUL_ORB.get(), SoulOrbRenderer::new);
@@ -92,8 +101,12 @@ public class ModEntitiesRender {
         event.registerEntityRenderer(ModEntities.VULNERABLE_REMAINS_DUMMY.get(), DummyRenderer::new);
         event.registerEntityRenderer(ModEntities.REMAINS_DEFENDER.get(), RemainsDefenderRenderer::new);
         event.registerEntityRenderer(ModEntities.GHOST.get(), GhostRenderer::new);
-        event.registerEntityRenderer(ModEntities.CONVERTED_CAMEL.get(), convertedRenderer(context -> new CamelRenderer(context, ModelLayers.CAMEL)));
+        event.registerEntityRenderer(ModEntities.CONVERTED_CAMEL.get(), convertedRenderer(CamelRenderer::new));
         event.registerEntityRenderer(ModEntities.CONVERTED_CAT.get(), convertedRenderer(CatRenderer::new));
+        event.registerEntityRenderer(ModEntities.DARK_SPRUCE_BOAT.get(), context -> new BoatRenderer(context, DARK_SPRUCE_BOAT));
+        event.registerEntityRenderer(ModEntities.DARK_SPRUCE_CHEST_BOAT.get(), context -> new BoatRenderer(context, DARK_SPRUCE_CHEST_BOAT));
+        event.registerEntityRenderer(ModEntities.CURSED_SPRUCE_BOAT.get(), context -> new BoatRenderer(context, CURSED_SPRUCE_BOAT));
+        event.registerEntityRenderer(ModEntities.CURSED_SPRUCE_CHEST_BOAT.get(), context -> new BoatRenderer(context, CURSED_SPRUCE_CHEST_BOAT));
     }
 
     static void onRegisterLayers(EntityRenderersEvent.@NotNull RegisterLayerDefinitions event) {
@@ -120,6 +133,12 @@ public class ModEntitiesRender {
         event.registerLayerDefinition(TASK_MASTER, () -> LayerDefinition.create(VillagerModel.createBodyModel(), 64, 64));
         event.registerLayerDefinition(REMAINS_DEFENDER, RemainsDefenderModel::createBodyLayer);
         event.registerLayerDefinition(GHOST, GhostModel::createMesh);
+        LayerDefinition boatDefinition = BoatModel.createBoatModel();
+        LayerDefinition chestBoatDefinition = BoatModel.createChestBoatModel();
+        event.registerLayerDefinition(DARK_SPRUCE_BOAT, () -> boatDefinition);
+        event.registerLayerDefinition(DARK_SPRUCE_CHEST_BOAT, () -> chestBoatDefinition);
+        event.registerLayerDefinition(CURSED_SPRUCE_BOAT, () -> boatDefinition);
+        event.registerLayerDefinition(CURSED_SPRUCE_CHEST_BOAT, () -> chestBoatDefinition);
 
     }
 
@@ -128,29 +147,30 @@ public class ModEntitiesRender {
     }
 
     @SuppressWarnings("unchecked")
-    private static <T extends Player, Q extends EntityModel<T>, Z extends HumanoidModel<T>, I extends LivingEntity, U extends EntityModel<I>> void _onAddLayers(EntityRenderersEvent.@NotNull AddLayers event) {
+    private static <S extends Player, T extends PlayerRenderState, Q extends EntityModel<T>> void _onAddLayers(EntityRenderersEvent.@NotNull AddLayers event) {
 
         for (PlayerSkin.Model s : event.getSkins()) {
-            LivingEntityRenderer<T, Q> renderPlayer = event.getSkin(s);
-            if (renderPlayer != null && renderPlayer.getModel() instanceof HumanoidModel) {
-                LivingEntityRenderer<T, Z> renderPlayer2 = (LivingEntityRenderer<T, Z>) renderPlayer;
+            LivingEntityRenderer<S, T, Q> renderPlayer = event.getSkin(s);
+            if (renderPlayer != null && renderPlayer.getModel() instanceof PlayerModel) {
+                LivingEntityRenderer<S, T, PlayerModel> renderPlayer2 = (LivingEntityRenderer<S, T, PlayerModel>) renderPlayer;
                 renderPlayer2.addLayer(new VampirePlayerHeadLayer<>(renderPlayer2));
             }
         }
     }
 
-    private static @NotNull <T extends LivingEntity, Z extends EntityModel<T>> EntityRendererProvider<T> convertedRenderer(LivingEntityRendererProvider<T,Z> provider) {
+    private static @NotNull <T extends LivingEntity, U extends LivingEntityRenderState, Z extends EntityModel<? super U>, O extends LivingEntityRenderState & ConvertedOverlayRenderState, P extends EntityModel<O>> EntityRendererProvider<T> convertedRenderer(LivingEntityRendererProvider<T,U,Z> provider) {
         return context -> {
-            LivingEntityRenderer<T, Z> renderer = provider.create(context);
+            //noinspection unchecked
+            var renderer = (LivingEntityRenderer<T, O, P>) provider.create(context);
             renderer.addLayer(new ConvertedVampireEntityLayer<>(renderer, false));
             return renderer;
         };
     }
 
-    private interface LivingEntityRendererProvider<T extends LivingEntity, Z extends EntityModel<T>> extends EntityRendererProvider<T> {
+    private interface LivingEntityRendererProvider<T extends LivingEntity, U extends LivingEntityRenderState, Z extends EntityModel<? super U>> extends EntityRendererProvider<T> {
         @Override
         @NotNull
-        LivingEntityRenderer<T, Z> create(EntityRendererProvider.@NotNull Context pContext);
+        LivingEntityRenderer<T, U, Z> create(EntityRendererProvider.@NotNull Context pContext);
     }
 
 }

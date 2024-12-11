@@ -11,6 +11,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
@@ -45,8 +46,8 @@ public class AltarPillarBlock extends VampirismBlock {
         return Shapes.or(pillarShape, b, c);
     }
 
-    public AltarPillarBlock() {
-        super(Properties.of().mapColor(MapColor.STONE).strength(0.9f).noOcclusion());
+    public AltarPillarBlock(BlockBehaviour.Properties properties) {
+        super(properties.mapColor(MapColor.STONE).strength(0.9f).noOcclusion());
         this.registerDefaultState(this.stateDefinition.any().setValue(TYPE_PROPERTY, EnumPillarType.NONE));
 
     }

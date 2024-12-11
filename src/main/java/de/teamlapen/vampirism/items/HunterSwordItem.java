@@ -10,11 +10,11 @@ import de.teamlapen.vampirism.api.items.IFactionSlayerItem;
 import de.teamlapen.vampirism.api.items.IVampireFinisher;
 import de.teamlapen.vampirism.core.ModFactions;
 import de.teamlapen.vampirism.core.tags.ModFactionTags;
-import de.teamlapen.vampirism.util.ToolMaterial;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.item.TooltipFlag;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -26,7 +26,7 @@ import java.util.List;
  */
 public abstract class HunterSwordItem extends VampirismSwordItem implements IFactionLevelItem<IHunterPlayer>, IFactionSlayerItem, IVampireFinisher, IFactionExclusiveItem {
 
-    public HunterSwordItem(@NotNull ToolMaterial.Tiered material, int attackDamage, float attackSpeed, @NotNull Properties props) {
+    public HunterSwordItem(@NotNull ToolMaterial material, int attackDamage, float attackSpeed, @NotNull Properties props) {
         super(material, attackDamage, attackSpeed, props);
     }
 

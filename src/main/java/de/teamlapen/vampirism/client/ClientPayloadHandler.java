@@ -16,6 +16,7 @@ import de.teamlapen.vampirism.network.packet.fog.ClientboundUpdateFogEmitterPack
 import de.teamlapen.vampirism.network.packet.garlic.ClientboundAddGarlicEmitterPacket;
 import de.teamlapen.vampirism.network.packet.garlic.ClientboundRemoveGarlicEmitterPacket;
 import de.teamlapen.vampirism.network.packet.garlic.ClientboundUpdateGarlicEmitterPacket;
+import de.teamlapen.vampirism.proxy.ClientProxy;
 import de.teamlapen.vampirism.util.VampireBookManager;
 import de.teamlapen.vampirism.world.fog.FogLevel;
 import de.teamlapen.vampirism.world.garlic.GarlicLevel;
@@ -119,6 +120,12 @@ public class ClientPayloadHandler {
             SimpleSoundInstance simpleSoundInstance = SimpleSoundInstance.forAmbientAddition(msg.soundEvent().value());
             Minecraft.getInstance().getSoundManager().play(simpleSoundInstance);
             context.player().level().playLocalSound(context.player(), msg.soundEvent().value(), SoundSource.AMBIENT, 1,1);
+        });
+    }
+
+    public static void handleRecipesPacket(ClientboundRecipesPacket msg, IPayloadContext context) {
+        context.enqueueWork(() -> {
+            ((ClientProxy) VampirismMod.proxy).setRecipes(msg.recipes());
         });
     }
 }

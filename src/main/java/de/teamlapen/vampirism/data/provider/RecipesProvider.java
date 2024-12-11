@@ -1,6 +1,5 @@
 package de.teamlapen.vampirism.data.provider;
 
-import com.google.common.collect.Sets;
 import de.teamlapen.vampirism.REFERENCE;
 import de.teamlapen.vampirism.api.util.VResourceLocation;
 import de.teamlapen.vampirism.core.ModBlocks;
@@ -12,26 +11,17 @@ import de.teamlapen.vampirism.data.ModBlockFamilies;
 import de.teamlapen.vampirism.data.recipebuilder.*;
 import de.teamlapen.vampirism.entity.player.hunter.skills.HunterSkills;
 import de.teamlapen.vampirism.items.component.OilContent;
-import de.teamlapen.vampirism.mixin.accessor.RecipeProviderAccessor;
 import de.teamlapen.vampirism.recipes.ApplicableOilRecipe;
 import de.teamlapen.vampirism.recipes.CleanOilRecipe;
 import de.teamlapen.vampirism.recipes.ConfigCondition;
 import de.teamlapen.vampirism.util.ItemDataUtils;
-import net.minecraft.advancements.Advancement;
-import net.minecraft.advancements.AdvancementHolder;
-import net.minecraft.advancements.AdvancementRequirements;
-import net.minecraft.advancements.AdvancementRewards;
-import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.data.CachedOutput;
-import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.*;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.flag.FeatureFlagSet;
@@ -43,9 +33,6 @@ import net.minecraft.world.item.alchemy.Potion;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.ShapedRecipe;
-import net.minecraft.world.item.crafting.ShapedRecipePattern;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.ItemLike;
@@ -59,60 +46,20 @@ import net.neoforged.neoforge.common.crafting.DataComponentIngredient;
 import net.neoforged.neoforge.fluids.FluidStack;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 public class RecipesProvider extends RecipeProvider {
 
-    public RecipesProvider(@NotNull PackOutput packOutput, CompletableFuture<HolderLookup.Provider> lookupProvider) {
-        super(packOutput, lookupProvider);
+    protected RecipesProvider(HolderLookup.Provider p_360573_, RecipeOutput p_360872_) {
+        super(p_360573_, p_360872_);
     }
 
     @Override
-    protected CompletableFuture<?> run(CachedOutput pOutput, HolderLookup.Provider pRegistries) {
-        final Set<ResourceLocation> set = Sets.newHashSet();
-        final List<CompletableFuture<?>> list = new ArrayList<>();
-        this.buildRecipes(pRegistries,
-                new RecipeOutput() {
-                    @Override
-                    public void accept(ResourceLocation p_312039_, Recipe<?> p_312254_, @Nullable AdvancementHolder p_311794_, net.neoforged.neoforge.common.conditions.ICondition... conditions) {
-                        if (!set.add(p_312039_)) {
-                            throw new IllegalStateException("Duplicate recipe " + p_312039_);
-                        } else {
-                            list.add(net.minecraft.data.DataProvider.saveStable(pOutput, pRegistries, Recipe.CONDITIONAL_CODEC, Optional.of(new net.neoforged.neoforge.common.conditions.WithConditions<>(p_312254_, conditions)), RecipesProvider.this.recipePathProvider.json(p_312039_)));
-                            if (p_311794_ != null) {
-                                list.add(
-                                        DataProvider.saveStable(
-                                                pOutput,
-                                                pRegistries,
-                                                Advancement.CONDITIONAL_CODEC,
-                                                Optional.of(new net.neoforged.neoforge.common.conditions.WithConditions<>(p_311794_.value(), conditions)),
-                                                RecipesProvider.this.advancementPathProvider.json(p_311794_.id())
-                                        )
-                                );
-                            }
-                        }
-                    }
-
-                    @SuppressWarnings("removal")
-                    @Override
-                    public Advancement.Builder advancement() {
-                        return Advancement.Builder.recipeAdvancement().parent(RecipeBuilder.ROOT_RECIPE_ADVANCEMENT);
-                    }
-                }
-        );
-        return CompletableFuture.allOf(list.toArray(CompletableFuture[]::new));
-    }
-
-    @Deprecated
-    protected void buildRecipes(@NotNull RecipeOutput output) {
-
-    }
-
     @SuppressWarnings("UnreachableCode")
-    protected void buildRecipes(@NotNull HolderLookup.Provider provider, @NotNull RecipeOutput output) {
-        HolderLookup.RegistryLookup<Enchantment> enchantments = provider.lookupOrThrow(Registries.ENCHANTMENT);
+    protected void buildRecipes() {
+        HolderLookup.RegistryLookup<Enchantment> enchantments = this.registries.lookupOrThrow(Registries.ENCHANTMENT);
+        HolderLookup.RegistryLookup<Item> itemLookup = this.registries.lookupOrThrow(Registries.ITEM);
         ItemLike hopper = Blocks.HOPPER;
         ItemLike cauldron = Blocks.CAULDRON;
         ItemLike stone_bricks = Blocks.STONE_BRICKS;
@@ -176,99 +123,99 @@ public class RecipesProvider extends RecipeProvider {
         TagKey<Item> beds = ItemTags.BEDS;
 
 
-        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModBlocks.BLOOD_GRINDER.get()).define('Z', hopper).define('Y', planks).define('D', diamond).define('X', iron_ingot).pattern(" Z ").pattern("YDY").pattern("YXY").unlockedBy("has_hopper", has(hopper)).save(output, general("blood_grinder"));
-        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModBlocks.BLOOD_SIEVE.get()).define('X', iron_ingot).define('Q', Blocks.QUARTZ_BRICKS).define('Y', planks).define('Z', cauldron).pattern("XQX").pattern("YZY").pattern("YXY").unlockedBy("has_cauldron", has(cauldron)).save(output, general("blood_sieve"));
-        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModBlocks.ALTAR_CLEANSING.get()).pattern(" X ").pattern("YYY").pattern(" Y ").define('X', vampire_book).define('Y', planks).unlockedBy("has_vampire_book", has(planks)).save(output, general("altar_cleansing"));
-        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModBlocks.ALTAR_CLEANSING.get()).pattern("XZX").pattern("YYY").pattern(" Y ").define('X', vampire_fang).define('Y', planks).define('Z', book).unlockedBy("has_book", has(book)).save(output, general("altar_cleansing_new"));
-        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModBlocks.FIRE_PLACE.get()).pattern(" X ").pattern("XYX").define('X', logs).define('Y', coal_block).unlockedBy("has_logs", has(logs)).save(output, general("fire_place"));
-        ShapelessRecipeBuilder.shapeless(RecipeCategory.FOOD, ModItems.GARLIC_BREAD.get()).requires(garlic).requires(bread).unlockedBy("has_garlic", has(garlic)).unlockedBy("has_bread", has(bread)).save(output, general("garlic_bread"));
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.INJECTION_EMPTY.get()).pattern(" X ").pattern(" X ").pattern(" Y ").define('X', glass).define('Y', glass_pane).unlockedBy("has_glass", has(glass)).unlockedBy("has_glass_pane", has(glass_pane)).save(output, general("injection_0"));
-        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.INJECTION_GARLIC.get()).requires(injection_empty).requires(garlic).unlockedBy("has_injection", has(injection_empty)).save(output, general("injection_1"));
-        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.INJECTION_SANGUINARE.get()).requires(injection_empty).requires(vampire_fang, 8).unlockedBy("has_injection", has(injection_empty)).save(output, general("injection_2"));
-        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModBlocks.TOTEM_BASE.get()).pattern("XYX").pattern("XYX").pattern("ZZZ").define('X', planks).define('Y', obsidian).define('Z', iron_ingot).unlockedBy("has_obsidian", has(obsidian)).save(output, general("totem_base"));
-        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModBlocks.TOTEM_TOP_CRAFTED.get()).pattern("X X").pattern(" Y ").pattern("XZX").define('X', obsidian).define('Y', diamond).define('Z', vampire_book).unlockedBy("has_diamond", has(diamondBlock)).unlockedBy("has_obsidian", has(obsidian)).save(output, general("totem_top"));
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.UMBRELLA.get()).pattern("###").pattern("BAB").pattern(" A ").define('#', wool).define('A', stick).define('B', vampire_orchid).unlockedBy("has_wool", has(wool)).save(output.withConditions(new ConfigCondition("umbrella")), general("umbrella"));
+        shaped(RecipeCategory.DECORATIONS, ModBlocks.BLOOD_GRINDER.get()).define('Z', hopper).define('Y', planks).define('D', diamond).define('X', iron_ingot).pattern(" Z ").pattern("YDY").pattern("YXY").unlockedBy("has_hopper", has(hopper)).save(output, general("blood_grinder"));
+        shaped(RecipeCategory.DECORATIONS, ModBlocks.BLOOD_SIEVE.get()).define('X', iron_ingot).define('Q', Blocks.QUARTZ_BRICKS).define('Y', planks).define('Z', cauldron).pattern("XQX").pattern("YZY").pattern("YXY").unlockedBy("has_cauldron", has(cauldron)).save(output, general("blood_sieve"));
+        shaped(RecipeCategory.DECORATIONS, ModBlocks.ALTAR_CLEANSING.get()).pattern(" X ").pattern("YYY").pattern(" Y ").define('X', vampire_book).define('Y', planks).unlockedBy("has_vampire_book", has(planks)).save(output, general("altar_cleansing"));
+        shaped(RecipeCategory.DECORATIONS, ModBlocks.ALTAR_CLEANSING.get()).pattern("XZX").pattern("YYY").pattern(" Y ").define('X', vampire_fang).define('Y', planks).define('Z', book).unlockedBy("has_book", has(book)).save(output, general("altar_cleansing_new"));
+        shaped(RecipeCategory.DECORATIONS, ModBlocks.FIRE_PLACE.get()).pattern(" X ").pattern("XYX").define('X', logs).define('Y', coal_block).unlockedBy("has_logs", has(logs)).save(output, general("fire_place"));
+        shapeless(RecipeCategory.FOOD, ModItems.GARLIC_BREAD.get()).requires(garlic).requires(bread).unlockedBy("has_garlic", has(garlic)).unlockedBy("has_bread", has(bread)).save(output, general("garlic_bread"));
+        shaped(RecipeCategory.MISC, ModItems.INJECTION_EMPTY.get()).pattern(" X ").pattern(" X ").pattern(" Y ").define('X', glass).define('Y', glass_pane).unlockedBy("has_glass", has(glass)).unlockedBy("has_glass_pane", has(glass_pane)).save(output, general("injection_0"));
+        shapeless(RecipeCategory.MISC, ModItems.INJECTION_GARLIC.get()).requires(injection_empty).requires(garlic).unlockedBy("has_injection", has(injection_empty)).save(output, general("injection_1"));
+        shapeless(RecipeCategory.MISC, ModItems.INJECTION_SANGUINARE.get()).requires(injection_empty).requires(vampire_fang, 8).unlockedBy("has_injection", has(injection_empty)).save(output, general("injection_2"));
+        shaped(RecipeCategory.DECORATIONS, ModBlocks.TOTEM_BASE.get()).pattern("XYX").pattern("XYX").pattern("ZZZ").define('X', planks).define('Y', obsidian).define('Z', iron_ingot).unlockedBy("has_obsidian", has(obsidian)).save(output, general("totem_base"));
+        shaped(RecipeCategory.DECORATIONS, ModBlocks.TOTEM_TOP_CRAFTED.get()).pattern("X X").pattern(" Y ").pattern("XZX").define('X', obsidian).define('Y', diamond).define('Z', vampire_book).unlockedBy("has_diamond", has(diamondBlock)).unlockedBy("has_obsidian", has(obsidian)).save(output, general("totem_top"));
+        shaped(RecipeCategory.MISC, ModItems.UMBRELLA.get()).pattern("###").pattern("BAB").pattern(" A ").define('#', wool).define('A', stick).define('B', vampire_orchid).unlockedBy("has_wool", has(wool)).save(output.withConditions(new ConfigCondition("umbrella")), general("umbrella"));
 
-        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModBlocks.ALCHEMICAL_CAULDRON.get()).pattern("XZX").pattern("XXX").pattern("Y Y").define('X', iron_ingot).define('Y', stone_bricks).define('Z', garlic).unlockedBy("has_iron", has(iron_ingot)).save(output, hunter("alchemical_cauldron"));
-        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModBlocks.POTION_TABLE.get()).pattern("XXX").pattern("Y Y").pattern("ZZZ").define('X', glass_bottle).define('Y', planks).define('Z', iron_ingot).unlockedBy("has_glass_bottle", has(glass_bottle)).save(output, hunter("potion_table"));
-        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModBlocks.GARLIC_DIFFUSER_NORMAL.get()).pattern("XYX").pattern("YZY").pattern("OOO").define('X', planks).define('Y', diamond).define('O', obsidian).define('Z', garlic_diffuser_core).unlockedBy("has_diamond", has(diamond)).save(output, hunter("garlic_diffuser_normal"));
-        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModBlocks.HUNTER_TABLE.get()).pattern("XYW").pattern("ZZZ").pattern("Z Z").define('X', vampire_fang).define('Y', book).define('Z', planks).define('W', garlic).unlockedBy("has_fang", has(vampire_fang)).save(output, hunter("hunter_table"));
-        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModBlocks.MED_CHAIR.get()).pattern("XYX").pattern("XXX").pattern("XZX").define('X', iron_ingot).define('Y', wool).define('Z', glass_bottle).unlockedBy("has_iron_ingot", has(iron_ingot)).save(output, hunter("item_med_chair"));
-        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModBlocks.GARLIC_DIFFUSER_IMPROVED.get()).pattern("XYX").pattern("YZY").pattern("OOO").define('X', planks).define('Y', diamond).define('Z', garlic_diffuser_core_improved).define('O', obsidian).unlockedBy("has_garlic_diffuser", has(garlic_diffuser_normal)).save(output, hunter("garlic_diffuser_improved"));
-        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ModItems.STAKE.get()).pattern("X").pattern("Y").pattern("X").define('X', stick).define('Y', planks).unlockedBy("has_sticks", has(stick)).save(output, hunter("stake"));
-        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModBlocks.WEAPON_TABLE.get()).pattern("X  ").pattern("YYY").pattern(" Z ").define('X', bucket).define('Y', iron_ingot).define('Z', iron_block).unlockedBy("has_iron_ingot", has(iron_ingot)).save(output, hunter("weapon_table"));
-        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ModItems.CROSSBOW_ARROW_NORMAL.get(), 6).pattern("X").pattern("Y").define('X', iron_ingot).define('Y', stick).unlockedBy("has_iron_ingot", has(iron_ingot)).save(output, hunter("crossbow_arrow_normal"));
-        ShapelessRecipeBuilder.shapeless(RecipeCategory.COMBAT, ModItems.CROSSBOW_ARROW_NORMAL.get()).requires(Items.ARROW).unlockedBy("has_arrow", has(Items.ARROW)).save(output, hunter("crossbow_arrow_from_vanilla"));
-        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.PURE_BLOOD_0.get()).requires(ModItems.PURE_BLOOD_1.get()).requires(ModItems.VAMPIRE_BLOOD_BOTTLE.get()).unlockedBy("has_pure_blood", has(pure_blood_1)).save(output, hunter("pure_blood0"));
-        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.PURE_BLOOD_1.get()).requires(ModItems.PURE_BLOOD_2.get()).requires(ModItems.VAMPIRE_BLOOD_BOTTLE.get()).unlockedBy("has_pure_blood", has(pure_blood_2)).save(output, hunter("pure_blood1"));
-        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.PURE_BLOOD_2.get()).requires(ModItems.PURE_BLOOD_3.get()).requires(ModItems.VAMPIRE_BLOOD_BOTTLE.get()).unlockedBy("has_pure_blood", has(pure_blood_3)).save(output, hunter("pure_blood2"));
-        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.PURE_BLOOD_3.get()).requires(ModItems.PURE_BLOOD_4.get()).requires(ModItems.VAMPIRE_BLOOD_BOTTLE.get()).unlockedBy("has_pure_blood", has(pure_blood_4)).save(output, hunter("pure_blood3"));
+        shaped(RecipeCategory.DECORATIONS, ModBlocks.ALCHEMICAL_CAULDRON.get()).pattern("XZX").pattern("XXX").pattern("Y Y").define('X', iron_ingot).define('Y', stone_bricks).define('Z', garlic).unlockedBy("has_iron", has(iron_ingot)).save(output, hunter("alchemical_cauldron"));
+        shaped(RecipeCategory.DECORATIONS, ModBlocks.POTION_TABLE.get()).pattern("XXX").pattern("Y Y").pattern("ZZZ").define('X', glass_bottle).define('Y', planks).define('Z', iron_ingot).unlockedBy("has_glass_bottle", has(glass_bottle)).save(output, hunter("potion_table"));
+        shaped(RecipeCategory.DECORATIONS, ModBlocks.GARLIC_DIFFUSER_NORMAL.get()).pattern("XYX").pattern("YZY").pattern("OOO").define('X', planks).define('Y', diamond).define('O', obsidian).define('Z', garlic_diffuser_core).unlockedBy("has_diamond", has(diamond)).save(output, hunter("garlic_diffuser_normal"));
+        shaped(RecipeCategory.DECORATIONS, ModBlocks.HUNTER_TABLE.get()).pattern("XYW").pattern("ZZZ").pattern("Z Z").define('X', vampire_fang).define('Y', book).define('Z', planks).define('W', garlic).unlockedBy("has_fang", has(vampire_fang)).save(output, hunter("hunter_table"));
+        shaped(RecipeCategory.DECORATIONS, ModBlocks.MED_CHAIR.get()).pattern("XYX").pattern("XXX").pattern("XZX").define('X', iron_ingot).define('Y', wool).define('Z', glass_bottle).unlockedBy("has_iron_ingot", has(iron_ingot)).save(output, hunter("item_med_chair"));
+        shaped(RecipeCategory.DECORATIONS, ModBlocks.GARLIC_DIFFUSER_IMPROVED.get()).pattern("XYX").pattern("YZY").pattern("OOO").define('X', planks).define('Y', diamond).define('Z', garlic_diffuser_core_improved).define('O', obsidian).unlockedBy("has_garlic_diffuser", has(garlic_diffuser_normal)).save(output, hunter("garlic_diffuser_improved"));
+        shaped(RecipeCategory.COMBAT, ModItems.STAKE.get()).pattern("X").pattern("Y").pattern("X").define('X', stick).define('Y', planks).unlockedBy("has_sticks", has(stick)).save(output, hunter("stake"));
+        shaped(RecipeCategory.DECORATIONS, ModBlocks.WEAPON_TABLE.get()).pattern("X  ").pattern("YYY").pattern(" Z ").define('X', bucket).define('Y', iron_ingot).define('Z', iron_block).unlockedBy("has_iron_ingot", has(iron_ingot)).save(output, hunter("weapon_table"));
+        shaped(RecipeCategory.COMBAT, ModItems.CROSSBOW_ARROW_NORMAL.get(), 6).pattern("X").pattern("Y").define('X', iron_ingot).define('Y', stick).unlockedBy("has_iron_ingot", has(iron_ingot)).save(output, hunter("crossbow_arrow_normal"));
+        shapeless(RecipeCategory.COMBAT, ModItems.CROSSBOW_ARROW_NORMAL.get()).requires(Items.ARROW).unlockedBy("has_arrow", has(Items.ARROW)).save(output, hunter("crossbow_arrow_from_vanilla"));
+        shapeless(RecipeCategory.MISC, ModItems.PURE_BLOOD_0.get()).requires(ModItems.PURE_BLOOD_1.get()).requires(ModItems.VAMPIRE_BLOOD_BOTTLE.get()).unlockedBy("has_pure_blood", has(pure_blood_1)).save(output, hunter("pure_blood0"));
+        shapeless(RecipeCategory.MISC, ModItems.PURE_BLOOD_1.get()).requires(ModItems.PURE_BLOOD_2.get()).requires(ModItems.VAMPIRE_BLOOD_BOTTLE.get()).unlockedBy("has_pure_blood", has(pure_blood_2)).save(output, hunter("pure_blood1"));
+        shapeless(RecipeCategory.MISC, ModItems.PURE_BLOOD_2.get()).requires(ModItems.PURE_BLOOD_3.get()).requires(ModItems.VAMPIRE_BLOOD_BOTTLE.get()).unlockedBy("has_pure_blood", has(pure_blood_3)).save(output, hunter("pure_blood2"));
+        shapeless(RecipeCategory.MISC, ModItems.PURE_BLOOD_3.get()).requires(ModItems.PURE_BLOOD_4.get()).requires(ModItems.VAMPIRE_BLOOD_BOTTLE.get()).unlockedBy("has_pure_blood", has(pure_blood_4)).save(output, hunter("pure_blood3"));
 
-        AlchemicalCauldronRecipeBuilder.cauldronRecipe(ModItems.PURE_SALT.get(), 4).withIngredient(garlic).withFluid(new FluidStack(Fluids.WATER, 1)).withSkills(HunterSkills.BASIC_ALCHEMY).cookTime(1200).save(output, modId("pure_salt"));
+        AlchemicalCauldronRecipeBuilder.cauldronRecipe(ModItems.PURE_SALT.get(), 4).withIngredient(itemLookup, garlic).withFluid(new FluidStack(Fluids.WATER, 1)).withSkills(HunterSkills.BASIC_ALCHEMY).cookTime(1200).save(output);
         AlchemicalCauldronRecipeBuilder.cauldronRecipe(ModItems.ITEM_ALCHEMICAL_FIRE.get(), 4).withIngredient(gun_powder).withFluid(holy_water_bottle_normal).save(output, modId("alchemical_fire_4"));
         AlchemicalCauldronRecipeBuilder.cauldronRecipe(ModItems.ITEM_ALCHEMICAL_FIRE.get(), 5).withIngredient(gun_powder).withFluid(holy_water_bottle_enhanced).save(output, modId("alchemical_fire_5"));
         AlchemicalCauldronRecipeBuilder.cauldronRecipe(ModItems.ITEM_ALCHEMICAL_FIRE.get(), 6).withIngredient(gun_powder).withFluid(holy_water_bottle_ultimate).save(output, modId("alchemical_fire_6"));
-        AlchemicalCauldronRecipeBuilder.cauldronRecipe(ModItems.GARLIC_DIFFUSER_CORE.get()).withIngredient(wool).withFluid(garlic).withSkills(HunterSkills.GARLIC_DIFFUSER).save(output, modId("garlic_diffuser_core"));
-        AlchemicalCauldronRecipeBuilder.cauldronRecipe(ModItems.GARLIC_DIFFUSER_CORE_IMPROVED.get()).withIngredient(garlic_diffuser_core).withFluid(holy_water_bottle_ultimate).withSkills(HunterSkills.GARLIC_DIFFUSER_IMPROVED).experience(2.0f).save(output, modId("garlic_diffuser_core_improved"));
-        AlchemicalCauldronRecipeBuilder.cauldronRecipe(ModItems.PURIFIED_GARLIC.get(), 2).withIngredient(garlic).withFluid(holy_water).withSkills(HunterSkills.PURIFIED_GARLIC).save(output, modId("purified_garlic"));
+        AlchemicalCauldronRecipeBuilder.cauldronRecipe(ModItems.GARLIC_DIFFUSER_CORE.get()).withIngredient(itemLookup,wool).withFluid(itemLookup, garlic).withSkills(HunterSkills.GARLIC_DIFFUSER).save(output);
+        AlchemicalCauldronRecipeBuilder.cauldronRecipe(ModItems.GARLIC_DIFFUSER_CORE_IMPROVED.get()).withIngredient(garlic_diffuser_core).withFluid(holy_water_bottle_ultimate).withSkills(HunterSkills.GARLIC_DIFFUSER_IMPROVED).experience(2.0f).save(output);
+        AlchemicalCauldronRecipeBuilder.cauldronRecipe(ModItems.PURIFIED_GARLIC.get(), 2).withIngredient(itemLookup, garlic).withFluid(itemLookup, holy_water).withSkills(HunterSkills.PURIFIED_GARLIC).save(output);
 
-        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(RecipeCategory.COMBAT, ModItems.ARMOR_OF_SWIFTNESS_CHEST_NORMAL.get()).lava(1).pattern("XZZX").pattern("XXXX").pattern("XYYX").pattern("XXXX").define('X', leather).define('Y', garlic).define('Z', potion(Potions.SWIFTNESS)).unlockedBy("has_leather", has(leather)).unlockedBy("has_garlic", has(garlic)).save(output);
-        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(RecipeCategory.COMBAT, ModItems.ARMOR_OF_SWIFTNESS_CHEST_ENHANCED.get()).lava(3).skills(HunterSkills.MASTER_CRAFTSMANSHIP).pattern("XZZX").pattern("XXXX").pattern("XYYX").pattern("XXXX").define('X', leather).define('Y', garlic).define('Z', gold_ingot).unlockedBy("has_leather", has(leather)).unlockedBy("has_garlic", has(garlic)).save(output);
-        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(RecipeCategory.COMBAT, ModItems.ARMOR_OF_SWIFTNESS_FEET_NORMAL.get()).lava(1).pattern("XZZX").pattern("XYYX").pattern("XXXX").define('X', leather).define('Y', garlic).define('Z', potion(Potions.SWIFTNESS)).unlockedBy("has_leather", has(leather)).unlockedBy("has_garlic", has(garlic)).save(output);
-        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(RecipeCategory.COMBAT, ModItems.ARMOR_OF_SWIFTNESS_FEET_ENHANCED.get()).lava(3).skills(HunterSkills.MASTER_CRAFTSMANSHIP).pattern("XZZX").pattern("XYYX").pattern("XXXX").define('X', leather).define('Y', garlic).define('Z', gold_ingot).unlockedBy("has_leather", has(leather)).unlockedBy("has_garlic", has(garlic)).unlockedBy("has_garlic", has(garlic)).save(output);
-        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(RecipeCategory.COMBAT, ModItems.ARMOR_OF_SWIFTNESS_HEAD_NORMAL.get()).lava(1).pattern("XXXX").pattern("XYYX").pattern("XZZX").pattern("    ").define('X', leather).define('Y', garlic).define('Z', potion(Potions.SWIFTNESS)).unlockedBy("has_leather", has(leather)).unlockedBy("has_garlic", has(garlic)).save(output);
-        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(RecipeCategory.COMBAT, ModItems.ARMOR_OF_SWIFTNESS_HEAD_ENHANCED.get()).lava(3).skills(HunterSkills.MASTER_CRAFTSMANSHIP).pattern("XXXX").pattern("XYYX").pattern("XZZX").define('X', leather).define('Y', garlic).define('Z', gold_ingot).unlockedBy("has_leather", has(leather)).unlockedBy("has_garlic", has(garlic)).unlockedBy("has_gold", has(gold_ingot)).save(output);
-        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(RecipeCategory.COMBAT, ModItems.ARMOR_OF_SWIFTNESS_LEGS_NORMAL.get()).pattern("XXXX").pattern("XYYX").pattern("XZZX").pattern("X  X").define('X', leather).define('Y', garlic).define('Z', potion(Potions.SWIFTNESS)).unlockedBy("has_leather", has(leather)).unlockedBy("has_garlic", has(garlic)).save(output);
-        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(RecipeCategory.COMBAT, ModItems.ARMOR_OF_SWIFTNESS_LEGS_ENHANCED.get()).lava(3).skills(HunterSkills.MASTER_CRAFTSMANSHIP).pattern("XXXX").pattern("XYYX").pattern("XZZX").pattern("X  X").define('X', leather).define('Y', garlic).define('Z', gold_ingot).unlockedBy("has_leather", has(leather)).unlockedBy("has_garlic", has(garlic)).unlockedBy("has_gold", has(gold_ingot)).save(output);
+        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(itemLookup, RecipeCategory.COMBAT, ModItems.ARMOR_OF_SWIFTNESS_CHEST_NORMAL.get()).lava(1).pattern("XZZX").pattern("XXXX").pattern("XYYX").pattern("XXXX").define('X', leather).define('Y', garlic).define('Z', potion(Potions.SWIFTNESS)).unlockedBy("has_leather", has(leather)).unlockedBy("has_garlic", has(garlic)).save(output);
+        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(itemLookup, RecipeCategory.COMBAT, ModItems.ARMOR_OF_SWIFTNESS_CHEST_ENHANCED.get()).lava(3).skills(HunterSkills.MASTER_CRAFTSMANSHIP).pattern("XZZX").pattern("XXXX").pattern("XYYX").pattern("XXXX").define('X', leather).define('Y', garlic).define('Z', gold_ingot).unlockedBy("has_leather", has(leather)).unlockedBy("has_garlic", has(garlic)).save(output);
+        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(itemLookup, RecipeCategory.COMBAT, ModItems.ARMOR_OF_SWIFTNESS_FEET_NORMAL.get()).lava(1).pattern("XZZX").pattern("XYYX").pattern("XXXX").define('X', leather).define('Y', garlic).define('Z', potion(Potions.SWIFTNESS)).unlockedBy("has_leather", has(leather)).unlockedBy("has_garlic", has(garlic)).save(output);
+        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(itemLookup, RecipeCategory.COMBAT, ModItems.ARMOR_OF_SWIFTNESS_FEET_ENHANCED.get()).lava(3).skills(HunterSkills.MASTER_CRAFTSMANSHIP).pattern("XZZX").pattern("XYYX").pattern("XXXX").define('X', leather).define('Y', garlic).define('Z', gold_ingot).unlockedBy("has_leather", has(leather)).unlockedBy("has_garlic", has(garlic)).unlockedBy("has_garlic", has(garlic)).save(output);
+        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(itemLookup, RecipeCategory.COMBAT, ModItems.ARMOR_OF_SWIFTNESS_HEAD_NORMAL.get()).lava(1).pattern("XXXX").pattern("XYYX").pattern("XZZX").pattern("    ").define('X', leather).define('Y', garlic).define('Z', potion(Potions.SWIFTNESS)).unlockedBy("has_leather", has(leather)).unlockedBy("has_garlic", has(garlic)).save(output);
+        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(itemLookup, RecipeCategory.COMBAT, ModItems.ARMOR_OF_SWIFTNESS_HEAD_ENHANCED.get()).lava(3).skills(HunterSkills.MASTER_CRAFTSMANSHIP).pattern("XXXX").pattern("XYYX").pattern("XZZX").define('X', leather).define('Y', garlic).define('Z', gold_ingot).unlockedBy("has_leather", has(leather)).unlockedBy("has_garlic", has(garlic)).unlockedBy("has_gold", has(gold_ingot)).save(output);
+        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(itemLookup, RecipeCategory.COMBAT, ModItems.ARMOR_OF_SWIFTNESS_LEGS_NORMAL.get()).pattern("XXXX").pattern("XYYX").pattern("XZZX").pattern("X  X").define('X', leather).define('Y', garlic).define('Z', potion(Potions.SWIFTNESS)).unlockedBy("has_leather", has(leather)).unlockedBy("has_garlic", has(garlic)).save(output);
+        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(itemLookup, RecipeCategory.COMBAT, ModItems.ARMOR_OF_SWIFTNESS_LEGS_ENHANCED.get()).lava(3).skills(HunterSkills.MASTER_CRAFTSMANSHIP).pattern("XXXX").pattern("XYYX").pattern("XZZX").pattern("X  X").define('X', leather).define('Y', garlic).define('Z', gold_ingot).unlockedBy("has_leather", has(leather)).unlockedBy("has_garlic", has(garlic)).unlockedBy("has_gold", has(gold_ingot)).save(output);
 
-        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(RecipeCategory.COMBAT, ModItems.HUNTER_COAT_CHEST_NORMAL.get()).lava(2).pattern("XWWX").pattern("XZZX").pattern("XZZX").pattern("XYYX").define('X', iron_ingot).define('Y', leather).define('Z', garlic).define('W', vampire_fang).unlockedBy("has_iron", has(iron_ingot)).unlockedBy("has_garlic", has(garlic)).save(output);
-        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(RecipeCategory.COMBAT, ModItems.HUNTER_COAT_CHEST_ENHANCED.get()).lava(5).skills(HunterSkills.MASTER_CRAFTSMANSHIP).pattern("XWWX").pattern("XZZX").pattern("XYYX").pattern("XYYX").define('X', iron_ingot).define('Y', diamond).define('Z', garlic).define('W', vampire_fang).unlockedBy("has_iron", has(iron_ingot)).unlockedBy("has_garlic", has(garlic)).save(output);
-        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(RecipeCategory.COMBAT, ModItems.HUNTER_COAT_LEGS_NORMAL.get()).lava(2).pattern("XYYX").pattern("XZZX").pattern("XZZX").pattern("X  X").define('X', iron_ingot).define('Z', garlic).define('Y', leather).unlockedBy("has_iron", has(iron_ingot)).unlockedBy("has_garlic", has(garlic)).save(output);
-        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(RecipeCategory.COMBAT, ModItems.HUNTER_COAT_LEGS_ENHANCED.get()).lava(5).skills(HunterSkills.MASTER_CRAFTSMANSHIP).pattern("XYYX").pattern("XZZX").pattern("XZZX").pattern("X  X").define('X', iron_ingot).define('Z', garlic).define('Y', diamond).unlockedBy("has_iron", has(iron_ingot)).unlockedBy("has_garlic", has(garlic)).save(output);
-        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(RecipeCategory.COMBAT, ModItems.HUNTER_COAT_HEAD_NORMAL.get()).lava(2).pattern("XYYX").pattern("XZZX").pattern("XZZX").pattern("    ").define('X', iron_ingot).define('Y', leather).define('Z', garlic).unlockedBy("has_iron", has(iron_ingot)).unlockedBy("has_garlic", has(garlic)).save(output);
-        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(RecipeCategory.COMBAT, ModItems.HUNTER_COAT_HEAD_ENHANCED.get()).lava(5).skills(HunterSkills.MASTER_CRAFTSMANSHIP).pattern("XYYX").pattern("XZZX").pattern("XZZX").pattern("    ").define('X', iron_ingot).define('Y', diamond).define('Z', garlic).unlockedBy("has_iron", has(iron_ingot)).unlockedBy("has_garlic", has(garlic)).save(output);
-        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(RecipeCategory.COMBAT, ModItems.HUNTER_COAT_FEET_NORMAL.get()).lava(2).pattern("    ").pattern("X  X").pattern("XZZX").pattern("XYYX").define('X', iron_ingot).define('Y', leather).define('Z', garlic).unlockedBy("has_iron", has(iron_ingot)).unlockedBy("has_garlic", has(garlic)).save(output);
-        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(RecipeCategory.COMBAT, ModItems.HUNTER_COAT_FEET_ENHANCED.get()).lava(5).skills(HunterSkills.MASTER_CRAFTSMANSHIP).pattern("    ").pattern("X  X").pattern("XZZX").pattern("XYYX").define('X', iron_ingot).define('Y', diamond).define('Z', garlic).unlockedBy("has_iron", has(iron_ingot)).unlockedBy("has_garlic", has(garlic)).save(output);
+        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(itemLookup, RecipeCategory.COMBAT, ModItems.HUNTER_COAT_CHEST_NORMAL.get()).lava(2).pattern("XWWX").pattern("XZZX").pattern("XZZX").pattern("XYYX").define('X', iron_ingot).define('Y', leather).define('Z', garlic).define('W', vampire_fang).unlockedBy("has_iron", has(iron_ingot)).unlockedBy("has_garlic", has(garlic)).save(output);
+        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(itemLookup, RecipeCategory.COMBAT, ModItems.HUNTER_COAT_CHEST_ENHANCED.get()).lava(5).skills(HunterSkills.MASTER_CRAFTSMANSHIP).pattern("XWWX").pattern("XZZX").pattern("XYYX").pattern("XYYX").define('X', iron_ingot).define('Y', diamond).define('Z', garlic).define('W', vampire_fang).unlockedBy("has_iron", has(iron_ingot)).unlockedBy("has_garlic", has(garlic)).save(output);
+        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(itemLookup, RecipeCategory.COMBAT, ModItems.HUNTER_COAT_LEGS_NORMAL.get()).lava(2).pattern("XYYX").pattern("XZZX").pattern("XZZX").pattern("X  X").define('X', iron_ingot).define('Z', garlic).define('Y', leather).unlockedBy("has_iron", has(iron_ingot)).unlockedBy("has_garlic", has(garlic)).save(output);
+        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(itemLookup, RecipeCategory.COMBAT, ModItems.HUNTER_COAT_LEGS_ENHANCED.get()).lava(5).skills(HunterSkills.MASTER_CRAFTSMANSHIP).pattern("XYYX").pattern("XZZX").pattern("XZZX").pattern("X  X").define('X', iron_ingot).define('Z', garlic).define('Y', diamond).unlockedBy("has_iron", has(iron_ingot)).unlockedBy("has_garlic", has(garlic)).save(output);
+        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(itemLookup, RecipeCategory.COMBAT, ModItems.HUNTER_COAT_HEAD_NORMAL.get()).lava(2).pattern("XYYX").pattern("XZZX").pattern("XZZX").pattern("    ").define('X', iron_ingot).define('Y', leather).define('Z', garlic).unlockedBy("has_iron", has(iron_ingot)).unlockedBy("has_garlic", has(garlic)).save(output);
+        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(itemLookup, RecipeCategory.COMBAT, ModItems.HUNTER_COAT_HEAD_ENHANCED.get()).lava(5).skills(HunterSkills.MASTER_CRAFTSMANSHIP).pattern("XYYX").pattern("XZZX").pattern("XZZX").pattern("    ").define('X', iron_ingot).define('Y', diamond).define('Z', garlic).unlockedBy("has_iron", has(iron_ingot)).unlockedBy("has_garlic", has(garlic)).save(output);
+        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(itemLookup, RecipeCategory.COMBAT, ModItems.HUNTER_COAT_FEET_NORMAL.get()).lava(2).pattern("    ").pattern("X  X").pattern("XZZX").pattern("XYYX").define('X', iron_ingot).define('Y', leather).define('Z', garlic).unlockedBy("has_iron", has(iron_ingot)).unlockedBy("has_garlic", has(garlic)).save(output);
+        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(itemLookup, RecipeCategory.COMBAT, ModItems.HUNTER_COAT_FEET_ENHANCED.get()).lava(5).skills(HunterSkills.MASTER_CRAFTSMANSHIP).pattern("    ").pattern("X  X").pattern("XZZX").pattern("XYYX").define('X', iron_ingot).define('Y', diamond).define('Z', garlic).unlockedBy("has_iron", has(iron_ingot)).unlockedBy("has_garlic", has(garlic)).save(output);
 
-        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(RecipeCategory.COMBAT, ModItems.BASIC_CROSSBOW.get()).lava(1).skills(HunterSkills.WEAPON_TABLE).pattern("YXXY").pattern(" ZZ ").pattern(" ZZ ").define('X', iron_ingot).define('Y', string).define('Z', planks).unlockedBy("has_iron", has(iron_ingot)).save(output);
-        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(RecipeCategory.COMBAT, ModItems.BASIC_DOUBLE_CROSSBOW.get()).lava(1).skills(HunterSkills.WEAPON_TABLE).pattern("YXXY").pattern("YXXY").pattern(" ZZ ").pattern(" ZZ ").define('X', iron_ingot).define('Y', string).define('Z', planks).unlockedBy("has_iron", has(iron_ingot)).save(output);
-        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(RecipeCategory.COMBAT, ModItems.BASIC_TECH_CROSSBOW.get()).lava(5).skills(HunterSkills.WEAPON_TABLE).pattern("YXXY").pattern("XZZX").pattern(" XX ").pattern(" XX ").define('X', iron_ingot).define('Y', string).define('Z', diamond).unlockedBy("has_iron", has(iron_ingot)).save(output);
-        ShapelessWeaponTableRecipeBuilder.shapelessWeaponTable(RecipeCategory.COMBAT, ModItems.CROSSBOW_ARROW_SPITFIRE.get(), 1).lava(1).requires(crossbow_arrow_normal, 1).requires(DataComponentIngredient.of(false, ModDataComponents.OIL, new OilContent(ModOils.SPITFIRE), ModItems.OIL_BOTTLE.get())).unlockedBy("has_crossbow_arrow_normal", has(crossbow_arrow_normal)).save(output, "spitfire_arrow_1");
-        ShapelessWeaponTableRecipeBuilder.shapelessWeaponTable(RecipeCategory.COMBAT, ModItems.CROSSBOW_ARROW_SPITFIRE.get(), 2).lava(1).requires(crossbow_arrow_normal, 2).requires(DataComponentIngredient.of(false, ModDataComponents.OIL, new OilContent(ModOils.SPITFIRE), ModItems.OIL_BOTTLE.get())).unlockedBy("has_crossbow_arrow_normal", has(crossbow_arrow_normal)).save(output, "spitfire_arrow_2");
-        ShapelessWeaponTableRecipeBuilder.shapelessWeaponTable(RecipeCategory.COMBAT, ModItems.CROSSBOW_ARROW_SPITFIRE.get(), 3).lava(1).requires(crossbow_arrow_normal, 3).requires(DataComponentIngredient.of(false, ModDataComponents.OIL, new OilContent(ModOils.SPITFIRE), ModItems.OIL_BOTTLE.get())).unlockedBy("has_crossbow_arrow_normal", has(crossbow_arrow_normal)).save(output, "spitfire_arrow_3");
-        ShapelessWeaponTableRecipeBuilder.shapelessWeaponTable(RecipeCategory.COMBAT, ModItems.CROSSBOW_ARROW_TELEPORT.get(), 1).lava(1).requires(crossbow_arrow_normal).requires(DataComponentIngredient.of(false, ModDataComponents.OIL, new OilContent(ModOils.TELEPORT), ModItems.OIL_BOTTLE.get())).unlockedBy("has_crossbow_arrow_normal", has(crossbow_arrow_normal)).save(output);
-        ShapelessWeaponTableRecipeBuilder.shapelessWeaponTable(RecipeCategory.COMBAT, ModItems.CROSSBOW_ARROW_GARLIC.get(), 1).lava(1).requires(crossbow_arrow_normal, 1).requires(DataComponentIngredient.of(false, ModDataComponents.OIL, new OilContent(ModOils.GARLIC), ModItems.OIL_BOTTLE.get())).unlockedBy("has_crossbow_arrow_normal", has(crossbow_arrow_normal)).save(output, "garlic_arrow_1");
-        ShapelessWeaponTableRecipeBuilder.shapelessWeaponTable(RecipeCategory.COMBAT, ModItems.CROSSBOW_ARROW_GARLIC.get(), 2).lava(1).requires(crossbow_arrow_normal, 2).requires(DataComponentIngredient.of(false, ModDataComponents.OIL, new OilContent(ModOils.GARLIC), ModItems.OIL_BOTTLE.get())).unlockedBy("has_crossbow_arrow_normal", has(crossbow_arrow_normal)).save(output, "garlic_arrow_2");
-        ShapelessWeaponTableRecipeBuilder.shapelessWeaponTable(RecipeCategory.COMBAT, ModItems.CROSSBOW_ARROW_GARLIC.get(), 3).lava(1).requires(crossbow_arrow_normal, 3).requires(DataComponentIngredient.of(false, ModDataComponents.OIL, new OilContent(ModOils.GARLIC), ModItems.OIL_BOTTLE.get())).unlockedBy("has_crossbow_arrow_normal", has(crossbow_arrow_normal)).save(output, "garlic_arrow_3");
-        ShapelessWeaponTableRecipeBuilder.shapelessWeaponTable(RecipeCategory.COMBAT, ModItems.CROSSBOW_ARROW_BLEEDING.get(), 1).lava(1).requires(crossbow_arrow_normal, 1).requires(DataComponentIngredient.of(false, ModDataComponents.OIL, new OilContent(ModOils.BLEEDING), ModItems.OIL_BOTTLE.get())).unlockedBy("has_crossbow_arrow_normal", has(crossbow_arrow_normal)).save(output, "bleeding_arrow_1");
-        ShapelessWeaponTableRecipeBuilder.shapelessWeaponTable(RecipeCategory.COMBAT, ModItems.CROSSBOW_ARROW_BLEEDING.get(), 2).lava(1).requires(crossbow_arrow_normal, 2).requires(DataComponentIngredient.of(false, ModDataComponents.OIL, new OilContent(ModOils.BLEEDING), ModItems.OIL_BOTTLE.get())).unlockedBy("has_crossbow_arrow_normal", has(crossbow_arrow_normal)).save(output, "bleeding_arrow_2");
-        ShapelessWeaponTableRecipeBuilder.shapelessWeaponTable(RecipeCategory.COMBAT, ModItems.CROSSBOW_ARROW_BLEEDING.get(), 3).lava(1).requires(crossbow_arrow_normal, 3).requires(DataComponentIngredient.of(false, ModDataComponents.OIL, new OilContent(ModOils.BLEEDING), ModItems.OIL_BOTTLE.get())).unlockedBy("has_crossbow_arrow_normal", has(crossbow_arrow_normal)).save(output, "bleeding_arrow_3");
-        ShapelessWeaponTableRecipeBuilder.shapelessWeaponTable(RecipeCategory.COMBAT, ModItems.CROSSBOW_ARROW_VAMPIRE_KILLER.get(), 1).lava(1).requires(crossbow_arrow_normal, 1).requires(DataComponentIngredient.of(false, ModDataComponents.OIL, new OilContent(ModOils.VAMPIRE_KILLER), ModItems.OIL_BOTTLE.get())).unlockedBy("has_crossbow_arrow_normal", has(crossbow_arrow_normal)).save(output, "vampire_killer_arrow_1");
-        ShapelessWeaponTableRecipeBuilder.shapelessWeaponTable(RecipeCategory.COMBAT, ModItems.CROSSBOW_ARROW_VAMPIRE_KILLER.get(), 2).lava(1).requires(crossbow_arrow_normal, 2).requires(DataComponentIngredient.of(false, ModDataComponents.OIL, new OilContent(ModOils.VAMPIRE_KILLER), ModItems.OIL_BOTTLE.get())).unlockedBy("has_crossbow_arrow_normal", has(crossbow_arrow_normal)).save(output, "vampire_killer_arrow_2");
-        ShapelessWeaponTableRecipeBuilder.shapelessWeaponTable(RecipeCategory.COMBAT, ModItems.CROSSBOW_ARROW_VAMPIRE_KILLER.get(), 3).lava(1).requires(crossbow_arrow_normal, 3).requires(DataComponentIngredient.of(false, ModDataComponents.OIL, new OilContent(ModOils.VAMPIRE_KILLER), ModItems.OIL_BOTTLE.get())).unlockedBy("has_crossbow_arrow_normal", has(crossbow_arrow_normal)).save(output, "vampire_killer_arrow_3");
-        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(RecipeCategory.COMBAT, ModItems.ENHANCED_CROSSBOW.get()).lava(2).skills(HunterSkills.MASTER_CRAFTSMANSHIP).pattern("YXXY").pattern(" XX ").pattern(" XX ").define('X', iron_ingot).define('Y', string).unlockedBy("has_iron", has(iron_ingot)).save(output);
-        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(RecipeCategory.COMBAT, ModItems.ENHANCED_DOUBLE_CROSSBOW.get()).lava(3).skills(HunterSkills.MASTER_CRAFTSMANSHIP).pattern("YXXY").pattern("YXXY").pattern(" XX ").pattern(" XX ").define('X', iron_ingot).unlockedBy("has_iron", has(iron_ingot)).define('Y', string).save(output);
-        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(RecipeCategory.COMBAT, ModItems.ENHANCED_TECH_CROSSBOW.get()).lava(5).skills(HunterSkills.MASTER_CRAFTSMANSHIP).pattern("YXXY").pattern("XZZX").pattern("XZZX").pattern(" XX ").define('X', iron_ingot).unlockedBy("has_iron", has(iron_ingot)).define('Y', string).define('Z', diamond).save(output);
-        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(RecipeCategory.COMBAT, ModItems.HUNTER_HAT_HEAD_0.get()).pattern(" YY ").pattern(" YY ").pattern("XXXX").define('X', iron_ingot).unlockedBy("has_iron", has(iron_ingot)).define('Y', black_wool).save(output);
-        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(RecipeCategory.COMBAT, ModItems.HUNTER_HAT_HEAD_1.get()).lava(1).pattern(" YY ").pattern("XXXX").define('X', iron_ingot).unlockedBy("has_iron", has(iron_ingot)).define('Y', black_wool).save(output);
-        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(RecipeCategory.COMBAT, ModItems.PITCHFORK.get()).pattern("X X").pattern("YYY").pattern(" Y ").pattern(" Y ").define('X', iron_ingot).unlockedBy("has_iron", has(iron_ingot)).define('Y', stick).save(output);
-        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(RecipeCategory.COMBAT, ModItems.ARROW_CLIP.get()).lava(1).pattern("ILLI").pattern("PLLP").pattern("ILLI").define('I', iron_ingot).unlockedBy("has_iron", has(iron_ingot)).define('L', leather).define('P', planks).save(output);
-        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(RecipeCategory.COMBAT, ItemDataUtils.createEnchantment(ModItems.HUNTER_AXE_NORMAL.get(), enchantments.getOrThrow(Enchantments.KNOCKBACK), 2)).lava(5).pattern("XXZY").pattern("XXZY").pattern("  ZY").pattern("  Z ").define('X', iron_ingot).unlockedBy("has_iron", has(iron_ingot)).define('Y', garlic).define('Z', stick).save(output);
-        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(RecipeCategory.COMBAT, ItemDataUtils.createEnchantment(ModItems.HUNTER_AXE_ENHANCED.get(), enchantments.getOrThrow(Enchantments.KNOCKBACK), 3)).lava(5).skills(HunterSkills.MASTER_CRAFTSMANSHIP).pattern("XWZY").pattern("XWZY").pattern("  ZY").pattern("  Z ").define('X', iron_ingot).unlockedBy("has_iron", has(iron_ingot)).define('Y', garlic).define('W', diamond).define('Z', stick).save(output);
+        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(itemLookup, RecipeCategory.COMBAT, ModItems.BASIC_CROSSBOW.get()).lava(1).skills(HunterSkills.WEAPON_TABLE).pattern("YXXY").pattern(" ZZ ").pattern(" ZZ ").define('X', iron_ingot).define('Y', string).define('Z', planks).unlockedBy("has_iron", has(iron_ingot)).save(output);
+        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(itemLookup, RecipeCategory.COMBAT, ModItems.BASIC_DOUBLE_CROSSBOW.get()).lava(1).skills(HunterSkills.WEAPON_TABLE).pattern("YXXY").pattern("YXXY").pattern(" ZZ ").pattern(" ZZ ").define('X', iron_ingot).define('Y', string).define('Z', planks).unlockedBy("has_iron", has(iron_ingot)).save(output);
+        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(itemLookup, RecipeCategory.COMBAT, ModItems.BASIC_TECH_CROSSBOW.get()).lava(5).skills(HunterSkills.WEAPON_TABLE).pattern("YXXY").pattern("XZZX").pattern(" XX ").pattern(" XX ").define('X', iron_ingot).define('Y', string).define('Z', diamond).unlockedBy("has_iron", has(iron_ingot)).save(output);
+        ShapelessWeaponTableRecipeBuilder.shapelessWeaponTable(itemLookup, RecipeCategory.COMBAT, ModItems.CROSSBOW_ARROW_SPITFIRE.get(), 1).lava(1).requires(crossbow_arrow_normal, 1).requires(DataComponentIngredient.of(false, ModDataComponents.OIL, new OilContent(ModOils.SPITFIRE), ModItems.OIL_BOTTLE.get())).unlockedBy("has_crossbow_arrow_normal", has(crossbow_arrow_normal)).save(output, "spitfire_arrow_1");
+        ShapelessWeaponTableRecipeBuilder.shapelessWeaponTable(itemLookup, RecipeCategory.COMBAT, ModItems.CROSSBOW_ARROW_SPITFIRE.get(), 2).lava(1).requires(crossbow_arrow_normal, 2).requires(DataComponentIngredient.of(false, ModDataComponents.OIL, new OilContent(ModOils.SPITFIRE), ModItems.OIL_BOTTLE.get())).unlockedBy("has_crossbow_arrow_normal", has(crossbow_arrow_normal)).save(output, "spitfire_arrow_2");
+        ShapelessWeaponTableRecipeBuilder.shapelessWeaponTable(itemLookup, RecipeCategory.COMBAT, ModItems.CROSSBOW_ARROW_SPITFIRE.get(), 3).lava(1).requires(crossbow_arrow_normal, 3).requires(DataComponentIngredient.of(false, ModDataComponents.OIL, new OilContent(ModOils.SPITFIRE), ModItems.OIL_BOTTLE.get())).unlockedBy("has_crossbow_arrow_normal", has(crossbow_arrow_normal)).save(output, "spitfire_arrow_3");
+        ShapelessWeaponTableRecipeBuilder.shapelessWeaponTable(itemLookup, RecipeCategory.COMBAT, ModItems.CROSSBOW_ARROW_TELEPORT.get(), 1).lava(1).requires(crossbow_arrow_normal).requires(DataComponentIngredient.of(false, ModDataComponents.OIL, new OilContent(ModOils.TELEPORT), ModItems.OIL_BOTTLE.get())).unlockedBy("has_crossbow_arrow_normal", has(crossbow_arrow_normal)).save(output);
+        ShapelessWeaponTableRecipeBuilder.shapelessWeaponTable(itemLookup, RecipeCategory.COMBAT, ModItems.CROSSBOW_ARROW_GARLIC.get(), 1).lava(1).requires(crossbow_arrow_normal, 1).requires(DataComponentIngredient.of(false, ModDataComponents.OIL, new OilContent(ModOils.GARLIC), ModItems.OIL_BOTTLE.get())).unlockedBy("has_crossbow_arrow_normal", has(crossbow_arrow_normal)).save(output, "garlic_arrow_1");
+        ShapelessWeaponTableRecipeBuilder.shapelessWeaponTable(itemLookup, RecipeCategory.COMBAT, ModItems.CROSSBOW_ARROW_GARLIC.get(), 2).lava(1).requires(crossbow_arrow_normal, 2).requires(DataComponentIngredient.of(false, ModDataComponents.OIL, new OilContent(ModOils.GARLIC), ModItems.OIL_BOTTLE.get())).unlockedBy("has_crossbow_arrow_normal", has(crossbow_arrow_normal)).save(output, "garlic_arrow_2");
+        ShapelessWeaponTableRecipeBuilder.shapelessWeaponTable(itemLookup, RecipeCategory.COMBAT, ModItems.CROSSBOW_ARROW_GARLIC.get(), 3).lava(1).requires(crossbow_arrow_normal, 3).requires(DataComponentIngredient.of(false, ModDataComponents.OIL, new OilContent(ModOils.GARLIC), ModItems.OIL_BOTTLE.get())).unlockedBy("has_crossbow_arrow_normal", has(crossbow_arrow_normal)).save(output, "garlic_arrow_3");
+        ShapelessWeaponTableRecipeBuilder.shapelessWeaponTable(itemLookup, RecipeCategory.COMBAT, ModItems.CROSSBOW_ARROW_BLEEDING.get(), 1).lava(1).requires(crossbow_arrow_normal, 1).requires(DataComponentIngredient.of(false, ModDataComponents.OIL, new OilContent(ModOils.BLEEDING), ModItems.OIL_BOTTLE.get())).unlockedBy("has_crossbow_arrow_normal", has(crossbow_arrow_normal)).save(output, "bleeding_arrow_1");
+        ShapelessWeaponTableRecipeBuilder.shapelessWeaponTable(itemLookup, RecipeCategory.COMBAT, ModItems.CROSSBOW_ARROW_BLEEDING.get(), 2).lava(1).requires(crossbow_arrow_normal, 2).requires(DataComponentIngredient.of(false, ModDataComponents.OIL, new OilContent(ModOils.BLEEDING), ModItems.OIL_BOTTLE.get())).unlockedBy("has_crossbow_arrow_normal", has(crossbow_arrow_normal)).save(output, "bleeding_arrow_2");
+        ShapelessWeaponTableRecipeBuilder.shapelessWeaponTable(itemLookup, RecipeCategory.COMBAT, ModItems.CROSSBOW_ARROW_BLEEDING.get(), 3).lava(1).requires(crossbow_arrow_normal, 3).requires(DataComponentIngredient.of(false, ModDataComponents.OIL, new OilContent(ModOils.BLEEDING), ModItems.OIL_BOTTLE.get())).unlockedBy("has_crossbow_arrow_normal", has(crossbow_arrow_normal)).save(output, "bleeding_arrow_3");
+        ShapelessWeaponTableRecipeBuilder.shapelessWeaponTable(itemLookup, RecipeCategory.COMBAT, ModItems.CROSSBOW_ARROW_VAMPIRE_KILLER.get(), 1).lava(1).requires(crossbow_arrow_normal, 1).requires(DataComponentIngredient.of(false, ModDataComponents.OIL, new OilContent(ModOils.VAMPIRE_KILLER), ModItems.OIL_BOTTLE.get())).unlockedBy("has_crossbow_arrow_normal", has(crossbow_arrow_normal)).save(output, "vampire_killer_arrow_1");
+        ShapelessWeaponTableRecipeBuilder.shapelessWeaponTable(itemLookup, RecipeCategory.COMBAT, ModItems.CROSSBOW_ARROW_VAMPIRE_KILLER.get(), 2).lava(1).requires(crossbow_arrow_normal, 2).requires(DataComponentIngredient.of(false, ModDataComponents.OIL, new OilContent(ModOils.VAMPIRE_KILLER), ModItems.OIL_BOTTLE.get())).unlockedBy("has_crossbow_arrow_normal", has(crossbow_arrow_normal)).save(output, "vampire_killer_arrow_2");
+        ShapelessWeaponTableRecipeBuilder.shapelessWeaponTable(itemLookup, RecipeCategory.COMBAT, ModItems.CROSSBOW_ARROW_VAMPIRE_KILLER.get(), 3).lava(1).requires(crossbow_arrow_normal, 3).requires(DataComponentIngredient.of(false, ModDataComponents.OIL, new OilContent(ModOils.VAMPIRE_KILLER), ModItems.OIL_BOTTLE.get())).unlockedBy("has_crossbow_arrow_normal", has(crossbow_arrow_normal)).save(output, "vampire_killer_arrow_3");
+        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(itemLookup, RecipeCategory.COMBAT, ModItems.ENHANCED_CROSSBOW.get()).lava(2).skills(HunterSkills.MASTER_CRAFTSMANSHIP).pattern("YXXY").pattern(" XX ").pattern(" XX ").define('X', iron_ingot).define('Y', string).unlockedBy("has_iron", has(iron_ingot)).save(output);
+        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(itemLookup, RecipeCategory.COMBAT, ModItems.ENHANCED_DOUBLE_CROSSBOW.get()).lava(3).skills(HunterSkills.MASTER_CRAFTSMANSHIP).pattern("YXXY").pattern("YXXY").pattern(" XX ").pattern(" XX ").define('X', iron_ingot).unlockedBy("has_iron", has(iron_ingot)).define('Y', string).save(output);
+        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(itemLookup, RecipeCategory.COMBAT, ModItems.ENHANCED_TECH_CROSSBOW.get()).lava(5).skills(HunterSkills.MASTER_CRAFTSMANSHIP).pattern("YXXY").pattern("XZZX").pattern("XZZX").pattern(" XX ").define('X', iron_ingot).unlockedBy("has_iron", has(iron_ingot)).define('Y', string).define('Z', diamond).save(output);
+        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(itemLookup, RecipeCategory.COMBAT, ModItems.HUNTER_HAT_HEAD_0.get()).pattern(" YY ").pattern(" YY ").pattern("XXXX").define('X', iron_ingot).unlockedBy("has_iron", has(iron_ingot)).define('Y', black_wool).save(output);
+        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(itemLookup, RecipeCategory.COMBAT, ModItems.HUNTER_HAT_HEAD_1.get()).lava(1).pattern(" YY ").pattern("XXXX").define('X', iron_ingot).unlockedBy("has_iron", has(iron_ingot)).define('Y', black_wool).save(output);
+        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(itemLookup, RecipeCategory.COMBAT, ModItems.PITCHFORK.get()).pattern("X X").pattern("YYY").pattern(" Y ").pattern(" Y ").define('X', iron_ingot).unlockedBy("has_iron", has(iron_ingot)).define('Y', stick).save(output);
+        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(itemLookup, RecipeCategory.COMBAT, ModItems.ARROW_CLIP.get()).lava(1).pattern("ILLI").pattern("PLLP").pattern("ILLI").define('I', iron_ingot).unlockedBy("has_iron", has(iron_ingot)).define('L', leather).define('P', planks).save(output);
+        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(itemLookup, RecipeCategory.COMBAT, ItemDataUtils.createEnchantment(ModItems.HUNTER_AXE_NORMAL.get(), enchantments.getOrThrow(Enchantments.KNOCKBACK), 2)).lava(5).pattern("XXZY").pattern("XXZY").pattern("  ZY").pattern("  Z ").define('X', iron_ingot).unlockedBy("has_iron", has(iron_ingot)).define('Y', garlic).define('Z', stick).save(output);
+        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(itemLookup, RecipeCategory.COMBAT, ItemDataUtils.createEnchantment(ModItems.HUNTER_AXE_ENHANCED.get(), enchantments.getOrThrow(Enchantments.KNOCKBACK), 3)).lava(5).skills(HunterSkills.MASTER_CRAFTSMANSHIP).pattern("XWZY").pattern("XWZY").pattern("  ZY").pattern("  Z ").define('X', iron_ingot).unlockedBy("has_iron", has(iron_ingot)).define('Y', garlic).define('W', diamond).define('Z', stick).save(output);
 
-        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModBlocks.ALTAR_INFUSION.get()).pattern("YZY").pattern("ZZZ").define('Y', gold_ingot).define('Z', obsidian).unlockedBy("has_gold", has(gold_ingot)).save(output, vampire("altar_infusion"));
-        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModBlocks.ALTAR_INSPIRATION.get()).pattern("X X").pattern("XYX").pattern("XXX").define('X', planks).define('Y', blood_container).unlockedBy("has_planks", has(planks)).unlockedBy("has_blood_container", has(blood_container)).save(output, vampire("altar_inspiration"));
-        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModBlocks.ALTAR_PILLAR.get()).pattern("X X").pattern("   ").pattern("XXX").define('X', stone_bricks).unlockedBy("has_stones", has(stone_bricks)).save(output, vampire("altar_pillar"));
-        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModBlocks.ALTAR_TIP.get()).pattern(" X ").pattern("XYX").define('X', iron_ingot).define('Y', iron_block).unlockedBy("has_iron", has(iron_ingot)).save(output, vampire("altar_tip"));
-        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, Items.GLASS_BOTTLE).requires(blood_bottle).unlockedBy("has_blood_bottle", has(blood_bottle)).save(output, vampire("blood_bottle_to_glass"));
-        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModBlocks.BLOOD_CONTAINER.get()).pattern("XYX").pattern("YZY").pattern("XYX").define('X', planks).define('Y', glass).define('Z', iron_ingot).unlockedBy("has_iron", has(iron_ingot)).save(output, vampire("blood_container"));
-        new Shapeless(RecipeCategory.MISC, ModItems.BLOOD_INFUSED_ENHANCED_IRON_INGOT.get(), 3).addIngredient(iron_ingot, 3).requires(pure_blood_4).unlockedBy("has_iron", has(iron_ingot)).save(output, vampire("blood_infused_enhanced_iron_ingot"));
-        new Shapeless(RecipeCategory.MISC, ModItems.BLOOD_INFUSED_IRON_INGOT.get(), 3).addIngredient(iron_ingot, 3).requires(Ingredient.of(pure_blood_0, pure_blood_1, pure_blood_2, pure_blood_3)).unlockedBy("has_iron", has(iron_ingot)).save(output, vampire("blood_infused_iron_ingot"));
-        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModBlocks.BLOOD_PEDESTAL.get()).pattern("GYG").pattern("YZY").pattern("XXX").define('X', obsidian).define('Y', planks).define('Z', blood_bottle).define('G', gold_ingot).unlockedBy("has_gold", has(gold_ingot)).save(output, vampire("blood_pedestal"));
-        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ModItems.HEART_SEEKER_ENHANCED.get()).pattern("X").pattern("X").pattern("Y").define('X', blood_infused_enhanced_iron_ingot).define('Y', stick).unlockedBy("has_ingot", has(blood_infused_enhanced_iron_ingot)).save(output, vampire("heart_seeker_enhanced"));
-        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ModItems.HEART_STRIKER_ENHANCED.get()).pattern("XX").pattern("XX").pattern("YY").define('X', blood_infused_enhanced_iron_ingot).define('Y', stick).unlockedBy("has_ingot", has(blood_infused_enhanced_iron_ingot)).save(output, vampire("heart_striker_enhanced"));
-        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ModItems.HEART_SEEKER_NORMAL.get()).pattern("X").pattern("X").pattern("Y").define('X', blood_infused_iron_ingot).define('Y', stick).unlockedBy("has_ingot", has(blood_infused_iron_ingot)).save(output, vampire("heart_seeker_normal"));
-        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ModItems.HEART_STRIKER_NORMAL.get()).pattern("XX").pattern("XX").pattern("YY").define('X', blood_infused_iron_ingot).define('Y', stick).unlockedBy("has_ingot", has(blood_infused_iron_ingot)).save(output, vampire("heart_striker_normal"));
+        shaped(RecipeCategory.DECORATIONS, ModBlocks.ALTAR_INFUSION.get()).pattern("YZY").pattern("ZZZ").define('Y', gold_ingot).define('Z', obsidian).unlockedBy("has_gold", has(gold_ingot)).save(output, vampire("altar_infusion"));
+        shaped(RecipeCategory.DECORATIONS, ModBlocks.ALTAR_INSPIRATION.get()).pattern("X X").pattern("XYX").pattern("XXX").define('X', planks).define('Y', blood_container).unlockedBy("has_planks", has(planks)).unlockedBy("has_blood_container", has(blood_container)).save(output, vampire("altar_inspiration"));
+        shaped(RecipeCategory.DECORATIONS, ModBlocks.ALTAR_PILLAR.get()).pattern("X X").pattern("   ").pattern("XXX").define('X', stone_bricks).unlockedBy("has_stones", has(stone_bricks)).save(output, vampire("altar_pillar"));
+        shaped(RecipeCategory.DECORATIONS, ModBlocks.ALTAR_TIP.get()).pattern(" X ").pattern("XYX").define('X', iron_ingot).define('Y', iron_block).unlockedBy("has_iron", has(iron_ingot)).save(output, vampire("altar_tip"));
+        shapeless(RecipeCategory.MISC, Items.GLASS_BOTTLE).requires(blood_bottle).unlockedBy("has_blood_bottle", has(blood_bottle)).save(output, vampire("blood_bottle_to_glass"));
+        shaped(RecipeCategory.DECORATIONS, ModBlocks.BLOOD_CONTAINER.get()).pattern("XYX").pattern("YZY").pattern("XYX").define('X', planks).define('Y', glass).define('Z', iron_ingot).unlockedBy("has_iron", has(iron_ingot)).save(output, vampire("blood_container"));
+        shapeless(RecipeCategory.MISC, ModItems.BLOOD_INFUSED_IRON_INGOT, 3).requires(tag(iron_ingot), 3).requires(pure_blood_4).unlockedBy("has_iron", has(iron_ingot)).save(output, vampire("blood_infused_enhanced_iron_ingot"));
+        shapeless(RecipeCategory.MISC, ModItems.BLOOD_INFUSED_IRON_INGOT, 3).requires(tag(iron_ingot), 3).requires(Ingredient.of(pure_blood_0, pure_blood_1, pure_blood_2, pure_blood_3)).unlockedBy("has_iron", has(iron_ingot)).save(output, vampire("blood_infused_iron_ingot"));
+        shaped(RecipeCategory.DECORATIONS, ModBlocks.BLOOD_PEDESTAL.get()).pattern("GYG").pattern("YZY").pattern("XXX").define('X', obsidian).define('Y', planks).define('Z', blood_bottle).define('G', gold_ingot).unlockedBy("has_gold", has(gold_ingot)).save(output, vampire("blood_pedestal"));
+        shaped(RecipeCategory.COMBAT, ModItems.HEART_SEEKER_ENHANCED.get()).pattern("X").pattern("X").pattern("Y").define('X', blood_infused_enhanced_iron_ingot).define('Y', stick).unlockedBy("has_ingot", has(blood_infused_enhanced_iron_ingot)).save(output, vampire("heart_seeker_enhanced"));
+        shaped(RecipeCategory.COMBAT, ModItems.HEART_STRIKER_ENHANCED.get()).pattern("XX").pattern("XX").pattern("YY").define('X', blood_infused_enhanced_iron_ingot).define('Y', stick).unlockedBy("has_ingot", has(blood_infused_enhanced_iron_ingot)).save(output, vampire("heart_striker_enhanced"));
+        shaped(RecipeCategory.COMBAT, ModItems.HEART_SEEKER_NORMAL.get()).pattern("X").pattern("X").pattern("Y").define('X', blood_infused_iron_ingot).define('Y', stick).unlockedBy("has_ingot", has(blood_infused_iron_ingot)).save(output, vampire("heart_seeker_normal"));
+        shaped(RecipeCategory.COMBAT, ModItems.HEART_STRIKER_NORMAL.get()).pattern("XX").pattern("XX").pattern("YY").define('X', blood_infused_iron_ingot).define('Y', stick).unlockedBy("has_ingot", has(blood_infused_iron_ingot)).save(output, vampire("heart_striker_normal"));
 
         coffinFromWool(output, ModBlocks.COFFIN_WHITE.get(), Items.WHITE_WOOL, vampire("coffin_white"));
         coffinFromWoolOrDye(output, ModBlocks.COFFIN_ORANGE.get(), Items.ORANGE_WOOL, Items.ORANGE_DYE, vampire("coffin_orange"));
@@ -287,254 +234,254 @@ public class RecipesProvider extends RecipeProvider {
         coffinFromWoolOrDye(output, ModBlocks.COFFIN_RED.get(), Items.RED_WOOL, Items.RED_DYE, vampire("coffin_red"));
         coffinFromWoolOrDye(output, ModBlocks.COFFIN_BLACK.get(), Items.BLACK_WOOL, Items.BLACK_DYE, vampire("coffin_black"));
 
-        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ModItems.VAMPIRE_CLOAK_BLACK_BLUE.get()).pattern("YZY").pattern("XAX").pattern("Y Y").define('X', blue_wool).define('Y', black_wool).define('Z', diamond).define('A', pure_blood).unlockedBy("has_pure_blood", has(pure_blood)).save(output, vampire("vampire_cloak_black_blue"));
-        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ModItems.VAMPIRE_CLOAK_BLACK_RED.get()).pattern("YZY").pattern("XAX").pattern("Y Y").define('X', red_wool).define('Y', black_wool).define('Z', diamond).define('A', pure_blood).unlockedBy("has_pure_blood", has(pure_blood)).save(output, vampire("vampire_cloak_black_red"));
-        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ModItems.VAMPIRE_CLOAK_BLACK_WHITE.get()).pattern("YZY").pattern("XAX").pattern("Y Y").define('X', white_wool).define('Y', black_wool).define('Z', diamond).define('A', pure_blood).unlockedBy("has_pure_blood", has(pure_blood)).save(output, vampire("vampire_cloak_black_white"));
-        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ModItems.VAMPIRE_CLOAK_WHITE_BLACK.get()).pattern("YZY").pattern("XAX").pattern("Y Y").define('X', black_wool).define('Y', white_wool).define('Z', diamond).define('A', pure_blood).unlockedBy("has_pure_blood", has(pure_blood)).save(output, vampire("vampire_cloak_white_black"));
-        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ModItems.VAMPIRE_CLOAK_RED_BLACK.get()).pattern("YZY").pattern("XAX").pattern("Y Y").define('X', black_wool).define('Y', red_wool).define('Z', diamond).define('A', pure_blood).unlockedBy("has_pure_blood", has(pure_blood)).save(output, vampire("vampire_cloak_red_black"));
+        shaped(RecipeCategory.COMBAT, ModItems.VAMPIRE_CLOAK_BLACK_BLUE.get()).pattern("YZY").pattern("XAX").pattern("Y Y").define('X', blue_wool).define('Y', black_wool).define('Z', diamond).define('A', pure_blood).unlockedBy("has_pure_blood", has(pure_blood)).save(output, vampire("vampire_cloak_black_blue"));
+        shaped(RecipeCategory.COMBAT, ModItems.VAMPIRE_CLOAK_BLACK_RED.get()).pattern("YZY").pattern("XAX").pattern("Y Y").define('X', red_wool).define('Y', black_wool).define('Z', diamond).define('A', pure_blood).unlockedBy("has_pure_blood", has(pure_blood)).save(output, vampire("vampire_cloak_black_red"));
+        shaped(RecipeCategory.COMBAT, ModItems.VAMPIRE_CLOAK_BLACK_WHITE.get()).pattern("YZY").pattern("XAX").pattern("Y Y").define('X', white_wool).define('Y', black_wool).define('Z', diamond).define('A', pure_blood).unlockedBy("has_pure_blood", has(pure_blood)).save(output, vampire("vampire_cloak_black_white"));
+        shaped(RecipeCategory.COMBAT, ModItems.VAMPIRE_CLOAK_WHITE_BLACK.get()).pattern("YZY").pattern("XAX").pattern("Y Y").define('X', black_wool).define('Y', white_wool).define('Z', diamond).define('A', pure_blood).unlockedBy("has_pure_blood", has(pure_blood)).save(output, vampire("vampire_cloak_white_black"));
+        shaped(RecipeCategory.COMBAT, ModItems.VAMPIRE_CLOAK_RED_BLACK.get()).pattern("YZY").pattern("XAX").pattern("Y Y").define('X', black_wool).define('Y', red_wool).define('Z', diamond).define('A', pure_blood).unlockedBy("has_pure_blood", has(pure_blood)).save(output, vampire("vampire_cloak_red_black"));
         ItemStack blood_bottle_stack = new ItemStack(ModItems.BLOOD_BOTTLE.get());
         blood_bottle_stack.setDamageValue(0);
-        new Shaped(RecipeCategory.MISC, blood_bottle_stack).pattern("XYX").pattern(" X ").define('X', glass).define('Y', rotten_flesh).unlockedBy("has_glass", has(glass)).save(output.withConditions(new NotCondition(new ConfigCondition("auto_convert"))), vampire("blood_bottle"));
+        ShapedRecipeBuilder.shaped(itemLookup, RecipeCategory.MISC, blood_bottle_stack).pattern("XYX").pattern(" X ").define('X', glass).define('Y', rotten_flesh).unlockedBy("has_glass", has(glass)).save(output.withConditions(new NotCondition(new ConfigCondition("auto_convert"))), vampire("blood_bottle"));
 
-        new IItemWIthTierRecipeBuilder(RecipeCategory.COMBAT, ModItems.HEART_SEEKER_NORMAL.get(), 1).pattern(" X ").pattern("XYX").define('X', blood_infused_iron_ingot).define('Y', ModItems.HEART_SEEKER_NORMAL.get()).unlockedBy("has_heart_seeker", has(ModItems.HEART_SEEKER_NORMAL.get())).save(output, vampire("heart_seeker_normal_repair"));
-        new IItemWIthTierRecipeBuilder(RecipeCategory.COMBAT, ModItems.HEART_STRIKER_NORMAL.get(), 1).pattern("XXX").pattern("XYX").define('X', blood_infused_iron_ingot).define('Y', ModItems.HEART_STRIKER_NORMAL.get()).unlockedBy("has_heart_striker", has(ModItems.HEART_STRIKER_NORMAL.get())).save(output, vampire("heart_striker_normal_repair"));
-        new IItemWIthTierRecipeBuilder(RecipeCategory.COMBAT, ModItems.HEART_SEEKER_ENHANCED.get(), 1).pattern(" X ").pattern("XYX").define('X', blood_infused_enhanced_iron_ingot).define('Y', ModItems.HEART_SEEKER_ENHANCED.get()).unlockedBy("has_heart_seeker", has(ModItems.HEART_SEEKER_ENHANCED.get())).save(output, vampire("heart_seeker_enhanced_repair"));
-        new IItemWIthTierRecipeBuilder(RecipeCategory.COMBAT, ModItems.HEART_STRIKER_ENHANCED.get(), 1).pattern("XXX").pattern("XYX").define('X', blood_infused_enhanced_iron_ingot).define('Y', ModItems.HEART_STRIKER_ENHANCED.get()).unlockedBy("has_heart_striker", has(ModItems.HEART_STRIKER_ENHANCED.get())).save(output, vampire("heart_striker_enhanced_repair"));
+        shaped(RecipeCategory.COMBAT, ModItems.HEART_SEEKER_NORMAL.get(), 1).pattern(" X ").pattern("XYX").define('X', blood_infused_iron_ingot).define('Y', ModItems.HEART_SEEKER_NORMAL.get()).unlockedBy("has_heart_seeker", has(ModItems.HEART_SEEKER_NORMAL.get())).save(output, vampire("heart_seeker_normal_repair"));
+        shaped(RecipeCategory.COMBAT, ModItems.HEART_STRIKER_NORMAL.get(), 1).pattern("XXX").pattern("XYX").define('X', blood_infused_iron_ingot).define('Y', ModItems.HEART_STRIKER_NORMAL.get()).unlockedBy("has_heart_striker", has(ModItems.HEART_STRIKER_NORMAL.get())).save(output, vampire("heart_striker_normal_repair"));
+        shaped(RecipeCategory.COMBAT, ModItems.HEART_SEEKER_ENHANCED.get(), 1).pattern(" X ").pattern("XYX").define('X', blood_infused_enhanced_iron_ingot).define('Y', ModItems.HEART_SEEKER_ENHANCED.get()).unlockedBy("has_heart_seeker", has(ModItems.HEART_SEEKER_ENHANCED.get())).save(output, vampire("heart_seeker_enhanced_repair"));
+        shaped(RecipeCategory.COMBAT, ModItems.HEART_STRIKER_ENHANCED.get(), 1).pattern("XXX").pattern("XYX").define('X', blood_infused_enhanced_iron_ingot).define('Y', ModItems.HEART_STRIKER_ENHANCED.get()).unlockedBy("has_heart_striker", has(ModItems.HEART_STRIKER_ENHANCED.get())).save(output, vampire("heart_striker_enhanced_repair"));
 
         BuiltInRegistries.ITEM.getOptional(VResourceLocation.loc("guideapi_vp", "vampirism-guidebook")).ifPresent(guideBook -> {
-            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, guideBook).requires(vampire_fang).requires(book).unlockedBy("has_fang", has(vampire_fang)).save(output.withConditions(new ModLoadedCondition("guideapi_vp")), modId("general/guidebook"));
+            shapeless(RecipeCategory.MISC, guideBook).requires(vampire_fang).requires(book).unlockedBy("has_fang", has(vampire_fang)).save(output.withConditions(new ModLoadedCondition("guideapi_vp")), modId("general/guidebook"));
         });
 
-        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ModItems.VAMPIRE_CLOTHING_LEGS.get()).pattern("XXX").pattern("X X").pattern("XYX").define('X', Items.GRAY_WOOL).define('Y', Ingredient.of(heart)).unlockedBy("has_heart", has(heart)).unlockedBy("has_wool", has(Items.GRAY_WOOL)).save(output, vampire("vampire_clothing_legs"));
-        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ModItems.VAMPIRE_CLOTHING_BOOTS.get()).pattern("XYX").pattern("X X").define('X', Items.BROWN_WOOL).define('Y', Ingredient.of(heart)).unlockedBy("has_heart", has(heart)).unlockedBy("has_wool", has(Items.BROWN_WOOL)).save(output, vampire("vampire_clothing_boots"));
-        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ModItems.VAMPIRE_CLOTHING_HAT.get()).pattern("ZXX").pattern(" Y ").pattern("XXX").define('X', Items.BLACK_WOOL).define('Y', Items.RED_WOOL).define('Z', Ingredient.of(heart)).unlockedBy("has_heart", has(heart)).unlockedBy("has_wool", has(Items.BLACK_WOOL)).save(output, vampire("vampire_clothing_hat"));
-        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ModItems.VAMPIRE_CLOTHING_CROWN.get()).pattern("XYX").pattern("XXX").define('X', Items.GOLD_INGOT).define('Y', Ingredient.of(heart)).unlockedBy("has_heart", has(heart)).unlockedBy("has_gold", has(Items.GOLD_INGOT)).save(output, vampire("vampire_clothing_crown"));
+        shaped(RecipeCategory.COMBAT, ModItems.VAMPIRE_CLOTHING_LEGS.get()).pattern("XXX").pattern("X X").pattern("XYX").define('X', Items.GRAY_WOOL).define('Y', tag(heart)).unlockedBy("has_heart", has(heart)).unlockedBy("has_wool", has(Items.GRAY_WOOL)).save(output, vampire("vampire_clothing_legs"));
+        shaped(RecipeCategory.COMBAT, ModItems.VAMPIRE_CLOTHING_BOOTS.get()).pattern("XYX").pattern("X X").define('X', Items.BROWN_WOOL).define('Y', tag(heart)).unlockedBy("has_heart", has(heart)).unlockedBy("has_wool", has(Items.BROWN_WOOL)).save(output, vampire("vampire_clothing_boots"));
+        shaped(RecipeCategory.COMBAT, ModItems.VAMPIRE_CLOTHING_HAT.get()).pattern("ZXX").pattern(" Y ").pattern("XXX").define('X', Items.BLACK_WOOL).define('Y', Items.RED_WOOL).define('Z', tag(heart)).unlockedBy("has_heart", has(heart)).unlockedBy("has_wool", has(Items.BLACK_WOOL)).save(output, vampire("vampire_clothing_hat"));
+        shaped(RecipeCategory.COMBAT, ModItems.VAMPIRE_CLOTHING_CROWN.get()).pattern("XYX").pattern("XXX").define('X', Items.GOLD_INGOT).define('Y', tag(heart)).unlockedBy("has_heart", has(heart)).unlockedBy("has_gold", has(Items.GOLD_INGOT)).save(output, vampire("vampire_clothing_crown"));
 
-        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModBlocks.CROSS.get()).pattern(" X ").pattern("XYX").pattern(" X ").define('X', planks).define('Y', holy_water).unlockedBy("has_planks", has(planks)).unlockedBy("has_holy", has(holy_water)).save(output, hunter("cross"));
-        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModItems.ITEM_CANDELABRA.get()).pattern("XXX").pattern("YYY").pattern("ZAZ").define('X', string).define('Y', Items.HONEYCOMB).define('Z', iron_ingot).define('A', gold_ingot).unlockedBy("has_honey", has(Items.HONEYCOMB)).unlockedBy("has_string", has(string)).unlockedBy("has_iron", has(iron_ingot)).unlockedBy("has_gold", has(gold_ingot)).save(output, vampire("candelabra"));
-        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModItems.ITEM_CANDELABRA.get()).pattern("YYY").pattern("ZAZ").define('Y', ItemTags.CANDLES).define('Z', iron_ingot).define('A', gold_ingot).unlockedBy("has_honey", has(ItemTags.CANDLES)).unlockedBy("has_iron", has(iron_ingot)).unlockedBy("has_gold", has(gold_ingot)).save(output, vampire("candelabra_candles"));
-        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModBlocks.CHANDELIER.get()).pattern("XYX").pattern("ZYZ").pattern("BAB").define('X', string).define('Y', ModItems.ITEM_CANDELABRA.get()).define('Z', Items.HONEYCOMB).define('B', iron_ingot).define('A', gold_ingot).unlockedBy("has_string", has(string)).unlockedBy("has_honey", has(Items.HONEYCOMB)).unlockedBy("has_candelabra", has(ModItems.ITEM_CANDELABRA.get())).save(output, vampire("chandelier"));
-        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModBlocks.CHANDELIER.get()).pattern(" Y ").pattern("ZYZ").pattern("BAB").define('Y', ModItems.ITEM_CANDELABRA.get()).define('Z', ItemTags.CANDLES).define('B', iron_ingot).define('A', gold_ingot).unlockedBy("has_honey", has(ItemTags.CANDLES)).unlockedBy("has_candelabra", has(ModItems.ITEM_CANDELABRA.get())).save(output, vampire("chandelier_candle"));
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.GARLIC_FINDER.get()).pattern("XXX").pattern("XYX").pattern("ZAZ").define('X', blood_infused_iron_ingot).define('Y', garlic).define('Z', planks).define('A', Tags.Items.DUSTS_REDSTONE).unlockedBy("has_garlic", has(garlic)).unlockedBy("has_bloodiron", has(blood_infused_iron_ingot)).unlockedBy("has_redstone", has(Tags.Items.DUSTS_REDSTONE)).save(output, vampire("garlic_finder"));
-        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModBlocks.TOMBSTONE2.get()).pattern("XX ").pattern("XYX").pattern("XXX").define('X', Blocks.COBBLESTONE).define('Y', Tags.Items.STONES).unlockedBy("has_coble", has(Blocks.COBBLESTONE)).unlockedBy("has_stone", has(Tags.Items.STONES)).save(output, general("tombstone2"));
-        ShapelessRecipeBuilder.shapeless(RecipeCategory.DECORATIONS, ModBlocks.TOMBSTONE1.get()).requires(ModBlocks.TOMBSTONE2.get()).unlockedBy("has_tomb", has(ModBlocks.TOMBSTONE2.get())).save(output, general("tombstone1"));
-        ShapelessRecipeBuilder.shapeless(RecipeCategory.DECORATIONS, ModBlocks.TOMBSTONE3.get()).requires(ModBlocks.TOMBSTONE2.get()).requires(Blocks.COBBLESTONE).unlockedBy("has_tomb", has(ModBlocks.TOMBSTONE2.get())).save(output, general("tombstone3"));
-        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModBlocks.GRAVE_CAGE.get()).pattern(" X ").pattern("XYX").pattern("XYX").define('X', iron_ingot).define('Y', Items.COAL).unlockedBy("has_iron", has(iron_ingot)).unlockedBy("has_coal", has(Items.COAL)).save(output, general("grave_cage"));
+        shaped(RecipeCategory.DECORATIONS, ModBlocks.CROSS.get()).pattern(" X ").pattern("XYX").pattern(" X ").define('X', planks).define('Y', holy_water).unlockedBy("has_planks", has(planks)).unlockedBy("has_holy", has(holy_water)).save(output, hunter("cross"));
+        shaped(RecipeCategory.DECORATIONS, ModItems.ITEM_CANDELABRA.get()).pattern("XXX").pattern("YYY").pattern("ZAZ").define('X', string).define('Y', Items.HONEYCOMB).define('Z', iron_ingot).define('A', gold_ingot).unlockedBy("has_honey", has(Items.HONEYCOMB)).unlockedBy("has_string", has(string)).unlockedBy("has_iron", has(iron_ingot)).unlockedBy("has_gold", has(gold_ingot)).save(output, vampire("candelabra"));
+        shaped(RecipeCategory.DECORATIONS, ModItems.ITEM_CANDELABRA.get()).pattern("YYY").pattern("ZAZ").define('Y', ItemTags.CANDLES).define('Z', iron_ingot).define('A', gold_ingot).unlockedBy("has_honey", has(ItemTags.CANDLES)).unlockedBy("has_iron", has(iron_ingot)).unlockedBy("has_gold", has(gold_ingot)).save(output, vampire("candelabra_candles"));
+        shaped(RecipeCategory.DECORATIONS, ModBlocks.CHANDELIER.get()).pattern("XYX").pattern("ZYZ").pattern("BAB").define('X', string).define('Y', ModItems.ITEM_CANDELABRA.get()).define('Z', Items.HONEYCOMB).define('B', iron_ingot).define('A', gold_ingot).unlockedBy("has_string", has(string)).unlockedBy("has_honey", has(Items.HONEYCOMB)).unlockedBy("has_candelabra", has(ModItems.ITEM_CANDELABRA.get())).save(output, vampire("chandelier"));
+        shaped(RecipeCategory.DECORATIONS, ModBlocks.CHANDELIER.get()).pattern(" Y ").pattern("ZYZ").pattern("BAB").define('Y', ModItems.ITEM_CANDELABRA.get()).define('Z', ItemTags.CANDLES).define('B', iron_ingot).define('A', gold_ingot).unlockedBy("has_honey", has(ItemTags.CANDLES)).unlockedBy("has_candelabra", has(ModItems.ITEM_CANDELABRA.get())).save(output, vampire("chandelier_candle"));
+        shaped(RecipeCategory.MISC, ModItems.GARLIC_FINDER.get()).pattern("XXX").pattern("XYX").pattern("ZAZ").define('X', blood_infused_iron_ingot).define('Y', garlic).define('Z', planks).define('A', Tags.Items.DUSTS_REDSTONE).unlockedBy("has_garlic", has(garlic)).unlockedBy("has_bloodiron", has(blood_infused_iron_ingot)).unlockedBy("has_redstone", has(Tags.Items.DUSTS_REDSTONE)).save(output, vampire("garlic_finder"));
+        shaped(RecipeCategory.DECORATIONS, ModBlocks.TOMBSTONE2.get()).pattern("XX ").pattern("XYX").pattern("XXX").define('X', Blocks.COBBLESTONE).define('Y', Tags.Items.STONES).unlockedBy("has_coble", has(Blocks.COBBLESTONE)).unlockedBy("has_stone", has(Tags.Items.STONES)).save(output, general("tombstone2"));
+        shapeless(RecipeCategory.DECORATIONS, ModBlocks.TOMBSTONE1.get()).requires(ModBlocks.TOMBSTONE2.get()).unlockedBy("has_tomb", has(ModBlocks.TOMBSTONE2.get())).save(output, general("tombstone1"));
+        shapeless(RecipeCategory.DECORATIONS, ModBlocks.TOMBSTONE3.get()).requires(ModBlocks.TOMBSTONE2.get()).requires(Blocks.COBBLESTONE).unlockedBy("has_tomb", has(ModBlocks.TOMBSTONE2.get())).save(output, general("tombstone3"));
+        shaped(RecipeCategory.DECORATIONS, ModBlocks.GRAVE_CAGE.get()).pattern(" X ").pattern("XYX").pattern("XYX").define('X', iron_ingot).define('Y', Items.COAL).unlockedBy("has_iron", has(iron_ingot)).unlockedBy("has_coal", has(Items.COAL)).save(output, general("grave_cage"));
 
-        generateRecipes(output, ModBlockFamilies.DARK_SPRUCE_PLANKS, FeatureFlagSet.of(FeatureFlags.VANILLA));
-        generateRecipes(output, ModBlockFamilies.CURSED_SPRUCE_PLANKS, FeatureFlagSet.of(FeatureFlags.VANILLA));
-        generateRecipes(output, ModBlockFamilies.DARK_STONE, FeatureFlagSet.of(FeatureFlags.VANILLA));
-        generateRecipes(output, ModBlockFamilies.PURPLE_BRICKS, FeatureFlagSet.of(FeatureFlags.VANILLA));
-        generateRecipes(output, ModBlockFamilies.DARK_STONE_BRICKS, FeatureFlagSet.of(FeatureFlags.VANILLA));
-        generateRecipes(output, ModBlockFamilies.POLISHED_DARK_STONE, FeatureFlagSet.of(FeatureFlags.VANILLA));
-        generateRecipes(output, ModBlockFamilies.COBBLED_DARK_STONE, FeatureFlagSet.of(FeatureFlags.VANILLA));
-        generateRecipes(output, ModBlockFamilies.DARK_STONE_TILES, FeatureFlagSet.of(FeatureFlags.VANILLA));
-        generateRecipes(output, ModBlockFamilies.PURPLE_STONE_TILES, FeatureFlagSet.of(FeatureFlags.VANILLA));
+        generateRecipes(ModBlockFamilies.DARK_SPRUCE_PLANKS, FeatureFlagSet.of(FeatureFlags.VANILLA));
+        generateRecipes(ModBlockFamilies.CURSED_SPRUCE_PLANKS, FeatureFlagSet.of(FeatureFlags.VANILLA));
+        generateRecipes(ModBlockFamilies.DARK_STONE, FeatureFlagSet.of(FeatureFlags.VANILLA));
+        generateRecipes(ModBlockFamilies.PURPLE_BRICKS, FeatureFlagSet.of(FeatureFlags.VANILLA));
+        generateRecipes(ModBlockFamilies.DARK_STONE_BRICKS, FeatureFlagSet.of(FeatureFlags.VANILLA));
+        generateRecipes(ModBlockFamilies.POLISHED_DARK_STONE, FeatureFlagSet.of(FeatureFlags.VANILLA));
+        generateRecipes(ModBlockFamilies.COBBLED_DARK_STONE, FeatureFlagSet.of(FeatureFlags.VANILLA));
+        generateRecipes(ModBlockFamilies.DARK_STONE_TILES, FeatureFlagSet.of(FeatureFlags.VANILLA));
+        generateRecipes(ModBlockFamilies.PURPLE_STONE_TILES, FeatureFlagSet.of(FeatureFlags.VANILLA));
 
-        planksFromLog(output, ModBlocks.DARK_SPRUCE_PLANKS.get(), ModItemTags.DARK_SPRUCE_LOG, 4);
-        planksFromLog(output, ModBlocks.CURSED_SPRUCE_PLANKS.get(), ModItemTags.CURSED_SPRUCE_LOG, 4);
-        woodFromLogs(output, ModBlocks.DARK_SPRUCE_WOOD.get(), ModBlocks.DARK_SPRUCE_LOG.get());
-        woodFromLogs(output, ModBlocks.CURSED_SPRUCE_WOOD.get(), ModBlocks.CURSED_SPRUCE_LOG.get());
-        woodFromLogs(output, ModBlocks.STRIPPED_DARK_SPRUCE_WOOD.get(), ModBlocks.STRIPPED_DARK_SPRUCE_LOG.get());
-        woodFromLogs(output, ModBlocks.STRIPPED_CURSED_SPRUCE_WOOD.get(), ModBlocks.STRIPPED_CURSED_SPRUCE_LOG.get());
-        woodenBoat(output, ModItems.DARK_SPRUCE_BOAT.get(), ModBlocks.DARK_SPRUCE_PLANKS.get());
-        woodenBoat(output, ModItems.CURSED_SPRUCE_BOAT.get(), ModBlocks.CURSED_SPRUCE_PLANKS.get());
-        RecipeProviderAccessor.chestBoat(output, ModItems.DARK_SPRUCE_CHEST_BOAT.get(), ModItems.DARK_SPRUCE_BOAT.get());
-        RecipeProviderAccessor.chestBoat(output, ModItems.CURSED_SPRUCE_CHEST_BOAT.get(), ModItems.CURSED_SPRUCE_BOAT.get());
+        planksFromLog(ModBlocks.DARK_SPRUCE_PLANKS.get(), ModItemTags.DARK_SPRUCE_LOG, 4);
+        planksFromLog(ModBlocks.CURSED_SPRUCE_PLANKS.get(), ModItemTags.CURSED_SPRUCE_LOG, 4);
+        woodFromLogs(ModBlocks.DARK_SPRUCE_WOOD.get(), ModBlocks.DARK_SPRUCE_LOG.get());
+        woodFromLogs(ModBlocks.CURSED_SPRUCE_WOOD.get(), ModBlocks.CURSED_SPRUCE_LOG.get());
+        woodFromLogs(ModBlocks.STRIPPED_DARK_SPRUCE_WOOD.get(), ModBlocks.STRIPPED_DARK_SPRUCE_LOG.get());
+        woodFromLogs(ModBlocks.STRIPPED_CURSED_SPRUCE_WOOD.get(), ModBlocks.STRIPPED_CURSED_SPRUCE_LOG.get());
+        woodenBoat(ModItems.DARK_SPRUCE_BOAT.get(), ModBlocks.DARK_SPRUCE_PLANKS.get());
+        woodenBoat(ModItems.CURSED_SPRUCE_BOAT.get(), ModBlocks.CURSED_SPRUCE_PLANKS.get());
+        chestBoat(ModItems.DARK_SPRUCE_CHEST_BOAT.get(), ModItems.DARK_SPRUCE_BOAT.get());
+        chestBoat(ModItems.CURSED_SPRUCE_CHEST_BOAT.get(), ModItems.CURSED_SPRUCE_BOAT.get());
 
-        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModBlocks.THRONE.get()).pattern(" YZ").pattern("YYZ").pattern("XZX").define('Y', Blocks.RED_CARPET).define('Z', ItemTags.PLANKS).define('X', Items.STICK).unlockedBy("has_stick", has(Items.STICK)).unlockedBy("has_planks", has(ItemTags.PLANKS)).unlockedBy("has_wool", has(Blocks.RED_CARPET)).save(output, general("throne"));
-        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModBlocks.VAMPIRE_RACK.get()).pattern("XYX").pattern("ABC").pattern("XYX").define('X', ItemTags.PLANKS).define('Y', Items.BOOK).define('A', ModItems.VAMPIRE_FANG.get()).define('B', Items.GLASS_BOTTLE).define('C', Items.HONEYCOMB).unlockedBy("has_planks", has(ItemTags.PLANKS)).unlockedBy("has_book", has(Items.BOOK)).unlockedBy("has_fangs", has(ModItems.VAMPIRE_FANG.get())).unlockedBy("has_honey", has(Items.HONEYCOMB)).unlockedBy("has_potion", has(Items.GLASS_BOTTLE)).save(output, general("vampire_rack"));
+        shaped(RecipeCategory.DECORATIONS, ModBlocks.THRONE.get()).pattern(" YZ").pattern("YYZ").pattern("XZX").define('Y', Blocks.RED_CARPET).define('Z', ItemTags.PLANKS).define('X', Items.STICK).unlockedBy("has_stick", has(Items.STICK)).unlockedBy("has_planks", has(ItemTags.PLANKS)).unlockedBy("has_wool", has(Blocks.RED_CARPET)).save(output, general("throne"));
+        shaped(RecipeCategory.DECORATIONS, ModBlocks.VAMPIRE_RACK.get()).pattern("XYX").pattern("ABC").pattern("XYX").define('X', ItemTags.PLANKS).define('Y', Items.BOOK).define('A', ModItems.VAMPIRE_FANG.get()).define('B', Items.GLASS_BOTTLE).define('C', Items.HONEYCOMB).unlockedBy("has_planks", has(ItemTags.PLANKS)).unlockedBy("has_book", has(Items.BOOK)).unlockedBy("has_fangs", has(ModItems.VAMPIRE_FANG.get())).unlockedBy("has_honey", has(Items.HONEYCOMB)).unlockedBy("has_potion", has(Items.GLASS_BOTTLE)).save(output, general("vampire_rack"));
 
-        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ModItems.CRUCIFIX_NORMAL.get()).pattern("XY ").pattern("ZYZ").pattern(" Y ").define('X', ModItems.HOLY_WATER_BOTTLE_NORMAL.get()).define('Y', planks).define('Z', stick).unlockedBy("holy_water", has(ModItems.HOLY_WATER_BOTTLE_NORMAL.get())).unlockedBy("stick", has(stick)).unlockedBy("planks", has(planks)).save(output, hunter("crucifix"));
-        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(RecipeCategory.COMBAT, ModItems.CRUCIFIX_ENHANCED.get()).pattern("XYYX").pattern("YZAY").pattern("XYYX").pattern("XYYX").define('X', ModItems.HOLY_WATER_BOTTLE_NORMAL.get()).define('Y', iron_ingot).define('Z', ModItems.HOLY_WATER_BOTTLE_ENHANCED.get()).define('A', ModItems.STAKE.get()).unlockedBy("iron", has(iron_ingot)).unlockedBy("has_holy_water", has(ModItems.HOLY_WATER_BOTTLE_NORMAL.get())).unlockedBy("has_holy_water_enhanced", has(ModItems.HOLY_WATER_BOTTLE_ENHANCED.get())).unlockedBy("stake", has(ModItems.STAKE.get())).skills(HunterSkills.CRUCIFIX_WIELDER).save(output, modId("crucifix_enhanced"));
-        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(RecipeCategory.COMBAT, ModItems.CRUCIFIX_ULTIMATE.get()).pattern("XYYX").pattern("YZAY").pattern("XYYX").pattern("XYYX").define('X', ModItems.ITEM_ALCHEMICAL_FIRE.get()).define('Y', Tags.Items.STORAGE_BLOCKS_GOLD).define('Z', ModItems.HOLY_WATER_BOTTLE_ENHANCED.get()).define('A', ModItems.STAKE.get()).unlockedBy("fire", has(ModItems.ITEM_ALCHEMICAL_FIRE.get())).unlockedBy("gold", has(Tags.Items.STORAGE_BLOCKS_GOLD)).unlockedBy("holy_water", has(ModItems.HOLY_WATER_BOTTLE_ENHANCED.get())).unlockedBy("stake", has(ModItems.STAKE.get())).skills(HunterSkills.ULTIMATE_CRUCIFIX).save(output, modId("crucifix_ultimate"));
+        shaped(RecipeCategory.COMBAT, ModItems.CRUCIFIX_NORMAL.get()).pattern("XY ").pattern("ZYZ").pattern(" Y ").define('X', ModItems.HOLY_WATER_BOTTLE_NORMAL.get()).define('Y', planks).define('Z', stick).unlockedBy("holy_water", has(ModItems.HOLY_WATER_BOTTLE_NORMAL.get())).unlockedBy("stick", has(stick)).unlockedBy("planks", has(planks)).save(output, hunter("crucifix"));
+        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(itemLookup, RecipeCategory.COMBAT, ModItems.CRUCIFIX_ENHANCED.get()).pattern("XYYX").pattern("YZAY").pattern("XYYX").pattern("XYYX").define('X', ModItems.HOLY_WATER_BOTTLE_NORMAL.get()).define('Y', iron_ingot).define('Z', ModItems.HOLY_WATER_BOTTLE_ENHANCED.get()).define('A', ModItems.STAKE.get()).unlockedBy("iron", has(iron_ingot)).unlockedBy("has_holy_water", has(ModItems.HOLY_WATER_BOTTLE_NORMAL.get())).unlockedBy("has_holy_water_enhanced", has(ModItems.HOLY_WATER_BOTTLE_ENHANCED.get())).unlockedBy("stake", has(ModItems.STAKE.get())).skills(HunterSkills.CRUCIFIX_WIELDER).save(output);
+        ShapedWeaponTableRecipeBuilder.shapedWeaponTable(itemLookup, RecipeCategory.COMBAT, ModItems.CRUCIFIX_ULTIMATE.get()).pattern("XYYX").pattern("YZAY").pattern("XYYX").pattern("XYYX").define('X', ModItems.ITEM_ALCHEMICAL_FIRE.get()).define('Y', Tags.Items.STORAGE_BLOCKS_GOLD).define('Z', ModItems.HOLY_WATER_BOTTLE_ENHANCED.get()).define('A', ModItems.STAKE.get()).unlockedBy("fire", has(ModItems.ITEM_ALCHEMICAL_FIRE.get())).unlockedBy("gold", has(Tags.Items.STORAGE_BLOCKS_GOLD)).unlockedBy("holy_water", has(ModItems.HOLY_WATER_BOTTLE_ENHANCED.get())).unlockedBy("stake", has(ModItems.STAKE.get())).skills(HunterSkills.ULTIMATE_CRUCIFIX).save(output);
 
         SpecialRecipeBuilder.special(ApplicableOilRecipe::new).save(output, REFERENCE.MODID + ":applicable_oil");
         AlchemyTableRecipeBuilder
                 .builder(ModOils.PLANT)
-                .ingredient(Ingredient.of(new ItemStack(Items.GLASS_BOTTLE)))
-                .input(Ingredient.of(new ItemStack(Items.WHEAT_SEEDS)))
+                .ingredient(Ingredient.of(Items.GLASS_BOTTLE))
+                .input(Ingredient.of(Items.WHEAT_SEEDS))
                 .unlockedBy("has_bottles", has(Items.GLASS_BOTTLE)).unlockedBy("has_wheat_seeds", has(Items.WHEAT_SEEDS))
-                .save(output, VResourceLocation.mod("plant_oil"));
+                .save(output, VResourceLocation.modString("plant_oil"));
         AlchemyTableRecipeBuilder
                 .builder(ModOils.VAMPIRE_BLOOD)
-                .plantOilIngredient()
+                .plantOilIngredient(itemLookup)
                 .input(Ingredient.of(ModItems.VAMPIRE_BLOOD_BOTTLE.get())).unlockedBy("has_wheat_seeds", has(ModItems.VAMPIRE_BLOOD_BOTTLE.get()))
-                .save(output, VResourceLocation.mod("vampire_blood_oil"));
+                .save(output, VResourceLocation.modString("vampire_blood_oil"));
         AlchemyTableRecipeBuilder
                 .builder(ModOils.HEALING)
-                .bloodOilIngredient()
+                .bloodOilIngredient(itemLookup)
                 .input(potion(Potions.HEALING, Potions.STRONG_HEALING))
-                .save(output, VResourceLocation.mod("healing_oil"));
+                .save(output, VResourceLocation.modString("healing_oil"));
         AlchemyTableRecipeBuilder
                 .builder(ModOils.POISON)
-                .bloodOilIngredient()
+                .bloodOilIngredient(itemLookup)
                 .input(potion(Potions.POISON, Potions.LONG_POISON, Potions.STRONG_POISON))
-                .save(output, VResourceLocation.mod("poison_oil"));
+                .save(output, VResourceLocation.modString("poison_oil"));
         AlchemyTableRecipeBuilder
                 .builder(ModOils.WEAKNESS)
-                .bloodOilIngredient()
+                .bloodOilIngredient(itemLookup)
                 .input(potion(Potions.WEAKNESS, Potions.LONG_WEAKNESS))
-                .save(output, VResourceLocation.mod("weakness_oil"));
+                .save(output, VResourceLocation.modString("weakness_oil"));
         AlchemyTableRecipeBuilder
                 .builder(ModOils.SLOWNESS)
-                .bloodOilIngredient()
+                .bloodOilIngredient(itemLookup)
                 .input(potion(Potions.SLOWNESS, Potions.STRONG_SLOWNESS, Potions.LONG_SLOWNESS))
-                .save(output, VResourceLocation.mod("slowness_oil"));
+                .save(output, VResourceLocation.modString("slowness_oil"));
         AlchemyTableRecipeBuilder
                 .builder(ModOils.FIRE_RESISTANCE)
-                .bloodOilIngredient()
+                .bloodOilIngredient(itemLookup)
                 .input(potion(Potions.FIRE_RESISTANCE, Potions.LONG_FIRE_RESISTANCE))
-                .save(output, VResourceLocation.mod("fire_resistance_oil"));
+                .save(output, VResourceLocation.modString("fire_resistance_oil"));
         AlchemyTableRecipeBuilder
                 .builder(ModOils.SWIFTNESS)
-                .bloodOilIngredient()
+                .bloodOilIngredient(itemLookup)
                 .input(potion(Potions.SWIFTNESS, Potions.LONG_SWIFTNESS, Potions.STRONG_SWIFTNESS))
-                .save(output, VResourceLocation.mod("swiftness_oil"));
+                .save(output, VResourceLocation.modString("swiftness_oil"));
         AlchemyTableRecipeBuilder
                 .builder(ModOils.REGENERATION)
-                .bloodOilIngredient()
+                .bloodOilIngredient(itemLookup)
                 .input(potion(Potions.REGENERATION, Potions.LONG_REGENERATION, Potions.STRONG_REGENERATION))
-                .save(output, VResourceLocation.mod("regeneration_oil"));
+                .save(output, VResourceLocation.modString("regeneration_oil"));
         AlchemyTableRecipeBuilder
                 .builder(ModOils.NIGHT_VISION)
-                .bloodOilIngredient()
+                .bloodOilIngredient(itemLookup)
                 .input(potion(Potions.NIGHT_VISION, Potions.LONG_NIGHT_VISION))
-                .save(output, VResourceLocation.mod("night_vision_oil"));
+                .save(output, VResourceLocation.modString("night_vision_oil"));
         AlchemyTableRecipeBuilder
                 .builder(ModOils.STRENGTH)
-                .bloodOilIngredient()
+                .bloodOilIngredient(itemLookup)
                 .input(potion(Potions.STRENGTH, Potions.STRONG_STRENGTH, Potions.LONG_STRENGTH))
-                .save(output, VResourceLocation.mod("strength_oil"));
+                .save(output, VResourceLocation.modString("strength_oil"));
         AlchemyTableRecipeBuilder
                 .builder(ModOils.JUMP)
-                .bloodOilIngredient()
+                .bloodOilIngredient(itemLookup)
                 .input(potion(Potions.LEAPING, Potions.LONG_LEAPING, Potions.STRONG_LEAPING))
-                .save(output, VResourceLocation.mod("jump_oil"));
+                .save(output, VResourceLocation.modString("jump_oil"));
         AlchemyTableRecipeBuilder
                 .builder(ModOils.WATER_BREATHING)
-                .bloodOilIngredient()
+                .bloodOilIngredient(itemLookup)
                 .input(potion(Potions.WATER_BREATHING, Potions.LONG_WATER_BREATHING))
-                .save(output, VResourceLocation.mod("water_breathing_oil"));
+                .save(output, VResourceLocation.modString("water_breathing_oil"));
         AlchemyTableRecipeBuilder
                 .builder(ModOils.INVISIBILITY)
-                .bloodOilIngredient()
+                .bloodOilIngredient(itemLookup)
                 .input(potion(Potions.INVISIBILITY, Potions.LONG_INVISIBILITY))
-                .save(output, VResourceLocation.mod("invisibility_oil"));
+                .save(output, VResourceLocation.modString("invisibility_oil"));
         AlchemyTableRecipeBuilder
                 .builder(ModOils.SLOW_FALLING)
-                .bloodOilIngredient()
+                .bloodOilIngredient(itemLookup)
                 .input(potion(Potions.SLOW_FALLING, Potions.LONG_SLOW_FALLING))
-                .save(output, VResourceLocation.mod("slow_falling_oil"));
+                .save(output, VResourceLocation.modString("slow_falling_oil"));
         AlchemyTableRecipeBuilder
                 .builder(ModOils.LUCK)
-                .bloodOilIngredient()
+                .bloodOilIngredient(itemLookup)
                 .input(potion(Potions.LUCK))
-                .save(output, VResourceLocation.mod("luck_oil"));
+                .save(output, VResourceLocation.modString("luck_oil"));
         AlchemyTableRecipeBuilder
                 .builder(ModOils.SMELT)
-                .bloodOilIngredient()
-                .input(Ingredient.of(new ItemStack(ModItems.ITEM_ALCHEMICAL_FIRE.get())))
-                .save(output, VResourceLocation.mod("smelt_oil"));
+                .bloodOilIngredient(itemLookup)
+                .input(Ingredient.of(ModItems.ITEM_ALCHEMICAL_FIRE.get()))
+                .save(output, VResourceLocation.modString("smelt_oil"));
         AlchemyTableRecipeBuilder
                 .builder(ModOils.TELEPORT)
-                .bloodOilIngredient()
-                .input(Ingredient.of(new ItemStack(Items.ENDER_PEARL)))
-                .save(output, VResourceLocation.mod("teleport_oil"));
+                .bloodOilIngredient(itemLookup)
+                .input(Ingredient.of(Items.ENDER_PEARL))
+                .save(output, VResourceLocation.modString("teleport_oil"));
         AlchemyTableRecipeBuilder
                 .builder(ModOils.EVASION)
-                .bloodOilIngredient()
-                .input(Ingredient.of(new ItemStack(Items.HONEY_BOTTLE)))
-                .save(output, VResourceLocation.mod("evasion_oil"));
-        AlchemyTableRecipeBuilder.builder(ModOils.GARLIC).plantOilIngredient().input(Ingredient.of(garlic)).save(output, VResourceLocation.mod("garlic_oil"));
-        AlchemyTableRecipeBuilder.builder(ModOils.SPITFIRE).plantOilIngredient().input(Ingredient.of(ModItems.ITEM_ALCHEMICAL_FIRE.get())).save(output, VResourceLocation.mod("spitfire_oil"));
-        AlchemyTableRecipeBuilder.builder(ModOils.BLEEDING).plantOilIngredient().input(Ingredient.of(Items.AMETHYST_SHARD)).save(output, VResourceLocation.mod("bleeding_oil"));
-        AlchemyTableRecipeBuilder.builder(ModOils.VAMPIRE_KILLER).oilIngredient(ModOils.GARLIC).input(Ingredient.of(ModItemTags.HOLY_WATER)).save(output, VResourceLocation.mod("vampire_killer_oil"));
+                .bloodOilIngredient(itemLookup)
+                .input(Ingredient.of(Items.HONEY_BOTTLE))
+                .save(output, VResourceLocation.modString("evasion_oil"));
+        AlchemyTableRecipeBuilder.builder(ModOils.GARLIC).plantOilIngredient(itemLookup).input(tag(garlic)).save(output, VResourceLocation.modString("garlic_oil"));
+        AlchemyTableRecipeBuilder.builder(ModOils.SPITFIRE).plantOilIngredient(itemLookup).input(Ingredient.of(ModItems.ITEM_ALCHEMICAL_FIRE.get())).save(output, VResourceLocation.modString("spitfire_oil"));
+        AlchemyTableRecipeBuilder.builder(ModOils.BLEEDING).plantOilIngredient(itemLookup).input(Ingredient.of(Items.AMETHYST_SHARD)).save(output, VResourceLocation.modString("bleeding_oil"));
+        AlchemyTableRecipeBuilder.builder(ModOils.VAMPIRE_KILLER).oilIngredient(ModOils.GARLIC).input(tag(ModItemTags.HOLY_WATER)).save(output, VResourceLocation.modString("vampire_killer_oil"));
 
-        SimpleCookingRecipeBuilder.smelting(Ingredient.of(amulet, ring), RecipeCategory.MISC, Items.GOLD_NUGGET, 0.1f, 200).unlockedBy("has_amulet", has(amulet)).unlockedBy("has_ring", has(ring)).save(output, VResourceLocation.mod("gold_nugget_from_accessory_smelting"));
-        SimpleCookingRecipeBuilder.blasting(Ingredient.of(amulet, ring), RecipeCategory.MISC, Items.GOLD_NUGGET, 0.1f, 100).unlockedBy("has_amulet", has(amulet)).unlockedBy("has_ring", has(ring)).save(output, VResourceLocation.mod("gold_nugget_from_accessory_blasting"));
-        ShapelessRecipeBuilder.shapeless(RecipeCategory.COMBAT, Items.LEATHER).requires(obi_belt).unlockedBy("has_obi_belt", has(obi_belt)).save(output, VResourceLocation.mod("leather_from_obi_belt"));
-        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ModBlocks.ALCHEMY_TABLE.get()).pattern("B  ").pattern("BBB").pattern("P P").define('B', basalt).define('P', planks).unlockedBy("has_basalt", has(basalt)).unlockedBy("has_planks", has(planks)).save(output);
+        SimpleCookingRecipeBuilder.smelting(Ingredient.of(amulet, ring), RecipeCategory.MISC, Items.GOLD_NUGGET, 0.1f, 200).unlockedBy("has_amulet", has(amulet)).unlockedBy("has_ring", has(ring)).save(output, VResourceLocation.modString("gold_nugget_from_accessory_smelting"));
+        SimpleCookingRecipeBuilder.blasting(Ingredient.of(amulet, ring), RecipeCategory.MISC, Items.GOLD_NUGGET, 0.1f, 100).unlockedBy("has_amulet", has(amulet)).unlockedBy("has_ring", has(ring)).save(output, VResourceLocation.modString("gold_nugget_from_accessory_blasting"));
+        shapeless(RecipeCategory.COMBAT, Items.LEATHER).requires(obi_belt).unlockedBy("has_obi_belt", has(obi_belt)).save(output, VResourceLocation.modString("leather_from_obi_belt"));
+        shaped(RecipeCategory.COMBAT, ModBlocks.ALCHEMY_TABLE.get()).pattern("B  ").pattern("BBB").pattern("P P").define('B', basalt).define('P', planks).unlockedBy("has_basalt", has(basalt)).unlockedBy("has_planks", has(planks)).save(output);
         SpecialRecipeBuilder.special(CleanOilRecipe::new).save(output, REFERENCE.MODID + ":clean_oil");
-        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModItems.ITEM_TENT.get()).pattern(" W ").pattern("WBW").define('W', wool).define('B', beds).unlockedBy("has_wool", has(wool)).unlockedBy("has_bed", has(beds)).save(output);
-        ShapelessRecipeBuilder.shapeless(RecipeCategory.DECORATIONS, holy_water_bottle_normal, 2).requires(holy_water_bottle_enhanced).requires(ModItems.PURE_SALT_WATER.get()).unlockedBy("has_enhanced_holy_water", has(holy_water_bottle_enhanced)).save(output, "holy_water_bottle_normal_from_enhanced");
-        ShapelessRecipeBuilder.shapeless(RecipeCategory.DECORATIONS, holy_water_bottle_enhanced, 2).requires(holy_water_bottle_ultimate).requires(ModItems.PURE_SALT_WATER.get()).unlockedBy("has_ultimate_holy_water", has(holy_water_bottle_enhanced)).save(output, "holy_water_bottle_enhanced_from_ultimate");
-        hangingSign(output, ModItems.DARK_SPRUCE_HANGING_SIGN.get(), ModBlocks.STRIPPED_DARK_SPRUCE_LOG.get());
-        hangingSign(output, ModItems.CURSED_SPRUCE_HANGING_SIGN.get(), ModBlocks.STRIPPED_CURSED_SPRUCE_LOG.get());
-        stonecutterResultFromBase(output, RecipeCategory.DECORATIONS, ModBlocks.COBBLED_DARK_STONE_SLAB.get(), ModBlocks.COBBLED_DARK_STONE.get(), 2);
-        stonecutterResultFromBase(output, RecipeCategory.DECORATIONS, ModBlocks.COBBLED_DARK_STONE_STAIRS.get(), ModBlocks.COBBLED_DARK_STONE.get());
-        stonecutterResultFromBase(output, RecipeCategory.DECORATIONS, ModBlocks.COBBLED_DARK_STONE_WALL.get(), ModBlocks.COBBLED_DARK_STONE.get());
-        stonecutterResultFromBase(output, RecipeCategory.DECORATIONS, ModBlocks.POLISHED_DARK_STONE.get(), ModBlocks.COBBLED_DARK_STONE.get());
-        stonecutterResultFromBase(output, RecipeCategory.DECORATIONS, ModBlocks.POLISHED_DARK_STONE_SLAB.get(), ModBlocks.POLISHED_DARK_STONE.get(), 2);
-        stonecutterResultFromBase(output, RecipeCategory.DECORATIONS, ModBlocks.POLISHED_DARK_STONE_STAIRS.get(), ModBlocks.POLISHED_DARK_STONE.get());
-        stonecutterResultFromBase(output, RecipeCategory.DECORATIONS, ModBlocks.POLISHED_DARK_STONE_WALL.get(), ModBlocks.POLISHED_DARK_STONE.get());
-        stonecutterResultFromBase(output, RecipeCategory.DECORATIONS, ModBlocks.POLISHED_DARK_STONE_SLAB.get(), ModBlocks.COBBLED_DARK_STONE.get(), 2);
-        stonecutterResultFromBase(output, RecipeCategory.DECORATIONS, ModBlocks.POLISHED_DARK_STONE_STAIRS.get(), ModBlocks.COBBLED_DARK_STONE.get());
-        stonecutterResultFromBase(output, RecipeCategory.DECORATIONS, ModBlocks.POLISHED_DARK_STONE_WALL.get(), ModBlocks.COBBLED_DARK_STONE.get());
-        stonecutterResultFromBase(output, RecipeCategory.DECORATIONS, ModBlocks.DARK_STONE_BRICKS.get(), ModBlocks.POLISHED_DARK_STONE.get());
-        stonecutterResultFromBase(output, RecipeCategory.DECORATIONS, ModBlocks.DARK_STONE_BRICKS.get(), ModBlocks.COBBLED_DARK_STONE.get());
-        stonecutterResultFromBase(output, RecipeCategory.DECORATIONS, ModBlocks.DARK_STONE_BRICK_STAIRS.get(), ModBlocks.COBBLED_DARK_STONE.get());
-        stonecutterResultFromBase(output, RecipeCategory.DECORATIONS, ModBlocks.DARK_STONE_BRICK_STAIRS.get(), ModBlocks.DARK_STONE_BRICKS.get());
-        stonecutterResultFromBase(output, RecipeCategory.DECORATIONS, ModBlocks.DARK_STONE_BRICK_STAIRS.get(), ModBlocks.POLISHED_DARK_STONE.get());
-        stonecutterResultFromBase(output, RecipeCategory.DECORATIONS, ModBlocks.DARK_STONE_BRICK_SLAB.get(), ModBlocks.COBBLED_DARK_STONE.get(), 2);
-        stonecutterResultFromBase(output, RecipeCategory.DECORATIONS, ModBlocks.DARK_STONE_BRICK_SLAB.get(), ModBlocks.DARK_STONE_BRICKS.get(), 2);
-        stonecutterResultFromBase(output, RecipeCategory.DECORATIONS, ModBlocks.DARK_STONE_BRICK_SLAB.get(), ModBlocks.POLISHED_DARK_STONE.get(), 2);
-        stonecutterResultFromBase(output, RecipeCategory.DECORATIONS, ModBlocks.DARK_STONE_BRICK_WALL.get(), ModBlocks.COBBLED_DARK_STONE.get());
-        stonecutterResultFromBase(output, RecipeCategory.DECORATIONS, ModBlocks.DARK_STONE_BRICK_WALL.get(), ModBlocks.DARK_STONE_BRICKS.get());
-        stonecutterResultFromBase(output, RecipeCategory.DECORATIONS, ModBlocks.DARK_STONE_BRICK_WALL.get(), ModBlocks.POLISHED_DARK_STONE.get());
-        stonecutterResultFromBase(output, RecipeCategory.DECORATIONS, ModBlocks.DARK_STONE_TILES.get(), ModBlocks.POLISHED_DARK_STONE.get());
-        stonecutterResultFromBase(output, RecipeCategory.DECORATIONS, ModBlocks.DARK_STONE_TILES.get(), ModBlocks.COBBLED_DARK_STONE.get());
-        stonecutterResultFromBase(output, RecipeCategory.DECORATIONS, ModBlocks.DARK_STONE_TILES.get(), ModBlocks.DARK_STONE_BRICKS.get());
-        stonecutterResultFromBase(output, RecipeCategory.DECORATIONS, ModBlocks.DARK_STONE_TILES_STAIRS.get(), ModBlocks.DARK_STONE_BRICKS.get());
-        stonecutterResultFromBase(output, RecipeCategory.DECORATIONS, ModBlocks.DARK_STONE_TILES_STAIRS.get(), ModBlocks.DARK_STONE_TILES.get());
-        stonecutterResultFromBase(output, RecipeCategory.DECORATIONS, ModBlocks.DARK_STONE_TILES_STAIRS.get(), ModBlocks.COBBLED_DARK_STONE.get());
-        stonecutterResultFromBase(output, RecipeCategory.DECORATIONS, ModBlocks.DARK_STONE_TILES_SLAB.get(), ModBlocks.DARK_STONE_BRICKS.get(), 2);
-        stonecutterResultFromBase(output, RecipeCategory.DECORATIONS, ModBlocks.DARK_STONE_TILES_SLAB.get(), ModBlocks.DARK_STONE_TILES.get(), 2);
-        stonecutterResultFromBase(output, RecipeCategory.DECORATIONS, ModBlocks.DARK_STONE_TILES_SLAB.get(), ModBlocks.COBBLED_DARK_STONE.get(), 2);
-        stonecutterResultFromBase(output, RecipeCategory.DECORATIONS, ModBlocks.DARK_STONE_TILES_WALL.get(), ModBlocks.DARK_STONE_BRICKS.get());
-        stonecutterResultFromBase(output, RecipeCategory.DECORATIONS, ModBlocks.DARK_STONE_TILES_WALL.get(), ModBlocks.DARK_STONE_TILES.get());
-        stonecutterResultFromBase(output, RecipeCategory.DECORATIONS, ModBlocks.DARK_STONE_TILES_WALL.get(), ModBlocks.COBBLED_DARK_STONE.get());
-        SimpleCookingRecipeBuilder.smelting(Ingredient.of(ModBlocks.COBBLED_DARK_STONE.get()), RecipeCategory.BUILDING_BLOCKS, ModBlocks.DARK_STONE.get(), 0.1f, 200).unlockedBy("has_cobbled_dark_stone", has(ModBlocks.COBBLED_DARK_STONE.get())).save(output, VResourceLocation.mod("dark_stone_from_cobbled_dark_stone_smelting"));
-        SimpleCookingRecipeBuilder.blasting(Ingredient.of(ModBlocks.COBBLED_DARK_STONE.get()), RecipeCategory.BUILDING_BLOCKS, ModBlocks.DARK_STONE.get(), 0.1f, 100).unlockedBy("has_cobbled_dark_stone", has(ModBlocks.COBBLED_DARK_STONE.get())).save(output, VResourceLocation.mod("dark_stone_from_cobbled_dark_stone_blasting"));
-        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModBlocks.BAT_CAGE.get()).pattern("GGG").pattern("GPG").pattern("PPP").define('G', gold_ingot).define('P', planks).unlockedBy("has_gold", has(gold_ingot)).unlockedBy("has_planks", has(planks)).save(output);
-        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModBlocks.FOG_DIFFUSER.get()).pattern("XYX").pattern("YZY").pattern("OOO").define('X', cursed_spruce_planks).define('Y', diamond).define('O', obsidian).define('Z', mother_core).unlockedBy("has_diamond", has(diamond)).unlockedBy("has_cursed_plank", has(cursed_spruce_planks)).unlockedBy("has_mother_core", has(mother_core)).save(output, vampire("fog_diffuser"));
-        nineBlockStorageRecipes(output, RecipeCategory.BUILDING_BLOCKS, ModItems.BLOOD_INFUSED_IRON_INGOT.get(), RecipeCategory.BUILDING_BLOCKS, ModBlocks.BLOOD_INFUSED_IRON_BLOCK.get());
-        nineBlockStorageRecipes(output, RecipeCategory.BUILDING_BLOCKS, ModItems.BLOOD_INFUSED_ENHANCED_IRON_INGOT.get(), RecipeCategory.BUILDING_BLOCKS, ModBlocks.BLOOD_INFUSED_ENHANCED_IRON_BLOCK.get());
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.VAMPIRE_BEACON.get()).pattern("GGG").pattern("GCG").pattern("OOO").define('G', Items.GLASS).define('C', mother_core).define('O', obsidian).unlockedBy("has_mother_core", has(mother_core)).unlockedBy("has_obsidian", has(obsidian)).unlockedBy("has_glass", has(Items.GLASS)).save(output);
-        AlchemicalCauldronRecipeBuilder.cauldronRecipe(ModBlocks.BLOOD_INFUSED_IRON_BLOCK.get().asItem()).withFluid(ModItems.PURE_BLOOD_0.get()).withIngredient(new ItemStack(Items.IRON_BLOCK)).cookTime(200).experience(0.1f).save(output, VResourceLocation.mod("blood_infused_iron_ingot_from_pure_blood_0"));
-        AlchemicalCauldronRecipeBuilder.cauldronRecipe(ModBlocks.BLOOD_INFUSED_IRON_BLOCK.get().asItem()).withFluid(ModItems.PURE_BLOOD_1.get()).withIngredient(new ItemStack(Items.IRON_BLOCK)).cookTime(180).experience(0.15f).save(output, VResourceLocation.mod("blood_infused_iron_ingot_from_pure_blood_1"));
-        AlchemicalCauldronRecipeBuilder.cauldronRecipe(ModBlocks.BLOOD_INFUSED_IRON_BLOCK.get().asItem()).withFluid(ModItems.PURE_BLOOD_2.get()).withIngredient(new ItemStack(Items.IRON_BLOCK)).cookTime(160).experience(0.2f).save(output, VResourceLocation.mod("blood_infused_iron_ingot_from_pure_blood_2"));
-        AlchemicalCauldronRecipeBuilder.cauldronRecipe(ModBlocks.BLOOD_INFUSED_IRON_BLOCK.get().asItem()).withFluid(ModItems.PURE_BLOOD_3.get()).withIngredient(new ItemStack(Items.IRON_BLOCK)).cookTime(140).experience(0.25f).save(output, VResourceLocation.mod("blood_infused_iron_ingot_from_pure_blood_3"));
-        AlchemicalCauldronRecipeBuilder.cauldronRecipe(ModBlocks.BLOOD_INFUSED_ENHANCED_IRON_BLOCK.get().asItem()).withFluid(ModItems.PURE_BLOOD_4.get()).withIngredient(new ItemStack(Items.IRON_BLOCK)).cookTime(300).experience(0.3f).save(output, VResourceLocation.mod("blood_infused_enhanced_iron_ingot_from_pure_blood_4"));
-        stonecutterResultFromBase(output, RecipeCategory.DECORATIONS, ModBlocks.PURPLE_STONE_BRICK_WALL.get(), ModBlocks.PURPLE_STONE_BRICKS.get());
-        stonecutterResultFromBase(output, RecipeCategory.DECORATIONS, ModBlocks.PURPLE_STONE_BRICK_SLAB.get(), ModBlocks.PURPLE_STONE_BRICKS.get(), 2);
-        stonecutterResultFromBase(output, RecipeCategory.DECORATIONS, ModBlocks.PURPLE_STONE_BRICK_STAIRS.get(), ModBlocks.PURPLE_STONE_BRICKS.get());
-        stonecutterResultFromBase(output, RecipeCategory.DECORATIONS, ModBlocks.PURPLE_STONE_TILES.get(), ModBlocks.PURPLE_STONE_BRICKS.get());
-        stonecutterResultFromBase(output, RecipeCategory.DECORATIONS, ModBlocks.PURPLE_STONE_TILES_WALL.get(), ModBlocks.PURPLE_STONE_BRICKS.get());
-        stonecutterResultFromBase(output, RecipeCategory.DECORATIONS, ModBlocks.PURPLE_STONE_TILES_WALL.get(), ModBlocks.PURPLE_STONE_TILES.get());
-        stonecutterResultFromBase(output, RecipeCategory.DECORATIONS, ModBlocks.PURPLE_STONE_TILES_SLAB.get(), ModBlocks.PURPLE_STONE_BRICKS.get(), 2);
-        stonecutterResultFromBase(output, RecipeCategory.DECORATIONS, ModBlocks.PURPLE_STONE_TILES_SLAB.get(), ModBlocks.PURPLE_STONE_TILES.get(), 2);
-        stonecutterResultFromBase(output, RecipeCategory.DECORATIONS, ModBlocks.PURPLE_STONE_TILES_STAIRS.get(), ModBlocks.PURPLE_STONE_BRICKS.get());
-        stonecutterResultFromBase(output, RecipeCategory.DECORATIONS, ModBlocks.PURPLE_STONE_TILES_STAIRS.get(), ModBlocks.PURPLE_STONE_TILES.get());
+        shaped(RecipeCategory.DECORATIONS, ModItems.ITEM_TENT.get()).pattern(" W ").pattern("WBW").define('W', wool).define('B', beds).unlockedBy("has_wool", has(wool)).unlockedBy("has_bed", has(beds)).save(output);
+        shapeless(RecipeCategory.DECORATIONS, holy_water_bottle_normal, 2).requires(holy_water_bottle_enhanced).requires(ModItems.PURE_SALT_WATER.get()).unlockedBy("has_enhanced_holy_water", has(holy_water_bottle_enhanced)).save(output, "holy_water_bottle_normal_from_enhanced");
+        shapeless(RecipeCategory.DECORATIONS, holy_water_bottle_enhanced, 2).requires(holy_water_bottle_ultimate).requires(ModItems.PURE_SALT_WATER.get()).unlockedBy("has_ultimate_holy_water", has(holy_water_bottle_enhanced)).save(output, "holy_water_bottle_enhanced_from_ultimate");
+        hangingSign(ModItems.DARK_SPRUCE_HANGING_SIGN.get(), ModBlocks.STRIPPED_DARK_SPRUCE_LOG.get());
+        hangingSign(ModItems.CURSED_SPRUCE_HANGING_SIGN.get(), ModBlocks.STRIPPED_CURSED_SPRUCE_LOG.get());
+        stonecutterResultFromBase(RecipeCategory.DECORATIONS, ModBlocks.COBBLED_DARK_STONE_SLAB.get(), ModBlocks.COBBLED_DARK_STONE.get(), 2);
+        stonecutterResultFromBase(RecipeCategory.DECORATIONS, ModBlocks.COBBLED_DARK_STONE_STAIRS.get(), ModBlocks.COBBLED_DARK_STONE.get());
+        stonecutterResultFromBase(RecipeCategory.DECORATIONS, ModBlocks.COBBLED_DARK_STONE_WALL.get(), ModBlocks.COBBLED_DARK_STONE.get());
+        stonecutterResultFromBase(RecipeCategory.DECORATIONS, ModBlocks.POLISHED_DARK_STONE.get(), ModBlocks.COBBLED_DARK_STONE.get());
+        stonecutterResultFromBase(RecipeCategory.DECORATIONS, ModBlocks.POLISHED_DARK_STONE_SLAB.get(), ModBlocks.POLISHED_DARK_STONE.get(), 2);
+        stonecutterResultFromBase(RecipeCategory.DECORATIONS, ModBlocks.POLISHED_DARK_STONE_STAIRS.get(), ModBlocks.POLISHED_DARK_STONE.get());
+        stonecutterResultFromBase(RecipeCategory.DECORATIONS, ModBlocks.POLISHED_DARK_STONE_WALL.get(), ModBlocks.POLISHED_DARK_STONE.get());
+        stonecutterResultFromBase(RecipeCategory.DECORATIONS, ModBlocks.POLISHED_DARK_STONE_SLAB.get(), ModBlocks.COBBLED_DARK_STONE.get(), 2);
+        stonecutterResultFromBase(RecipeCategory.DECORATIONS, ModBlocks.POLISHED_DARK_STONE_STAIRS.get(), ModBlocks.COBBLED_DARK_STONE.get());
+        stonecutterResultFromBase(RecipeCategory.DECORATIONS, ModBlocks.POLISHED_DARK_STONE_WALL.get(), ModBlocks.COBBLED_DARK_STONE.get());
+        stonecutterResultFromBase(RecipeCategory.DECORATIONS, ModBlocks.DARK_STONE_BRICKS.get(), ModBlocks.POLISHED_DARK_STONE.get());
+        stonecutterResultFromBase(RecipeCategory.DECORATIONS, ModBlocks.DARK_STONE_BRICKS.get(), ModBlocks.COBBLED_DARK_STONE.get());
+        stonecutterResultFromBase(RecipeCategory.DECORATIONS, ModBlocks.DARK_STONE_BRICK_STAIRS.get(), ModBlocks.COBBLED_DARK_STONE.get());
+        stonecutterResultFromBase(RecipeCategory.DECORATIONS, ModBlocks.DARK_STONE_BRICK_STAIRS.get(), ModBlocks.DARK_STONE_BRICKS.get());
+        stonecutterResultFromBase(RecipeCategory.DECORATIONS, ModBlocks.DARK_STONE_BRICK_STAIRS.get(), ModBlocks.POLISHED_DARK_STONE.get());
+        stonecutterResultFromBase(RecipeCategory.DECORATIONS, ModBlocks.DARK_STONE_BRICK_SLAB.get(), ModBlocks.COBBLED_DARK_STONE.get(), 2);
+        stonecutterResultFromBase(RecipeCategory.DECORATIONS, ModBlocks.DARK_STONE_BRICK_SLAB.get(), ModBlocks.DARK_STONE_BRICKS.get(), 2);
+        stonecutterResultFromBase(RecipeCategory.DECORATIONS, ModBlocks.DARK_STONE_BRICK_SLAB.get(), ModBlocks.POLISHED_DARK_STONE.get(), 2);
+        stonecutterResultFromBase(RecipeCategory.DECORATIONS, ModBlocks.DARK_STONE_BRICK_WALL.get(), ModBlocks.COBBLED_DARK_STONE.get());
+        stonecutterResultFromBase(RecipeCategory.DECORATIONS, ModBlocks.DARK_STONE_BRICK_WALL.get(), ModBlocks.DARK_STONE_BRICKS.get());
+        stonecutterResultFromBase(RecipeCategory.DECORATIONS, ModBlocks.DARK_STONE_BRICK_WALL.get(), ModBlocks.POLISHED_DARK_STONE.get());
+        stonecutterResultFromBase(RecipeCategory.DECORATIONS, ModBlocks.DARK_STONE_TILES.get(), ModBlocks.POLISHED_DARK_STONE.get());
+        stonecutterResultFromBase(RecipeCategory.DECORATIONS, ModBlocks.DARK_STONE_TILES.get(), ModBlocks.COBBLED_DARK_STONE.get());
+        stonecutterResultFromBase(RecipeCategory.DECORATIONS, ModBlocks.DARK_STONE_TILES.get(), ModBlocks.DARK_STONE_BRICKS.get());
+        stonecutterResultFromBase(RecipeCategory.DECORATIONS, ModBlocks.DARK_STONE_TILES_STAIRS.get(), ModBlocks.DARK_STONE_BRICKS.get());
+        stonecutterResultFromBase(RecipeCategory.DECORATIONS, ModBlocks.DARK_STONE_TILES_STAIRS.get(), ModBlocks.DARK_STONE_TILES.get());
+        stonecutterResultFromBase(RecipeCategory.DECORATIONS, ModBlocks.DARK_STONE_TILES_STAIRS.get(), ModBlocks.COBBLED_DARK_STONE.get());
+        stonecutterResultFromBase(RecipeCategory.DECORATIONS, ModBlocks.DARK_STONE_TILES_SLAB.get(), ModBlocks.DARK_STONE_BRICKS.get(), 2);
+        stonecutterResultFromBase(RecipeCategory.DECORATIONS, ModBlocks.DARK_STONE_TILES_SLAB.get(), ModBlocks.DARK_STONE_TILES.get(), 2);
+        stonecutterResultFromBase(RecipeCategory.DECORATIONS, ModBlocks.DARK_STONE_TILES_SLAB.get(), ModBlocks.COBBLED_DARK_STONE.get(), 2);
+        stonecutterResultFromBase(RecipeCategory.DECORATIONS, ModBlocks.DARK_STONE_TILES_WALL.get(), ModBlocks.DARK_STONE_BRICKS.get());
+        stonecutterResultFromBase(RecipeCategory.DECORATIONS, ModBlocks.DARK_STONE_TILES_WALL.get(), ModBlocks.DARK_STONE_TILES.get());
+        stonecutterResultFromBase(RecipeCategory.DECORATIONS, ModBlocks.DARK_STONE_TILES_WALL.get(), ModBlocks.COBBLED_DARK_STONE.get());
+        SimpleCookingRecipeBuilder.smelting(Ingredient.of(ModBlocks.COBBLED_DARK_STONE.get()), RecipeCategory.BUILDING_BLOCKS, ModBlocks.DARK_STONE.get(), 0.1f, 200).unlockedBy("has_cobbled_dark_stone", has(ModBlocks.COBBLED_DARK_STONE.get())).save(output, VResourceLocation.modString("dark_stone_from_cobbled_dark_stone_smelting"));
+        SimpleCookingRecipeBuilder.blasting(Ingredient.of(ModBlocks.COBBLED_DARK_STONE.get()), RecipeCategory.BUILDING_BLOCKS, ModBlocks.DARK_STONE.get(), 0.1f, 100).unlockedBy("has_cobbled_dark_stone", has(ModBlocks.COBBLED_DARK_STONE.get())).save(output, VResourceLocation.modString("dark_stone_from_cobbled_dark_stone_blasting"));
+        shaped(RecipeCategory.DECORATIONS, ModBlocks.BAT_CAGE.get()).pattern("GGG").pattern("GPG").pattern("PPP").define('G', gold_ingot).define('P', planks).unlockedBy("has_gold", has(gold_ingot)).unlockedBy("has_planks", has(planks)).save(output);
+        shaped(RecipeCategory.DECORATIONS, ModBlocks.FOG_DIFFUSER.get()).pattern("XYX").pattern("YZY").pattern("OOO").define('X', cursed_spruce_planks).define('Y', diamond).define('O', obsidian).define('Z', mother_core).unlockedBy("has_diamond", has(diamond)).unlockedBy("has_cursed_plank", has(cursed_spruce_planks)).unlockedBy("has_mother_core", has(mother_core)).save(output, vampire("fog_diffuser"));
+        nineBlockStorageRecipes(RecipeCategory.BUILDING_BLOCKS, ModItems.BLOOD_INFUSED_IRON_INGOT.get(), RecipeCategory.BUILDING_BLOCKS, ModBlocks.BLOOD_INFUSED_IRON_BLOCK.get());
+        nineBlockStorageRecipes(RecipeCategory.BUILDING_BLOCKS, ModItems.BLOOD_INFUSED_ENHANCED_IRON_INGOT.get(), RecipeCategory.BUILDING_BLOCKS, ModBlocks.BLOOD_INFUSED_ENHANCED_IRON_BLOCK.get());
+        shaped(RecipeCategory.MISC, ModBlocks.VAMPIRE_BEACON.get()).pattern("GGG").pattern("GCG").pattern("OOO").define('G', Items.GLASS).define('C', mother_core).define('O', obsidian).unlockedBy("has_mother_core", has(mother_core)).unlockedBy("has_obsidian", has(obsidian)).unlockedBy("has_glass", has(Items.GLASS)).save(output);
+        AlchemicalCauldronRecipeBuilder.cauldronRecipe(ModBlocks.BLOOD_INFUSED_IRON_BLOCK.get().asItem()).withFluid(ModItems.PURE_BLOOD_0.get()).withIngredient(Items.IRON_BLOCK).cookTime(200).experience(0.1f).save(output, VResourceLocation.modString("blood_infused_iron_ingot_from_pure_blood_0"));
+        AlchemicalCauldronRecipeBuilder.cauldronRecipe(ModBlocks.BLOOD_INFUSED_IRON_BLOCK.get().asItem()).withFluid(ModItems.PURE_BLOOD_1.get()).withIngredient(Items.IRON_BLOCK).cookTime(180).experience(0.15f).save(output, VResourceLocation.modString("blood_infused_iron_ingot_from_pure_blood_1"));
+        AlchemicalCauldronRecipeBuilder.cauldronRecipe(ModBlocks.BLOOD_INFUSED_IRON_BLOCK.get().asItem()).withFluid(ModItems.PURE_BLOOD_2.get()).withIngredient(Items.IRON_BLOCK).cookTime(160).experience(0.2f).save(output, VResourceLocation.modString("blood_infused_iron_ingot_from_pure_blood_2"));
+        AlchemicalCauldronRecipeBuilder.cauldronRecipe(ModBlocks.BLOOD_INFUSED_IRON_BLOCK.get().asItem()).withFluid(ModItems.PURE_BLOOD_3.get()).withIngredient(Items.IRON_BLOCK).cookTime(140).experience(0.25f).save(output, VResourceLocation.modString("blood_infused_iron_ingot_from_pure_blood_3"));
+        AlchemicalCauldronRecipeBuilder.cauldronRecipe(ModBlocks.BLOOD_INFUSED_ENHANCED_IRON_BLOCK.get().asItem()).withFluid(ModItems.PURE_BLOOD_4.get()).withIngredient(Items.IRON_BLOCK).cookTime(300).experience(0.3f).save(output, VResourceLocation.modString("blood_infused_enhanced_iron_ingot_from_pure_blood_4"));
+        stonecutterResultFromBase(RecipeCategory.DECORATIONS, ModBlocks.PURPLE_STONE_BRICK_WALL.get(), ModBlocks.PURPLE_STONE_BRICKS.get());
+        stonecutterResultFromBase(RecipeCategory.DECORATIONS, ModBlocks.PURPLE_STONE_BRICK_SLAB.get(), ModBlocks.PURPLE_STONE_BRICKS.get(), 2);
+        stonecutterResultFromBase(RecipeCategory.DECORATIONS, ModBlocks.PURPLE_STONE_BRICK_STAIRS.get(), ModBlocks.PURPLE_STONE_BRICKS.get());
+        stonecutterResultFromBase(RecipeCategory.DECORATIONS, ModBlocks.PURPLE_STONE_TILES.get(), ModBlocks.PURPLE_STONE_BRICKS.get());
+        stonecutterResultFromBase(RecipeCategory.DECORATIONS, ModBlocks.PURPLE_STONE_TILES_WALL.get(), ModBlocks.PURPLE_STONE_BRICKS.get());
+        stonecutterResultFromBase(RecipeCategory.DECORATIONS, ModBlocks.PURPLE_STONE_TILES_WALL.get(), ModBlocks.PURPLE_STONE_TILES.get());
+        stonecutterResultFromBase(RecipeCategory.DECORATIONS, ModBlocks.PURPLE_STONE_TILES_SLAB.get(), ModBlocks.PURPLE_STONE_BRICKS.get(), 2);
+        stonecutterResultFromBase(RecipeCategory.DECORATIONS, ModBlocks.PURPLE_STONE_TILES_SLAB.get(), ModBlocks.PURPLE_STONE_TILES.get(), 2);
+        stonecutterResultFromBase(RecipeCategory.DECORATIONS, ModBlocks.PURPLE_STONE_TILES_STAIRS.get(), ModBlocks.PURPLE_STONE_BRICKS.get());
+        stonecutterResultFromBase(RecipeCategory.DECORATIONS, ModBlocks.PURPLE_STONE_TILES_STAIRS.get(), ModBlocks.PURPLE_STONE_TILES.get());
 
-        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModItems.CANDLE_STICK.get()).pattern(" X ").pattern("YYY").define('X', iron_ingot).define('Y', Items.IRON_NUGGET).unlockedBy("has_iron", has(iron_ingot)).unlockedBy("has_nugget", has(Items.IRON_NUGGET)).save(output, vampire("candle_stick"));
-        ShapelessRecipeBuilder.shapeless(RecipeCategory.DECORATIONS, ModBlocks.VAMPIRE_SOUL_LANTERN.get()).requires(ModItems.SOUL_ORB_VAMPIRE).requires(Items.SOUL_LANTERN).unlockedBy("has_soul_orb", has(ModItems.SOUL_ORB_VAMPIRE)).unlockedBy("has_soul_lantern", has(Items.SOUL_LANTERN)).save(output);
+        shaped(RecipeCategory.DECORATIONS, ModItems.CANDLE_STICK.get()).pattern(" X ").pattern("YYY").define('X', iron_ingot).define('Y', Items.IRON_NUGGET).unlockedBy("has_iron", has(iron_ingot)).unlockedBy("has_nugget", has(Items.IRON_NUGGET)).save(output, vampire("candle_stick"));
+        shapeless(RecipeCategory.DECORATIONS, ModBlocks.VAMPIRE_SOUL_LANTERN.get()).requires(ModItems.SOUL_ORB_VAMPIRE).requires(Items.SOUL_LANTERN).unlockedBy("has_soul_orb", has(ModItems.SOUL_ORB_VAMPIRE)).unlockedBy("has_soul_lantern", has(Items.SOUL_LANTERN)).save(output);
     }
 
     private void enchantment(ItemStack stack, int level, @NotNull Holder<Enchantment> enchantment) {
         stack.enchant(enchantment, level);
     }
 
-    private @NotNull ResourceLocation general(String path) {
+    private @NotNull String general(String path) {
         return modId("general/" + path);
     }
 
-    private @NotNull ResourceLocation hunter(String path) {
+    private @NotNull String hunter(String path) {
         return modId("hunter/" + path);
     }
 
-    private @NotNull ResourceLocation modId(@NotNull String path) {
-        return VResourceLocation.mod(path);
+    private @NotNull String modId(@NotNull String path) {
+        return VResourceLocation.mod(path).toString();
     }
 
     @SafeVarargs
@@ -546,53 +493,33 @@ public class RecipesProvider extends RecipeProvider {
         return DataComponentIngredient.of(false, DataComponents.POTION_CONTENTS, new PotionContents(potion), Items.POTION);
     }
 
-    protected void coffinFromWoolOrDye(RecipeOutput consumer, ItemLike coffin, ItemLike wool, ItemLike dye, ResourceLocation path) {
+    protected void coffinFromWoolOrDye(RecipeOutput consumer, ItemLike coffin, ItemLike wool, ItemLike dye, String path) {
         coffinFromWool(consumer, coffin, wool, path);
-        ShapelessRecipeBuilder.shapeless(RecipeCategory.DECORATIONS, coffin).requires(ModBlocks.COFFIN_WHITE.get()).requires(dye).unlockedBy("has_coffin", has(ModBlocks.COFFIN_WHITE.get())).unlockedBy("has_dye", has(dye)).save(consumer, path.withPath(p -> p + "_from_white"));
+        shapeless(RecipeCategory.DECORATIONS, coffin).requires(ModBlocks.COFFIN_WHITE.get()).requires(dye).unlockedBy("has_coffin", has(ModBlocks.COFFIN_WHITE.get())).unlockedBy("has_dye", has(dye)).save(consumer, path + "_from_white");
     }
 
-    protected void coffinFromWool(RecipeOutput consumer, ItemLike coffin, ItemLike wool, ResourceLocation path) {
-        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, coffin).pattern("XXX").pattern("YYY").pattern("XXX").define('X', ItemTags.PLANKS).define('Y', wool).unlockedBy("has_wool", has(wool)).save(consumer, path);
+    protected void coffinFromWool(RecipeOutput consumer, ItemLike coffin, ItemLike wool, String path) {
+        shaped(RecipeCategory.DECORATIONS, coffin).pattern("XXX").pattern("YYY").pattern("XXX").define('X', ItemTags.PLANKS).define('Y', wool).unlockedBy("has_wool", has(wool)).save(consumer, path);
     }
 
-    private @NotNull ResourceLocation vampire(String path) {
+    private @NotNull String vampire(String path) {
         return modId("vampire/" + path);
     }
 
-    private static class Shapeless extends ShapelessRecipeBuilder {
-        public Shapeless(@NotNull RecipeCategory category, @NotNull ItemLike itemProvider, int amount) {
-            super(category, itemProvider, amount);
-        }
+    public static class Runner extends RecipeProvider.Runner {
 
-        public @NotNull ShapelessRecipeBuilder addIngredient(@NotNull TagKey<Item> tag, int amount) {
-            return this.requires(Ingredient.of(tag), amount);
-        }
-    }
-
-    private static class Shaped extends ShapedRecipeBuilder {
-        private final @NotNull ItemStack stack;
-
-        public Shaped(@NotNull RecipeCategory category, @NotNull ItemStack resultIn) {
-            super(category, resultIn.getItem(), resultIn.getCount());
-            this.stack = resultIn;
+        public Runner(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
+            super(output, lookupProvider);
         }
 
         @Override
-        public void save(RecipeOutput pRecipeOutput, @NotNull ResourceLocation pId) {
-            ShapedRecipePattern shapedrecipepattern = this.ensureValid(pId);
-            Advancement.Builder advancement$builder = pRecipeOutput.advancement()
-                    .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(pId))
-                    .rewards(AdvancementRewards.Builder.recipe(pId))
-                    .requirements(AdvancementRequirements.Strategy.OR);
-            this.criteria.forEach(advancement$builder::addCriterion);
-            ShapedRecipe shapedrecipe = new ShapedRecipe(
-                    Objects.requireNonNullElse(this.group, ""),
-                    RecipeBuilder.determineBookCategory(this.category),
-                    shapedrecipepattern,
-                    this.stack,
-                    this.showNotification
-            );
-            pRecipeOutput.accept(pId, shapedrecipe, advancement$builder.build(pId.withPrefix("recipes/" + this.category.getFolderName() + "/")));
+        protected @NotNull RecipeProvider createRecipeProvider(HolderLookup.@NotNull Provider provider, @NotNull RecipeOutput output) {
+            return new RecipesProvider(provider, output);
+        }
+
+        @Override
+        public @NotNull String getName() {
+            return "Vampirism Recipes";
         }
     }
 }

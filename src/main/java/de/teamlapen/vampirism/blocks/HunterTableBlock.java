@@ -19,10 +19,12 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.material.MapColor;
+import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -72,8 +74,8 @@ public class HunterTableBlock extends VampirismHorizontalBlock {
     }
 
 
-    public HunterTableBlock() {
-        super(Properties.of().mapColor(MapColor.WOOD).strength(0.5f).ignitedByLava().noOcclusion());
+    public HunterTableBlock(BlockBehaviour.Properties properties) {
+        super(properties.mapColor(MapColor.WOOD).strength(0.5f).ignitedByLava().noOcclusion());
         this.registerDefaultState(this.getStateDefinition().any().setValue(FACING, Direction.NORTH).setValue(VARIANT, TABLE_VARIANT.SIMPLE));
     }
 
@@ -104,8 +106,7 @@ public class HunterTableBlock extends VampirismHorizontalBlock {
     }
 
     @Override
-    public void neighborChanged(@NotNull BlockState state, @NotNull Level worldIn, @NotNull BlockPos pos, @NotNull Block blockIn, @NotNull BlockPos fromPos, boolean isMoving) {
-        if (fromPos.getY() != pos.getY()) return;
+    public void neighborChanged(@NotNull BlockState state, @NotNull Level worldIn, @NotNull BlockPos pos, @NotNull Block blockIn, @Nullable Orientation orientation, boolean isMoving) {
         TABLE_VARIANT newVariant = determineTier(worldIn, pos, state.getValue(FACING));
         if (newVariant != state.getValue(VARIANT)) {
             worldIn.setBlock(pos, state.setValue(VARIANT, newVariant), 2);

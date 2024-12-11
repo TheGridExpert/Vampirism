@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "B": {
-      "item": "minecraft:basalt"
-    },
-    "P": {
-      "tag": "minecraft:planks"
-    }
+    "B": "minecraft:basalt",
+    "P": "#minecraft:planks"
   },
   "pattern": [
     "B  ",

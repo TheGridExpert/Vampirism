@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "Y": {
-      "tag": "c:ingots/gold"
-    },
-    "Z": {
-      "tag": "c:obsidians"
-    }
+    "Y": "#c:ingots/gold",
+    "Z": "#c:obsidians"
   },
   "pattern": [
     "YZY",

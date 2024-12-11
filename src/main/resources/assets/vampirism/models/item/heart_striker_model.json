@@ -2,6 +2,7 @@
   "credit": "Made with Blockbench",
   "ambientocclusion": false,
   "textures": {
+    "particle": "vampirism:item/heart_striker_normal",
     "2": "vampirism:item/heart_striker_normal"
   },
   "elements": [

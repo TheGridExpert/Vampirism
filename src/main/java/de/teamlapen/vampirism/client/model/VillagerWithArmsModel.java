@@ -1,11 +1,13 @@
 package de.teamlapen.vampirism.client.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import de.teamlapen.vampirism.client.renderer.entity.state.VampirismRenderState;
 import net.minecraft.client.model.ArmedModel;
 import net.minecraft.client.model.VillagerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
+import net.minecraft.client.renderer.entity.state.VillagerRenderState;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.HumanoidArm;
@@ -16,7 +18,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Villager Model with usable arms
  */
-public class VillagerWithArmsModel<T extends Mob> extends VillagerModel<T> implements ArmedModel {
+public class VillagerWithArmsModel extends VillagerModel implements ArmedModel {
     private static final String RIGHT_ARM = "right_arm";
     private static final String LEFT_ARM = "left_arm";
 
@@ -41,23 +43,23 @@ public class VillagerWithArmsModel<T extends Mob> extends VillagerModel<T> imple
 
 
     @Override
-    public void setupAnim(@NotNull T entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-        super.setupAnim(entityIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
+    public void setupAnim(@NotNull VillagerRenderState entityIn) {
+        super.setupAnim(entityIn);
         this.leftArm.setPos(4, 3, -1);
         this.rightArm.setPos(-4, 3, -1);
         this.leftArm.xRot = -0.75F;
         this.rightArm.xRot = -0.75F;
 
-        if (this.attackTime > 0.0F) {
-            HumanoidArm enumhandside = this.getMainHand(entityIn);
+        if (((VampirismRenderState)entityIn).vampirismAttackTime() > 0.0F) {
+            HumanoidArm enumhandside = ((VampirismRenderState)entityIn).vampirismAttackArm();
             ModelPart modelrenderer = this.getArmForSide(enumhandside);
             float f1;
-            f1 = 1.0F - this.attackTime;
+            f1 = 1.0F - ((VampirismRenderState)entityIn).vampirismAttackTime();
             f1 = f1 * f1;
             f1 = f1 * f1;
             f1 = 1.0F - f1;
             float f2 = Mth.sin(f1 * (float) Math.PI);
-            float f3 = Mth.sin(this.attackTime * (float) Math.PI) * -(this.getHead().xRot - 0.7F) * 0.75F;
+            float f3 = Mth.sin(((VampirismRenderState)entityIn).vampirismAttackTime() * (float) Math.PI) * -(this.getHead().xRot - 0.7F) * 0.75F;
             modelrenderer.xRot = (float) ((double) modelrenderer.xRot - ((double) f2 * 1.2D + (double) f3));
         }
     }
@@ -74,9 +76,5 @@ public class VillagerWithArmsModel<T extends Mob> extends VillagerModel<T> imple
 
     protected ModelPart getArmForSide(HumanoidArm side) {
         return side == HumanoidArm.LEFT ? this.leftArm : this.rightArm;
-    }
-
-    protected @NotNull HumanoidArm getMainHand(Entity entityIn) {
-        return entityIn instanceof LivingEntity ? ((LivingEntity) entityIn).getMainArm() : HumanoidArm.RIGHT;
     }
 }

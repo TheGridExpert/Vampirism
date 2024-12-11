@@ -5,8 +5,6 @@ import de.teamlapen.vampirism.REFERENCE;
 import de.teamlapen.vampirism.api.items.IFactionExclusiveItem;
 import de.teamlapen.vampirism.api.util.VResourceLocation;
 import de.teamlapen.vampirism.client.VampirismModClient;
-import de.teamlapen.vampirism.client.model.blocks.BakedAltarInspirationModel;
-import de.teamlapen.vampirism.client.model.blocks.BakedBloodContainerModel;
 import de.teamlapen.vampirism.config.VampirismConfig;
 import de.teamlapen.vampirism.core.ModBlocks;
 import de.teamlapen.vampirism.core.ModFactions;
@@ -14,14 +12,13 @@ import de.teamlapen.vampirism.data.ClientSkillTreeData;
 import de.teamlapen.vampirism.effects.VampirismPotion;
 import de.teamlapen.vampirism.entity.player.LevelAttributeModifier;
 import de.teamlapen.vampirism.items.component.AppliedOilContent;
-import de.teamlapen.vampirism.proxy.ClientProxy;
 import de.teamlapen.vampirism.util.Helper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -49,81 +46,6 @@ import java.util.Optional;
 @OnlyIn(Dist.CLIENT)
 public class ClientEventHandler {
     private final static Logger LOGGER = LogManager.getLogger();
-
-    static void onModelBakeRequest(ModelEvent.RegisterAdditional event) {
-
-        for (int x = 0; x < BakedBloodContainerModel.FLUID_LEVELS; x++) {
-            event.register(ModelResourceLocation.standalone(VResourceLocation.mod("block/blood_container/blood_" + (x + 1))));
-            event.register(ModelResourceLocation.standalone(VResourceLocation.mod("block/blood_container/impure_blood_" + (x + 1))));
-        }
-
-        for (int x = 0; x < BakedAltarInspirationModel.FLUID_LEVELS; x++) {
-            event.register(ModelResourceLocation.standalone(VResourceLocation.mod("block/altar_inspiration/blood" + (x + 1))));
-        }
-
-    }
-
-    static void onModelBakeEvent(@NotNull ModelEvent.ModifyBakingResult event) {
-        /*
-         * Not really a clean solution but it works
-         * We have one model file for each fluid and fill level. It is requested to be loaded in {@link onModelBakeRequest}. Here we gather these and store them in {@link BakedBloodContainerModel} which is used to render to appropriate one
-         * Might be worth looking into Forge's {@link DynamicFluidContainerModel}
-         */
-        try {
-            for (int x = 0; x < BakedBloodContainerModel.FLUID_LEVELS; x++) {
-                ModelResourceLocation loc = ModelResourceLocation.standalone(VResourceLocation.mod("block/blood_container/blood_" + (x + 1)));
-                ModelResourceLocation locImpure = ModelResourceLocation.standalone(VResourceLocation.mod("block/blood_container/impure_blood_" + (x + 1)));
-
-                BakedBloodContainerModel.BLOOD_FLUID_MODELS[x] = event.getModels().get(loc);
-                BakedBloodContainerModel.IMPURE_BLOOD_FLUID_MODELS[x] = event.getModels().get(locImpure);
-            }
-            Map<ModelResourceLocation, BakedModel> registry = event.getModels();
-            ArrayList<ModelResourceLocation> modelLocations = Lists.newArrayList();
-
-            for (ModelResourceLocation modelLoc : registry.keySet()) {
-                if (modelLoc.id().getNamespace().equals(REFERENCE.MODID) && modelLoc.id().getPath().equals(ModBlocks.BLOOD_CONTAINER.getId().getPath())) {
-                    modelLocations.add(modelLoc);
-                }
-            }
-
-            // replace the registered tank block variants with TankModelFactories
-
-            BakedModel registeredModel;
-            BakedModel newModel;
-            for (ModelResourceLocation loc : modelLocations) {
-                registeredModel = event.getModels().get(loc);
-                newModel = new BakedBloodContainerModel(registeredModel);
-                event.getModels().put(loc, newModel);
-            }
-        } catch (Exception e) {
-            LOGGER.error("Failed to load fluid models for blood container", e);
-        }
-
-        try {
-            for (int x = 0; x < BakedAltarInspirationModel.FLUID_LEVELS; x++) {
-                ModelResourceLocation loc = ModelResourceLocation.standalone(VResourceLocation.mod("block/altar_inspiration/blood" + (x + 1)));
-                BakedAltarInspirationModel.FLUID_MODELS[x] = event.getModels().get(loc);
-            }
-            Map<ModelResourceLocation, BakedModel> registry = event.getModels();
-            ArrayList<ModelResourceLocation> modelLocations = Lists.newArrayList();
-
-            for (ModelResourceLocation modelLoc : registry.keySet()) {
-                if (modelLoc.id().getNamespace().equals(REFERENCE.MODID) && modelLoc.id().getPath().equals(ModBlocks.ALTAR_INSPIRATION.getId().getPath())) {
-                    modelLocations.add(modelLoc);
-                }
-            }
-
-            BakedModel registeredModel;
-            BakedModel newModel;
-            for (ModelResourceLocation loc : modelLocations) {
-                registeredModel = event.getModels().get(loc);
-                newModel = new BakedAltarInspirationModel(registeredModel);
-                event.getModels().put(loc, newModel);
-            }
-        } catch (Exception e) {
-            LOGGER.error("Failed to load fluid models for altar inspiration", e);
-        }
-    }
 
     @SubscribeEvent
     public void onFovOffsetUpdate(@NotNull ComputeFovModifierEvent event) {
@@ -153,9 +75,9 @@ public class ClientEventHandler {
 
     static void onModelRegistry(@NotNull ModelEvent.RegisterAdditional event) {
         for (DyeColor dye : DyeColor.values()) {
-            event.register(ModelResourceLocation.standalone(VResourceLocation.mod("block/coffin/coffin_bottom_" + dye.getName())));
-            event.register(ModelResourceLocation.standalone(VResourceLocation.mod("block/coffin/coffin_top_" + dye.getName())));
-            event.register(ModelResourceLocation.standalone(VResourceLocation.mod("block/coffin/coffin_" + dye.getName())));
+            event.register(VResourceLocation.mod("block/coffin/coffin_bottom_" + dye.getName()));
+            event.register(VResourceLocation.mod("block/coffin/coffin_top_" + dye.getName()));
+            event.register(VResourceLocation.mod("block/coffin/coffin_" + dye.getName()));
         }
     }
 
@@ -182,14 +104,6 @@ public class ClientEventHandler {
             factionToolTips.add(Component.translatable("text.vampirism.faction_exclusive", ModFactions.HUNTER.get().getName().plainCopy().withStyle(Minecraft.getInstance().player != null ? Helper.isHunter(Minecraft.getInstance().player) ? ChatFormatting.DARK_GREEN : ChatFormatting.DARK_RED : ChatFormatting.GRAY)).withStyle(ChatFormatting.ITALIC).withStyle(ChatFormatting.GRAY));
             toolTips.addAll(Math.min(event.getToolTip().size(), position), factionToolTips);
         });
-    }
-
-    public static void registerReloadListener(RegisterClientReloadListenersEvent event) {
-        event.registerReloadListener(ClientProxy.get().getBlockEntityItemRenderer());
-    }
-
-    public static void registerStageEvent(RenderLevelStageEvent.RegisterStageEvent event) {
-        ClientProxy.get().registerBlockEntityItemRenderer();
     }
 
 

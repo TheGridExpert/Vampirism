@@ -125,24 +125,26 @@ public class BatVampireAction extends DefaultVampireAction implements ILastingAc
 
     @Override
     public boolean onUpdate(@NotNull IVampirePlayer vampire) {
-        Player player = vampire.asEntity();
-        if (vampire.isGettingSundamage(player.level()) && !vampire.isRemote()) {
-            player.sendSystemMessage(Component.translatable("text.vampirism.cant_fly_day"));
-            return true;
-        } else if (ModItems.UMBRELLA.get() == player.getMainHandItem().getItem() && !vampire.isRemote()) {
-            player.sendSystemMessage(Component.translatable("text.vampirism.cant_fly_umbrella"));
-            return true;
-        } else if (vampire.isGettingGarlicDamage(player.level()) != EnumStrength.NONE && !vampire.isRemote()) {
-            player.sendSystemMessage(Component.translatable("text.vampirism.cant_fly_garlic"));
-            return true;
-        } else if (VampirismConfig.SERVER.batDimensionBlacklist.get().contains(player.getCommandSenderWorld().dimension().location().toString())) {
-            player.sendSystemMessage(Component.translatable("text.vampirism.cant_fly_dimension"));
-            return true;
-        } else {
-            float exhaustion = VampirismConfig.BALANCE.vaBatExhaustion.get().floatValue();
-            if (exhaustion > 0) vampire.addExhaustion(exhaustion);
-            return player.isInWater();
+        if (vampire.asEntity() instanceof ServerPlayer player) {
+            if (vampire.isGettingSundamage(player.level()) && !vampire.isRemote()) {
+                player.sendSystemMessage(Component.translatable("text.vampirism.cant_fly_day"));
+                return true;
+            } else if (ModItems.UMBRELLA.get() == player.getMainHandItem().getItem() && !vampire.isRemote()) {
+                player.sendSystemMessage(Component.translatable("text.vampirism.cant_fly_umbrella"));
+                return true;
+            } else if (vampire.isGettingGarlicDamage(player.level()) != EnumStrength.NONE && !vampire.isRemote()) {
+                player.sendSystemMessage(Component.translatable("text.vampirism.cant_fly_garlic"));
+                return true;
+            } else if (VampirismConfig.SERVER.batDimensionBlacklist.get().contains(player.getCommandSenderWorld().dimension().location().toString())) {
+                player.sendSystemMessage(Component.translatable("text.vampirism.cant_fly_dimension"));
+                return true;
+            } else {
+                float exhaustion = VampirismConfig.BALANCE.vaBatExhaustion.get().floatValue();
+                if (exhaustion > 0) vampire.addExhaustion(exhaustion);
+                return player.isInWater();
+            }
         }
+        return false;
     }
 
     /**

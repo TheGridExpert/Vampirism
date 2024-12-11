@@ -6,7 +6,7 @@ import de.teamlapen.vampirism.api.items.IVampirismCrossbowArrow;
 import net.minecraft.core.Holder;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Tier;
+import net.minecraft.world.item.ToolMaterial;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
@@ -16,7 +16,7 @@ import java.util.function.Supplier;
 
 public class SingleCrossbowItem extends HunterCrossbowItem {
 
-    public SingleCrossbowItem(Item.Properties properties, float arrowVelocity, int chargeTime, Tier itemTier, Holder<ISkill<?>> requiredSkill) {
+    public SingleCrossbowItem(Item.Properties properties, float arrowVelocity, int chargeTime, ToolMaterial itemTier, Holder<ISkill<?>> requiredSkill) {
         super(properties, arrowVelocity, chargeTime, itemTier, requiredSkill);
     }
 

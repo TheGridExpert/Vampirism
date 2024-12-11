@@ -1,5 +1,6 @@
 package de.teamlapen.lib.lib.util;
 
+import de.teamlapen.lib.util.SpawnStateAccessor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
@@ -158,7 +159,7 @@ public class SimpleSpawnerLogic<T extends Entity> {
                 boolean flag1 = false;
 
                 for (int i = 0; i < this.spawnCount; ++i) {
-                    T entity = this.getEntityType().create(level);
+                    T entity = this.getEntityType().create(level, EntitySpawnReason.SPAWNER);
 
                     if (entity == null) {
                         break;
@@ -175,7 +176,7 @@ public class SimpleSpawnerLogic<T extends Entity> {
                         @Nullable
                         NaturalSpawner.SpawnState densityManager = ((ServerLevel) level).getChunkSource().getLastSpawnState();
                         try {
-                            if (densityManager != null && !densityManager.canSpawnForCategory(limitType, new ChunkPos(pos.getX() / 16, pos.getZ() / 16))) {
+                            if (densityManager != null && !((SpawnStateAccessor)densityManager).canSpawnForCategoryLocalI(limitType, new ChunkPos(pos.getX() / 16, pos.getZ() / 16))) {
                                 this.resetTimer();
                                 break;
                             }
@@ -186,7 +187,7 @@ public class SimpleSpawnerLogic<T extends Entity> {
 
                     }
 
-                    if (UtilLib.spawnEntityInWorld((ServerLevel) level, getSpawningBox(pos), entity, 1, Collections.emptyList(), MobSpawnType.SPAWNER)) {
+                    if (UtilLib.spawnEntityInWorld((ServerLevel) level, getSpawningBox(pos), entity, 1, Collections.emptyList(), EntitySpawnReason.SPAWNER)) {
                         onSpawned(entity);
                         flag1 = true;
                     }

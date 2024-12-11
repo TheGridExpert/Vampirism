@@ -226,7 +226,7 @@ public class SkillHandler<T extends IFactionPlayer<T> & ISkillPlayer<T>> impleme
     }
 
     public boolean isSkillNodeLocked(@NotNull ISkillNode nodeIn) {
-        Registry<ISkillNode> nodes = player.asEntity().level().registryAccess().registryOrThrow(VampirismRegistries.Keys.SKILL_NODE);
+        Registry<ISkillNode> nodes = player.asEntity().level().registryAccess().lookupOrThrow(VampirismRegistries.Keys.SKILL_NODE);
         return nodeIn.lockingNodes().stream().flatMap(s -> nodes.getOptional(s).stream()).flatMap(s -> s.skills().stream()).anyMatch(this::isSkillEnabled);
     }
 
@@ -240,7 +240,7 @@ public class SkillHandler<T extends IFactionPlayer<T> & ISkillPlayer<T>> impleme
                 Optional<Holder.Reference<ISkillTree>> skillTree = skillTrees.get(ResourceKey.create(VampirismRegistries.Keys.SKILL_TREE, ResourceLocation.parse(id)));
                 skillTree.ifPresent(tree -> {
                     ListTag list = skillsTag.getList(id, Tag.TAG_STRING);
-                    list.stream().map(Tag::getAsString).map(ResourceLocation::parse).map(ModRegistries.SKILLS::getHolder).flatMap(Optional::stream).forEach(skill -> {
+                    list.stream().map(Tag::getAsString).map(ResourceLocation::parse).map(ModRegistries.SKILLS::get).flatMap(Optional::stream).forEach(skill -> {
                         enableSkill((Holder<ISkill<T>>) (Object) skill, tree, true);
                     });
                 });
@@ -268,7 +268,7 @@ public class SkillHandler<T extends IFactionPlayer<T> & ISkillPlayer<T>> impleme
                 skillTree.ifPresent(tree -> {
                     ArrayList<Holder<ISkill<T>>> oldSkill = old.getOrDefault(tree, new ArrayList<>());
                     ListTag list = skillsTag.getList(id, Tag.TAG_STRING);
-                    list.stream().map(Tag::getAsString).map(ResourceLocation::parse).map(ModRegistries.SKILLS::getHolder).flatMap(Optional::stream).forEach(skill -> {
+                    list.stream().map(Tag::getAsString).map(ResourceLocation::parse).map(ModRegistries.SKILLS::get).flatMap(Optional::stream).forEach(skill -> {
                         if (oldSkill.contains(skill)) {
                             oldSkill.remove(skill);
                         } else {

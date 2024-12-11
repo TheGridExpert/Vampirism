@@ -3,7 +3,6 @@ package de.teamlapen.vampirism.data.provider;
 import de.teamlapen.vampirism.api.VReference;
 import de.teamlapen.vampirism.core.ModSounds;
 import net.minecraft.data.PackOutput;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.common.data.SoundDefinitionsProvider;
 
 import static de.teamlapen.vampirism.api.util.VResourceLocation.mc;
@@ -11,7 +10,7 @@ import static de.teamlapen.vampirism.api.util.VResourceLocation.mod;
 
 public class SoundDefinitionProvider extends SoundDefinitionsProvider {
 
-    protected SoundDefinitionProvider(PackOutput output, ExistingFileHelper helper) {
+    protected SoundDefinitionProvider(PackOutput output, @SuppressWarnings("removal") net.neoforged.neoforge.common.data.ExistingFileHelper helper) {
         super(output, VReference.MODID, helper);
     }
 

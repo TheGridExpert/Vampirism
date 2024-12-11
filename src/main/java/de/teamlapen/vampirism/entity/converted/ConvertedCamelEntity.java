@@ -8,13 +8,14 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.Animal;
@@ -36,7 +37,7 @@ public class ConvertedCamelEntity extends Camel implements CurableConvertedCreat
                 .add(ModAttributes.SUNDAMAGE, BalanceMobProps.mobProps.VAMPIRE_MOB_SUN_DAMAGE);
     }
 
-    public static boolean checkConvertedCamelSpawnRules(EntityType<? extends Animal> pGoat, LevelAccessor pLevel, MobSpawnType pSpawnType, BlockPos pPos, RandomSource pRandom) {
+    public static boolean checkConvertedCamelSpawnRules(EntityType<? extends Animal> pGoat, LevelAccessor pLevel, EntitySpawnReason pSpawnType, BlockPos pPos, RandomSource pRandom) {
         return pLevel.getDifficulty() != Difficulty.PEACEFUL && Camel.checkAnimalSpawnRules(pGoat, pLevel, pSpawnType, pPos, pRandom);
     }
 
@@ -63,8 +64,8 @@ public class ConvertedCamelEntity extends Camel implements CurableConvertedCreat
     }
 
     @Override
-    public boolean hurtSuper(@NotNull DamageSource damageSource, float amount) {
-        return super.hurt(damageSource, amount);
+    public boolean hurtSuper(ServerLevel level, @NotNull DamageSource damageSource, float amount) {
+        return super.hurtServer(level, damageSource, amount);
     }
 
     @Override
@@ -75,7 +76,9 @@ public class ConvertedCamelEntity extends Camel implements CurableConvertedCreat
 
     @Override
     public void aiStep() {
-        aiStepC(EntityType.CAMEL);
+        if (this.level() instanceof ServerLevel serverLevel) {
+            aiStepC(serverLevel, EntityType.CAMEL);
+        }
         super.aiStep();
     }
 
@@ -102,8 +105,8 @@ public class ConvertedCamelEntity extends Camel implements CurableConvertedCreat
     }
 
     @Override
-    public boolean hurt(@NotNull DamageSource damageSource, float amount) {
-        return this.hurtC(damageSource, amount);
+    public boolean hurtServer(ServerLevel level, @NotNull DamageSource damageSource, float amount) {
+        return this.hurtC(level, damageSource, amount);
     }
 
     @NotNull

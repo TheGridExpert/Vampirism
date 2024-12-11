@@ -3,9 +3,7 @@
   "category": "building",
   "group": "planks",
   "ingredients": [
-    {
-      "tag": "vampirism:cursed_spruce_log"
-    }
+    "#vampirism:cursed_spruce_log"
   ],
   "result": {
     "count": 4,

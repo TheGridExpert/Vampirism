@@ -4,22 +4,22 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import de.teamlapen.vampirism.api.items.IHunterCrossbow;
 import de.teamlapen.vampirism.client.ModClientEnums;
+import de.teamlapen.vampirism.client.VampirismModClient;
+import de.teamlapen.vampirism.client.core.ModEntitiesRender;
 import de.teamlapen.vampirism.client.model.armor.*;
 import de.teamlapen.vampirism.items.HunterHatItem;
 import de.teamlapen.vampirism.items.crossbow.HunterCrossbowItem;
 import de.teamlapen.vampirism.mixin.client.accessor.ItemInHandRendererAccessor;
-import de.teamlapen.vampirism.proxy.ClientProxy;
+import de.teamlapen.vampirism.util.HumanoidArmorLayerData;
 import de.teamlapen.vampirism.util.RegUtil;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.AnimationUtils;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.Model;
-import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import net.minecraft.client.resources.model.EquipmentClientInfo;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.CrossbowItem;
@@ -31,94 +31,116 @@ import org.jetbrains.annotations.Nullable;
 
 public class ItemExtensions {
 
-    public static final IClientItemExtensions VAMPIRE_CLOTHING = new IClientItemExtensions() {
+    public static final IClientItemExtensions CRUCIFIX = new IClientItemExtensions() {
         @Override
-        public @NotNull Model getGenericArmorModel(LivingEntity livingEntity, ItemStack itemStack, EquipmentSlot equipmentSlot, HumanoidModel<?> original) {
+        public HumanoidModel.@Nullable ArmPose getArmPose(LivingEntity entityLiving, InteractionHand hand, ItemStack itemStack) {
+            if (entityLiving.isUsingItem() && entityLiving.getUseItemRemainingTicks() > 0) {
+                return HumanoidModel.ArmPose.BLOCK;
+            }
+            return null;
+        }
+    };
+
+    public static final IClientItemExtensions VAMPIRE_CLOTHING = new CustomArmorItemExtension() {
+
+        @Override
+        public ModelLayerLocation getArmorModelLocation(@NotNull ItemStack itemStack) {
             return switch (RegUtil.id(itemStack.getItem()).getPath()) {
-                case "vampire_clothing_crown" -> ClothingCrownModel.getAdjustedInstance(original);
-                case "vampire_clothing_legs" -> ClothingPantsModel.getAdjustedInstance(original);
-                case "vampire_clothing_boots" -> ClothingBootsModel.getAdjustedInstance(original);
-                case "vampire_clothing_hat" -> VampireHatModel.getAdjustedInstance(original);
-                default -> DummyClothingModel.getAdjustedInstance(original);
+                case "vampire_clothing_crown" -> ModEntitiesRender.CLOTHING_CROWN;
+                case "vampire_clothing_legs" -> ModEntitiesRender.CLOTHING_PANTS;
+                case "vampire_clothing_boots" -> ModEntitiesRender.CLOTHING_BOOTS;
+                case "vampire_clothing_hat" -> ModEntitiesRender.CLOTHING_HAT;
+                default -> ModEntitiesRender.GENERIC_BIPED;
             };
         }
     };
 
-    public static final IClientItemExtensions VAMPIRE_CLOAK = new IClientItemExtensions() {
+    public static final IClientItemExtensions VAMPIRE_CLOAK = new CustomArmorItemExtension() {
         @Override
-        public @NotNull Model getGenericArmorModel(LivingEntity livingEntity, ItemStack itemStack, EquipmentSlot equipmentSlot, HumanoidModel<?> original) {
-            return CloakModel.getAdjustedCloak(original, livingEntity);
+        public ModelLayerLocation getArmorModelLocation(@NotNull ItemStack itemStack) {
+            return ModEntitiesRender.CLOAK;
         }
     };
 
-    public static final IClientItemExtensions HUNTER_HAT = new IClientItemExtensions() {
+    public static final IClientItemExtensions HUNTER_HAT = new CustomArmorItemExtension() {
+
         @Override
-        public @NotNull Model getGenericArmorModel(LivingEntity livingEntity, ItemStack itemStack, EquipmentSlot equipmentSlot, HumanoidModel<?> original) {
+        public ModelLayerLocation getArmorModelLocation(@NotNull ItemStack itemStack) {
             return switch (((HunterHatItem) itemStack.getItem()).getHateType()) {
-                case TYPE_1 -> HunterHatModel.getAdjustedInstance0(original);
-                case TYPE_2 -> HunterHatModel.getAdjustedInstance1(original);
+                case TYPE_1 -> ModEntitiesRender.HUNTER_HAT0;
+                case TYPE_2 -> ModEntitiesRender.HUNTER_HAT1;
             };
         }
     };
 
-    public static final IClientItemExtensions MOTHER_TROPHY = new IClientItemExtensions() {
+    public static abstract class CustomArmorItemExtension implements IClientItemExtensions {
+
+        public abstract ModelLayerLocation getArmorModelLocation(@NotNull ItemStack itemStack);
+
         @Override
-        public BlockEntityWithoutLevelRenderer getCustomRenderer() {
-            return ClientProxy.get().getBlockEntityItemRenderer();
+        public @NotNull Model getGenericArmorModel(@NotNull ItemStack itemStack, EquipmentClientInfo.@NotNull LayerType layerType, @NotNull Model original) {
+            VampirismArmorModel replacement = VampirismModClient.getINSTANCE().getArmorModels().getModel(getArmorModelLocation(itemStack));
+            if (original instanceof HumanoidModel<?> humanoidModel) {
+                replacement.copyFromHumanoid(humanoidModel);
+                if (HumanoidArmorLayerData.getRenderState() != null) {
+                    replacement.setupAnim(HumanoidArmorLayerData.getRenderState());
+                }
+            }
+            return replacement;
         }
-    };
+    }
 
     public static final IArmPoseTransformer DOUBLE_CROSSBOW_CHARGE_ARM_POSE_TRANSFORMER = (model, entity, arm) -> {
-        AnimationUtils.animateCrossbowCharge(model.rightArm, model.leftArm, entity, arm == HumanoidArm.LEFT);
-
-        InteractionHand hand = entity.getMainArm() == arm ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
-        ItemStack itemInHand = entity.getItemInHand(hand);
-        if (itemInHand.getItem() instanceof HunterCrossbowItem crossbow) {
-            ItemStack otherItemStack = entity.getItemInHand(entity.getMainArm() == arm ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND);
-            if (otherItemStack.getItem() instanceof IHunterCrossbow otherCrossbow) {
-                int combinedUseDuration = crossbow.getCombinedUseDuration(itemInHand, entity, hand);
-                int itemUseDuration = crossbow.getUseDuration(itemInHand, entity);
-                int combinedChargeDurationMod = crossbow.getCombinedChargeDurationMod(itemInHand, entity, hand);
-                int itemChargeDurationMod = crossbow.getChargeDurationMod(itemInHand, entity.level());
-                float itemUseTicks = entity.getUseItemRemainingTicks();
-                ModelPart modelpart;
-                ModelPart modelpart1;
-                boolean pRightHanded;
-                float f;
-                float f1;
-                if (itemUseTicks < combinedUseDuration - itemUseDuration) {
-                    modelpart = arm == HumanoidArm.RIGHT ? model.leftArm : model.rightArm;
-                    modelpart1 = arm == HumanoidArm.RIGHT ? model.rightArm : model.leftArm;
-                    pRightHanded = arm == HumanoidArm.LEFT;
-                    f = combinedChargeDurationMod - itemChargeDurationMod;
-                    f1 = Mth.clamp(combinedChargeDurationMod - itemChargeDurationMod - itemUseTicks, 0.0F, f);
-                } else {
-                    modelpart = arm == HumanoidArm.RIGHT ? model.rightArm : model.leftArm;
-                    modelpart1 = arm == HumanoidArm.RIGHT ? model.leftArm : model.rightArm;
-                    pRightHanded = arm == HumanoidArm.RIGHT;
-                    f = itemChargeDurationMod;
-                    f1 = Mth.clamp((combinedChargeDurationMod - (combinedChargeDurationMod - itemChargeDurationMod)) - (itemUseTicks - (combinedUseDuration - itemUseDuration)), 0.0F, f);
-                }
-                modelpart.yRot = pRightHanded ? -0.8F : 0.8F;
-                modelpart.xRot = -0.97079635F;
-                modelpart1.xRot = modelpart.xRot;
-                float f2 = f1 / f;
-                modelpart1.yRot = Mth.lerp(f2, 0.4F, 0.85F) * (float) (pRightHanded ? 1 : -1);
-                modelpart1.xRot = Mth.lerp(f2, modelpart1.xRot, (float) (-Math.PI / 2));
-            } else {
-                ModelPart modelpart = model.rightArm;
-                ModelPart modelpart1 = model.leftArm;
-                boolean pRightHanded = entity.getMainArm() == HumanoidArm.RIGHT;
-                modelpart.yRot = pRightHanded ? -0.8F : 0.8F;
-                modelpart.xRot = -0.97079635F;
-                modelpart1.xRot = modelpart.xRot;
-                float f = crossbow.getChargeDurationMod(entity.getUseItem(), entity.level());
-                float f1 = Mth.clamp((float) entity.getTicksUsingItem(), 0.0F, f);
-                float f2 = f1 / f;
-                modelpart1.yRot = Mth.lerp(f2, 0.4F, 0.85F) * (float) (pRightHanded ? 1 : -1);
-                modelpart1.xRot = Mth.lerp(f2, modelpart1.xRot, (float) (-Math.PI / 2));
-            }
-        }
+//        AnimationUtils.animateCrossbowCharge(model.rightArm, model.leftArm, entity, arm == HumanoidArm.LEFT);
+//
+//        InteractionHand hand = entity.getMainArm() == arm ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
+//        ItemStack itemInHand = entity.getItemInHand(hand);
+//        if (itemInHand.getItem() instanceof HunterCrossbowItem crossbow) {
+//            ItemStack otherItemStack = entity.getItemInHand(entity.getMainArm() == arm ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND);
+//            if (otherItemStack.getItem() instanceof IHunterCrossbow otherCrossbow) {
+//                int combinedUseDuration = crossbow.getCombinedUseDuration(itemInHand, entity, hand);
+//                int itemUseDuration = crossbow.getUseDuration(itemInHand, entity);
+//                int combinedChargeDurationMod = crossbow.getCombinedChargeDurationMod(itemInHand, entity, hand);
+//                int itemChargeDurationMod = crossbow.getChargeDurationMod(itemInHand, entity.level());
+//                float itemUseTicks = entity.getUseItemRemainingTicks();
+//                ModelPart modelpart;
+//                ModelPart modelpart1;
+//                boolean pRightHanded;
+//                float f;
+//                float f1;
+//                if (itemUseTicks < combinedUseDuration - itemUseDuration) {
+//                    modelpart = arm == HumanoidArm.RIGHT ? model.leftArm : model.rightArm;
+//                    modelpart1 = arm == HumanoidArm.RIGHT ? model.rightArm : model.leftArm;
+//                    pRightHanded = arm == HumanoidArm.LEFT;
+//                    f = combinedChargeDurationMod - itemChargeDurationMod;
+//                    f1 = Mth.clamp(combinedChargeDurationMod - itemChargeDurationMod - itemUseTicks, 0.0F, f);
+//                } else {
+//                    modelpart = arm == HumanoidArm.RIGHT ? model.rightArm : model.leftArm;
+//                    modelpart1 = arm == HumanoidArm.RIGHT ? model.leftArm : model.rightArm;
+//                    pRightHanded = arm == HumanoidArm.RIGHT;
+//                    f = itemChargeDurationMod;
+//                    f1 = Mth.clamp((combinedChargeDurationMod - (combinedChargeDurationMod - itemChargeDurationMod)) - (itemUseTicks - (combinedUseDuration - itemUseDuration)), 0.0F, f);
+//                }
+//                modelpart.yRot = pRightHanded ? -0.8F : 0.8F;
+//                modelpart.xRot = -0.97079635F;
+//                modelpart1.xRot = modelpart.xRot;
+//                float f2 = f1 / f;
+//                modelpart1.yRot = Mth.lerp(f2, 0.4F, 0.85F) * (float) (pRightHanded ? 1 : -1);
+//                modelpart1.xRot = Mth.lerp(f2, modelpart1.xRot, (float) (-Math.PI / 2));
+//            } else {
+//                ModelPart modelpart = model.rightArm;
+//                ModelPart modelpart1 = model.leftArm;
+//                boolean pRightHanded = entity.getMainArm() == HumanoidArm.RIGHT;
+//                modelpart.yRot = pRightHanded ? -0.8F : 0.8F;
+//                modelpart.xRot = -0.97079635F;
+//                modelpart1.xRot = modelpart.xRot;
+//                float f = crossbow.getChargeDurationMod(entity.getUseItem(), entity.level());
+//                float f1 = Mth.clamp((float) entity.getTicksUsingItem(), 0.0F, f);
+//                float f2 = f1 / f;
+//                modelpart1.yRot = Mth.lerp(f2, 0.4F, 0.85F) * (float) (pRightHanded ? 1 : -1);
+//                modelpart1.xRot = Mth.lerp(f2, modelpart1.xRot, (float) (-Math.PI / 2));
+//            }
+//        }
     };
 
     public static final IArmPoseTransformer DOUBLE_CROSSBOW_HOLD_ARM_POSE_TRANSFORMER = (model, entity, arm) -> {

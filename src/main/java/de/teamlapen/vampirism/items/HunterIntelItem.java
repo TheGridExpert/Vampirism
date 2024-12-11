@@ -1,5 +1,6 @@
 package de.teamlapen.vampirism.items;
 
+import de.teamlapen.vampirism.api.ItemPropertiesExtension;
 import de.teamlapen.vampirism.core.ModItems;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -47,8 +48,8 @@ public class HunterIntelItem extends Item {
     private final int level;
     private Component tooltip;
 
-    public HunterIntelItem(int level) {
-        super(new Properties());
+    public HunterIntelItem(int level, Item.Properties properties) {
+        super(ItemPropertiesExtension.descriptionWithout(properties, "_\\d"));
         this.level = level;
     }
 
@@ -61,7 +62,7 @@ public class HunterIntelItem extends Item {
     }
 
     public @NotNull Component getCustomName() {
-        return Component.translatable(this.getOrCreateDescriptionId()).append(Component.literal(" ")).append(Component.translatable("text.vampirism.for_up_to_level").append(Component.literal(" " + (level + 5))));
+        return Component.translatable(this.getDescriptionId()).append(Component.literal(" ")).append(Component.translatable("text.vampirism.for_up_to_level").append(Component.literal(" " + (level + 5))));
     }
 
     public int getLevel() {
@@ -70,18 +71,6 @@ public class HunterIntelItem extends Item {
 
     public boolean isFoil(@NotNull ItemStack stack) {
         return true;
-    }
-
-    private String descriptionId;
-
-    @Override
-    @NotNull
-    protected String getOrCreateDescriptionId() {
-        if (this.descriptionId == null) {
-            this.descriptionId = super.getOrCreateDescriptionId().replaceAll("_\\d", "");
-        }
-
-        return this.descriptionId;
     }
 
 }

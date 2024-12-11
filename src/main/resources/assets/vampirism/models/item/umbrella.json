@@ -5,6 +5,7 @@
     64
   ],
   "textures": {
+    "particle": "vampirism:item/umbrella",
     "0": "vampirism:item/umbrella"
   },
   "elements": [

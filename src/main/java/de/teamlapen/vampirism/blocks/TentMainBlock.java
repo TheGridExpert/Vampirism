@@ -8,6 +8,7 @@ import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -17,8 +18,8 @@ import org.jetbrains.annotations.Nullable;
  */
 public class TentMainBlock extends TentBlock implements EntityBlock {
 
-    public TentMainBlock() {
-        super();
+    public TentMainBlock(BlockBehaviour.Properties properties) {
+        super(properties);
     }
 
     @Nullable

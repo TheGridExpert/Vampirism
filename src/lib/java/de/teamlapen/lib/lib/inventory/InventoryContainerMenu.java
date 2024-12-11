@@ -167,7 +167,7 @@ public abstract class InventoryContainerMenu extends AbstractContainerMenu {
 
         @Nullable
         @Override
-        public Pair<ResourceLocation, ResourceLocation> getNoItemIcon() {
+        public ResourceLocation getNoItemIcon() {
             return info.background;
         }
 
@@ -199,9 +199,9 @@ public abstract class InventoryContainerMenu extends AbstractContainerMenu {
          * Pair of atlas and texture id
          */
         @Nullable
-        public final Pair<ResourceLocation, ResourceLocation> background;
+        public final ResourceLocation background;
 
-        public SelectorInfo(Predicate<ItemStack> predicate, int x, int y, boolean inverted, int limit, @Nullable Pair<ResourceLocation, ResourceLocation> background) {
+        public SelectorInfo(Predicate<ItemStack> predicate, int x, int y, boolean inverted, int limit, @Nullable ResourceLocation background) {
             this.predicate = predicate;
             this.xDisplay = x;
             this.yDisplay = y;
@@ -215,11 +215,11 @@ public abstract class InventoryContainerMenu extends AbstractContainerMenu {
         }
 
 
-        public SelectorInfo(@NotNull Item item, int x, int y, boolean inverted, int stackLimit, @Nullable Pair<ResourceLocation, ResourceLocation> background) {
+        public SelectorInfo(@NotNull Item item, int x, int y, boolean inverted, int stackLimit, @Nullable ResourceLocation background) {
             this(itemStack -> item.equals(itemStack.getItem()), x, y, inverted, stackLimit, background);
         }
 
-        public SelectorInfo(@NotNull Supplier<Collection<Item>> lazyItemCollection, int x, int y, boolean inverted, int stackLimit, @Nullable Pair<ResourceLocation, ResourceLocation> background) {
+        public SelectorInfo(@NotNull Supplier<Collection<Item>> lazyItemCollection, int x, int y, boolean inverted, int stackLimit, @Nullable ResourceLocation background) {
             this(itemStack -> lazyItemCollection.get().contains(itemStack.getItem()), x, y, inverted, stackLimit, background);
         }
 
@@ -228,7 +228,7 @@ public abstract class InventoryContainerMenu extends AbstractContainerMenu {
         }
 
 
-        public SelectorInfo(@NotNull TagKey<Item> tag, int x, int y, boolean inverted, int stackLimit, @Nullable Pair<ResourceLocation, ResourceLocation> background) {
+        public SelectorInfo(@NotNull TagKey<Item> tag, int x, int y, boolean inverted, int stackLimit, @Nullable ResourceLocation background) {
             this(itemStack -> itemStack.is(tag), x, y, inverted, stackLimit, background);
         }
 
@@ -242,7 +242,7 @@ public abstract class InventoryContainerMenu extends AbstractContainerMenu {
         }
 
 
-        public SelectorInfo(Predicate<ItemStack> predicate, int x, int y, int stackLimit, @Nullable Pair<ResourceLocation, ResourceLocation> background) {
+        public SelectorInfo(Predicate<ItemStack> predicate, int x, int y, int stackLimit, @Nullable ResourceLocation background) {
             this(predicate, x, y, false, stackLimit, background);
         }
 

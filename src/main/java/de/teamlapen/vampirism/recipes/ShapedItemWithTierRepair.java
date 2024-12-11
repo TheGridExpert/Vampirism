@@ -21,7 +21,7 @@ import org.jetbrains.annotations.NotNull;
 public class ShapedItemWithTierRepair extends ShapedRecipe {
 
     public ShapedItemWithTierRepair(@NotNull ShapedRecipe shaped) {
-        super(shaped.getGroup(), CraftingBookCategory.EQUIPMENT, ((ShapedRecipeAccessor) shaped).getPattern(), ((ShapedRecipeAccessor) shaped).getResult(), shaped.showNotification());
+        super(shaped.group(), CraftingBookCategory.EQUIPMENT, ((ShapedRecipeAccessor) shaped).getPattern(), ((ShapedRecipeAccessor) shaped).getResult(), shaped.showNotification());
     }
 
     @NotNull
@@ -47,7 +47,7 @@ public class ShapedItemWithTierRepair extends ShapedRecipe {
 
     @NotNull
     @Override
-    public RecipeSerializer<?> getSerializer() {
+    public RecipeSerializer<ShapedRecipe> getSerializer() {
         return ModRecipes.REPAIR_IITEMWITHTIER.get();
     }
 

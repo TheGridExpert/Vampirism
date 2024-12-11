@@ -2,6 +2,7 @@ package de.teamlapen.vampirism.entity.ai.goals;
 
 import de.teamlapen.vampirism.api.entity.IEntityLeader;
 import de.teamlapen.vampirism.entity.IEntityFollower;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -18,9 +19,9 @@ public class FindLeaderGoal<T extends Mob & IEntityFollower, Z extends LivingEnt
     private Z leader;
     protected final int randomInterval = reducedTickDelay(10);
 
-    public FindLeaderGoal(T entity, Predicate<Z> leaderPredicate) {
+    public FindLeaderGoal(T entity, TargetingConditions.Selector leaderPredicate) {
         this.entity = entity;
-        this.targetConditions = TargetingConditions.forNonCombat().ignoreLineOfSight().range(this.getFollowDistance()).selector((Predicate<LivingEntity>) (Object) leaderPredicate);
+        this.targetConditions = TargetingConditions.forNonCombat().ignoreLineOfSight().range(this.getFollowDistance()).selector(leaderPredicate);
     }
 
     protected double getFollowDistance() {
@@ -48,6 +49,6 @@ public class FindLeaderGoal<T extends Mob & IEntityFollower, Z extends LivingEnt
     }
 
     protected void findLeader() {
-        this.leader = (Z) this.entity.level().getNearestEntity(this.entity.level().getEntitiesOfClass(LivingEntity.class, getTargetSearchArea(getFollowDistance()), IEntityLeader.class::isInstance), this.targetConditions, this.entity, this.entity.getX(), this.entity.getY(), this.entity.getZ());
+        this.leader = (Z) ((ServerLevel) this.entity.level()).getNearestEntity(this.entity.level().getEntitiesOfClass(LivingEntity.class, getTargetSearchArea(getFollowDistance()), IEntityLeader.class::isInstance), this.targetConditions, this.entity, this.entity.getX(), this.entity.getY(), this.entity.getZ());
     }
 }

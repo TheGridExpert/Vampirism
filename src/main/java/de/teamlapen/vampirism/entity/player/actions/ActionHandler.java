@@ -58,7 +58,7 @@ public class ActionHandler<T extends IFactionPlayer<T> & ISkillPlayer<T>> implem
      * <p>
      * Keys should be mutually exclusive with {@link #cooldownTimers}
      *
-     * @implNote The values must be of type {@link Holder<ILastingAction<T>>}
+     * @implNote The values must be of type {@link Holder<ILastingAction>}
      */
     private final @NotNull Object2IntMap<Holder<? extends ILastingAction<T>>> activeTimers;
     /**
@@ -239,7 +239,7 @@ public class ActionHandler<T extends IFactionPlayer<T> & ISkillPlayer<T>> implem
             for (String key : active.getAllKeys()) {
                 ResourceLocation id = ResourceLocation.parse(key);
                 //noinspection unchecked
-                ModRegistries.ACTIONS.getHolder(id).filter(s -> s.value() instanceof ILastingAction<?>).map(s -> ((Holder.Reference<ILastingAction<T>>) (Object) s)).ifPresent(action -> {
+                ModRegistries.ACTIONS.get(id).filter(s -> s.value() instanceof ILastingAction<?>).map(s -> ((Holder.Reference<ILastingAction<T>>) (Object) s)).ifPresent(action -> {
                     action.value().onActivatedClient(this.player);
                     this.activeTimers.put(action, active.getInt(key));
                 });
@@ -397,8 +397,6 @@ public class ActionHandler<T extends IFactionPlayer<T> & ISkillPlayer<T>> implem
     /**
      * Update the actions
      * Should only be called by the corresponding Capability instance
-     *
-     * @return If a sync is recommended, only relevant on server side
      */
     public void updateActions() {
         //First update cooldown timers so active actions that become deactivated are not ticked.
@@ -464,7 +462,7 @@ public class ActionHandler<T extends IFactionPlayer<T> & ISkillPlayer<T>> implem
     private void loadTimerMapFromNBT(@NotNull CompoundTag nbt, @NotNull Object2IntMap<Holder<? extends IAction<T>>> map) {
         for (String key : nbt.getAllKeys()) {
             ResourceLocation id = ResourceLocation.parse(key);
-            ModRegistries.ACTIONS.getHolder(id).ifPresent(action -> {
+            ModRegistries.ACTIONS.get(id).ifPresent(action -> {
                 //noinspection RedundantCast,unchecked
                 map.put((Holder<? extends IAction<T>>) (Object) action, nbt.getInt(key));
             });

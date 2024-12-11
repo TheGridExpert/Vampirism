@@ -2,18 +2,10 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": {
-      "tag": "c:ingots/gold"
-    },
-    "X": {
-      "item": "minecraft:string"
-    },
-    "Y": {
-      "item": "minecraft:honeycomb"
-    },
-    "Z": {
-      "tag": "c:ingots/iron"
-    }
+    "A": "#c:ingots/gold",
+    "X": "minecraft:string",
+    "Y": "minecraft:honeycomb",
+    "Z": "#c:ingots/iron"
   },
   "pattern": [
     "XXX",

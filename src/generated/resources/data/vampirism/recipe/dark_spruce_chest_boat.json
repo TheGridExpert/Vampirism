@@ -3,12 +3,8 @@
   "category": "misc",
   "group": "chest_boat",
   "ingredients": [
-    {
-      "item": "minecraft:chest"
-    },
-    {
-      "item": "vampirism:dark_spruce_boat"
-    }
+    "minecraft:chest",
+    "vampirism:dark_spruce_boat"
   ],
   "result": {
     "count": 1,

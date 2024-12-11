@@ -2,18 +2,10 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "D": {
-      "tag": "c:gems/diamond"
-    },
-    "X": {
-      "tag": "c:ingots/iron"
-    },
-    "Y": {
-      "tag": "minecraft:planks"
-    },
-    "Z": {
-      "item": "minecraft:hopper"
-    }
+    "D": "#c:gems/diamond",
+    "X": "#c:ingots/iron",
+    "Y": "#minecraft:planks",
+    "Z": "minecraft:hopper"
   },
   "pattern": [
     " Z ",

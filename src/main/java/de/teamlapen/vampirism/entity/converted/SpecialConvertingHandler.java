@@ -9,6 +9,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.PathfinderMob;
 import org.jetbrains.annotations.NotNull;
@@ -37,7 +38,7 @@ public class SpecialConvertingHandler<T extends PathfinderMob, Z extends Pathfin
     @Nullable
     @Override
     public IConvertedCreature<T> createFrom(@NotNull T entity) {
-        return Helper.createEntity(this.convertedType.get(), entity.getCommandSenderWorld()).map(convertedCreature -> {
+        return Helper.createEntity(this.convertedType.get(), entity.getCommandSenderWorld(), EntitySpawnReason.CONVERSION).map(convertedCreature -> {
             copyImportantStuff(convertedCreature, entity);
             convertedCreature.setUUID(Mth.createInsecureUUID(convertedCreature.getRandom()));
             convertedCreature.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 200, 2));

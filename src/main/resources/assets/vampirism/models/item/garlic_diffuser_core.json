@@ -1,5 +1,6 @@
 {
   "textures": {
+    "particle": "vampirism:block/garlic_diffuser_inside",
     "texture": "vampirism:block/garlic_diffuser_inside"
   },
   "elements": [

@@ -1,5 +1,6 @@
 package de.teamlapen.vampirism.client.gui.screens.radial.edit;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import de.teamlapen.lib.lib.client.gui.components.SimpleList;
 import de.teamlapen.lib.lib.client.gui.screens.radialmenu.DrawCallback;
 import de.teamlapen.lib.lib.client.gui.screens.radialmenu.GuiRadialMenu;
@@ -11,6 +12,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -63,14 +65,11 @@ public class ReorderingGuiRadialMenu<T> extends GuiRadialMenu<ItemWrapper<T>> {
         updateExcludedList();
     }
 
-    /**
-     * from {@link #renderDirtBackground(net.minecraft.client.gui.GuiGraphics)}
-     */
     @Override
     public void renderBackground(@NotNull GuiGraphics graphics, int p_296369_, int p_296477_, float p_294317_) {
-        graphics.setColor(0.5F, 0.5F, 0.5F, 1.0F);
-        graphics.blitSprite(BACKGROUND, 0, 0, 143, this.height);
-        graphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderColor(0.5F, 0.5F, 0.5F, 1.0F);
+        graphics.blitSprite(RenderType::guiTextured, BACKGROUND, 0, 0, 143, this.height);
+        RenderSystem.setShaderColor(1,1,1,1);
     }
 
     @Override
@@ -214,9 +213,9 @@ public class ReorderingGuiRadialMenu<T> extends GuiRadialMenu<ItemWrapper<T>> {
         return true;
     }
 
-    @Override
-    protected void processInputEvent(MovementInputUpdateEvent event) {
-    }
+//    @Override
+//    protected void processInputEvent(MovementInputUpdateEvent event) {
+//    }
 
     private static <T> RadialMenu<ItemWrapper<T>> createMenu(ItemOrdering<T> ordering, Function<T, MutableComponent> nameFunction, DrawCallback<T> drawCallback, Function<T, Boolean> isEnabled) {
         List<IRadialMenuSlot<ItemWrapper<T>>> collect = ordering.getOrdering().stream().map(a -> (IRadialMenuSlot<ItemWrapper<T>>) new NoItemRadialMenuSlot<>(nameFunction, new ItemWrapper<>(a), isEnabled)).collect(Collectors.toList());
@@ -310,8 +309,8 @@ public class ReorderingGuiRadialMenu<T> extends GuiRadialMenu<ItemWrapper<T>> {
         }
 
         @Override
-        protected boolean clicked(double pMouseX, double pMouseY) {
-            var result = super.clicked(pMouseX, pMouseY);
+        public boolean mouseClicked(double mouseX, double mouseY, int button) {
+            var result = super.mouseClicked(mouseX, mouseY, button);
             if (!result) {
                 this.isClicked = false;
             }

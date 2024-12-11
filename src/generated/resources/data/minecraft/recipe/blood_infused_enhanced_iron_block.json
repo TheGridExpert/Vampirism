@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "building",
   "key": {
-    "#": {
-      "item": "vampirism:blood_infused_enhanced_iron_ingot"
-    }
+    "#": "vampirism:blood_infused_enhanced_iron_ingot"
   },
   "pattern": [
     "###",

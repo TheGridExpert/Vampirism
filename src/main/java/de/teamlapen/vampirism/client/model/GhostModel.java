@@ -2,16 +2,17 @@ package de.teamlapen.vampirism.client.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import de.teamlapen.vampirism.client.renderer.entity.GhostRenderer;
 import de.teamlapen.vampirism.entity.GhostEntity;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
-import net.minecraft.util.FastColor;
+import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 
-public class GhostModel extends EntityModel<GhostEntity> {
+public class GhostModel extends EntityModel<GhostRenderer.GhostRenderState> {
 
     private static final String HEAD = "head";
     private static final String BODY = "body";
@@ -33,9 +34,9 @@ public class GhostModel extends EntityModel<GhostEntity> {
     private final ModelPart body;
     private final ModelPart right_arm;
     private final ModelPart left_arm;
-    private boolean isAggressive;
 
     public GhostModel(@NotNull ModelPart part) {
+        super(part);
         this.body = part.getChild(BODY);
         this.head = this.body.getChild(HEAD);
         this.right_arm = this.body.getChild(RIGHT_ARM);
@@ -43,28 +44,27 @@ public class GhostModel extends EntityModel<GhostEntity> {
     }
 
     @Override
-    public void setupAnim(@NotNull GhostEntity pEntity, float pLimbSwing, float pLimbSwingAmount, float pAgeInTicks, float pNetHeadYaw, float pHeadPitch) {
+    public void setupAnim(@NotNull GhostRenderer.GhostRenderState renderState) {
         this.body.getAllParts().forEach(ModelPart::resetPose);
-        this.head.yRot = pNetHeadYaw / (180F / (float) Math.PI);
-        this.head.xRot = pHeadPitch / (180F / (float) Math.PI);
-        this.isAggressive = pEntity.isAggressive();
-        if (pEntity.isAggressive()) {
-            float f6 = Mth.sin(pLimbSwingAmount * (float) Math.PI);
-            float f7 = Mth.sin((1.0F - (1.0F - pLimbSwingAmount) * (1.0F - pLimbSwingAmount)) * (float) Math.PI);
+        this.head.yRot = renderState.yRot / (180F / (float) Math.PI);
+        this.head.xRot = renderState.xRot / (180F / (float) Math.PI);
+        if (renderState.aggressive) {
+            float f6 = Mth.sin(renderState.walkAnimationSpeed * (float) Math.PI);
+            float f7 = Mth.sin((1.0F - (1.0F - renderState.walkAnimationSpeed) * (1.0F - renderState.walkAnimationSpeed)) * (float) Math.PI);
             this.right_arm.yRot = -(0.1F - f6 * 0.6F);
             this.left_arm.yRot = 0.1F - f6 * 0.6F;
             this.right_arm.xRot = -((float) Math.PI / 2F);
             this.left_arm.xRot = -((float) Math.PI / 2F);
             this.right_arm.xRot -= f6 * 1.2F - f7 * 0.4F;
             this.left_arm.xRot -= f6 * 1.2F - f7 * 0.4F;
-            this.right_arm.zRot += Mth.cos(pLimbSwing * 0.09F) * 0.05F + 0.05F;
-            this.left_arm.zRot -= Mth.cos(pLimbSwing * 0.09F) * 0.05F + 0.05F;
-            this.right_arm.xRot += Mth.sin(pLimbSwing * 0.067F) * 0.05F;
-            this.left_arm.xRot -= Mth.sin(pLimbSwing * 0.067F) * 0.05F;
+            this.right_arm.zRot += Mth.cos(renderState.walkAnimationPos * 0.09F) * 0.05F + 0.05F;
+            this.left_arm.zRot -= Mth.cos(renderState.walkAnimationPos * 0.09F) * 0.05F + 0.05F;
+            this.right_arm.xRot += Mth.sin(renderState.walkAnimationPos * 0.067F) * 0.05F;
+            this.left_arm.xRot -= Mth.sin(renderState.walkAnimationPos * 0.067F) * 0.05F;
         }
 
-        float f3 = pAgeInTicks * 5.0F * ((float) Math.PI / 180F);
-        float f4 = Math.min(pLimbSwingAmount / 0.3F, 1.0F);
+        float f3 = renderState.ageInTicks * 5.0F * ((float) Math.PI / 180F);
+        float f4 = Math.min(renderState.walkAnimationSpeed / 0.3F, 1.0F);
         float f5 = 1.0F - f4;
 
         this.body.y += (float) Math.cos(f3) * 0.25F * f5;
@@ -75,19 +75,6 @@ public class GhostModel extends EntityModel<GhostEntity> {
         float f3 = pAgeInTicks * 5.0F * ((float) Math.PI / 180F);
 
         this.body.y += (float) Math.cos(f3) * 0.25F;
-    }
-
-    @Override
-    public void renderToBuffer(@NotNull PoseStack pPoseStack, @NotNull VertexConsumer pBuffer, int pPackedLight, int pPackedOverlay, int color) {
-        if (!this.isAggressive) {
-            int pAlpha = (int) (FastColor.ARGB32.alpha(color) * 0.5f);
-            color = pAlpha << 24 | color;
-        }
-        pPoseStack.pushPose();
-        pPoseStack.scale(0.5F, 0.5F, 0.5F);
-        pPoseStack.translate(0.0F, 1.5F, 0.0F);
-        this.body.render(pPoseStack, pBuffer, pPackedLight, pPackedOverlay, color);
-        pPoseStack.popPose();
     }
 
 }

@@ -9,7 +9,9 @@ import de.teamlapen.vampirism.api.items.IEntityCrossbowArrow;
 import de.teamlapen.vampirism.api.items.IFactionLevelItem;
 import de.teamlapen.vampirism.api.items.IHunterCrossbow;
 import de.teamlapen.vampirism.core.ModDataComponents;
+import de.teamlapen.vampirism.core.ModTasks;
 import de.teamlapen.vampirism.core.tags.ModFactionTags;
+import de.teamlapen.vampirism.core.tags.ModItemTags;
 import de.teamlapen.vampirism.entity.player.hunter.HunterPlayer;
 import de.teamlapen.vampirism.entity.player.hunter.skills.HunterSkills;
 import de.teamlapen.vampirism.items.component.SelectedAmmunition;
@@ -29,6 +31,7 @@ import net.minecraft.stats.Stats;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Unit;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
@@ -49,13 +52,13 @@ import java.util.function.Predicate;
 
 public abstract class HunterCrossbowItem extends CrossbowItem implements IFactionLevelItem<IHunterPlayer>, IHunterCrossbow {
 
-    protected final Tier itemTier;
+    protected final ToolMaterial itemTier;
     private final Holder<ISkill<?>> requiredSkill;
     protected final float arrowVelocity;
     protected final int chargeTime;
 
-    public HunterCrossbowItem(Properties properties, float arrowVelocity, int chargeTime, Tier itemTier, @NotNull Holder<@Nullable ISkill<?>> requiredSkill) {
-        super(properties);
+    public HunterCrossbowItem(Properties properties, float arrowVelocity, int chargeTime, ToolMaterial itemTier, @NotNull Holder<@Nullable ISkill<?>> requiredSkill) {
+        super(properties.repairable(ModItemTags.CROSSBOW_REPAIRABLE).enchantable(itemTier.enchantmentValue()));
         this.arrowVelocity = arrowVelocity;
         this.chargeTime = chargeTime;
         this.itemTier = itemTier;
@@ -91,16 +94,6 @@ public abstract class HunterCrossbowItem extends CrossbowItem implements IFactio
     }
 
     @Override
-    public boolean isValidRepairItem(@NotNull ItemStack crossbow, ItemStack repairItem) {
-        return repairItem.is(Tags.Items.STRINGS) || super.isValidRepairItem(crossbow, repairItem);
-    }
-
-    @Override
-    public int getEnchantmentValue(ItemStack stack) {
-        return this.itemTier.getEnchantmentValue();
-    }
-
-    @Override
     public int getMinLevel(@NotNull ItemStack stack) {
         return 0;
     }
@@ -133,10 +126,10 @@ public abstract class HunterCrossbowItem extends CrossbowItem implements IFactio
         return entity instanceof Player player && HunterPlayer.get(player).getSkillHandler().isSkillEnabled(HunterSkills.DOUBLE_IT);
     }
 
-    @Override
-    public UseAnim getUseAnimation(ItemStack pStack) {
-        return UseAnim.CUSTOM;
-    }
+//    @Override
+//    public ItemUseAnimation getUseAnimation(ItemStack pStack) {
+//        return ItemUseAnimation.CUSTOM;
+//    }
 
     @Override
     public int getUseDuration(ItemStack pStack, LivingEntity entity) {
@@ -217,7 +210,7 @@ public abstract class HunterCrossbowItem extends CrossbowItem implements IFactio
     }
 
     @Override
-    public void releaseUsing(@NotNull ItemStack itemStack, @NotNull Level level, @NotNull LivingEntity entity, int pTimeCharged) {
+    public boolean releaseUsing(@NotNull ItemStack itemStack, @NotNull Level level, @NotNull LivingEntity entity, int pTimeCharged) {
         int combinedUseDuration = this.getCombinedUseDuration(itemStack, entity, entity.getUsedItemHand());
         int useDuration = this.getUseDuration(itemStack, entity);
         int combinedChargingDuration = combinedUseDuration - pTimeCharged;
@@ -233,6 +226,7 @@ public abstract class HunterCrossbowItem extends CrossbowItem implements IFactio
             SoundSource source = entity instanceof Player ? SoundSource.PLAYERS : SoundSource.HOSTILE;
             level.playSound(null, entity.getX(), entity.getY(), entity.getZ(), SoundEvents.CROSSBOW_LOADING_END, source, 1.0F, 1.0F / (level.random.nextFloat() * 0.5F + 1.0F) + 0.2F);
         }
+        return false;
     }
 
     public int getCombinedChargeDurationMod(ItemStack crossbow, LivingEntity entity, InteractionHand hand) {
@@ -245,8 +239,8 @@ public abstract class HunterCrossbowItem extends CrossbowItem implements IFactio
 
     @Override
     public int getChargeDurationMod(ItemStack crossbow, Level level) {
-        Registry<Enchantment> enchantments = level.registryAccess().registryOrThrow(Registries.ENCHANTMENT);
-        int i = crossbow.getEnchantmentLevel(enchantments.getHolderOrThrow(Enchantments.QUICK_CHARGE));
+        Registry<Enchantment> enchantments = level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
+        int i = crossbow.getEnchantmentLevel(enchantments.getOrThrow(Enchantments.QUICK_CHARGE));
         return i == 0 ? this.chargeTime : this.chargeTime - 2 * i;
     }
 

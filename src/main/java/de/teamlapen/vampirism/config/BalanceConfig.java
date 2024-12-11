@@ -23,7 +23,6 @@ public class BalanceConfig {
     //GENERAL
 
 
-    public final ModConfigSpec.BooleanValue canCancelSanguinare;
     public final ModConfigSpec.IntValue arrowVampireKillerMaxHealth;
     public final ModConfigSpec.IntValue holyWaterSplashDamage;
     public final ModConfigSpec.IntValue holyWaterNauseaDuration;
@@ -238,7 +237,6 @@ public class BalanceConfig {
         builder.category("general", "");
 
 
-        canCancelSanguinare = builder.comment("If the sanguinare effect can be canceled by milk").define("canCancelSanguinare", true);
         arrowVampireKillerMaxHealth = builder.comment("The vampire killer arrow can only instant kill NPC vampires that have a max (not actual) health of this").defineInRange("arrowVampireKillerMaxHealth", 40, 1, Integer.MAX_VALUE);
         holyWaterSplashDamage = builder.comment("Damage a normal holy water splash bottle does when directly hitting a vampire").defineInRange("holyWaterSplashDamage", 5, 0, Integer.MAX_VALUE);
         holyWaterTierDamageInc = builder.comment("Holy water damage is multiplied with this value for each tier above normal").defineInRange("holyWaterTierDamageInc", 2d, 1d, 10d);

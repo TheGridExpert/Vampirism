@@ -48,6 +48,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
+import org.apache.logging.log4j.core.jmx.Server;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -55,7 +56,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public abstract class VampireBaseEntity extends VampirismEntity implements IVampireMob, Npc/*mainly for JourneyMap*/ {
 
-    public static boolean spawnPredicateVampire(@NotNull EntityType<? extends VampirismEntity> entityType, @NotNull ServerLevelAccessor world, MobSpawnType spawnReason, @NotNull BlockPos blockPos, @NotNull RandomSource random) {
+    public static boolean spawnPredicateVampire(@NotNull EntityType<? extends VampirismEntity> entityType, @NotNull ServerLevelAccessor world, EntitySpawnReason spawnReason, @NotNull BlockPos blockPos, @NotNull RandomSource random) {
         return world.getDifficulty() != Difficulty.PEACEFUL && (Monster.isDarkEnoughToSpawn(world, blockPos, random) || spawnPredicateVampireFog(world, blockPos)) && Mob.checkMobSpawnRules(entityType, world, spawnReason, blockPos, random);
     }
 
@@ -63,12 +64,11 @@ public abstract class VampireBaseEntity extends VampirismEntity implements IVamp
         return VampirismEntity.getAttributeBuilder().add(ModAttributes.SUNDAMAGE, BalanceMobProps.mobProps.VAMPIRE_MOB_SUN_DAMAGE);
     }
 
-    private final boolean countAsMonsterForSpawn;
     protected @NotNull EnumStrength garlicResist = EnumStrength.NONE;
     protected boolean canSuckBloodFromPlayer = false;
     protected boolean vulnerableToFire = true;
     /**
-     * Rules to consider for {@link #checkSpawnRules(LevelAccessor, MobSpawnType)}
+     * Rules to consider for {@link #checkSpawnRules(LevelAccessor, EntitySpawnReason)}
      */
     private SpawnRestriction spawnRestriction = SpawnRestriction.NORMAL;
     private boolean sundamageCache;
@@ -79,13 +79,8 @@ public abstract class VampireBaseEntity extends VampirismEntity implements IVamp
      */
     private boolean dropSoul = false;
 
-    /**
-     * @param countAsMonsterForSpawn If this entity should be counted as vampire and as monster during spawning
-     */
-    public VampireBaseEntity(EntityType<? extends VampireBaseEntity> type, Level world, boolean countAsMonsterForSpawn) {
+    public VampireBaseEntity(EntityType<? extends VampireBaseEntity> type, Level world) {
         super(type, world);
-        this.countAsMonsterForSpawn = countAsMonsterForSpawn;
-
     }
 
     @Override
@@ -96,15 +91,15 @@ public abstract class VampireBaseEntity extends VampirismEntity implements IVamp
         if (this.tickCount % REFERENCE.REFRESH_SUNDAMAGE_TICKS == 2) {
             isGettingSundamage(level(), true);
         }
-        if (!level().isClientSide) {
+        if (level() instanceof ServerLevel level) {
             if (isGettingSundamage(level()) && this.isAlive()) {
                 if (VampirismConfig.BALANCE.vpSundamageInstantDeath.get()) {
-                    DamageHandler.hurtModded(this, ModDamageSources::sunDamage, 1000);
+                    DamageHandler.hurtModded(level, this, ModDamageSources::sunDamage, 1000);
                     turnToAsh();
                 } else if (tickCount % 40 == 11) {
                     double dmg = getAttribute(ModAttributes.SUNDAMAGE).getValue();
                     if (dmg > 0) {
-                        DamageHandler.hurtModded(this, ModDamageSources::sunDamage, (float) dmg);
+                        DamageHandler.hurtModded(level, this, ModDamageSources::sunDamage, (float) dmg);
                     }
                 }
 
@@ -138,7 +133,7 @@ public abstract class VampireBaseEntity extends VampirismEntity implements IVamp
     }
 
     @Override
-    public boolean checkSpawnRules(@NotNull LevelAccessor worldIn, @NotNull MobSpawnType spawnReasonIn) {
+    public boolean checkSpawnRules(@NotNull LevelAccessor worldIn, @NotNull EntitySpawnReason spawnReasonIn) {
         if (spawnRestriction.level >= SpawnRestriction.SIMPLE.level) {
             if (isGettingSundamage(worldIn, true) || isGettingGarlicDamage(worldIn, true) != EnumStrength.NONE) {
                 return false;
@@ -186,7 +181,7 @@ public abstract class VampireBaseEntity extends VampirismEntity implements IVamp
     }
 
     @Override
-    public boolean doHurtTarget(@NotNull Entity entity) {
+    public boolean doHurtTarget(ServerLevel level, @NotNull Entity entity) {
         if (canSuckBloodFromPlayer && !level().isClientSide && wantsBlood() && entity instanceof Player player && !Helper.isHunter(player) && !UtilLib.canReallySee(player, this, true)) {
             int amt = VampirePlayer.get(player).onBite(this);
             drinkBlood(amt, IBloodStats.MEDIUM_SATURATION, new DrinkBloodContext(player));
@@ -208,7 +203,7 @@ public abstract class VampireBaseEntity extends VampirismEntity implements IVamp
                 }
             }
         }
-        return super.doHurtTarget(entity);
+        return super.doHurtTarget(level, entity);
     }
 
     @Override
@@ -227,21 +222,21 @@ public abstract class VampireBaseEntity extends VampirismEntity implements IVamp
     }
 
     @Override
-    public boolean hurt(@NotNull DamageSource damageSource, float amount) {
+    public boolean hurtServer(ServerLevel level, @NotNull DamageSource damageSource, float amount) {
         if (vulnerableToFire) {
             if (damageSource.is(DamageTypes.IN_FIRE)) {
-                return DamageHandler.hurtModded(this, ModDamageSources::vampireInFire, calculateFireDamage(amount));
+                return DamageHandler.hurtModded(level, this, ModDamageSources::vampireInFire, calculateFireDamage(amount));
             } else if (damageSource.is(DamageTypes.ON_FIRE)) {
-                return DamageHandler.hurtModded(this, ModDamageSources::vampireOnFire, calculateFireDamage(amount));
+                return DamageHandler.hurtModded(level, this, ModDamageSources::vampireOnFire, calculateFireDamage(amount));
             }
         }
-        return super.hurt(damageSource, amount);
+        return super.hurtServer(level, damageSource, amount);
     }
 
     @Override
     public boolean isGettingSundamage(LevelAccessor iWorld, boolean forceRefresh) {
         if (!forceRefresh) return sundamageCache;
-        return (sundamageCache = Helper.gettingSundamge(this, iWorld, this.level().getProfiler()));
+        return (sundamageCache = Helper.gettingSundamge(this, iWorld));
     }
 
     @Override
@@ -250,7 +245,7 @@ public abstract class VampireBaseEntity extends VampirismEntity implements IVamp
     }
 
     /**
-     * Select rules to consider for {@link #checkSpawnRules(LevelAccessor, MobSpawnType)}
+     * Select rules to consider for {@link #checkSpawnRules(LevelAccessor, EntitySpawnReason)}
      */
     public void setSpawnRestriction(SpawnRestriction r) {
         this.spawnRestriction = r;
@@ -277,8 +272,8 @@ public abstract class VampireBaseEntity extends VampirismEntity implements IVamp
     @Override
     protected void tickDeath() {
         if (this.deathTime == 19) {
-            if (!this.level().isClientSide && (dropSoul && this.level().getGameRules().getBoolean(GameRules.RULE_DOMOBLOOT))) {
-                this.level().addFreshEntity(new SoulOrbEntity(this.level(), this.getX(), this.getY(), this.getZ(), SoulOrbEntity.VARIANT.VAMPIRE));
+            if (this.level() instanceof ServerLevel level && (dropSoul && level.getGameRules().getBoolean(GameRules.RULE_DOMOBLOOT))) {
+                level.addFreshEntity(new SoulOrbEntity(this.level(), this.getX(), this.getY(), this.getZ(), SoulOrbEntity.VARIANT.VAMPIRE));
             }
         }
         super.tickDeath();

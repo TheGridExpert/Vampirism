@@ -7,6 +7,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.MapColor;
@@ -34,8 +35,8 @@ public class TotemBaseBlock extends VampirismBlock {
         return Shapes.or(a, b, c, d1, d2, d3, d4, e);
     }
 
-    public TotemBaseBlock() {
-        super(Properties.of().mapColor(MapColor.STONE).strength(40, 2000).sound(SoundType.STONE).noOcclusion().pushReaction(PushReaction.BLOCK));
+    public TotemBaseBlock(BlockBehaviour.Properties properties) {
+        super(properties.mapColor(MapColor.STONE).strength(40, 2000).sound(SoundType.STONE).noOcclusion().pushReaction(PushReaction.BLOCK));
     }
 
     @NotNull

@@ -240,7 +240,7 @@ public class ModPlayerEventHandler {
         }
 
         if (VampirismPlayerAttributes.get(event.getEntity()).getVampSpecial().isCannotInteract()) {
-            event.setCancellationResult(InteractionResult.sidedSuccess(event.getLevel().isClientSide()));
+            event.setCancellationResult(InteractionResult.SUCCESS_SERVER);
             event.setCanceled(true);
         }
     }

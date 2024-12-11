@@ -1,6 +1,7 @@
 package de.teamlapen.vampirism.entity.player.vampire;
 
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ambient.Bat;
 import net.neoforged.neoforge.attachment.IAttachmentHolder;
@@ -14,7 +15,7 @@ public class VampireBat {
         @Override
         public Bat apply(IAttachmentHolder holder) {
             if (holder instanceof Entity entity) {
-                var bat = EntityType.BAT.create(((Entity) holder).getCommandSenderWorld());
+                var bat = EntityType.BAT.create(entity.getCommandSenderWorld(), EntitySpawnReason.LOAD);
                 if (bat != null) {
                     bat.restAnimationState.stop();
                     bat.flyAnimationState.startIfStopped(entity.tickCount);

@@ -67,7 +67,7 @@ public interface TaskMenu {
     Registry<Task> getRegistry();
 
     default Task getTask(ResourceKey<Task> key) {
-        return getRegistry().getOrThrow(key);
+        return getRegistry().getValueOrThrow(key);
     }
 
     enum TaskAction implements StringRepresentable {

@@ -48,9 +48,8 @@ public class SundamageReloadListener implements PreparableReloadListener {
         this.registryAccess = registryAccess;
     }
 
-
     @Override
-    public @NotNull CompletableFuture<Void> reload(@NotNull PreparationBarrier pPreparationBarrier, @NotNull ResourceManager pResourceManager, @NotNull ProfilerFiller pPreparationsProfiler, @NotNull ProfilerFiller pReloadProfiler, @NotNull Executor pBackgroundExecutor, @NotNull Executor pGameExecutor) {
+    public @NotNull CompletableFuture<Void> reload(@NotNull PreparationBarrier pPreparationBarrier, @NotNull ResourceManager pResourceManager, @NotNull Executor pBackgroundExecutor, @NotNull Executor pGameExecutor) {
         return CompletableFuture.supplyAsync(() -> load(pResourceManager)).thenCompose(pPreparationBarrier::wait).thenAcceptAsync(this::apply, pGameExecutor);
     }
 
@@ -71,11 +70,11 @@ public class SundamageReloadListener implements PreparableReloadListener {
     }
 
     private SundamageRegistry.Settings merge(List<RawFile> files) {
-        Registry<Biome> biomes = registryAccess.registryOrThrow(Registries.BIOME);
+        Registry<Biome> biomes = registryAccess.lookupOrThrow(Registries.BIOME);
         List<Holder<Biome>> biomeHolder = new ArrayList<>();
         List<HolderSet<Biome>> biomeSets = new ArrayList<>();
 
-        Registry<DimensionType> dimensions = registryAccess.registryOrThrow(Registries.DIMENSION_TYPE);
+        Registry<DimensionType> dimensions = registryAccess.lookupOrThrow(Registries.DIMENSION_TYPE);
         List<Holder<DimensionType>> dimensionHolder = new ArrayList<>();
         List<HolderSet<DimensionType>> dimensionSets = new ArrayList<>();
 
@@ -92,16 +91,16 @@ public class SundamageReloadListener implements PreparableReloadListener {
             }
             for (ExtraCodecs.TagOrElementLocation biome : file.biomes()) {
                 if (biome.tag()) {
-                    biomeSets.add(biomes.getOrCreateTag(TagKey.create(Registries.BIOME, biome.id())));
+                    biomeSets.add(biomes.getOrThrow(TagKey.create(Registries.BIOME, biome.id())));
                 } else {
-                    biomes.getHolder(ResourceKey.create(Registries.BIOME, biome.id())).ifPresent(biomeHolder::add);
+                    biomes.get(ResourceKey.create(Registries.BIOME, biome.id())).ifPresent(biomeHolder::add);
                 }
             }
             for (ExtraCodecs.TagOrElementLocation dimension : file.dimension()) {
                 if (dimension.tag()) {
-                    dimensionSets.add(dimensions.getOrCreateTag(TagKey.create(Registries.DIMENSION_TYPE, dimension.id())));
+                    dimensionSets.add(dimensions.getOrThrow(TagKey.create(Registries.DIMENSION_TYPE, dimension.id())));
                 } else {
-                    dimensions.getHolder(ResourceKey.create(Registries.DIMENSION_TYPE, dimension.id())).ifPresent(dimensionHolder::add);
+                    dimensions.get(ResourceKey.create(Registries.DIMENSION_TYPE, dimension.id())).ifPresent(dimensionHolder::add);
                 }
             }
             levels.addAll(file.levelsNoDamage());
@@ -115,6 +114,7 @@ public class SundamageReloadListener implements PreparableReloadListener {
     private void apply(SundamageRegistry.Settings file) {
         ((SundamageRegistry) VampirismAPI.sundamageRegistry()).applyData(file);
     }
+
 
     public record RawFile(boolean replace, List<ExtraCodecs.TagOrElementLocation> biomes, List<ExtraCodecs.TagOrElementLocation> dimension, List<ResourceKey<Level>> levelsNoDamage, List<ResourceKey<Level>> levelsDamage) {
 

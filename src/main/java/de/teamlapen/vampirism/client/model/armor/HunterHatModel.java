@@ -34,29 +34,10 @@ public class HunterHatModel extends VampirismArmorModel {
         return LayerDefinition.create(mesh, 64, 64);
     }
 
-    private static HunterHatModel hat0;
-    private static HunterHatModel hat1;
     private final @NotNull ModelPart hatBase;
 
-    public static HunterHatModel getAdjustedInstance0(HumanoidModel<?> wearerModel) {
-        if (hat0 == null) {
-            hat0 = new HunterHatModel(Minecraft.getInstance().getEntityModels().bakeLayer(ModEntitiesRender.HUNTER_HAT0));
-        }
-        hat0.copyFromHumanoid(wearerModel);
-        return hat0;
-    }
-
-    public static HunterHatModel getAdjustedInstance1(HumanoidModel<?> wearerModel) {
-        if (hat1 == null) {
-            hat1 = new HunterHatModel(Minecraft.getInstance().getEntityModels().bakeLayer(ModEntitiesRender.HUNTER_HAT1));
-        }
-        hat1.copyFromHumanoid(wearerModel);
-        return hat1;
-    }
-
-
     public HunterHatModel(@NotNull ModelPart part) {
-        super();
+        super(part);
         this.hatBase = part.getChild(HAT_BASE);
     }
 

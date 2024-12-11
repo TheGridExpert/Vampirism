@@ -3,8 +3,12 @@ package de.teamlapen.vampirism.api.entity.factions;
 import net.minecraft.advancements.critereon.EntityPredicate;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Optional;
 
 /**
  * Represents a skill tree such as a skill tree for basic leveling as well as a lord level skill tree. Each faction needs to have their own skill tree.
@@ -35,5 +39,8 @@ public interface ISkillTree {
      */
     @NotNull
     ItemStack display();
+
+    @NotNull
+    Optional<ResourceLocation> background();
 
 }

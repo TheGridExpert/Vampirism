@@ -10,29 +10,26 @@ import de.teamlapen.vampirism.api.entity.player.skills.ISkill;
 import de.teamlapen.vampirism.api.entity.player.skills.ISkillHandler;
 import de.teamlapen.vampirism.core.ModRecipes;
 import de.teamlapen.vampirism.core.ModRegistries;
+import de.teamlapen.vampirism.util.Helper;
 import de.teamlapen.vampirism.util.StreamCodecExtension;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.NonNullList;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
 
 public class AlchemicalCauldronRecipe implements Recipe<AlchemicalCauldronRecipeInput> {
 
-    protected final RecipeType<?> type;
     protected final String group;
     private final Either<Ingredient, FluidStack> fluid;
     protected final Ingredient ingredient;
@@ -42,9 +39,10 @@ public class AlchemicalCauldronRecipe implements Recipe<AlchemicalCauldronRecipe
     private final int reqLevel;
     protected final float experience;
     protected final int cookingTime;
+    @Nullable
+    private PlacementInfo placementInfo;
 
     public AlchemicalCauldronRecipe(@NotNull String groupIn, @NotNull Ingredient ingredientIn, Either<Ingredient, FluidStack> fluidIn, @NotNull ItemStack resultIn, @NotNull List<Holder<ISkill<?>>> skillsIn, int reqLevelIn, int cookTimeIn, float exp) {
-        this.type = ModRecipes.ALCHEMICAL_CAULDRON_TYPE.get();
         this.group = groupIn;
         this.ingredient = ingredientIn;
         this.result = resultIn;
@@ -57,10 +55,20 @@ public class AlchemicalCauldronRecipe implements Recipe<AlchemicalCauldronRecipe
 
     public boolean canBeCooked(int level, @NotNull ISkillHandler<IHunterPlayer> skillHandler) {
         if (level < reqLevel) return false;
-        for (Holder<ISkill<?>> s : skills) {
-            if (!skillHandler.isSkillEnabled(s)) return false;
+        return Helper.areSkillsEnabled(skillHandler, skills);
+    }
+
+    @Override
+    public @NotNull PlacementInfo placementInfo() {
+        if (this.placementInfo == null) {
+            this.placementInfo = PlacementInfo.create(this.ingredient);
         }
-        return true;
+        return this.placementInfo;
+    }
+
+    @Override
+    public @NotNull RecipeBookCategory recipeBookCategory() {
+        return ModRecipes.ALCHEMICAL_CAULDRON_CATEGORY.get();
     }
 
     @Override
@@ -68,25 +76,8 @@ public class AlchemicalCauldronRecipe implements Recipe<AlchemicalCauldronRecipe
         return this.result.copy();
     }
 
-    @Override
-    public boolean canCraftInDimensions(int pWidth, int pHeight) {
-        return true;
-    }
-
-    @Override
-    public NonNullList<Ingredient> getIngredients() {
-        NonNullList<Ingredient> nonnulllist = NonNullList.create();
-        nonnulllist.add(this.ingredient);
-        return nonnulllist;
-    }
-
     public float getExperience() {
         return this.experience;
-    }
-
-    @Override
-    public ItemStack getResultItem(HolderLookup.Provider pRegistries) {
-        return this.result;
     }
 
     public int getCookingTime() {
@@ -94,8 +85,8 @@ public class AlchemicalCauldronRecipe implements Recipe<AlchemicalCauldronRecipe
     }
 
     @Override
-    public RecipeType<?> getType() {
-        return this.type;
+    public RecipeType<AlchemicalCauldronRecipe> getType() {
+        return ModRecipes.ALCHEMICAL_CAULDRON_TYPE.get();
     }
 
     public Either<Ingredient, FluidStack> getFluid() {
@@ -125,7 +116,7 @@ public class AlchemicalCauldronRecipe implements Recipe<AlchemicalCauldronRecipe
 
     @NotNull
     @Override
-    public RecipeSerializer<?> getSerializer() {
+    public RecipeSerializer<AlchemicalCauldronRecipe> getSerializer() {
         return ModRecipes.ALCHEMICAL_CAULDRON.get();
     }
 
@@ -145,8 +136,8 @@ public class AlchemicalCauldronRecipe implements Recipe<AlchemicalCauldronRecipe
         public static final MapCodec<AlchemicalCauldronRecipe> CODEC = RecordCodecBuilder.mapCodec(inst ->
                 inst.group(
                         Codec.STRING.optionalFieldOf("group", "").forGetter(p_300832_ -> p_300832_.group),
-                        Ingredient.CODEC_NONEMPTY.fieldOf("ingredient").forGetter(p_300833_ -> p_300833_.ingredient),
-                        Codec.either(Ingredient.CODEC_NONEMPTY, FluidStack.CODEC).fieldOf("fluid").forGetter(s -> s.fluid),
+                        Ingredient.CODEC.fieldOf("ingredient").forGetter(p_300833_ -> p_300833_.ingredient),
+                        Codec.either(Ingredient.CODEC, FluidStack.CODEC).fieldOf("fluid").forGetter(s -> s.fluid),
                         ItemStack.CODEC.fieldOf("result").forGetter(p_300827_ -> p_300827_.result),
                         ModRegistries.SKILLS.holderByNameCodec().listOf().optionalFieldOf("skill", Collections.emptyList()).forGetter(p -> p.skills),
                         Codec.INT.optionalFieldOf("level", 1).forGetter(p -> p.reqLevel),

@@ -16,7 +16,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.util.FastColor;
+import net.minecraft.util.ARGB;
 import net.minecraft.world.LockCode;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.Nameable;
@@ -144,13 +144,13 @@ public class VampireBeaconBlockEntity extends BlockEntity implements MenuProvide
                         ((BeaconBeamSectionyMixin) beaconblockentity$beaconbeamsection).invoke_increaseHeight();
                     } else {
                         beaconblockentity$beaconbeamsection = new BeaconBlockEntity.BeaconBeamSection(
-                                FastColor.ARGB32.average(beaconblockentity$beaconbeamsection.getColor(), j1)
+                                ARGB.average(beaconblockentity$beaconbeamsection.getColor(), j1)
                         );
                         pBlockEntity.checkingBeamSections.add(beaconblockentity$beaconbeamsection);
                     }
                 }
             } else {
-                if (beaconblockentity$beaconbeamsection == null || blockstate.getLightBlock(pLevel, blockpos) >= 15 && !blockstate.is(Blocks.BEDROCK)) {
+                if (beaconblockentity$beaconbeamsection == null || blockstate.getLightBlock() >= 15 && !blockstate.is(Blocks.BEDROCK)) {
                     pBlockEntity.checkingBeamSections.clear();
                     pBlockEntity.lastCheckY = l;
                     break;
@@ -178,7 +178,7 @@ public class VampireBeaconBlockEntity extends BlockEntity implements MenuProvide
         }
 
         if (pBlockEntity.lastCheckY >= l) {
-            pBlockEntity.lastCheckY = pLevel.getMinBuildHeight() - 1;
+            pBlockEntity.lastCheckY = pLevel.getMinY() - 1;
             boolean flag = k1 > 0;
             pBlockEntity.beamSections = pBlockEntity.checkingBeamSections;
             if (!pLevel.isClientSide) {
@@ -217,7 +217,7 @@ public class VampireBeaconBlockEntity extends BlockEntity implements MenuProvide
 
         for (int j = 1; j <= MAX_LEVELS; i = j++) {
             int k = pY - j;
-            if (k < pLevel.getMinBuildHeight()) {
+            if (k < pLevel.getMinY()) {
                 break;
             }
 
@@ -280,7 +280,7 @@ public class VampireBeaconBlockEntity extends BlockEntity implements MenuProvide
         }
         this.effectAmplifier = pTag.getInt("Amplifier");
 
-        this.lockKey = LockCode.fromTag(pTag);
+        this.lockKey = LockCode.fromTag(pTag, provider);
         this.isUpgraded = pTag.getBoolean("Upgraded");
     }
 
@@ -294,7 +294,7 @@ public class VampireBeaconBlockEntity extends BlockEntity implements MenuProvide
         }
         pTag.putInt("Amplifier", this.effectAmplifier);
 
-        this.lockKey.addToTag(pTag);
+        this.lockKey.addToTag(pTag, provider);
         pTag.putBoolean("Upgraded", this.isUpgraded);
     }
 
@@ -327,6 +327,6 @@ public class VampireBeaconBlockEntity extends BlockEntity implements MenuProvide
     @Override
     public void setLevel(@NotNull Level pLevel) {
         super.setLevel(pLevel);
-        this.lastCheckY = pLevel.getMinBuildHeight() - 1;
+        this.lastCheckY = pLevel.getMinY() - 1;
     }
 }

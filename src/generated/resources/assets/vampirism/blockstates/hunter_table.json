@@ -2,7 +2,8 @@
   "multipart": [
     {
       "apply": {
-        "model": "vampirism:block/hunter_table/hunter_table"
+        "model": "vampirism:block/hunter_table/hunter_table",
+        "y": 0
       },
       "when": {
         "facing": "north"
@@ -37,11 +38,18 @@
     },
     {
       "apply": {
-        "model": "vampirism:block/hunter_table/hunter_table_bottle"
+        "model": "vampirism:block/hunter_table/hunter_table_bottle",
+        "y": 0
       },
       "when": {
-        "facing": "north",
-        "variant": "potion|potion_cauldron|weapon_potion|complete"
+        "AND": [
+          {
+            "facing": "north"
+          },
+          {
+            "variant": "potion|potion_cauldron|weapon_potion|complete"
+          }
+        ]
       }
     },
     {
@@ -50,8 +58,14 @@
         "y": 90
       },
       "when": {
-        "facing": "east",
-        "variant": "potion|potion_cauldron|weapon_potion|complete"
+        "AND": [
+          {
+            "facing": "east"
+          },
+          {
+            "variant": "potion|potion_cauldron|weapon_potion|complete"
+          }
+        ]
       }
     },
     {
@@ -60,8 +74,14 @@
         "y": 180
       },
       "when": {
-        "facing": "south",
-        "variant": "potion|potion_cauldron|weapon_potion|complete"
+        "AND": [
+          {
+            "facing": "south"
+          },
+          {
+            "variant": "potion|potion_cauldron|weapon_potion|complete"
+          }
+        ]
       }
     },
     {
@@ -70,17 +90,30 @@
         "y": 270
       },
       "when": {
-        "facing": "west",
-        "variant": "potion|potion_cauldron|weapon_potion|complete"
+        "AND": [
+          {
+            "facing": "west"
+          },
+          {
+            "variant": "potion|potion_cauldron|weapon_potion|complete"
+          }
+        ]
       }
     },
     {
       "apply": {
-        "model": "vampirism:block/hunter_table/hunter_table_garlic"
+        "model": "vampirism:block/hunter_table/hunter_table_garlic",
+        "y": 0
       },
       "when": {
-        "facing": "north",
-        "variant": "cauldron|potion_cauldron|weapon_cauldron|complete"
+        "AND": [
+          {
+            "facing": "north"
+          },
+          {
+            "variant": "cauldron|potion_cauldron|weapon_cauldron|complete"
+          }
+        ]
       }
     },
     {
@@ -89,8 +122,14 @@
         "y": 90
       },
       "when": {
-        "facing": "east",
-        "variant": "cauldron|potion_cauldron|weapon_cauldron|complete"
+        "AND": [
+          {
+            "facing": "east"
+          },
+          {
+            "variant": "cauldron|potion_cauldron|weapon_cauldron|complete"
+          }
+        ]
       }
     },
     {
@@ -99,8 +138,14 @@
         "y": 180
       },
       "when": {
-        "facing": "south",
-        "variant": "cauldron|potion_cauldron|weapon_cauldron|complete"
+        "AND": [
+          {
+            "facing": "south"
+          },
+          {
+            "variant": "cauldron|potion_cauldron|weapon_cauldron|complete"
+          }
+        ]
       }
     },
     {
@@ -109,17 +154,30 @@
         "y": 270
       },
       "when": {
-        "facing": "west",
-        "variant": "cauldron|potion_cauldron|weapon_cauldron|complete"
+        "AND": [
+          {
+            "facing": "west"
+          },
+          {
+            "variant": "cauldron|potion_cauldron|weapon_cauldron|complete"
+          }
+        ]
       }
     },
     {
       "apply": {
-        "model": "vampirism:block/hunter_table/hunter_table_hammer"
+        "model": "vampirism:block/hunter_table/hunter_table_hammer",
+        "y": 0
       },
       "when": {
-        "facing": "north",
-        "variant": "weapon|weapon_cauldron|weapon_potion|complete"
+        "AND": [
+          {
+            "facing": "north"
+          },
+          {
+            "variant": "weapon|weapon_potion|weapon_cauldron|complete"
+          }
+        ]
       }
     },
     {
@@ -128,8 +186,14 @@
         "y": 90
       },
       "when": {
-        "facing": "east",
-        "variant": "weapon|weapon_cauldron|weapon_potion|complete"
+        "AND": [
+          {
+            "facing": "east"
+          },
+          {
+            "variant": "weapon|weapon_potion|weapon_cauldron|complete"
+          }
+        ]
       }
     },
     {
@@ -138,8 +202,14 @@
         "y": 180
       },
       "when": {
-        "facing": "south",
-        "variant": "weapon|weapon_cauldron|weapon_potion|complete"
+        "AND": [
+          {
+            "facing": "south"
+          },
+          {
+            "variant": "weapon|weapon_potion|weapon_cauldron|complete"
+          }
+        ]
       }
     },
     {
@@ -148,8 +218,14 @@
         "y": 270
       },
       "when": {
-        "facing": "west",
-        "variant": "weapon|weapon_cauldron|weapon_potion|complete"
+        "AND": [
+          {
+            "facing": "west"
+          },
+          {
+            "variant": "weapon|weapon_potion|weapon_cauldron|complete"
+          }
+        ]
       }
     }
   ]

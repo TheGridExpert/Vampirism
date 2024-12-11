@@ -1,8 +1,6 @@
 {
   "type": "minecraft:stonecutting",
-  "ingredient": {
-    "item": "vampirism:dark_stone_bricks"
-  },
+  "ingredient": "vampirism:dark_stone_bricks",
   "result": {
     "count": 1,
     "id": "vampirism:dark_stone_tiles_wall"

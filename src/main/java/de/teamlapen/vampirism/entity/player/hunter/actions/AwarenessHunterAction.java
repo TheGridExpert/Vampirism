@@ -13,8 +13,6 @@ import org.jetbrains.annotations.NotNull;
 
 public class AwarenessHunterAction extends DefaultHunterAction implements ILastingAction<IHunterPlayer> {
 
-    private final TargetingConditions vampirePredicate = TargetingConditions.forNonCombat().selector(VampirismAPI.factionRegistry().getPredicate(ModFactions.HUNTER, true, true, false, false, ModFactions.VAMPIRE));
-
     public AwarenessHunterAction() {
         super();
     }

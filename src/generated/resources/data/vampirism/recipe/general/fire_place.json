@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "X": {
-      "tag": "minecraft:logs"
-    },
-    "Y": {
-      "tag": "c:storage_blocks/coal"
-    }
+    "X": "#minecraft:logs",
+    "Y": "#c:storage_blocks/coal"
   },
   "pattern": [
     " X ",

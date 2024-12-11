@@ -22,11 +22,11 @@ import java.util.stream.IntStream;
 public class CodecUtil {
     public static final Codec<UUID> UUID = Codec.STRING.xmap(java.util.UUID::fromString, java.util.UUID::toString);
     public static final Codec<ChunkPos> CHUNK_POS = Codec.INT_STREAM.comapFlatMap(p -> Util.fixedSize(p, 2).map(l -> new ChunkPos(l[0], l[1])), p -> IntStream.of(p.x, p.z));
-    public static final PrimitiveCodec<DoubleStream> DOUBLE_STREAM = new PrimitiveCodec<DoubleStream>() {
+    public static final PrimitiveCodec<DoubleStream> DOUBLE_STREAM = new PrimitiveCodec<>() {
         @Override
         public <T> DataResult<DoubleStream> read(final DynamicOps<T> ops, final T input) {
             return ops.getStream(input).flatMap(s -> {
-                final List<T> list = s.collect(Collectors.toList());
+                final List<T> list = s.toList();
                 if (list.stream().allMatch(element -> ops.getNumberValue(element).result().isPresent())) {
                     return DataResult.success(list.stream().mapToDouble(element -> ops.getNumberValue(element).result().get().doubleValue()));
                 }

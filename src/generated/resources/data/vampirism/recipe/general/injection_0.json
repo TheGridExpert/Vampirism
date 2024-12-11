@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "X": {
-      "tag": "c:glass_blocks"
-    },
-    "Y": {
-      "tag": "c:glass_panes"
-    }
+    "X": "#c:glass_blocks",
+    "Y": "#c:glass_panes"
   },
   "pattern": [
     " X ",

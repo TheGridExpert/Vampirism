@@ -27,8 +27,8 @@ import static de.teamlapen.vampirism.blocks.HorizontalContainerBlock.createTicke
 public class MotherBlock extends VampirismBlock implements EntityBlock, IRemainsBlock {
 
 
-    public MotherBlock() {
-        super(BlockBehaviour.Properties.of().mapColor(MapColor.TERRACOTTA_BROWN).strength(5, 3600000.0F).sound(SoundType.CHAIN));
+    public MotherBlock(BlockBehaviour.Properties properties) {
+        super(properties.mapColor(MapColor.TERRACOTTA_BROWN).strength(5, 3600000.0F).sound(SoundType.CHAIN));
     }
 
     @Override

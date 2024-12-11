@@ -13,11 +13,11 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.biome.Biome;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -27,7 +27,7 @@ import java.util.function.Consumer;
 
 public class AdvancementProvider extends net.neoforged.neoforge.common.data.AdvancementProvider {
 
-    public AdvancementProvider(PackOutput packOutput, CompletableFuture<HolderLookup.Provider> lookupProvider, ExistingFileHelper existingFileHelper) {
+    public AdvancementProvider(PackOutput packOutput, CompletableFuture<HolderLookup.Provider> lookupProvider, @SuppressWarnings("removal") net.neoforged.neoforge.common.data.ExistingFileHelper existingFileHelper) {
         super(packOutput, lookupProvider, existingFileHelper, List.of(new VampirismAdvancements()));
     }
 
@@ -40,7 +40,7 @@ public class AdvancementProvider extends net.neoforged.neoforge.common.data.Adva
         private final List<VampirismAdvancementSubProvider> subProvider = List.of(new MainAdvancements(), new HunterAdvancements(), new VampireAdvancements(), new MinionAdvancements());
 
         @Override
-        public void generate(HolderLookup.@NotNull Provider registries, @NotNull Consumer<AdvancementHolder> consumer, @NotNull ExistingFileHelper existingFileHelper) {
+        public void generate(HolderLookup.@NotNull Provider registries, @NotNull Consumer<AdvancementHolder> consumer, @SuppressWarnings("removal") @NotNull net.neoforged.neoforge.common.data.ExistingFileHelper existingFileHelper) {
 
             AdvancementHolder root = Advancement.Builder.advancement()
                     .display(ModItems.VAMPIRE_FANG.get(), Component.translatable("advancement.vampirism"), Component.translatable("advancement.vampirism.desc"), VResourceLocation.mod("textures/block/dark_stone_bricks.png"), AdvancementType.TASK, false, false, false)
@@ -58,6 +58,7 @@ public class AdvancementProvider extends net.neoforged.neoforge.common.data.Adva
         @SuppressWarnings("unused")
         @Override
         public void generate(@NotNull AdvancementHolder root, HolderLookup.@NotNull Provider holderProvider, @NotNull Consumer<AdvancementHolder> consumer) {
+            HolderLookup.RegistryLookup<EntityType<?>> entities = holderProvider.lookupOrThrow(Registries.ENTITY_TYPE);
             AdvancementHolder become_hunter = Advancement.Builder.advancement()
                     .display(ModBlocks.GARLIC.get(), Component.translatable("advancement.vampirism.become_hunter"), Component.translatable("advancement.vampirism.become_hunter.desc"), null, AdvancementType.TASK, true, false, false)
                     .parent(root)
@@ -73,7 +74,7 @@ public class AdvancementProvider extends net.neoforged.neoforge.common.data.Adva
             AdvancementHolder betrayal = Advancement.Builder.advancement()
                     .display(ModItems.HUMAN_HEART.get(), Component.translatable("advancement.vampirism.betrayal"), Component.translatable("advancement.vampirism.betrayal.desc"), null, AdvancementType.TASK, true, true, true)
                     .parent(become_hunter)
-                    .addCriterion("kill", KilledTrigger.TriggerInstance.playerKilledEntity(EntityPredicate.Builder.entity().of(ModEntityTags.HUNTER)))
+                    .addCriterion("kill", KilledTrigger.TriggerInstance.playerKilledEntity(EntityPredicate.Builder.entity().of(entities, ModEntityTags.HUNTER)))
                     .addCriterion("faction", FactionCriterionTrigger.TriggerInstance.level(ModFactions.HUNTER, 1))
                     .save(consumer, REFERENCE.MODID + ":hunter/betrayal");
             AdvancementHolder max_level = Advancement.Builder.advancement()
@@ -123,6 +124,7 @@ public class AdvancementProvider extends net.neoforged.neoforge.common.data.Adva
         @Override
         public void generate(@NotNull AdvancementHolder root, HolderLookup.@NotNull Provider holderProvider, @NotNull Consumer<AdvancementHolder> consumer) {
             HolderLookup.RegistryLookup<Biome> biomeRegistryLookup = holderProvider.lookupOrThrow(Registries.BIOME);
+            HolderLookup.RegistryLookup<EntityType<?>> entities = holderProvider.lookupOrThrow(Registries.ENTITY_TYPE);
             AdvancementHolder vampire_forest = Advancement.Builder.advancement()
                     .display(Items.OAK_LOG, Component.translatable("advancement.vampirism.vampire_forest"), Component.translatable("advancement.vampirism.vampire_forest.desc"), null, AdvancementType.TASK, true, true, true)
                     .parent(root)
@@ -137,12 +139,12 @@ public class AdvancementProvider extends net.neoforged.neoforge.common.data.Adva
             AdvancementHolder regicide = Advancement.Builder.advancement()
                     .display(ModItems.PURE_BLOOD_0.get(), Component.translatable("advancement.vampirism.regicide"), Component.translatable("advancement.vampirism.regicide.desc"), null, AdvancementType.CHALLENGE, true, true, true)
                     .parent(vampire_forest)
-                    .addCriterion("main", KilledTrigger.TriggerInstance.playerKilledEntity(EntityPredicate.Builder.entity().of(ModEntities.VAMPIRE_BARON.get())))
+                    .addCriterion("main", KilledTrigger.TriggerInstance.playerKilledEntity(EntityPredicate.Builder.entity().of(entities, ModEntities.VAMPIRE_BARON.get())))
                     .save(consumer, REFERENCE.MODID + ":main/regicide");
             AdvancementHolder jumpScare = Advancement.Builder.advancement()
                     .display(Items.SKELETON_SKULL, Component.translatable("advancement.vampirism.jump_scare"), Component.translatable("advancement.vampirism.jump_scare.desc"), null, AdvancementType.TASK, true, true, true)
                     .parent(vampire_forest)
-                    .addCriterion("main", KilledTrigger.TriggerInstance.entityKilledPlayer(EntityPredicate.Builder.entity().of(ModEntities.GHOST.get())))
+                    .addCriterion("main", KilledTrigger.TriggerInstance.entityKilledPlayer(EntityPredicate.Builder.entity().of(entities, ModEntities.GHOST.get())))
                     .save(consumer, REFERENCE.MODID + ":main/jump_scare");
         }
     }

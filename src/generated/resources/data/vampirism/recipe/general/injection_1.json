@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "vampirism:injection_empty"
-    },
-    {
-      "tag": "c:crops/garlic"
-    }
+    "vampirism:injection_empty",
+    "#c:crops/garlic"
   ],
   "result": {
     "count": 1,

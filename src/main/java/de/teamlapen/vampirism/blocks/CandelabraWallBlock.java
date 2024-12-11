@@ -3,9 +3,11 @@ package de.teamlapen.vampirism.blocks;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -31,8 +33,8 @@ public class CandelabraWallBlock extends AbstractCandelabraBlock {
         put(Direction.EAST, ImmutableList.of(new Vec3(0.1875, 0.9375, 0.5D), new Vec3(0.1875, 0.8125, 0.1875), new Vec3(0.1875, 0.8125, 1 - 0.1875)));
     }};
 
-    public CandelabraWallBlock() {
-        super(BlockBehaviour.Properties.of().mapColor(MapColor.METAL).lightLevel(s -> 14).noOcclusion(), makeWallCandelabraShape());
+    public CandelabraWallBlock(BlockBehaviour.Properties properties) {
+        super(properties.mapColor(MapColor.METAL).lightLevel(s -> 14).noOcclusion(), makeWallCandelabraShape());
     }
 
     @Override
@@ -65,7 +67,7 @@ public class CandelabraWallBlock extends AbstractCandelabraBlock {
 
     @NotNull
     @Override
-    public BlockState updateShape(@NotNull BlockState stateIn, @NotNull Direction facing, @NotNull BlockState facingState, @NotNull LevelAccessor worldIn, @NotNull BlockPos currentPos, @NotNull BlockPos facingPos) {
+    public BlockState updateShape(@NotNull BlockState stateIn, LevelReader worldIn, ScheduledTickAccess tickAccess, @NotNull BlockPos currentPos, @NotNull Direction facing, @NotNull BlockPos facingPos, @NotNull BlockState facingState, RandomSource random) {
         return facing.getOpposite() == stateIn.getValue(FACING) && !stateIn.canSurvive(worldIn, currentPos) ? Blocks.AIR.defaultBlockState() : stateIn;
     }
 

@@ -15,6 +15,7 @@ import de.teamlapen.vampirism.entity.player.vampire.actions.VampireActions;
 import de.teamlapen.vampirism.entity.vampire.VampireBaronEntity;
 import de.teamlapen.vampirism.world.LevelDamage;
 import de.teamlapen.vampirism.world.ModDamageSources;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageSources;
@@ -117,6 +118,7 @@ public class DamageHandler {
      * @param source    The throwing entity
      */
     public static void affectEntityHolyWaterSplash(@NotNull LivingEntity entity, @NotNull EnumStrength strength, double distSq, boolean directHit, @Nullable LivingEntity source) {
+        if (!(entity.level() instanceof ServerLevel level)) return;
         if (!entity.isAlive()) return;
         boolean vampire = Helper.isVampire(entity);
         if (entity.isAffectedByPotions() && (vampire || entity.getType().is(EntityTypeTags.UNDEAD))) {
@@ -139,7 +141,7 @@ public class DamageHandler {
                     int l = ((VampireBaronEntity) entity).getEntityLevel();
                     amount = scaleDamageWithLevel(l, VampireBaronEntity.MAX_LEVEL, amount * 0.8, amount * 2);
                 }
-                hurtModded(entity, ModDamageSources::holyWater, (float) amount);
+                hurtModded(level, entity, ModDamageSources::holyWater, (float) amount);
             }
         }
         if (vampire && entity instanceof Player player) {
@@ -178,17 +180,17 @@ public class DamageHandler {
         return LevelDamage.getOpt(world).map(sourceFunc);
     }
 
-    public static boolean hurtModded(@NotNull Entity entity, @NotNull Function<ModDamageSources, DamageSource> sourceFunc, float amount) {
-        return getDamageSource(entity.level(), sourceFunc).map(source -> entity.hurt(source, amount)).orElse(false);
+    public static boolean hurtModded(ServerLevel level, @NotNull Entity entity, @NotNull Function<ModDamageSources, DamageSource> sourceFunc, float amount) {
+        return getDamageSource(level, sourceFunc).map(source -> entity.hurtServer(level, source, amount)).orElse(false);
     }
 
     @SuppressWarnings("UnusedReturnValue")
-    public static boolean hurtVanilla(@NotNull Entity entity, @NotNull Function<DamageSources, DamageSource> sourceFunc, float amount) {
-        DamageSource source = sourceFunc.apply(entity.level().damageSources());
-        return entity.hurt(source, amount);
+    public static boolean hurtVanilla(ServerLevel level, @NotNull Entity entity, @NotNull Function<DamageSources, DamageSource> sourceFunc, float amount) {
+        DamageSource source = sourceFunc.apply(level.damageSources());
+        return entity.hurtServer(level, source, amount);
     }
 
-    public static boolean kill(@NotNull Entity entity, int damage) {
-        return hurtVanilla(entity, DamageSources::generic, damage);
+    public static boolean kill(ServerLevel level, @NotNull Entity entity, int damage) {
+        return hurtVanilla(level, entity, DamageSources::generic, damage);
     }
 }

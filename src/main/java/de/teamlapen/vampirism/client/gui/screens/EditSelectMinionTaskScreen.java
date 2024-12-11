@@ -1,5 +1,7 @@
 package de.teamlapen.vampirism.client.gui.screens;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import de.teamlapen.lib.lib.client.gui.GuiRenderer;
 import de.teamlapen.vampirism.api.entity.factions.IFaction;
 import de.teamlapen.vampirism.api.entity.minion.IFactionMinionTask;
 import de.teamlapen.vampirism.api.entity.minion.INoGlobalCommandTask;
@@ -10,6 +12,7 @@ import de.teamlapen.vampirism.core.ModRegistries;
 import de.teamlapen.vampirism.entity.factions.FactionPlayerHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.RenderType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -31,7 +34,8 @@ public class EditSelectMinionTaskScreen extends ReorderingGuiRadialMenu<SelectMi
 
     private static void drawActionPart(@Nullable SelectMinionTaskRadialScreen.Entry entry, GuiGraphics graphics, int posX, int posY, int size, boolean transparent) {
         if (entry == null) return;
-        graphics.blit(entry.getIconLoc(), posX, posY, 0, 0, 0, 16, 16, 16, 16);
+        RenderSystem.disableBlend();
+        GuiRenderer.blit(graphics, entry.getIconLoc(), posX, posY, 16, 16, 16, 16);
     }
 
     private static boolean isEnabled(FactionPlayerHandler player, @NotNull SelectMinionTaskRadialScreen.Entry item) {

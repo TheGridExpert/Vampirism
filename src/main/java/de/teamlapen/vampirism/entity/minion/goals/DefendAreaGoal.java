@@ -4,6 +4,7 @@ import de.teamlapen.vampirism.entity.minion.MinionEntity;
 import de.teamlapen.vampirism.entity.minion.management.DefendAreaTask;
 import de.teamlapen.vampirism.entity.minion.management.MinionTasks;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.target.TargetGoal;
@@ -28,7 +29,7 @@ public class DefendAreaGoal extends TargetGoal {
         super(entity, false);
         this.entity = entity;
         this.setFlags(EnumSet.of(Goal.Flag.TARGET));
-        this.predicate = TargetingConditions.forCombat().selector(e -> entity.getAttackPredicate(true).test(e)).ignoreInvisibilityTesting().range(60);
+        this.predicate = TargetingConditions.forCombat().selector((e, level) -> entity.getAttackPredicate(true).test(e)).ignoreInvisibilityTesting().range(60);
     }
 
     @Override
@@ -45,7 +46,7 @@ public class DefendAreaGoal extends TargetGoal {
                         this.center = newCenter;
                     }
 
-                    this.targetMob = entity.level().getNearestEntity(LivingEntity.class, predicate, entity, entity.getX(), entity.getY(), entity.getZ(), bb);
+                    this.targetMob = ((ServerLevel)entity.level()).getNearestEntity(LivingEntity.class, predicate, entity, entity.getX(), entity.getY(), entity.getZ(), bb);
                     return this.targetMob != null;
                 }
         ).orElse(false);

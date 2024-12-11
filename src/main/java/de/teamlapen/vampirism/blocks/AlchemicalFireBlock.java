@@ -18,15 +18,18 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
+import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Alchemist's fire which does not spread
@@ -34,8 +37,8 @@ import org.jetbrains.annotations.NotNull;
 public class AlchemicalFireBlock extends VampirismBlock {
     public static final IntegerProperty AGE = IntegerProperty.create("age", 0, 15);
 
-    public AlchemicalFireBlock() {
-        super(Properties.of().mapColor(MapColor.FIRE).strength(0.0f).lightLevel(s -> 15).sound(SoundType.WOOL).noCollission().randomTicks().noOcclusion().pushReaction(PushReaction.DESTROY).replaceable().noLootTable().isViewBlocking(UtilLib::never));
+    public AlchemicalFireBlock(BlockBehaviour.Properties properties) {
+        super(properties.mapColor(MapColor.FIRE).strength(0.0f).lightLevel(s -> 15).sound(SoundType.WOOL).noCollission().randomTicks().noOcclusion().pushReaction(PushReaction.DESTROY).replaceable().noLootTable().isViewBlocking(UtilLib::never));
         this.registerDefaultState(this.stateDefinition.any().setValue(AGE, 0));
     }
 
@@ -79,16 +82,18 @@ public class AlchemicalFireBlock extends VampirismBlock {
                 entityIn.igniteForSeconds(8);
             }
 
-            DamageHandler.hurtVanilla(entityIn, DamageSources::inFire, 1);
+            if (worldIn instanceof ServerLevel serverLevel) {
+                DamageHandler.hurtVanilla(serverLevel, entityIn, DamageSources::inFire, 1);
+            }
         }
 
         super.entityInside(state, worldIn, pos, entityIn);
     }
 
     @Override
-    public void neighborChanged(@NotNull BlockState state, @NotNull Level worldIn, @NotNull BlockPos pos, @NotNull Block blockIn, @NotNull BlockPos fromPos, boolean isMoving) {
+    public void neighborChanged(@NotNull BlockState state, @NotNull Level worldIn, @NotNull BlockPos pos, @NotNull Block blockIn, @Nullable Orientation p_365159_, boolean p_60514_) {
         if (!canSurvive(state, worldIn, pos)) {
-            worldIn.removeBlock(pos, isMoving);
+            worldIn.removeBlock(pos, false);
         }
     }
 

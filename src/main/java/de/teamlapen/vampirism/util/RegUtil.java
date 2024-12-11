@@ -72,7 +72,7 @@ public class RegUtil {
     }
 
     public static ResourceLocation id(Level level, @NotNull Biome type) {
-        return level.registryAccess().registryOrThrow(Registries.BIOME).getKey(type);
+        return level.registryAccess().lookupOrThrow(Registries.BIOME).getKey(type);
     }
 
     public static ResourceLocation id(@NotNull VillagerProfession profession) {
@@ -84,7 +84,7 @@ public class RegUtil {
     }
 
     public static ResourceLocation id(@NotNull Level level, ISkillTree tree) {
-        return level.registryAccess().registryOrThrow(VampirismRegistries.Keys.SKILL_TREE).getKey(tree);
+        return level.registryAccess().lookupOrThrow(VampirismRegistries.Keys.SKILL_TREE).getKey(tree);
     }
 
     public static Optional<ResourceKey<IAction<?>>> key(@NotNull IAction<?> action) {
@@ -120,44 +120,44 @@ public class RegUtil {
     }
 
     public static boolean has(@NotNull ServerLevel level, @NotNull Biome biome) {
-        return level.registryAccess().registryOrThrow(Registries.BIOME).containsValue(biome);
+        return level.registryAccess().lookupOrThrow(Registries.BIOME).containsValue(biome);
     }
 
 
     public static Item getItem(@NotNull ResourceLocation id) {
-        return BuiltInRegistries.ITEM.get(id);
+        return BuiltInRegistries.ITEM.getValue(id);
     }
 
     public static IAction<?> getAction(@NotNull ResourceLocation id) {
-        return ModRegistries.ACTIONS.get(id);
+        return ModRegistries.ACTIONS.getValue(id);
     }
 
     public static ISkill<?> getSkill(@NotNull ResourceLocation id) {
-        return ModRegistries.SKILLS.get(id);
+        return ModRegistries.SKILLS.getValue(id);
     }
 
     public static Biome getBiome(ServerLevel level, @NotNull ResourceLocation id) {
-        return level.registryAccess().registryOrThrow(Registries.BIOME).get(id);
+        return level.registryAccess().lookupOrThrow(Registries.BIOME).getValue(id);
     }
 
     public static IMinionTask<?, ?> getMinionTask(@NotNull ResourceLocation id) {
-        return ModRegistries.MINION_TASKS.get(id);
+        return ModRegistries.MINION_TASKS.getValue(id);
     }
 
     public static IRefinement getRefinement(@NotNull ResourceLocation id) {
-        return ModRegistries.REFINEMENTS.get(id);
+        return ModRegistries.REFINEMENTS.getValue(id);
     }
 
     public static IRefinementSet getRefinementSet(@NotNull ResourceLocation id) {
-        return ModRegistries.REFINEMENT_SETS.get(id);
+        return ModRegistries.REFINEMENT_SETS.getValue(id);
     }
 
     public static IOil getOil(@NotNull ResourceLocation id) {
-        return ModRegistries.OILS.get(id);
+        return ModRegistries.OILS.getValue(id);
     }
 
     public static <T, Z extends Registry<T>> Holder<T> getHolder(Level level, ResourceKey<Z> registry, T type) {
-        return level.registryAccess().registryOrThrow(registry).wrapAsHolder(type);
+        return level.registryAccess().lookupOrThrow(registry).wrapAsHolder(type);
     }
 
     public static Holder<DamageType> getHolder(Level level, DamageType type) {
@@ -173,7 +173,7 @@ public class RegUtil {
     }
 
     public static Holder<ISkillTree> getSkillTree(Level level, String asString) {
-        return level.registryAccess().registryOrThrow(VampirismRegistries.Keys.SKILL_TREE).getHolderOrThrow(ResourceKey.create(VampirismRegistries.Keys.SKILL_TREE, ResourceLocation.parse(asString)));
+        return level.registryAccess().lookupOrThrow(VampirismRegistries.Keys.SKILL_TREE).getOrThrow(ResourceKey.create(VampirismRegistries.Keys.SKILL_TREE, ResourceLocation.parse(asString)));
     }
 
     @SuppressWarnings("unchecked")

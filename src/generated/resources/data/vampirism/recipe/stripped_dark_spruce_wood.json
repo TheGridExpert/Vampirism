@@ -3,9 +3,7 @@
   "category": "building",
   "group": "bark",
   "key": {
-    "#": {
-      "item": "vampirism:stripped_dark_spruce_log"
-    }
+    "#": "vampirism:stripped_dark_spruce_log"
   },
   "pattern": [
     "##",

@@ -1,0 +1,75 @@
+{
+  "model": {
+    "type": "minecraft:range_dispatch",
+    "entries": [
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "vampirism:item/blood_bottle_1"
+        },
+        "threshold": 0.11
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "vampirism:item/blood_bottle_2"
+        },
+        "threshold": 0.22
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "vampirism:item/blood_bottle_3"
+        },
+        "threshold": 0.33
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "vampirism:item/blood_bottle_4"
+        },
+        "threshold": 0.44
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "vampirism:item/blood_bottle_5"
+        },
+        "threshold": 0.55
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "vampirism:item/blood_bottle_6"
+        },
+        "threshold": 0.66
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "vampirism:item/blood_bottle_7"
+        },
+        "threshold": 0.77
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "vampirism:item/blood_bottle_8"
+        },
+        "threshold": 0.88
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "vampirism:item/blood_bottle_9"
+        },
+        "threshold": 0.99
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "vampirism:item/blood_bottle_0"
+    },
+    "property": "vampirism:bloodfilled"
+  }
+}

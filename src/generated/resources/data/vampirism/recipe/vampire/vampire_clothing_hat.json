@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "X": {
-      "item": "minecraft:black_wool"
-    },
-    "Y": {
-      "item": "minecraft:red_wool"
-    },
-    "Z": {
-      "tag": "vampirism:heart"
-    }
+    "X": "minecraft:black_wool",
+    "Y": "minecraft:red_wool",
+    "Z": "#vampirism:heart"
   },
   "pattern": [
     "ZXX",

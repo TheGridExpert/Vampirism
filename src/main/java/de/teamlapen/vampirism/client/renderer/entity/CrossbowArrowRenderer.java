@@ -4,10 +4,11 @@ import de.teamlapen.vampirism.api.util.VResourceLocation;
 import de.teamlapen.vampirism.entity.CrossbowArrowEntity;
 import net.minecraft.client.renderer.entity.ArrowRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.state.ArrowRenderState;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
-public class CrossbowArrowRenderer extends ArrowRenderer<CrossbowArrowEntity> {
+public class CrossbowArrowRenderer extends ArrowRenderer<CrossbowArrowEntity, ArrowRenderState> {
 
     private static final ResourceLocation RES_ARROW = VResourceLocation.mc("textures/entity/projectiles/arrow.png");
 
@@ -15,9 +16,13 @@ public class CrossbowArrowRenderer extends ArrowRenderer<CrossbowArrowEntity> {
         super(context);
     }
 
-    @NotNull
     @Override
-    public ResourceLocation getTextureLocation(@NotNull CrossbowArrowEntity entity) {
+    protected @NotNull ResourceLocation getTextureLocation(@NotNull ArrowRenderState state) {
         return RES_ARROW;
+    }
+
+    @Override
+    public @NotNull ArrowRenderState createRenderState() {
+        return new ArrowRenderState();
     }
 }

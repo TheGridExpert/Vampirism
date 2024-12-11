@@ -6,6 +6,7 @@ import de.teamlapen.vampirism.api.items.ExtendedPotionMix;
 import de.teamlapen.vampirism.effects.VampirismPotion;
 import de.teamlapen.vampirism.effects.VampirismPotion.HunterPotion;
 import net.minecraft.core.Holder;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -66,7 +67,7 @@ public class ModPotions {
     public static final DeferredHolder<Potion, HunterPotion> RESISTANCE = POTIONS.register("resistance", () -> new HunterPotion(null, new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 1800)));
     public static final DeferredHolder<Potion, HunterPotion> LONG_RESISTANCE = POTIONS.register("long_resistance", () -> new HunterPotion("resistance", new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 4800)));
     public static final DeferredHolder<Potion, HunterPotion> STRONG_RESISTANCE = POTIONS.register("strong_resistance", () -> new HunterPotion("resistance", new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 1800, 1)));
-    public static final DeferredHolder<Potion, Potion> GARLIC = POTIONS.register("garlic", () -> new Potion(new MobEffectInstance(ModEffects.GARLIC, 1200)));
+    public static final DeferredHolder<Potion, Potion> GARLIC = POTIONS.register("garlic", () -> new Potion("garlic", new MobEffectInstance(ModEffects.GARLIC, 1200)));
 
     //Vampire
     public static final DeferredHolder<Potion, VampirismPotion> VAMPIRE_FIRE_RESISTANCE = POTIONS.register("vampire_fire_resistance", () -> new VampirismPotion(null, new MobEffectInstance(ModEffects.FIRE_PROTECTION, 3600, 5)));
@@ -77,11 +78,11 @@ public class ModPotions {
     }
 
     static void registerPotionMixes(RegisterBrewingRecipesEvent event) {
-        registerPotionMixes();
+        registerPotionMixes(event.getRegistryAccess());
         event.getBuilder().addMix(Potions.WATER, ModBlocks.GARLIC.get().asItem(), GARLIC);
     }
 
-    private static void registerPotionMixes() {
+    private static void registerPotionMixes(RegistryAccess registryAccess) {
         veryDurable(Potions.LUCK, LONG_LUCK);
         veryDurable(Potions.LONG_SLOW_FALLING, VERY_LONG_SLOW_FALLING);
         veryDurable(Potions.LONG_WEAKNESS, VERY_LONG_WEAKNESS);
@@ -112,7 +113,7 @@ public class ModPotions {
         veryStrong(VERY_LONG_LEAPING, LONG_STRONG_LEAPING);
         veryDurable(Potions.LONG_INVISIBILITY, VERY_LONG_INVISIBILITY);
         veryDurable(Potions.LONG_NIGHT_VISION, VERY_LONG_NIGHT_VISION);
-        master(NAUSEA, () -> Ingredient.of(Tags.Items.MUSHROOMS), 32, 16);
+        master(NAUSEA, () -> Ingredient.of(registryAccess.lookupOrThrow(Registries.ITEM).getOrThrow(Tags.Items.MUSHROOMS)), 32, 16);
         durable(NAUSEA, LONG_NAUSEA);
         veryDurable(LONG_NAUSEA, VERY_LONG_NAUSEA);
         master(BLINDNESS, () -> Ingredient.of(Items.INK_SAC), 64, 32);

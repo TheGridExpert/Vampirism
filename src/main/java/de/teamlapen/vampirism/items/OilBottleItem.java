@@ -50,7 +50,7 @@ public class OilBottleItem extends Item implements IOilItem, ModDisplayItemGener
 
     @Override
     public void generateCreativeTab(CreativeModeTab.@NotNull ItemDisplayParameters parameters, CreativeModeTab.Output output) {
-        ModRegistries.OILS.holders().map(l -> ItemDataUtils.createOil(this, l)).forEach(output::accept);
+        ModRegistries.OILS.listElements().map(l -> ItemDataUtils.createOil(this, l)).forEach(output::accept);
     }
 
     @NotNull

@@ -7,6 +7,7 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.level.block.FlowerBlock;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
 import org.jetbrains.annotations.NotNull;
@@ -18,8 +19,8 @@ public class VampirismFlowerBlock extends FlowerBlock {
     @SuppressWarnings("FieldCanBeLocal")
     private final @NotNull TYPE type;
 
-    public VampirismFlowerBlock(@NotNull TYPE type) {
-        super(type.effect, type.duration, Properties.of().mapColor(MapColor.PLANT).isViewBlocking(UtilLib::never).pushReaction(PushReaction.DESTROY).instabreak().noCollission().sound(SoundType.GRASS));
+    public VampirismFlowerBlock(BlockBehaviour.Properties properties, @NotNull TYPE type) {
+        super(type.effect, type.duration, properties.mapColor(MapColor.PLANT).isViewBlocking(UtilLib::never).pushReaction(PushReaction.DESTROY).instabreak().noCollission().sound(SoundType.GRASS));
         this.type = type;
     }
 

@@ -1,5 +1,7 @@
 package de.teamlapen.vampirism.client.gui.screens;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import de.teamlapen.lib.lib.client.gui.GuiRenderer;
 import de.teamlapen.lib.lib.util.MultilineTooltip;
 import de.teamlapen.vampirism.api.entity.player.skills.ISkill;
 import de.teamlapen.vampirism.api.util.VResourceLocation;
@@ -9,6 +11,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.tooltip.BelowOrAboveWidgetTooltipPositioner;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -45,22 +48,22 @@ public class WeaponTableScreen extends AbstractContainerScreen<WeaponTableMenu> 
 
     @Override
     protected void renderBg(@NotNull GuiGraphics graphics, float partialTicks, int mouseX, int mouseY) {
-        graphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
+        GuiRenderer.resetColor();
         int i = this.leftPos;
         int j = (this.height - this.imageHeight) / 2;
-        graphics.blit(BACKGROUND, i, j, 0, 0, this.imageWidth, this.imageHeight);
+        GuiRenderer.blit(graphics, BACKGROUND, i, j, this.imageWidth, this.imageHeight);
 
-        graphics.blitSprite(EMPTY_BUCKET_SPRITE, i + 154, j + 71, 24, 28);
+        graphics.blitSprite(RenderType::guiTextured, EMPTY_BUCKET_SPRITE, i + 154, j + 71, 24, 28);
         if (menu.hasLava()) {
-            graphics.blitSprite(LAVA_SPRITE, i + 154, j + 71, 24, 28);
+            graphics.blitSprite(RenderType::guiTextured, LAVA_SPRITE, i + 154, j + 71, 24, 28);
         }
         if (menu.isMissingLava()) {
-            graphics.blitSprite(MISSING_LAVA_SPRITE, i + 152, j + 69, 28, 32);
+            graphics.blitSprite(RenderType::guiTextured, MISSING_LAVA_SPRITE, i + 152, j + 69, 28, 32);
         }
 
         List<Holder<ISkill<?>>> missingSkills = this.menu.missingSkills().orElse(List.of());
         if (!missingSkills.isEmpty()) {
-            graphics.blitSprite(ERROR_SPRITE, i + 110, j + 43, 28, 21);
+            graphics.blitSprite(RenderType::guiTextured, ERROR_SPRITE, i + 110, j + 43, 28, 21);
         }
     }
 

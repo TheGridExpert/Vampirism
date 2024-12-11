@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "X": {
-      "item": "vampirism:blood_infused_enhanced_iron_ingot"
-    },
-    "Y": {
-      "item": "vampirism:heart_seeker_enhanced"
-    }
+    "X": "vampirism:blood_infused_enhanced_iron_ingot",
+    "Y": "vampirism:heart_seeker_enhanced"
   },
   "pattern": [
     " X ",

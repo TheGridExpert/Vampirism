@@ -47,23 +47,13 @@ public class ClothingCrownModel extends VampirismArmorModel {
         return LayerDefinition.create(mesh, 64, 32);
     }
 
-    private static ClothingCrownModel instance;
-
-    public static ClothingCrownModel getAdjustedInstance(HumanoidModel<?> wearerModel) {
-        if (instance == null) {
-            instance = new ClothingCrownModel(Minecraft.getInstance().getEntityModels().bakeLayer(ModEntitiesRender.CLOTHING_CROWN));
-        }
-        instance.copyFromHumanoid(wearerModel);
-        return instance;
-    }
-
     public final @NotNull ModelPart front;
     public final @NotNull ModelPart back;
     public final @NotNull ModelPart left;
     public final @NotNull ModelPart right;
 
     public ClothingCrownModel(@NotNull ModelPart part) {
-        super();
+        super(part);
         front = part.getChild(FRONT);
         back = part.getChild(BACK);
         left = part.getChild(LEFT);

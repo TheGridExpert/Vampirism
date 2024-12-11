@@ -2,6 +2,8 @@ package de.teamlapen.vampirism.client.renderer.entity.layers;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import de.teamlapen.vampirism.client.renderer.entity.AdvancedVampireRenderer;
+import de.teamlapen.vampirism.client.renderer.entity.state.OverlayRenderState;
 import de.teamlapen.vampirism.util.IPlayerOverlay;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
@@ -9,6 +11,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.HumanoidMobRenderer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
+import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.client.resources.PlayerSkin;
@@ -19,16 +22,16 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Renders an overlay over the entities face
  */
-public class PlayerFaceOverlayLayer<T extends Mob & IPlayerOverlay, M extends HumanoidModel<T>> extends RenderLayer<T, M> {
+public class PlayerFaceOverlayLayer<T extends Mob & IPlayerOverlay, S extends HumanoidRenderState & OverlayRenderState, M extends HumanoidModel<S>> extends RenderLayer<S, M> {
 
 
-    public PlayerFaceOverlayLayer(@NotNull HumanoidMobRenderer<T, M> renderBiped) {
+    public PlayerFaceOverlayLayer(@NotNull HumanoidMobRenderer<T, S, M> renderBiped) {
         super(renderBiped);
     }
 
     @Override
-    public void render(@NotNull PoseStack stack, @NotNull MultiBufferSource buffer, int packedLight, @NotNull T entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
-        ResourceLocation loc = entity.getPlayerOverlay().map(p -> Minecraft.getInstance().getSkinManager().getInsecureSkin(p)).map(PlayerSkin::texture).orElseGet(DefaultPlayerSkin::getDefaultTexture);
+    public void render(@NotNull PoseStack stack, @NotNull MultiBufferSource buffer, int packedLight, @NotNull S entity, float f1, float f2) {
+        ResourceLocation loc = entity.overlay();
         VertexConsumer vertexBuilder = buffer.getBuffer(RenderType.entityCutoutNoCull(loc));
         this.getParentModel().head.visible = true;
         this.getParentModel().hat.visible = true;

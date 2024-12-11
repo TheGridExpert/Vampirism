@@ -42,7 +42,7 @@ public class ItemReward implements TaskReward {
 
     @Override
     public Component description() {
-        return this.reward.getItem().getDescription();
+        return Component.translatable(this.reward.getItem().getDescriptionId());
     }
 
     public record Instance(ItemStack reward) implements ITaskRewardInstance {

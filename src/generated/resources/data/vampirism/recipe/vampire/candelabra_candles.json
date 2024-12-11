@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": {
-      "tag": "c:ingots/gold"
-    },
-    "Y": {
-      "tag": "minecraft:candles"
-    },
-    "Z": {
-      "tag": "c:ingots/iron"
-    }
+    "A": "#c:ingots/gold",
+    "Y": "#minecraft:candles",
+    "Z": "#c:ingots/iron"
   },
   "pattern": [
     "YYY",

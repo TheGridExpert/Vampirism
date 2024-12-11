@@ -1,6 +1,7 @@
 package de.teamlapen.vampirism.client.gui.screens.taskboard;
 
 import com.google.common.collect.Lists;
+import com.mojang.blaze3d.systems.RenderSystem;
 import de.teamlapen.lib.lib.client.gui.components.ContainerObjectSelectionListWithDummy;
 import de.teamlapen.lib.lib.util.MultilineTooltip;
 import de.teamlapen.vampirism.api.VampirismRegistries;
@@ -24,6 +25,7 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -41,10 +43,11 @@ import java.util.*;
 import java.util.function.Supplier;
 
 public class TaskList extends ContainerObjectSelectionListWithDummy<ITaskInstance, TaskList.TaskEntry, TaskList.DummyEntry> {
-    protected static final ResourceLocation TASKMASTER_GUI_TEXTURE = VResourceLocation.mod("textures/gui/taskmaster.png");
     private static final WidgetSprites ACCEPT = new WidgetSprites(VResourceLocation.mod("widget/task_action_accept"), VResourceLocation.mod("widget/task_action_accept_highlighted"));
     private static final WidgetSprites COMPLETE = new WidgetSprites(VResourceLocation.mod("widget/task_action_complete"), VResourceLocation.mod("widget/task_action_complete_highlighted"));
     private static final WidgetSprites ABORT = new WidgetSprites(VResourceLocation.mod("widget/task_action_abort"), VResourceLocation.mod("widget/task_action_abort_highlighted"));
+    private static final ResourceLocation TASK_BACKGROUND = VResourceLocation.mod("widget/task_background");
+    private static final ResourceLocation TASK_DETAILS_BACKGROUND = VResourceLocation.mod("widget/task_details_background");
 
     protected final TaskMenu menu;
     protected final IFactionPlayer<?> factionPlayer;
@@ -54,7 +57,7 @@ public class TaskList extends ContainerObjectSelectionListWithDummy<ITaskInstanc
         super(minecraft, width, height, y, 21, itemSupplier);
         this.menu = menu;
         this.factionPlayer = factionPlayer;
-        this.registry = factionPlayer.asEntity().level().registryAccess().registryOrThrow(VampirismRegistries.Keys.TASK);
+        this.registry = factionPlayer.asEntity().level().registryAccess().lookupOrThrow(VampirismRegistries.Keys.TASK);
         this.setX(x);
     }
 
@@ -84,7 +87,7 @@ public class TaskList extends ContainerObjectSelectionListWithDummy<ITaskInstanc
 
         public TaskEntry(ITaskInstance item) {
             super(item);
-            this.task = registry.get(item.getTask());
+            this.task = registry.getValue(item.getTask());
             this.tooltip = generateTaskToolTip();
         }
 
@@ -95,35 +98,36 @@ public class TaskList extends ContainerObjectSelectionListWithDummy<ITaskInstanc
 
         public void renderBackground(GuiGraphics graphics, Minecraft minecraft, int pTop, int pLeft, int pWidth, int pHeight, int mouseX, int mouseY, float partialTicks) {
             if (menu.isCompleted(this.getItem())) {
-                graphics.setColor(0.4f, 0.4f, 0.4f, 1);
+                RenderSystem.setShaderColor(0.4f, 0.4f, 0.4f, 1);
             } else {
                 boolean isUnique = this.getItem().isUnique(menu.getRegistry());
                 boolean remainsTime = this.getItem().getTaskTimeStamp() - minecraft.level.getGameTime() > 0;
                 if (menu.canCompleteTask(this.getItem())) {
                     if (isUnique) {
-                        graphics.setColor(1f, 0.855859375f, 0, 1);
+                        RenderSystem.setShaderColor(1f, 0.855859375f, 0, 1);
                     } else {
-                        graphics.setColor(0, 0.9f, 0, 1);
+                        RenderSystem.setShaderColor(0, 0.9f, 0, 1);
                     }
                 } else if (menu.isTaskNotAccepted(this.getItem())) {
                     if (isUnique) {
-                        graphics.setColor(0.64f, 0.57f, 0.5f, 1);
+                        RenderSystem.setShaderColor(0.64f, 0.57f, 0.5f, 1);
                     } else {
-                        graphics.setColor(0.55f, 0.55f, 0.55f, 1);
+                        RenderSystem.setShaderColor(0.55f, 0.55f, 0.55f, 1);
                     }
                 } else if (!isUnique && !remainsTime) {
-                    graphics.setColor(1f, 85 / 255f, 85 / 255f, 1);
+                    RenderSystem.setShaderColor(1f, 85 / 255f, 85 / 255f, 1);
                 } else {
                     if (isUnique) {
-                        graphics.setColor(1f, 0.9f, 0.6f, 1f);
+                        RenderSystem.setShaderColor(1f, 0.9f, 0.6f, 1f);
                     } else {
-                        graphics.setColor(0.85f, 1f, 0.85f, 1f);
+                        RenderSystem.setShaderColor(0.85f, 1f, 0.85f, 1f);
                     }
                 }
             }
-            graphics.blit(TASKMASTER_GUI_TEXTURE, pLeft, pTop, 0, 17, 187, Math.min(pWidth - 1, 135), pHeight, 256, 256);
-            graphics.blit(TASKMASTER_GUI_TEXTURE, pLeft + pWidth - Math.min(pWidth - 1, 135), pTop, 0, 17 + (135 - Math.min(pWidth - 1, 134)), 187, Math.min(pWidth - 1, 135), pHeight, 256, 256);
-            graphics.setColor(1, 1, 1, 1);
+            graphics.blitSprite(RenderType::guiTextured, TASK_BACKGROUND, pLeft, pTop, pWidth, pHeight);
+//            graphics.blit(RenderType::guiTextured, TASKMASTER_GUI_TEXTURE, pLeft, pTop, 0, 17, 187, Math.min(pWidth - 1, 135), pHeight, 256, 256);
+//            graphics.blit(RenderType::guiTextured, TASKMASTER_GUI_TEXTURE, pLeft + pWidth - Math.min(pWidth - 1, 135), pTop, 0, 17 + (135 - Math.min(pWidth - 1, 134)), 187, Math.min(pWidth - 1, 135), pHeight, 256, 256);
+            RenderSystem.setShaderColor(1, 1, 1, 1);
         }
 
         @Override
@@ -200,7 +204,7 @@ public class TaskList extends ContainerObjectSelectionListWithDummy<ITaskInstanc
                         MutableComponent desc;
                         int completedAmount = menu.getRequirementStatus(this.getItem(), requirement);
                         desc = switch (type) {
-                            case ITEMS -> ((Item) requirement.getStat(factionPlayer)).getDescription().plainCopy();
+                            case ITEMS -> Component.translatable(((Item) requirement.getStat(factionPlayer)).getDescriptionId());
                             default -> requirement.description().plainCopy();
                         };
                         desc = desc.append(" " + completedAmount + "/" + requirement.getAmount(factionPlayer));
@@ -252,8 +256,7 @@ public class TaskList extends ContainerObjectSelectionListWithDummy<ITaskInstanc
         }
 
         protected void renderBg(@NotNull GuiGraphics graphics, int pIndex, int pTop, int pLeft, int pWidth, int pHeight, int pMouseX, int pMouseY, boolean pIsMouseOver, float pPartialTick) {
-            graphics.blitWithBorder(TASKMASTER_GUI_TEXTURE, pLeft + 2, pTop, 17, 229, pWidth - 4, pHeight, 136, 21, 1, 2, 3, 2);
-            graphics.blitWithBorder(TASKMASTER_GUI_TEXTURE, pLeft + pWidth - 40, pTop, 17, 229, 40 - 2, pHeight, 136, 21, 1, 2, 3, 2);
+            graphics.blitSprite(RenderType::guiTextured,  TASK_DETAILS_BACKGROUND, pLeft + 2, pTop, pWidth-4, pHeight);
         }
 
         @Override
@@ -333,14 +336,14 @@ public class TaskList extends ContainerObjectSelectionListWithDummy<ITaskInstanc
             }
         }
 
-        private class RewardWidget extends ItemWidget {
+        private static class RewardWidget extends ItemWidget {
             protected static final Component REWARD = Component.translatable("gui.vampirism.taskmaster.reward").withStyle(ChatFormatting.UNDERLINE);
 
             private final ITaskInstance rewardInstance;
             private final Component reward;
 
             public RewardWidget(int pX, int pY, @NotNull ITaskInstance rewardInstance) {
-                super(pX, pY, rewardInstance.getReward() instanceof ItemReward.Instance items ? items.reward() : PAPER);
+                super(pX, pY, rewardInstance.getReward() instanceof ItemReward.Instance(ItemStack reward1) ? reward1 : PAPER);
                 this.rewardInstance = rewardInstance;
                 this.reward = Component.translatable(Util.makeDescriptionId("task", rewardInstance.getTask().location()) + ".reward");
                 this.setTooltip(new MultilineTooltip(createTooltip(Item.TooltipContext.of(Minecraft.getInstance().level))));
@@ -349,8 +352,8 @@ public class TaskList extends ContainerObjectSelectionListWithDummy<ITaskInstanc
             @Override
             protected List<Component> createTooltip(Item.TooltipContext tooltipContext) {
                 Item.TooltipContext context = Item.TooltipContext.of(Minecraft.getInstance().level);
-                if (this.rewardInstance.getReward() instanceof ItemReward.Instance item) {
-                    return this.renderItemTooltip(item.reward(), REWARD, context, false, null);
+                if (this.rewardInstance.getReward() instanceof ItemReward.Instance(ItemStack reward1)) {
+                    return this.renderItemTooltip(reward1, REWARD, context, false, null);
                 } else {
                     return this.renderItemTooltip(context);
                 }
@@ -462,7 +465,7 @@ public class TaskList extends ContainerObjectSelectionListWithDummy<ITaskInstanc
                     default -> ABORT;
                 };
 
-                graphics.blitSprite(sprites.get(this.active, this.isHovered), this.getX(), this.getY(), this.width, this.height);
+                graphics.blitSprite(RenderType::guiTextured, sprites.get(this.active, this.isHovered), this.getX(), this.getY(), this.width, this.height);
 
                 if (this.isHovered) {
                     this.setTooltip(Tooltip.create(Component.translatable(action.getTranslationKey())));

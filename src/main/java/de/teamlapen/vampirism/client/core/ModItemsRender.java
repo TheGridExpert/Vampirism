@@ -6,6 +6,9 @@ import de.teamlapen.vampirism.api.items.IArrowContainer;
 import de.teamlapen.vampirism.api.items.IHunterCrossbow;
 import de.teamlapen.vampirism.api.items.IRefinementItem;
 import de.teamlapen.vampirism.api.util.VResourceLocation;
+import de.teamlapen.vampirism.client.color.item.CrossbowArrowTint;
+import de.teamlapen.vampirism.client.color.item.OilBottleTint;
+import de.teamlapen.vampirism.client.color.item.RefinementTint;
 import de.teamlapen.vampirism.client.extensions.ItemExtensions;
 import de.teamlapen.vampirism.core.ModBlocks;
 import de.teamlapen.vampirism.core.ModDataComponents;
@@ -14,7 +17,6 @@ import de.teamlapen.vampirism.items.BloodBottleItem;
 import de.teamlapen.vampirism.items.CrossbowArrowItem;
 import de.teamlapen.vampirism.items.component.BottleBlood;
 import de.teamlapen.vampirism.items.component.OilContent;
-import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CrossbowItem;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
@@ -29,52 +31,14 @@ import java.util.stream.Stream;
  */
 public class ModItemsRender {
 
-    public static final ResourceLocation CHARGED = VResourceLocation.mod("charged");
-    public static final ResourceLocation FILLED = VResourceLocation.mod("filled");
-    public static final ResourceLocation BLOOD = VResourceLocation.mod("blood");
+    public static final ResourceLocation ARROW_TINT = VResourceLocation.mod("arrow_tint");
+    public static final ResourceLocation OIL_TINT = VResourceLocation.mod("oil_tint");
+    public static final ResourceLocation REFINEMENT_TINT = VResourceLocation.mod("refinement_tint");
 
-    public static void registerItemModelPropertyUnsafe() {
-        Stream.of(ModItems.BASIC_CROSSBOW.get(), ModItems.BASIC_DOUBLE_CROSSBOW.get(), ModItems.ENHANCED_CROSSBOW.get(), ModItems.ENHANCED_DOUBLE_CROSSBOW.get(), ModItems.BASIC_TECH_CROSSBOW.get(), ModItems.ENHANCED_TECH_CROSSBOW.get()).forEach(item -> {
-            ItemProperties.register(item, CHARGED, (stack, world, entity, tint) -> {
-                return CrossbowItem.isCharged(stack) ? 0.0f : 1.0f;
-            });
-        });
-        ItemProperties.register(ModItems.ARROW_CLIP.get(), FILLED, (stack, world, entity, tint) -> {
-            return (float) ((IArrowContainer) stack.getItem()).getArrows(stack).size() / (float) ((IArrowContainer) stack.getItem()).getMaxArrows(stack);
-        });
-        ItemProperties.register(ModItems.BLOOD_BOTTLE.get(), BLOOD, (stack, world, entity, tint) -> {
-            return stack.getOrDefault(ModDataComponents.BOTTLE_BLOOD, BottleBlood.EMPTY).blood() / (float) BloodBottleItem.AMOUNT;
-        });
-    }
-
-    static void registerColors(RegisterColorHandlersEvent.@NotNull Item event) {
-        //Crossbow arrow
-        event.register((stack, tintIndex) -> {
-            if (tintIndex == 1) {
-                return ((CrossbowArrowItem) stack.getItem()).tintIndex();
-            }
-            return -1;
-        }, ModItems.CROSSBOW_ARROW_NORMAL.get(), ModItems.CROSSBOW_ARROW_VAMPIRE_KILLER.get(), ModItems.CROSSBOW_ARROW_SPITFIRE.get(), ModItems.CROSSBOW_ARROW_TELEPORT.get(), ModItems.CROSSBOW_ARROW_BLEEDING.get(), ModItems.CROSSBOW_ARROW_GARLIC.get());
-        event.register((state, tintIndex) -> {
-            return 0x1E1F1F;
-        }, ModBlocks.DARK_SPRUCE_LEAVES.get());
-        event.register((stack, tintIndex) -> {
-            if (tintIndex == 1) {
-                if (stack.getItem() instanceof IRefinementItem) {
-                    IRefinementSet set = ((IRefinementItem) stack.getItem()).getRefinementSet(stack);
-                    if (set != null) {
-                        return set.getColor() | 0xFF000000;
-                    }
-                }
-            }
-            return -1;
-        }, ModItems.AMULET.get(), ModItems.RING.get(), ModItems.OBI_BELT.get());
-        event.register((stack, tintIndex) -> {
-            if (tintIndex == 1) {
-                return OilContent.getOil(stack).value().getColor() | 0xFF000000;
-            }
-            return -1;
-        }, ModItems.OIL_BOTTLE.get());
+    static void registerColors(RegisterColorHandlersEvent.@NotNull ItemTintSources event) {
+        event.register(ARROW_TINT, CrossbowArrowTint.CODEC);
+        event.register(OIL_TINT, OilBottleTint.CODEC);
+        event.register(REFINEMENT_TINT, RefinementTint.CODEC);
     }
 
     public static void registerItemDecorator(RegisterItemDecorationsEvent event) {
@@ -95,9 +59,9 @@ public class ModItemsRender {
 
     public static void registerClientExtensions(RegisterClientExtensionsEvent event) {
         event.registerItem(ItemExtensions.HUNTER_HAT, ModItems.HUNTER_HAT_HEAD_0.get(), ModItems.HUNTER_HAT_HEAD_1.get());
-        event.registerItem(ItemExtensions.MOTHER_TROPHY, ModBlocks.MOTHER_TROPHY.asItem());
         event.registerItem(ItemExtensions.VAMPIRE_CLOAK, ModItems.VAMPIRE_CLOAK_BLACK_BLUE.get(), ModItems.VAMPIRE_CLOAK_BLACK_RED.get(), ModItems.VAMPIRE_CLOAK_RED_BLACK.get(), ModItems.VAMPIRE_CLOAK_BLACK_WHITE.get(), ModItems.VAMPIRE_CLOAK_WHITE_BLACK.get());
         event.registerItem(ItemExtensions.VAMPIRE_CLOTHING, ModItems.VAMPIRE_CLOTHING_CROWN.get(), ModItems.VAMPIRE_CLOTHING_HAT.get(), ModItems.VAMPIRE_CLOTHING_LEGS.get(), ModItems.VAMPIRE_CLOTHING_BOOTS.get());
         event.registerItem(ItemExtensions.HUNTER_CROSSBOW, ModItems.BASIC_CROSSBOW.get(), ModItems.ENHANCED_CROSSBOW.get(), ModItems.BASIC_DOUBLE_CROSSBOW.get(), ModItems.ENHANCED_DOUBLE_CROSSBOW.get(), ModItems.BASIC_TECH_CROSSBOW.get(), ModItems.ENHANCED_TECH_CROSSBOW.get());
+        event.registerItem(ItemExtensions.CRUCIFIX, ModItems.CRUCIFIX_NORMAL.get(), ModItems.CRUCIFIX_ENHANCED.get(), ModItems.CRUCIFIX_ULTIMATE.get());
     }
 }

@@ -8,7 +8,6 @@ import de.teamlapen.vampirism.items.VampireSwordItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
@@ -93,12 +92,12 @@ public class PedestalBlock extends VampirismBlockContainer {
             ItemStack stack2 = pedestal.extractItem(0, 1, false);
             player.awardStat(ModStats.ITEMS_FILLED_ON_BLOOD_PEDESTAL.get());
             takeItemPlayer(player, InteractionHand.MAIN_HAND, stack2);
-            return InteractionResult.sidedSuccess(world.isClientSide);
+            return (InteractionResult) InteractionResult.SUCCESS;
         }).orElse(InteractionResult.PASS);
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         return getTile(world, pos).filter(s -> !s.hasStack()).map(pedestal -> {
             ItemStack stack2 = ItemStack.EMPTY;
             if (!pedestal.extractItem(0, 1, true).isEmpty()) {
@@ -109,8 +108,8 @@ public class PedestalBlock extends VampirismBlockContainer {
             } else {
                 pedestal.insertItem(0, stack2, false);
             }
-            return ItemInteractionResult.sidedSuccess(world.isClientSide);
-        }).orElse(ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION);
+            return (InteractionResult)InteractionResult.SUCCESS;
+        }).orElse(InteractionResult.TRY_WITH_EMPTY_HAND);
     }
 
     @Override

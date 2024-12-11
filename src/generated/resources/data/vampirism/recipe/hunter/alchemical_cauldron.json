@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "X": {
-      "tag": "c:ingots/iron"
-    },
-    "Y": {
-      "item": "minecraft:stone_bricks"
-    },
-    "Z": {
-      "tag": "c:crops/garlic"
-    }
+    "X": "#c:ingots/iron",
+    "Y": "minecraft:stone_bricks",
+    "Z": "#c:crops/garlic"
   },
   "pattern": [
     "XZX",

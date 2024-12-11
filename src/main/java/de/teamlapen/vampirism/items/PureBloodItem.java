@@ -2,6 +2,7 @@ package de.teamlapen.vampirism.items;
 
 import de.teamlapen.vampirism.api.VReference;
 import de.teamlapen.vampirism.api.VampirismAPI;
+import de.teamlapen.vampirism.api.util.VResourceLocation;
 import de.teamlapen.vampirism.core.ModEffects;
 import de.teamlapen.vampirism.core.ModFactions;
 import de.teamlapen.vampirism.core.ModItems;
@@ -9,16 +10,17 @@ import de.teamlapen.vampirism.entity.player.vampire.VampireLeveling;
 import de.teamlapen.vampirism.entity.player.vampire.VampirePlayer;
 import de.teamlapen.vampirism.entity.vampire.DrinkBloodContext;
 import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -48,8 +50,8 @@ public class PureBloodItem extends Item {
 
     private final int level;
 
-    public PureBloodItem(int level) {
-        super(new Properties().stacksTo(16));
+    public PureBloodItem(int level, Item.Properties properties) {
+        super(properties.stacksTo(16).overrideDescription(Util.makeDescriptionId("item", VResourceLocation.mod("pure_blood"))));
         this.level = level;
     }
 
@@ -75,7 +77,7 @@ public class PureBloodItem extends Item {
     }
 
     public @NotNull Component getCustomName() {
-        return Component.translatable(this.getOrCreateDescriptionId()).append(Component.literal(" " + (level + 1)));
+        return Component.translatable(this.getDescriptionId().replaceAll("_\\d", "")).append(Component.literal(" " + (level + 1)));
     }
 
     @Override
@@ -85,31 +87,19 @@ public class PureBloodItem extends Item {
 
     @NotNull
     @Override
-    public UseAnim getUseAnimation(@NotNull ItemStack stack) {
-        return UseAnim.DRINK;
+    public ItemUseAnimation getUseAnimation(@NotNull ItemStack stack) {
+        return ItemUseAnimation.DRINK;
     }
 
     @NotNull
     @Override
-    public InteractionResultHolder<ItemStack> use(@NotNull Level worldIn, @NotNull Player playerIn, @NotNull InteractionHand handIn) {
+    public InteractionResult use(@NotNull Level worldIn, @NotNull Player playerIn, @NotNull InteractionHand handIn) {
         int playerLevel = VampirismAPI.factionPlayerHandler(playerIn).getCurrentLevel(ModFactions.VAMPIRE);
         if (VampireLeveling.getInfusionRequirement(playerLevel).filter(x -> x.pureBloodLevel() < getLevel()).isPresent()) {
             playerIn.startUsingItem(handIn);
-            return InteractionResultHolder.sidedSuccess(playerIn.getItemInHand(handIn), worldIn.isClientSide);
+            return InteractionResult.SUCCESS_SERVER;
         }
         return super.use(worldIn, playerIn, handIn);
     }
 
-
-    private String descriptionId;
-
-    @Override
-    @NotNull
-    protected String getOrCreateDescriptionId() {
-        if (this.descriptionId == null) {
-            this.descriptionId = super.getOrCreateDescriptionId().replaceAll("_\\d", "");
-        }
-
-        return this.descriptionId;
-    }
 }

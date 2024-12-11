@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "category": "building",
   "ingredients": [
-    {
-      "item": "vampirism:blood_infused_iron_block"
-    }
+    "vampirism:blood_infused_iron_block"
   ],
   "result": {
     "count": 9,

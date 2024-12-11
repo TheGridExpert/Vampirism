@@ -2,21 +2,11 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": {
-      "tag": "c:ingots/gold"
-    },
-    "B": {
-      "tag": "c:ingots/iron"
-    },
-    "X": {
-      "item": "minecraft:string"
-    },
-    "Y": {
-      "item": "vampirism:item_candelabra"
-    },
-    "Z": {
-      "item": "minecraft:honeycomb"
-    }
+    "A": "#c:ingots/gold",
+    "B": "#c:ingots/iron",
+    "X": "minecraft:string",
+    "Y": "vampirism:item_candelabra",
+    "Z": "minecraft:honeycomb"
   },
   "pattern": [
     "XYX",

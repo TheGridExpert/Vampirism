@@ -3,8 +3,10 @@ package de.teamlapen.vampirism.blocks;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -30,8 +32,8 @@ public class CandelabraBlock extends AbstractCandelabraBlock {
         put(Direction.EAST, ImmutableList.of(new Vec3(0.5, 0.9375, 0.5D), new Vec3(0.5, 0.8125, 0.1875), new Vec3(0.5D, 0.8125, 0.8125)));
     }};
 
-    public CandelabraBlock() {
-        super(BlockBehaviour.Properties.of().mapColor(MapColor.METAL).strength(2f).lightLevel(s -> 14).noOcclusion(), makeCandelabraShape());
+    public CandelabraBlock(BlockBehaviour.Properties properties) {
+        super(properties.mapColor(MapColor.METAL).strength(2f).lightLevel(s -> 14).noOcclusion(), makeCandelabraShape());
     }
 
     @Override
@@ -41,8 +43,8 @@ public class CandelabraBlock extends AbstractCandelabraBlock {
 
     @NotNull
     @Override
-    public BlockState updateShape(@NotNull BlockState stateIn, @NotNull Direction facing, @NotNull BlockState facingState, @NotNull LevelAccessor worldIn, @NotNull BlockPos currentPos, @NotNull BlockPos facingPos) {
-        return facing == Direction.DOWN && !this.canSurvive(stateIn, worldIn, currentPos) ? Blocks.AIR.defaultBlockState() : super.updateShape(stateIn, facing, facingState, worldIn, currentPos, facingPos);
+    public BlockState updateShape(@NotNull BlockState stateIn, LevelReader worldIn, ScheduledTickAccess tickAccess, @NotNull BlockPos currentPos, @NotNull Direction facing, @NotNull BlockPos facingPos, @NotNull BlockState facingState, RandomSource random) {
+        return facing == Direction.DOWN && !this.canSurvive(stateIn, worldIn, currentPos) ? Blocks.AIR.defaultBlockState() : super.updateShape(stateIn, worldIn, tickAccess, currentPos, facing, facingPos, facingState, random);
     }
 
     @Override

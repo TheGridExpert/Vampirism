@@ -1,8 +1,6 @@
 {
   "type": "minecraft:stonecutting",
-  "ingredient": {
-    "item": "vampirism:polished_dark_stone"
-  },
+  "ingredient": "vampirism:polished_dark_stone",
   "result": {
     "count": 1,
     "id": "vampirism:dark_stone_brick_stairs"

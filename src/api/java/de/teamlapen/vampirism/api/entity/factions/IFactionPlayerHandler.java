@@ -6,6 +6,7 @@ import de.teamlapen.vampirism.api.entity.player.skills.IRefinementHandler;
 import de.teamlapen.vampirism.api.entity.player.skills.ISkillHandler;
 import de.teamlapen.vampirism.api.entity.player.task.ITaskManager;
 import de.teamlapen.vampirism.api.extensions.IPlayer;
+import de.teamlapen.vampirism.api.registries.DeferredFaction;
 import net.minecraft.core.Holder;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.damagesource.DamageSource;
@@ -41,6 +42,13 @@ public interface IFactionPlayerHandler extends ILordPlayer, IPlayer {
      */
     @NotNull
     <T extends IFactionPlayer<T>> T factionPlayer();
+
+    <T extends IFactionPlayer<T>> Optional<T> factionPlayer(Holder<IFaction<T>> faction);
+
+    default <T extends IFactionPlayer<T>> Optional<T> factionPlayer(DeferredFaction<T, ? extends IFaction<T>> faction) {
+        //noinspection unchecked
+        return factionPlayer((Holder<IFaction<T>>) faction);
+    }
 
     <T extends IFactionPlayer<T>> Optional<T> getCurrentFactionPlayer();
 

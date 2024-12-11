@@ -74,7 +74,7 @@ public class FactionArgument implements ArgumentType<Holder.Reference<IFaction<?
 
     @Override
     public <S> @NotNull CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, @NotNull SuggestionsBuilder builder) {
-        Stream<Holder.Reference<IFaction<?>>> factions = ModRegistries.FACTIONS.holders();
+        Stream<Holder.Reference<IFaction<?>>> factions = ModRegistries.FACTIONS.listElements();
         if (this.onlyPlayableFactions) {
             factions = factions.filter(f -> f.value() instanceof IPlayableFaction);
         }

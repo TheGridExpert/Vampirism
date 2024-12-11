@@ -2,15 +2,9 @@
   "type": "vampirism:shaped_crafting_weapontable",
   "category": "equipment",
   "key": {
-    "X": {
-      "tag": "c:leathers"
-    },
-    "Y": {
-      "tag": "c:crops/garlic"
-    },
-    "Z": {
-      "tag": "c:ingots/gold"
-    }
+    "X": "#c:leathers",
+    "Y": "#c:crops/garlic",
+    "Z": "#c:ingots/gold"
   },
   "lava": 3,
   "pattern": [

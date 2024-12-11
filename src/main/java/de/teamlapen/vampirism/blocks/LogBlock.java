@@ -22,8 +22,8 @@ public class LogBlock extends RotatedPillarBlock {
         ((FireBlock) Blocks.FIRE).setFlammable(this, 5, 5);
     }
 
-    public LogBlock(MapColor color1, MapColor color2) {
-        super(BlockBehaviour.Properties.of().mapColor((p_235431_2_) -> {
+    public LogBlock(BlockBehaviour.Properties properties, MapColor color1, MapColor color2) {
+        super(properties.mapColor((p_235431_2_) -> {
             return p_235431_2_.getValue(RotatedPillarBlock.AXIS) == Direction.Axis.Y ? color1 : color2;
         }).strength(2.0F).ignitedByLava().sound(SoundType.WOOD));
         ((FireBlock) Blocks.FIRE).setFlammable(this, 5, 5);

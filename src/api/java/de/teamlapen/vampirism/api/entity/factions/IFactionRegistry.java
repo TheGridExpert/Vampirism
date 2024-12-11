@@ -5,6 +5,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.player.Player;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.Nullable;
@@ -46,6 +47,10 @@ public interface IFactionRegistry {
      */
     Predicate<LivingEntity> getPredicate(Holder<? extends IFaction<?>> thisFaction, boolean ignoreDisguise);
 
+    default TargetingConditions.Selector getSelector(Holder<? extends IFaction<?>> thisFaction, boolean ignoreDisguise) {
+        return (entity, level) -> getPredicate(thisFaction, ignoreDisguise).test(entity);
+    }
+
     /**
      * Get a cached or create a predicate which selects entities from other factions.
      *
@@ -57,6 +62,10 @@ public interface IFactionRegistry {
      * @param otherFaction   If this is not null, only entities of this faction are selected.
      */
     Predicate<LivingEntity> getPredicate(Holder<? extends IFaction<?>> thisFaction, boolean player, boolean mob, boolean neutralPlayer, boolean ignoreDisguise, @Nullable Holder<? extends IFaction<?>> otherFaction);
+
+    default TargetingConditions.Selector getSelector(Holder<? extends IFaction<?>> thisFaction, boolean player, boolean mob, boolean neutralPlayer, boolean ignoreDisguise, @Nullable Holder<? extends IFaction<?>> otherFaction){
+        return (entity, level) -> getPredicate(thisFaction, player, mob, neutralPlayer, ignoreDisguise, otherFaction).test(entity);
+    }
 
     /**
      * @return a map of all minion entries from {@link de.teamlapen.vampirism.api.VampirismRegistries#MINION} registry, grouped by faction

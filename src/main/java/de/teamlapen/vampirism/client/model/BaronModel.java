@@ -3,8 +3,8 @@ package de.teamlapen.vampirism.client.model;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
+import de.teamlapen.vampirism.client.renderer.entity.VampireBaronRenderer;
 import de.teamlapen.vampirism.entity.vampire.VampireBaronEntity;
-import net.minecraft.client.model.AgeableListModel;
 import net.minecraft.client.model.ArmedModel;
 import net.minecraft.client.model.HeadedModel;
 import net.minecraft.client.model.HumanoidModel;
@@ -21,7 +21,7 @@ import org.jetbrains.annotations.NotNull;
  * Created using Tabula 7.1.0
  * Updated to 1.17 by maxanier
  */
-public class BaronModel extends AgeableListModel<VampireBaronEntity> implements ArmedModel, HeadedModel {
+public class BaronModel extends BaronBaseModel implements ArmedModel, HeadedModel {
     private static final String BODY = "body";
     private static final String HEAD_OVERLAY = "head_overlay";
     private static final String LEG_RIGHT_OVERLAY = "leg_right_overlay";
@@ -79,6 +79,7 @@ public class BaronModel extends AgeableListModel<VampireBaronEntity> implements 
     }
 
     public BaronModel(@NotNull ModelPart part) {
+        super(part);
         this.body = part.getChild(BODY);
         this.headOverlay = part.getChild(HEAD_OVERLAY);
         this.legRightOverlay = part.getChild(LEG_RIGHT_OVERLAY);
@@ -96,6 +97,10 @@ public class BaronModel extends AgeableListModel<VampireBaronEntity> implements 
 
     }
 
+    @Override
+    public ModelPart getBody() {
+        return this.body;
+    }
 
     @NotNull
     @Override
@@ -104,8 +109,8 @@ public class BaronModel extends AgeableListModel<VampireBaronEntity> implements 
     }
 
     @Override
-    public void setupAnim(@NotNull VampireBaronEntity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-        this.head.yRot = netHeadYaw * ((float) Math.PI / 180f);
+    public void setupAnim(@NotNull VampireBaronRenderer.VampireBaronRenderState state) {
+        this.head.yRot = state.yRot * ((float) Math.PI / 180f);
 
         this.body.yRot = 0.0F;
         this.armRight.z = 0.0F;
@@ -114,12 +119,12 @@ public class BaronModel extends AgeableListModel<VampireBaronEntity> implements 
         this.armLeft.x = 4.0F;
 
 
-        this.armRight.xRot = Mth.cos(limbSwing * 0.6662F + (float) Math.PI) * 2.0F * limbSwingAmount * 0.5F;
-        this.armLeft.xRot = Mth.cos(limbSwing * 0.6662F) * 2.0F * limbSwingAmount * 0.5F;
+        this.armRight.xRot = Mth.cos(state.walkAnimationPos * 0.6662F + (float) Math.PI) * 2.0F * state.walkAnimationSpeed * 0.5F;
+        this.armLeft.xRot = Mth.cos(state.walkAnimationPos * 0.6662F) * 2.0F * state.walkAnimationSpeed * 0.5F;
         this.armRight.zRot = 0.0F;
         this.armLeft.zRot = 0.0F;
-        this.legRight.xRot = Mth.cos(limbSwing * 0.6662F) * 1.4F * limbSwingAmount;
-        this.legLeft.xRot = Mth.cos(limbSwing * 0.6662F + (float) Math.PI) * 1.4F * limbSwingAmount;
+        this.legRight.xRot = Mth.cos(state.walkAnimationPos * 0.6662F) * 1.4F * state.walkAnimationSpeed;
+        this.legLeft.xRot = Mth.cos(state.walkAnimationPos * 0.6662F + (float) Math.PI) * 1.4F * state.walkAnimationSpeed;
         this.legRight.yRot = 0.0F;
         this.legLeft.yRot = 0.0F;
         this.legRight.zRot = 0.0F;
@@ -152,10 +157,10 @@ public class BaronModel extends AgeableListModel<VampireBaronEntity> implements 
                 this.armRight.yRot = 0.0F;
             }
         }
-        if (this.attackTime > 0.0F) {
-            HumanoidArm handside = this.getSwingingSide(entityIn);
+        if (state.attackTime > 0.0F) {
+            HumanoidArm handside = state.attackArm;
             ModelPart ModelRenderer = this.getArmForSide(handside);
-            float f1 = this.attackTime;
+            float f1 = state.attackTime;
             this.body.yRot = Mth.sin(Mth.sqrt(f1) * ((float) Math.PI * 2F)) * 0.2F;
             if (handside == HumanoidArm.LEFT) {
                 this.body.yRot *= -1.0F;
@@ -168,12 +173,12 @@ public class BaronModel extends AgeableListModel<VampireBaronEntity> implements 
 //            this.armRight.rotateAngleY += this.body.rotateAngleY;
 //            this.armLeft.rotateAngleY += this.body.rotateAngleY;
             this.armLeft.xRot += this.body.yRot;
-            f1 = 1.0F - this.attackTime;
+            f1 = 1.0F - state.attackTime;
             f1 = f1 * f1;
             f1 = f1 * f1;
             f1 = 1.0F - f1;
             float f2 = Mth.sin(f1 * (float) Math.PI);
-            float f3 = Mth.sin(this.attackTime * (float) Math.PI) * -(this.head.xRot - 0.7F) * 0.75F;
+            float f3 = Mth.sin(state.attackTime * (float) Math.PI) * -(this.head.xRot - 0.7F) * 0.75F;
             ModelRenderer.xRot = (float) ((double) ModelRenderer.xRot - ((double) f2 * 1.2D + (double) f3));
 //            ModelRenderer.rotateAngleY += this.body.rotateAngleY * 2.0F;
 //            ModelRenderer.rotateAngleZ += MathHelper.sin(this.swingProgress * (float)Math.PI) * -0.4F;
@@ -187,8 +192,8 @@ public class BaronModel extends AgeableListModel<VampireBaronEntity> implements 
         this.head.y = 0.0F;
 
 
-        this.armRight.xRot += (float) (Mth.sin(ageInTicks * 0.067F) * 0.06F - 0.03);
-        this.armLeft.xRot -= (float) (Mth.sin(ageInTicks * 0.067F) * 0.06F + 0.03);
+        this.armRight.xRot += (float) (Mth.sin(state.ageInTicks * 0.067F) * 0.06F - 0.03);
+        this.armLeft.xRot -= (float) (Mth.sin(state.ageInTicks * 0.067F) * 0.06F + 0.03);
 
 
         this.headOverlay.copyFrom(this.head);
@@ -210,20 +215,4 @@ public class BaronModel extends AgeableListModel<VampireBaronEntity> implements 
         return side == HumanoidArm.LEFT ? this.armLeft : this.armRight;
     }
 
-    @NotNull
-    @Override
-    protected Iterable<ModelPart> bodyParts() {
-        return ImmutableList.of(this.headOverlay, this.body, this.bodyOverlay, this.armLeftOverlay, this.armRightOverlay, this.legLeftOverlay, this.legRightOverlay);
-    }
-
-    protected @NotNull HumanoidArm getSwingingSide(@NotNull VampireBaronEntity entity) {
-        HumanoidArm handside = entity.getMainArm();
-        return entity.swingingArm == InteractionHand.MAIN_HAND ? handside : handside.getOpposite();
-    }
-
-    @NotNull
-    @Override
-    protected Iterable<ModelPart> headParts() {
-        return ImmutableList.of(head);
-    }
 }

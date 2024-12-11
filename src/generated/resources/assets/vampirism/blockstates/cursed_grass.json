@@ -1,17 +1,24 @@
 {
-  "multipart": [
-    {
-      "apply": {
+  "variants": {
+    "snowy=false": [
+      {
         "model": "vampirism:block/cursed_grass"
-      }
-    },
-    {
-      "apply": {
-        "model": "vampirism:block/cursed_grass_snowy"
       },
-      "when": {
-        "snowy": "true"
+      {
+        "model": "vampirism:block/cursed_grass",
+        "y": 90
+      },
+      {
+        "model": "vampirism:block/cursed_grass",
+        "y": 180
+      },
+      {
+        "model": "vampirism:block/cursed_grass",
+        "y": 270
       }
+    ],
+    "snowy=true": {
+      "model": "vampirism:block/cursed_grass_snowy"
     }
-  ]
+  }
 }

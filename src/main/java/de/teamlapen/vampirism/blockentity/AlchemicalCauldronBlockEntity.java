@@ -1,6 +1,7 @@
 package de.teamlapen.vampirism.blockentity;
 
 import com.mojang.datafixers.util.Either;
+import de.teamlapen.vampirism.VampirismMod;
 import de.teamlapen.vampirism.api.entity.player.skills.ISkillHandler;
 import de.teamlapen.vampirism.blocks.AlchemicalCauldronBlock;
 import de.teamlapen.vampirism.core.ModDataMaps;
@@ -19,12 +20,14 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.StackedContents;
+import net.minecraft.world.entity.player.StackedItemContents;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.RecipeCraftingHolder;
@@ -77,24 +80,21 @@ public class AlchemicalCauldronBlockEntity extends BaseContainerBlockEntity impl
 
     protected final ContainerData dataAccess = new ContainerData() {
         @Override
-        public int get(int p_58431_) {
-            switch (p_58431_) {
-                case 0:
+        public int get(int slot) {
+            return switch (slot) {
+                case 0 -> {
                     if (litDuration > Short.MAX_VALUE) {
                         // Neo: preserve litTime / litDuration ratio on the client as data slots are synced as shorts.
-                        return net.minecraft.util.Mth.floor(((double) litTime / litDuration) * Short.MAX_VALUE);
+                        yield Mth.floor(((double) litTime / litDuration) * Short.MAX_VALUE);
                     }
 
-                    return AlchemicalCauldronBlockEntity.this.litTime;
-                case 1:
-                    return Math.min(AlchemicalCauldronBlockEntity.this.litDuration, Short.MAX_VALUE);
-                case 2:
-                    return AlchemicalCauldronBlockEntity.this.cookingProgress;
-                case 3:
-                    return AlchemicalCauldronBlockEntity.this.cookingTotalTime;
-                default:
-                    return 0;
-            }
+                    yield AlchemicalCauldronBlockEntity.this.litTime;
+                }
+                case 1 -> Math.min(AlchemicalCauldronBlockEntity.this.litDuration, Short.MAX_VALUE);
+                case 2 -> AlchemicalCauldronBlockEntity.this.cookingProgress;
+                case 3 -> AlchemicalCauldronBlockEntity.this.cookingTotalTime;
+                default -> 0;
+            };
         }
 
         @Override
@@ -132,7 +132,7 @@ public class AlchemicalCauldronBlockEntity extends BaseContainerBlockEntity impl
     }
 
     public ItemStack getFluid() {
-        return this.items.get(0);
+        return this.items.getFirst();
     }
 
     public ItemStack getIngredient() {
@@ -245,7 +245,7 @@ public class AlchemicalCauldronBlockEntity extends BaseContainerBlockEntity impl
         if (pFuel.isEmpty()) {
             return 0;
         } else {
-            return pFuel.getBurnTime(this.recipeType);
+            return pFuel.getBurnTime(this.recipeType, this.level.fuelValues());
         }
     }
 
@@ -324,7 +324,9 @@ public class AlchemicalCauldronBlockEntity extends BaseContainerBlockEntity impl
         this.items.set(pIndex, pStack);
         pStack.limitSize(this.getMaxStackSize(pStack));
         if ((pIndex == AlchemicalCauldronMenu.FLUID_SLOT || pIndex == AlchemicalCauldronMenu.INGREDIENT_SLOT) && !flag) {
-            this.cookingTotalTime = getTotalCookTime(this.level, this);
+            if (this.level instanceof ServerLevel serverLevel) {
+                this.cookingTotalTime = getTotalCookTime(serverLevel, this);
+            }
             this.cookingProgress = 0;
             this.setChanged();
         }
@@ -359,7 +361,7 @@ public class AlchemicalCauldronBlockEntity extends BaseContainerBlockEntity impl
         if (pBlockEntity.isLit() || flag3 && flag2 && flag4) {
             RecipeHolder<AlchemicalCauldronRecipe> recipeholder;
             if (flag2 && flag4) {
-                recipeholder = pBlockEntity.quickCheck.getRecipeFor(new AlchemicalCauldronRecipeInput(ingredient, fluid, pBlockEntity.getPlayerSkillHandler()), pLevel).orElse(null);
+                recipeholder = pBlockEntity.quickCheck.getRecipeFor(new AlchemicalCauldronRecipeInput(ingredient, fluid, pBlockEntity.getPlayerSkillHandler()), (ServerLevel) pLevel).orElse(null);
             } else {
                 recipeholder = null;
             }
@@ -370,13 +372,14 @@ public class AlchemicalCauldronBlockEntity extends BaseContainerBlockEntity impl
                 pBlockEntity.litDuration = pBlockEntity.litTime;
                 if (pBlockEntity.isLit()) {
                     flag1 = true;
-                    if (fuel.hasCraftingRemainingItem()) {
-                        pBlockEntity.items.set(3, fuel.getCraftingRemainingItem());
+                    var remainder = fuel.getCraftingRemainder();
+                    if (!remainder.isEmpty()) {
+                        pBlockEntity.items.set(3, remainder);
                     } else if (flag3) {
                         Item item = fuel.getItem();
                         fuel.shrink(1);
                         if (fuel.isEmpty()) {
-                            pBlockEntity.items.set(3, fuel.getCraftingRemainingItem());
+                            pBlockEntity.items.set(3, remainder);
                         }
                     }
                 }
@@ -448,7 +451,7 @@ public class AlchemicalCauldronBlockEntity extends BaseContainerBlockEntity impl
         if (recipe != null && canBurn(access, recipe, items, getMaxStackSize(), this) && canPlayerCook(recipe)) {
             ItemStack itemstackfluid = this.items.get(0);
             ItemStack itemstackingredient = this.items.get(1);
-            ItemStack itemstack1result = recipe.value().getResultItem(access);
+            ItemStack itemstack1result = recipe.value().result();
             ItemStack itemstackoutput = this.items.get(2);
             if (itemstackoutput.isEmpty()) {
                 this.items.set(2, itemstack1result.copy());
@@ -516,7 +519,7 @@ public class AlchemicalCauldronBlockEntity extends BaseContainerBlockEntity impl
 
     private static int getTotalCookTime(Level pLevel, AlchemicalCauldronBlockEntity pBlockEntity) {
         AlchemicalCauldronRecipeInput brewingRecipeInput = new AlchemicalCauldronRecipeInput(pBlockEntity.getIngredient(), pBlockEntity.getFluid());
-        return pBlockEntity.quickCheck.getRecipeFor(brewingRecipeInput, pLevel).map(p_300840_ -> p_300840_.value().getCookingTime()).orElse(200);
+        return VampirismMod.proxy.getRecipeFor(ModRecipes.ALCHEMICAL_CAULDRON_TYPE.get(), brewingRecipeInput, pLevel, pBlockEntity.quickCheck).map(p_300840_ -> p_300840_.value().getCookingTime()).orElse(200);
     }
 
     private boolean isBurning() {
@@ -530,7 +533,7 @@ public class AlchemicalCauldronBlockEntity extends BaseContainerBlockEntity impl
     @Override
     public void setRecipeUsed(@Nullable RecipeHolder<?> pRecipe) {
         if (pRecipe != null) {
-            ResourceLocation resourcelocation = pRecipe.id();
+            ResourceLocation resourcelocation = pRecipe.id().location();
             this.recipesUsed.addTo(resourcelocation, 1);
         }
     }
@@ -542,9 +545,9 @@ public class AlchemicalCauldronBlockEntity extends BaseContainerBlockEntity impl
     }
 
     @Override
-    public void fillStackedContents(StackedContents pContents) {
-        for (ItemStack itemstack : this.items) {
-            pContents.accountStack(itemstack);
+    public void fillStackedContents(StackedItemContents contents) {
+        for (ItemStack item : this.items) {
+            contents.accountStack(item);
         }
     }
 }

@@ -2,6 +2,7 @@
   "credit": "Made with Blockbench",
   "ambientocclusion": false,
   "textures": {
+    "particle": "vampirism:item/heart_seeker_normal",
     "3": "vampirism:item/heart_seeker_normal"
   },
   "elements": [

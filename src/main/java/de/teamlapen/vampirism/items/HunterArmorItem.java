@@ -2,6 +2,7 @@ package de.teamlapen.vampirism.items;
 
 import de.teamlapen.vampirism.REFERENCE;
 import de.teamlapen.vampirism.VampirismMod;
+import de.teamlapen.vampirism.api.ItemPropertiesExtension;
 import de.teamlapen.vampirism.api.entity.factions.IFaction;
 import de.teamlapen.vampirism.api.entity.factions.IPlayableFaction;
 import de.teamlapen.vampirism.api.items.IFactionExclusiveItem;
@@ -19,6 +20,8 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
+import net.minecraft.world.item.equipment.ArmorMaterial;
+import net.minecraft.world.item.equipment.ArmorType;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -30,8 +33,8 @@ import java.util.List;
  */
 public abstract class HunterArmorItem extends ArmorItem implements IFactionExclusiveItem {
 
-    public HunterArmorItem(@NotNull Holder<ArmorMaterial> materialIn, @NotNull ArmorItem.Type type, Item.@NotNull Properties props) {
-        super(materialIn, type, props);
+    public HunterArmorItem(@NotNull ArmorMaterial materialIn, @NotNull ArmorType type, Item.@NotNull Properties props) {
+        super(materialIn, type, ItemPropertiesExtension.descriptionWithout(props, "_normal|_enhanced|_ultimate"));
     }
 
     @Override
@@ -62,17 +65,5 @@ public abstract class HunterArmorItem extends ArmorItem implements IFactionExclu
 
     protected String getTextureLocation(String name, EquipmentSlot slot, @Nullable String type) {
         return String.format(REFERENCE.MODID + ":textures/models/armor/%s_layer_%d%s.png", name, slot == EquipmentSlot.LEGS ? 2 : 1, type == null ? "" : "_overlay");
-    }
-
-    private String descriptionId;
-
-    @NotNull
-    @Override
-    protected String getOrCreateDescriptionId() {
-        if (this.descriptionId == null) {
-            this.descriptionId = super.getOrCreateDescriptionId().replaceAll("_normal|_enhanced|_ultimate", "");
-        }
-
-        return this.descriptionId;
     }
 }

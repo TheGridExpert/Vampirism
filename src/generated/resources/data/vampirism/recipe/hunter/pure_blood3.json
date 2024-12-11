@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "vampirism:pure_blood_4"
-    },
-    {
-      "item": "vampirism:vampire_blood_bottle"
-    }
+    "vampirism:pure_blood_4",
+    "vampirism:vampire_blood_bottle"
   ],
   "result": {
     "count": 1,

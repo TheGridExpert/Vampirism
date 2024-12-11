@@ -2,14 +2,10 @@
   "type": "vampirism:shaped_crafting_weapontable",
   "category": "equipment",
   "key": {
-    "X": {
-      "tag": "c:leathers"
-    },
-    "Y": {
-      "tag": "c:crops/garlic"
-    },
+    "X": "#c:leathers",
+    "Y": "#c:crops/garlic",
     "Z": {
-      "type": "neoforge:components",
+      "neoforge:ingredient_type": "neoforge:components",
       "components": {
         "minecraft:potion_contents": {
           "potion": "minecraft:swiftness"

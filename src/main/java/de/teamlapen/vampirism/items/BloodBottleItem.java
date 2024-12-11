@@ -13,16 +13,17 @@ import de.teamlapen.vampirism.entity.vampire.DrinkBloodContext;
 import de.teamlapen.vampirism.fluids.BloodHelper;
 import de.teamlapen.vampirism.items.component.BottleBlood;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.item.ItemUseAnimation;
+import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.neoforged.neoforge.capabilities.Capabilities;
@@ -42,17 +43,10 @@ public class BloodBottleItem extends Item implements IFactionExclusiveItem, ModD
     private static final int MULTIPLIER = VReference.FOOD_TO_FLUID_BLOOD;
     public static final int CAPACITY = AMOUNT * MULTIPLIER;
 
-    public static @NotNull ItemStack getStackWithDamage(int damage) {
+    public static @NotNull ItemStack getStackWithBlood(int blood) {
         ItemStack stack = new ItemStack(ModItems.BLOOD_BOTTLE.get());
-        stack.set(ModDataComponents.BOTTLE_BLOOD, new BottleBlood(damage));
+        stack.set(ModDataComponents.BOTTLE_BLOOD, new BottleBlood(blood));
         return stack;
-    }
-
-    /**
-     * Set's the registry name and the unlocalized name
-     */
-    public BloodBottleItem() {
-        super(new Properties());
     }
 
     public BloodBottleItem(Item.Properties properties) {
@@ -60,17 +54,17 @@ public class BloodBottleItem extends Item implements IFactionExclusiveItem, ModD
     }
 
     @Override
-    public boolean isEnchantable(@NotNull ItemStack stack) {
+    public boolean supportsEnchantment(@NotNull ItemStack stack, @NotNull Holder<Enchantment> enchantment) {
         return false;
     }
 
     @Override
-    public boolean isBookEnchantable(ItemStack stack, ItemStack book) {
+    public boolean isBookEnchantable(@NotNull ItemStack stack, @NotNull ItemStack book) {
         return false;
     }
 
     @Override
-    public boolean doesSneakBypassUse(ItemStack stack, @NotNull LevelReader world, @NotNull BlockPos pos, Player player) {
+    public boolean doesSneakBypassUse(@NotNull ItemStack stack, @NotNull LevelReader world, @NotNull BlockPos pos, @NotNull Player player) {
         if (world instanceof Level level) {
             return level.getCapability(Capabilities.FluidHandler.BLOCK, pos, null) != null;
         }
@@ -107,23 +101,8 @@ public class BloodBottleItem extends Item implements IFactionExclusiveItem, ModD
     }
 
     @Override
-    public int getUseDuration(ItemStack pStack, LivingEntity p_344979_) {
-        return 15;
-    }
-
-    @NotNull
-    @Override
-    public UseAnim getUseAnimation(@NotNull ItemStack stack) {
-        return UseAnim.DRINK;
-    }
-
-    @Override
     public void onUseTick(@NotNull Level level, @NotNull LivingEntity pLivingEntity, @NotNull ItemStack stack, int count) {
         if (pLivingEntity instanceof IVampire) return;
-        if (!(pLivingEntity instanceof Player) || !pLivingEntity.isAlive()) {
-            pLivingEntity.releaseUsingItem();
-            return;
-        }
         ItemStack copy = stack.copy();
         int blood = BloodHelper.getBlood(stack);
         VampirePlayer vampire = VampirePlayer.get((Player) pLivingEntity);
@@ -148,16 +127,16 @@ public class BloodBottleItem extends Item implements IFactionExclusiveItem, ModD
 
     @NotNull
     @Override
-    public InteractionResultHolder<ItemStack> use(@NotNull Level worldIn, @NotNull Player playerIn, @NotNull InteractionHand handIn) {
+    public InteractionResult use(@NotNull Level worldIn, @NotNull Player playerIn, @NotNull InteractionHand handIn) {
         ItemStack stack = playerIn.getItemInHand(handIn);
         VampirePlayer vampire = VampirePlayer.get(playerIn);
-        if (vampire.getLevel() == 0) return new InteractionResultHolder<>(InteractionResult.PASS, stack);
+        if (vampire.getLevel() == 0) return InteractionResult.PASS;
 
         if (vampire.getBloodStats().needsBlood() && stack.getCount() == 1) {
             playerIn.startUsingItem(handIn);
-            return new InteractionResultHolder<>(InteractionResult.sidedSuccess(worldIn.isClientSide), stack);
+            return InteractionResult.SUCCESS;
         }
-        return new InteractionResultHolder<>(InteractionResult.PASS, stack);
+        return InteractionResult.PASS;
     }
 
     @Override

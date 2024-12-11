@@ -11,6 +11,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
@@ -64,7 +65,7 @@ public class VampireAltarPieces {
                 case "entity" -> {
                     pLevel.removeBlock(pPos, false);
                     if (!VampirismAPI.sundamageRegistry().hasSunDamage(pLevel, pPos)) {
-                        AdvancedVampireEntity advancedVampireEntity = ModEntities.ADVANCED_VAMPIRE.get().create(pLevel.getLevel());
+                        AdvancedVampireEntity advancedVampireEntity = ModEntities.ADVANCED_VAMPIRE.get().create(pLevel.getLevel(), EntitySpawnReason.LOAD);
                         advancedVampireEntity.setPos(pPos.getX() + 0.5, pPos.getY(), pPos.getZ() + 0.5);
                         pLevel.addFreshEntity(advancedVampireEntity);
                     }

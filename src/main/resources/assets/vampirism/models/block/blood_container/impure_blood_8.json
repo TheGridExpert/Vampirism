@@ -1,6 +1,0 @@
-{
-  "parent": "vampirism:block/blood_container/blood_8",
-  "textures": {
-    "fluid": "vampirism:block/impure_blood_still"
-  }
-}

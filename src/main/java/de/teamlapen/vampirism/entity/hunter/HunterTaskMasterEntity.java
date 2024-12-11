@@ -16,9 +16,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -62,7 +62,7 @@ public class HunterTaskMasterEntity extends HunterBaseEntity implements IDefault
 
     @Nullable
     @Override
-    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor worldIn, @NotNull DifficultyInstance difficultyIn, @NotNull MobSpawnType reason, @Nullable SpawnGroupData spawnDataIn) {
+    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor worldIn, @NotNull DifficultyInstance difficultyIn, @NotNull EntitySpawnReason reason, @Nullable SpawnGroupData spawnDataIn) {
         SpawnGroupData data = super.finalizeSpawn(worldIn, difficultyIn, reason, spawnDataIn);
         this.setBiomeType(VillagerType.byBiome(worldIn.getBiome(this.blockPosition())));
         this.setItemSlot(EquipmentSlot.HEAD, ModItems.HUNTER_HAT_HEAD_0.get().getDefaultInstance());
@@ -73,7 +73,7 @@ public class HunterTaskMasterEntity extends HunterBaseEntity implements IDefault
     public @NotNull VillagerType getBiomeType() {
         String key = this.entityData.get(BIOME_TYPE);
         ResourceLocation id = ResourceLocation.parse(key);
-        return BuiltInRegistries.VILLAGER_TYPE.get(id);
+        return BuiltInRegistries.VILLAGER_TYPE.getValue(id);
     }
 
     protected void setBiomeType(@NotNull VillagerType type) {

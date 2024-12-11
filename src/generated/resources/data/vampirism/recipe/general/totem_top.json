@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "X": {
-      "tag": "c:obsidians"
-    },
-    "Y": {
-      "tag": "c:gems/diamond"
-    },
-    "Z": {
-      "item": "vampirism:vampire_book"
-    }
+    "X": "#c:obsidians",
+    "Y": "#c:gems/diamond",
+    "Z": "vampirism:vampire_book"
   },
   "pattern": [
     "X X",

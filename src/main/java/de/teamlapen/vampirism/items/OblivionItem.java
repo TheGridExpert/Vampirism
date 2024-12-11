@@ -10,14 +10,20 @@ import de.teamlapen.vampirism.core.ModEffects;
 import de.teamlapen.vampirism.entity.factions.FactionPlayerHandler;
 import de.teamlapen.vampirism.entity.minion.MinionEntity;
 import de.teamlapen.vampirism.entity.player.skills.SkillHandler;
+import de.teamlapen.vampirism.items.consume.OblivionEffect;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
+import net.minecraft.world.item.component.Consumable;
+import net.minecraft.world.item.component.Consumables;
+import net.minecraft.world.item.consume_effects.ConsumeEffect;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
@@ -39,7 +45,7 @@ public class OblivionItem extends Item {
     }
 
     public OblivionItem(@NotNull Properties properties) {
-        super(properties.stacksTo(1).rarity(Rarity.UNCOMMON));
+        super(properties.stacksTo(1).rarity(Rarity.UNCOMMON).component(DataComponents.CONSUMABLE, Consumables.defaultDrink().onConsume(new OblivionEffect()).build()));
     }
 
     @Override
@@ -48,33 +54,4 @@ public class OblivionItem extends Item {
         tooltip.add(Component.translatable("text.vampirism.oblivion_potion.resets_skills").withStyle(ChatFormatting.GRAY));
     }
 
-    @NotNull
-    @Override
-    public ItemStack finishUsingItem(@NotNull ItemStack stack, @NotNull Level worldIn, @NotNull LivingEntity entityLiving) {
-        stack.shrink(1);
-        if (entityLiving instanceof Player player) {
-            FactionPlayerHandler.get(player).getCurrentSkillPlayer().ifPresent(OblivionItem::applyEffect);
-        }
-        if (entityLiving instanceof MinionEntity) {
-            ((MinionEntity<?>) entityLiving).getMinionData().ifPresent(d -> d.upgradeStat(-1, (MinionEntity<?>) entityLiving));
-        }
-        return stack;
-    }
-
-    @Override
-    public int getUseDuration(ItemStack pStack, LivingEntity p_344979_) {
-        return 32;
-    }
-
-    @NotNull
-    @Override
-    public UseAnim getUseAnimation(@NotNull ItemStack stack) {
-        return UseAnim.DRINK;
-    }
-
-    @NotNull
-    @Override
-    public InteractionResultHolder<ItemStack> use(@NotNull Level worldIn, @NotNull Player playerIn, @NotNull InteractionHand handIn) {
-        return ItemUtils.startUsingInstantly(worldIn, playerIn, handIn);
-    }
 }

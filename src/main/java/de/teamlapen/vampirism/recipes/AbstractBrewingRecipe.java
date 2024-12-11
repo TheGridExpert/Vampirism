@@ -12,13 +12,13 @@ import org.jetbrains.annotations.NotNull;
 
 public abstract class AbstractBrewingRecipe implements Recipe<BrewingRecipeInput> {
 
-    protected final RecipeType<?> type;
+    protected final RecipeType<? extends AbstractBrewingRecipe> type;
     protected final String group;
     protected final Ingredient ingredient;
     protected final Ingredient input;
     protected final ItemStack result;
 
-    public AbstractBrewingRecipe(RecipeType<?> type, String group, Ingredient ingredient, Ingredient input, ItemStack result) {
+    public AbstractBrewingRecipe(RecipeType<? extends AbstractBrewingRecipe> type, String group, Ingredient ingredient, Ingredient input, ItemStack result) {
         this.type = type;
         this.group = group;
         this.ingredient = ingredient;
@@ -39,11 +39,10 @@ public abstract class AbstractBrewingRecipe implements Recipe<BrewingRecipeInput
         return input;
     }
 
-    @NotNull
-    @Override
-    public NonNullList<Ingredient> getIngredients() {
-        return NonNullList.of(Ingredient.EMPTY, this.ingredient);
+    public ItemStack getResultItem() {
+        return result;
     }
+
 
     @NotNull
     @Override
@@ -52,19 +51,7 @@ public abstract class AbstractBrewingRecipe implements Recipe<BrewingRecipeInput
     }
 
     @Override
-    public boolean canCraftInDimensions(int xSize, int ySize) {
-        return true;
-    }
-
-    @NotNull
-    @Override
-    public ItemStack getResultItem(HolderLookup.@NotNull Provider lookupProvider) {
-        return this.result;
-    }
-
-    @NotNull
-    @Override
-    public RecipeType<?> getType() {
+    public @NotNull RecipeType<? extends Recipe<BrewingRecipeInput>> getType() {
         return this.type;
     }
 }

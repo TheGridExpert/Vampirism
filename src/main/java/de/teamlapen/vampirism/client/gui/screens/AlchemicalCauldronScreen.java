@@ -1,5 +1,7 @@
 package de.teamlapen.vampirism.client.gui.screens;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import de.teamlapen.lib.lib.client.gui.GuiRenderer;
 import de.teamlapen.lib.lib.util.MultilineTooltip;
 import de.teamlapen.vampirism.api.entity.player.skills.ISkill;
 import de.teamlapen.vampirism.api.util.VResourceLocation;
@@ -11,6 +13,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.tooltip.BelowOrAboveWidgetTooltipPositioner;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -42,25 +45,25 @@ public class AlchemicalCauldronScreen extends AbstractContainerScreen<Alchemical
 
     @Override
     protected void renderBg(@NotNull GuiGraphics graphics, float partialTicks, int mouseX, int mouseY) {
-        graphics.setColor(1, 1, 1, 1);
+        RenderSystem.setShaderColor(1, 1, 1, 1);
+        GuiRenderer.resetColor();
         int i = (this.width - this.imageWidth) / 2;
         int j = (this.height - this.imageHeight) / 2;
-        graphics.blit(BACKGROUND, i, j, 0, 0, this.imageWidth, this.imageHeight);
-
+        GuiRenderer.blit(graphics, BACKGROUND, i, j, this.imageWidth, this.imageHeight);
         if (this.menu.isLit()) {
             int l = Mth.ceil(this.menu.getLitProgress() * 13) + 1;
-            graphics.blitSprite(LIT_PROGRESS_SPRITE, 14, 14, 0, 14 - l, i + 56, j + 36 + 14 - l, 14, l);
+            graphics.blitSprite(RenderType::guiTextured, LIT_PROGRESS_SPRITE, 14, 14, 0, 14 - l, i + 56, j + 36 + 14 - l, 14, l);
         }
 
         int j1 = Mth.ceil(this.menu.getBurnProgress() * 24.0F);
-        graphics.blitSprite(BURN_PROGRESS_SPRITE, 24, 16, 0, 0, i + 79, j + 35, j1, 16);
+        graphics.blitSprite(RenderType::guiTextured, BURN_PROGRESS_SPRITE, 24, 16, 0, 0, i + 79, j + 35, j1, 16);
         int l = Mth.ceil(menu.getBurnProgress() * 29F);
-        graphics.blitSprite(BUBBLES_PROGRESS_SPRITE, 12, 29, 0, 29 - l, i + 142, j + 28 + 30 - l, 12, l);
+        graphics.blitSprite(RenderType::guiTextured, BUBBLES_PROGRESS_SPRITE, 12, 29, 0, 29 - l, i + 142, j + 28 + 30 - l, 12, l);
 
         this.menu.checkRecipeNoSkills().ifPresent(holder -> {
             boolean allSkills = HunterPlayer.get(this.minecraft.player).getSkillHandler().areSkillsEnabled(holder.value().getRequiredSkills());
             if (!allSkills) {
-                graphics.blitSprite(ERROR_SPRITE, i + 77, j + 32, 28, 21);
+                graphics.blitSprite(RenderType::guiTextured, ERROR_SPRITE, i + 77, j + 32, 28, 21);
             }
         });
     }

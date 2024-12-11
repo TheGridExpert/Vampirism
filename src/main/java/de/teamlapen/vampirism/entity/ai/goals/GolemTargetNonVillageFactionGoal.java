@@ -14,6 +14,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
+import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.animal.IronGolem;
 import org.jetbrains.annotations.NotNull;
 
@@ -26,7 +27,7 @@ import java.util.function.Predicate;
  * Targets vampires if the golem as a non vampire village assigned
  */
 public class GolemTargetNonVillageFactionGoal extends NearestAttackableTargetGoal<LivingEntity> {
-    private static final Map<Holder<? extends IFaction<?>>, Predicate<LivingEntity>> predicates = new HashMap<>();
+    private static final Map<Holder<? extends IFaction<?>>, TargetingConditions.Selector> predicates = new HashMap<>();
     private final @NotNull IronGolem golem;
     private Holder<? extends IFaction<?>> faction;
 
@@ -73,7 +74,7 @@ public class GolemTargetNonVillageFactionGoal extends NearestAttackableTargetGoa
         }
 
         if (IFaction.is(faction, this.faction)) {
-            this.targetConditions.selector(predicates.computeIfAbsent(this.faction = faction, faction1 -> VampirismAPI.factionRegistry().getPredicate(faction1, true, true, false, false, null)));
+            this.targetConditions.selector(predicates.computeIfAbsent(this.faction = faction, faction1 -> VampirismAPI.factionRegistry().getSelector(faction1, true, true, false, false, null)));
             return true;
         }
         return false;

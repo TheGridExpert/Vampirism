@@ -19,9 +19,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author Cheaterpaul
@@ -38,6 +40,8 @@ public class ShapedWeaponTableRecipe implements Recipe<CraftingInput>, IWeaponTa
     @NotNull
     private final List<Holder<ISkill<?>>> requiredSkills;
     private final int requiredLava;
+    @Nullable
+    private PlacementInfo placementInfo;
 
     public ShapedWeaponTableRecipe(String groupIn, CraftingBookCategory category, ShapedRecipePattern pattern, ItemStack recipeOutputIn, int requiredLevel, @NotNull List<Holder<ISkill<?>>> requiredSkills, int requiredLava) {
         this.category = category;
@@ -56,8 +60,22 @@ public class ShapedWeaponTableRecipe implements Recipe<CraftingInput>, IWeaponTa
     }
 
     @Override
-    public boolean canCraftInDimensions(int pWidth, int pHeight) {
-        return pWidth >= this.pattern.width() && pHeight >= this.pattern.height();
+    public @NotNull PlacementInfo placementInfo() {
+        if (this.placementInfo == null) {
+            this.placementInfo = PlacementInfo.createFromOptionals(this.pattern.ingredients());
+        }
+
+        return this.placementInfo;
+    }
+
+    @Override
+    public @NotNull List<Ingredient> getIngredients() {
+        return pattern.ingredients().stream().flatMap(Optional::stream).toList();
+    }
+
+    @Override
+    public @NotNull RecipeBookCategory recipeBookCategory() {
+        return ModRecipes.WEAPON_TABLE_CATEGORY.get();
     }
 
     @NotNull
@@ -71,12 +89,6 @@ public class ShapedWeaponTableRecipe implements Recipe<CraftingInput>, IWeaponTa
 
     public int getHeight() {
         return this.pattern.height();
-    }
-
-    @NotNull
-    @Override
-    public ItemStack getResultItem(@NotNull HolderLookup.Provider registryAccess) {
-        return this.recipeOutput;
     }
 
     public int getRequiredLavaUnits() {
@@ -95,7 +107,7 @@ public class ShapedWeaponTableRecipe implements Recipe<CraftingInput>, IWeaponTa
 
     @NotNull
     @Override
-    public RecipeSerializer<?> getSerializer() {
+    public RecipeSerializer<? extends ShapedWeaponTableRecipe> getSerializer() {
         return ModRecipes.SHAPED_CRAFTING_WEAPONTABLE.get();
     }
 
@@ -110,11 +122,6 @@ public class ShapedWeaponTableRecipe implements Recipe<CraftingInput>, IWeaponTa
         return this.pattern.matches(inv);
     }
 
-    @NotNull
-    @Override
-    public NonNullList<Ingredient> getIngredients() {
-        return this.pattern.ingredients();
-    }
 
     public static class Serializer implements RecipeSerializer<ShapedWeaponTableRecipe> {
 

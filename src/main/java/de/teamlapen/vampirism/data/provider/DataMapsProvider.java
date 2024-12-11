@@ -18,6 +18,7 @@ import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.common.data.DataMapProvider;
 import net.neoforged.neoforge.registries.datamaps.builtin.Compostable;
 import net.neoforged.neoforge.registries.datamaps.builtin.NeoForgeDataMaps;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
@@ -29,7 +30,7 @@ public class DataMapsProvider extends DataMapProvider {
     }
 
     @Override
-    protected void gather() {
+    protected void gather(HolderLookup.@NotNull Provider provider) {
         gatherCompostables(builder(NeoForgeDataMaps.COMPOSTABLES));
         gatherItemBlood(builder(ModDataMaps.ITEM_BLOOD_MAP));
         gatherFluidBloodConversion(builder(ModDataMaps.FLUID_BLOOD_CONVERSION_MAP));

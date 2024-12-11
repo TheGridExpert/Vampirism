@@ -17,6 +17,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
@@ -47,8 +48,8 @@ public class GarlicBlock extends CropBlock {
         };
     }
 
-    public GarlicBlock() {
-        super(Properties.of().mapColor(MapColor.PLANT).noCollission().randomTicks().instabreak().noCollission().isViewBlocking(UtilLib::never).pushReaction(PushReaction.DESTROY).sound(SoundType.CROP));
+    public GarlicBlock(BlockBehaviour.Properties properties) {
+        super(properties.mapColor(MapColor.PLANT).noCollission().randomTicks().instabreak().noCollission().isViewBlocking(UtilLib::never).pushReaction(PushReaction.DESTROY).sound(SoundType.CROP));
     }
 
     @Override

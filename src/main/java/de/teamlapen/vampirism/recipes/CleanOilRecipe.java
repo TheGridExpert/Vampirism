@@ -56,12 +56,7 @@ public class CleanOilRecipe extends CustomRecipe {
     }
 
     @Override
-    public boolean canCraftInDimensions(int x, int y) {
-        return x * y >= 2;
-    }
-
-    @Override
-    public @NotNull RecipeSerializer<?> getSerializer() {
+    public @NotNull RecipeSerializer<CleanOilRecipe> getSerializer() {
         return ModRecipes.CLEAN_OIL.get();
     }
 }

@@ -10,6 +10,7 @@ import de.teamlapen.vampirism.core.ModSounds;
 import de.teamlapen.vampirism.entity.BlindingBatEntity;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,7 +32,7 @@ public class SummonBatVampireAction extends DefaultVampireAction {
             amount = amount / 2;
         }
         for (int i = 0; i < amount; i++) {
-            BlindingBatEntity e = ModEntities.BLINDING_BAT.get().create(entityPlayer.getCommandSenderWorld());
+            BlindingBatEntity e = ModEntities.BLINDING_BAT.get().create(entityPlayer.getCommandSenderWorld(), EntitySpawnReason.TRIGGERED);
             e.restrictLiveSpan();
             if (refined) e.setTargeting();
             e.setResting(false);

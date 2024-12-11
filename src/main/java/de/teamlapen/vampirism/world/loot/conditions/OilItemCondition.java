@@ -30,7 +30,7 @@ public class OilItemCondition implements LootItemCondition {
 
     @Override
     public boolean test(@NotNull LootContext lootContext) {
-        ItemStack stack = lootContext.getParamOrNull(LootContextParams.TOOL);
+        ItemStack stack = lootContext.getOptionalParameter(LootContextParams.TOOL);
         return stack != null && OilUtils.getAppliedOil(stack).map(oil -> oil == this.oil).orElse(false);
     }
 }

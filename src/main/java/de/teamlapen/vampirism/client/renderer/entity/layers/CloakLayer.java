@@ -7,6 +7,8 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
+import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
+import net.minecraft.client.renderer.entity.state.PlayerRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Mob;
@@ -15,7 +17,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.function.Predicate;
 
 
-public class CloakLayer<T extends Mob, Q extends BipedCloakedModel<T>> extends RenderLayer<T, Q> {
+public class CloakLayer<T extends PlayerRenderState, Q extends BipedCloakedModel<T>> extends RenderLayer<T, Q> {
 
     private final ResourceLocation textureCloak;
     private final Predicate<T> renderPredicate;
@@ -27,12 +29,12 @@ public class CloakLayer<T extends Mob, Q extends BipedCloakedModel<T>> extends R
     }
 
     @Override
-    public void render(@NotNull PoseStack matrixStackIn, @NotNull MultiBufferSource bufferIn, int packedLightIn, @NotNull T entitylivingbaseIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
-        if (!entitylivingbaseIn.isInvisible() && renderPredicate.test(entitylivingbaseIn)) {
-            matrixStackIn.pushPose();
-            VertexConsumer ivertexbuilder = bufferIn.getBuffer(RenderType.entitySolid(textureCloak));
-            this.getParentModel().renderCustomCloak(matrixStackIn, ivertexbuilder, packedLightIn, OverlayTexture.NO_OVERLAY);
-            matrixStackIn.popPose();
+    public void render(@NotNull PoseStack stack, @NotNull MultiBufferSource bufferSource, int packedLightIn, T state, float p_117353_, float p_117354_) {
+        if (!state.isInvisible && renderPredicate.test(state)) {
+            stack.pushPose();
+            VertexConsumer ivertexbuilder = bufferSource.getBuffer(RenderType.entitySolid(textureCloak));
+            this.getParentModel().renderCustomCloak(stack, ivertexbuilder, packedLightIn, OverlayTexture.NO_OVERLAY);
+            stack.popPose();
         }
     }
 }

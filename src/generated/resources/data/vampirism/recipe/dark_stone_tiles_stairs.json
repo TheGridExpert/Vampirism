@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "building",
   "key": {
-    "#": {
-      "item": "vampirism:dark_stone_tiles"
-    }
+    "#": "vampirism:dark_stone_tiles"
   },
   "pattern": [
     "#  ",

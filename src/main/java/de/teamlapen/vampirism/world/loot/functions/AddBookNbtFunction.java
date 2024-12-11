@@ -42,7 +42,7 @@ public class AddBookNbtFunction extends LootItemConditionalFunction {
     @NotNull
     @Override
     public ItemStack run(@NotNull ItemStack itemStack, @NotNull LootContext lootContext) {
-        Entity victim = lootContext.getParamOrNull(LootContextParams.THIS_ENTITY);
+        Entity victim = lootContext.getOptionalParameter(LootContextParams.THIS_ENTITY);
         Optional<String> id = Optional.empty();
         if (victim instanceof VampireBookLootProvider provider) {
             id = provider.getBookLootId();

@@ -2,18 +2,10 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "A": {
-      "tag": "vampirism:pure_blood"
-    },
-    "X": {
-      "item": "minecraft:black_wool"
-    },
-    "Y": {
-      "item": "minecraft:white_wool"
-    },
-    "Z": {
-      "tag": "c:gems/diamond"
-    }
+    "A": "#vampirism:pure_blood",
+    "X": "minecraft:black_wool",
+    "Y": "minecraft:white_wool",
+    "Z": "#c:gems/diamond"
   },
   "pattern": [
     "YZY",

@@ -9,6 +9,7 @@ import de.teamlapen.vampirism.util.DamageHandler;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -78,24 +79,26 @@ public class DarkBloodProjectileEntity extends AbstractHurtingProjectile {
      * @param excludeEntity If given this will not receive AOE damage
      */
     public void explode(int distanceSq, @Nullable Entity excludeEntity) {
-        @Nullable Entity shootingEntity = getOwner();
-        List<Entity> list = this.level().getEntities(this, this.getBoundingBox().inflate(distanceSq / 2d), EntitySelector.ENTITY_STILL_ALIVE.and(EntitySelector.NO_SPECTATORS).and(s -> !(s instanceof DarkBloodProjectileEntity.Ignore)));
-        for (Entity e : list) {
-            if ((excludeShooter && e == shootingEntity) || e == excludeEntity) {
-                continue;
-            }
-            if (e instanceof LivingEntity entity && e.distanceToSqr(this) < distanceSq) {
-                entity.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 200, 1));
-                DamageHandler.hurtVanilla(entity, damageSources -> damageSources.indirectMagic(this, getOwner()), indirectDamage);
+        if (this.level() instanceof ServerLevel serverLevel) {
+            @Nullable Entity shootingEntity = getOwner();
+            List<Entity> list = serverLevel.getEntities(this, this.getBoundingBox().inflate(distanceSq / 2d), EntitySelector.ENTITY_STILL_ALIVE.and(EntitySelector.NO_SPECTATORS).and(s -> !(s instanceof DarkBloodProjectileEntity.Ignore)));
+            for (Entity e : list) {
+                if ((excludeShooter && e == shootingEntity) || e == excludeEntity) {
+                    continue;
+                }
+                if (e instanceof LivingEntity entity && e.distanceToSqr(this) < distanceSq) {
+                    entity.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 200, 1));
+                    DamageHandler.hurtVanilla(serverLevel, entity, damageSources -> damageSources.indirectMagic(this, getOwner()), indirectDamage);
 
+                }
             }
+            if (!this.level().isClientSide) {
+                ModParticles.spawnParticlesServer(this.level(), new GenericParticleOptions(VResourceLocation.mc("spell_1"), 7, 0xA01010, 0.2F), this.getX(), this.getY(), this.getZ(), 40, 1, 1, 1, 0);
+                ModParticles.spawnParticlesServer(this.level(), new GenericParticleOptions(VResourceLocation.mc("spell_6"), 10, 0x700505), this.getX(), this.getY(), this.getZ(), 15, 1, 1, 1, 0);
+                this.level().playSound(null, getX(), getY(), getZ(), ModSounds.BLOOD_PROJECTILE_HIT.get(), SoundSource.PLAYERS, 1f, 1f);
+            }
+            this.discard();
         }
-        if (!this.level().isClientSide) {
-            ModParticles.spawnParticlesServer(this.level(), new GenericParticleOptions(VResourceLocation.mc("spell_1"), 7, 0xA01010, 0.2F), this.getX(), this.getY(), this.getZ(), 40, 1, 1, 1, 0);
-            ModParticles.spawnParticlesServer(this.level(), new GenericParticleOptions(VResourceLocation.mc("spell_6"), 10, 0x700505), this.getX(), this.getY(), this.getZ(), 15, 1, 1, 1, 0);
-            this.level().playSound(null, getX(), getY(), getZ(), ModSounds.BLOOD_PROJECTILE_HIT.get(), SoundSource.PLAYERS, 1f, 1f);
-        }
-        this.discard();
     }
 
     /**
@@ -111,7 +114,7 @@ public class DarkBloodProjectileEntity extends AbstractHurtingProjectile {
     }
 
     @Override
-    public boolean hurt(@NotNull DamageSource source, float amount) {
+    public boolean hurtServer(@NotNull ServerLevel level, @NotNull DamageSource source, float amount) {
         return false;
     }
 
@@ -219,13 +222,15 @@ public class DarkBloodProjectileEntity extends AbstractHurtingProjectile {
     }
 
     private void hitEntity(@NotNull Entity entity) {
-        DamageHandler.hurtVanilla(entity, damageSources -> damageSources.indirectMagic(this, getOwner()), directDamage);
-        if (entity instanceof LivingEntity) {
-            if (this.random.nextInt(3) == 0) {
-                ((LivingEntity) entity).addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 100));
-                ((LivingEntity) entity).knockback(1f, -this.getDeltaMovement().x, -this.getDeltaMovement().z); //knockback
-                ((LivingEntity) entity).addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 200, 1));
+        if (entity.level() instanceof ServerLevel serverLevel) {
+            DamageHandler.hurtVanilla(serverLevel, entity, damageSources -> damageSources.indirectMagic(this, getOwner()), directDamage);
+            if (entity instanceof LivingEntity) {
+                if (this.random.nextInt(3) == 0) {
+                    ((LivingEntity) entity).addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 100));
+                    ((LivingEntity) entity).knockback(1f, -this.getDeltaMovement().x, -this.getDeltaMovement().z); //knockback
+                    ((LivingEntity) entity).addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 200, 1));
 
+                }
             }
         }
     }

@@ -34,7 +34,7 @@ public class SingleJigsawReloadListener implements PreparableReloadListener {
     public static final Codec<List<ResourceLocation>> CODEC = RecordCodecBuilder.create(inst -> inst.group(ResourceLocation.CODEC.listOf().fieldOf("single_pieces").forGetter(list -> list)).apply(inst, a -> a));
 
     @Override
-    public @NotNull CompletableFuture<Void> reload(@NotNull PreparationBarrier pPreparationBarrier, @NotNull ResourceManager pResourceManager, @NotNull ProfilerFiller pPreparationsProfiler, @NotNull ProfilerFiller pReloadProfiler, @NotNull Executor pBackgroundExecutor, @NotNull Executor pGameExecutor) {
+    public @NotNull CompletableFuture<Void> reload(@NotNull PreparationBarrier pPreparationBarrier, @NotNull ResourceManager pResourceManager, @NotNull Executor pBackgroundExecutor, @NotNull Executor pGameExecutor) {
         return prepare(pResourceManager, pBackgroundExecutor).thenCompose(pPreparationBarrier::wait).thenAcceptAsync(MixinHooks::replaceSingleInstanceStructure);
     }
 

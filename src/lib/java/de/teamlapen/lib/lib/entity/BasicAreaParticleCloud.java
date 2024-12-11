@@ -7,7 +7,9 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
@@ -164,6 +166,11 @@ public class BasicAreaParticleCloud extends Entity {
                 this.setRadius(radius);
             }
         }
+    }
+
+    @Override
+    public boolean hurtServer(ServerLevel p_376804_, DamageSource p_376155_, float p_376892_) {
+        return false;
     }
 
     @Override

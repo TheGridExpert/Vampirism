@@ -12,6 +12,7 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.LayeredDraw;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.BossEvent;
@@ -83,15 +84,15 @@ public class CustomBossEventOverlay implements LayeredDraw.Layer {
                     width = 182 - textureStart;
                 }
             }
-            graphics.setColor(color.getRedF(), color.getGreenF(), color.getBlueF(), color.getAlphaF());
-            graphics.blitSprite(BAR_PROGRESS_SPRITE, 182, 5, textureStart, 0, k + textureStart, j, width, 5);
-            graphics.setColor(1, 1, 1, 1);
+            RenderSystem.setShaderColor(color.getRedF(), color.getGreenF(), color.getBlueF(), color.getAlphaF());
+            graphics.blitSprite(RenderType::guiTextured, BAR_PROGRESS_SPRITE, 182, 5, textureStart, 0, k + textureStart, j, width, 5);
+            RenderSystem.setShaderColor(1, 1, 1, 1);
             textureStart += width;
         }
         if (value.getOverlay() != BossEvent.BossBarOverlay.PROGRESS) {
-            graphics.setColor(1, 1, 1, 1);
+            RenderSystem.setShaderColor(1, 1, 1, 1);
             RenderSystem.enableBlend();
-            graphics.blitSprite(BossHealthOverlayAccessor.getOVERLAY_BACKGROUND_SPRITES()[value.getOverlay().ordinal() - 1], k, j, 182, 5);
+            graphics.blitSprite(RenderType::guiTextured, BossHealthOverlayAccessor.getOVERLAY_BACKGROUND_SPRITES()[value.getOverlay().ordinal() - 1], k, j, 182, 5);
             RenderSystem.disableBlend();
         }
     }

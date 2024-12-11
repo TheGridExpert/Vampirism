@@ -154,7 +154,6 @@ public class HunterPlayer extends CommonFactionPlayer<IHunterPlayer> implements 
 
     @Override
     public void onUpdate() {
-        player.getCommandSenderWorld().getProfiler().push("vampirism_hunterPlayer");
         super.onUpdate();
         int level = getLevel();
         if (level > 0) {
@@ -194,7 +193,6 @@ public class HunterPlayer extends CommonFactionPlayer<IHunterPlayer> implements 
         }
         getSpecialAttributes().fullHunterCoat = level > 0 ? HunterCoatItem.isFullyEquipped(player) : null;
 
-        player.getCommandSenderWorld().getProfiler().pop();
     }
 
     @Override

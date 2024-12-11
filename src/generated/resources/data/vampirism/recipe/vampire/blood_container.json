@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "X": {
-      "tag": "minecraft:planks"
-    },
-    "Y": {
-      "tag": "c:glass_blocks"
-    },
-    "Z": {
-      "tag": "c:ingots/iron"
-    }
+    "X": "#minecraft:planks",
+    "Y": "#c:glass_blocks",
+    "Z": "#c:ingots/iron"
   },
   "pattern": [
     "XYX",

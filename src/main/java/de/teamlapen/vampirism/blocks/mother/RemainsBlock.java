@@ -70,7 +70,9 @@ public class RemainsBlock extends VampirismBlock implements BonemealableBlock, I
         if (player instanceof ServerPlayer serverPlayer) {
             getMotherEntity(level, pos).ifPresent(a -> a.informAboutAttacker(serverPlayer));
         }
-        DamageHandler.hurtModded(player, ModDamageSources::mother, 1);
+        if (level instanceof ServerLevel serverLevel) {
+            DamageHandler.hurtModded(serverLevel, player, ModDamageSources::mother, 1);
+        }
     }
 
     @Override

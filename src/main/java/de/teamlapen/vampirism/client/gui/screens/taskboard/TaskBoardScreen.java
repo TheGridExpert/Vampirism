@@ -1,5 +1,7 @@
 package de.teamlapen.vampirism.client.gui.screens.taskboard;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import de.teamlapen.lib.lib.client.gui.GuiRenderer;
 import de.teamlapen.vampirism.REFERENCE;
 import de.teamlapen.vampirism.api.entity.player.IFactionPlayer;
 import de.teamlapen.vampirism.api.util.VResourceLocation;
@@ -10,9 +12,11 @@ import de.teamlapen.vampirism.inventory.TaskMenu;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.crafting.RecipeType;
 import org.jetbrains.annotations.NotNull;
 
 public class TaskBoardScreen extends AbstractContainerScreen<TaskBoardMenu> implements ExtendedScreen {
@@ -60,8 +64,7 @@ public class TaskBoardScreen extends AbstractContainerScreen<TaskBoardMenu> impl
 
     @Override
     protected void renderBg(@NotNull GuiGraphics graphics, float partialTicks, int mouseX, int mouseY) {
-        graphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
-        graphics.blit(TASKMASTER_GUI_TEXTURE, this.leftPos, this.topPos, 0, 0, 0, this.imageWidth, this.imageHeight, 256, 256);
+        GuiRenderer.blit(graphics, TASKMASTER_GUI_TEXTURE, this.leftPos, this.topPos, this.imageWidth, this.imageHeight);
     }
 
     @Override

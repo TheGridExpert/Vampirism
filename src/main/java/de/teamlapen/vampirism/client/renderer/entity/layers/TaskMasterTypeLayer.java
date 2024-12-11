@@ -1,6 +1,7 @@
 package de.teamlapen.vampirism.client.renderer.entity.layers;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import de.teamlapen.vampirism.client.renderer.entity.state.TaskMasterRenderState;
 import de.teamlapen.vampirism.entity.IDefaultTaskMasterEntity;
 import net.minecraft.client.model.VillagerModel;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -15,27 +16,26 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Render biome specific middle layer and "profession" specific top layer
  */
-public class TaskMasterTypeLayer<T extends Mob & IDefaultTaskMasterEntity> extends RenderLayer<T, VillagerModel<T>> {
+public class TaskMasterTypeLayer<T extends TaskMasterRenderState> extends RenderLayer<T, VillagerModel> {
+
     private final ResourceLocation additionalOverlay;
 
-    public TaskMasterTypeLayer(@NotNull RenderLayerParent<T, VillagerModel<T>> entityRendererIn, ResourceLocation additionalOverlay) {
+    public TaskMasterTypeLayer(@NotNull RenderLayerParent<T, VillagerModel> entityRendererIn, ResourceLocation additionalOverlay) {
         super(entityRendererIn);
         this.additionalOverlay = additionalOverlay;
-    }
-
-
-    @Override
-    public void render(@NotNull PoseStack matrixStackIn, @NotNull MultiBufferSource bufferIn, int packedLightIn, @NotNull T entityIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
-        if (!entityIn.isInvisible()) {
-            VillagerType type = entityIn.getBiomeType();
-            VillagerModel<T> m = getParentModel();
-            renderColoredCutoutModel(m, this.deriveTypeTextureOverlay(BuiltInRegistries.VILLAGER_TYPE.getKey(type)), matrixStackIn, bufferIn, packedLightIn, entityIn, -1);
-            renderColoredCutoutModel(m, additionalOverlay, matrixStackIn, bufferIn, packedLightIn, entityIn, -1);
-        }
     }
 
     private @NotNull ResourceLocation deriveTypeTextureOverlay(@NotNull ResourceLocation id) {
         return id.withPath("textures/entity/villager/type/" + id.getPath() + ".png");
     }
 
+    @Override
+    public void render(PoseStack stack, MultiBufferSource bufferSource, int packedLight, T state, float p_117353_, float p_117354_) {
+        if (!state.isInvisible) {
+            VillagerType type = state.getVillagerData().getType();
+            VillagerModel parentModel = getParentModel();
+            renderColoredCutoutModel(parentModel, this.deriveTypeTextureOverlay(BuiltInRegistries.VILLAGER_TYPE.getKey(type)), stack, bufferSource, packedLight, state, -1);
+            renderColoredCutoutModel(parentModel, additionalOverlay, stack, bufferSource, packedLight, state, -1);
+        }
+    }
 }

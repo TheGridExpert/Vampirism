@@ -6,8 +6,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.components.WidgetSprites;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.client.event.ScreenEvent;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 
@@ -48,7 +50,7 @@ public class SimpleList<T extends SimpleList.Entry<T>> extends VisibleObjectSele
     }
 
     @Override
-    protected int getScrollbarPosition() {
+    protected int scrollBarY() {
         return this.getRight() - 6;
     }
 
@@ -63,13 +65,13 @@ public class SimpleList<T extends SimpleList.Entry<T>> extends VisibleObjectSele
     }
 
     @Override
-    protected int getRowTop(int pIndex) {
+    public int getRowTop(int pIndex) {
         return super.getRowTop(pIndex) - 4;
     }
 
     @Override
-    public int getMaxScroll() {
-        return Math.max(0, super.getMaxScroll() - 4);
+    public int maxScrollAmount() {
+        return Math.max(0, super.maxScrollAmount() - 4);
     }
 
     public static Builder<?> builder(int x, int y, int pWidth, int pHeight) {
@@ -141,13 +143,13 @@ public class SimpleList<T extends SimpleList.Entry<T>> extends VisibleObjectSele
         @Override
         public void render(@NotNull GuiGraphics graphics, int pIndex, int pTop, int pLeft, int pWidth, int pHeight, int pMouseX, int pMouseY, boolean pIsMouseOver, float pPartialTick) {
             Minecraft minecraft = Minecraft.getInstance();
-            graphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             RenderSystem.enableBlend();
             RenderSystem.enableDepthTest();
             PoseStack pose = graphics.pose();
             pose.pushPose();
             pose.translate(0, 0, pIsMouseOver ? 2 : 1);
-            graphics.blitSprite(SPRITES.get(true, pIsMouseOver), pLeft, pTop, pWidth, pHeight + 5);
+            graphics.blitSprite(RenderType::guiTextured, SPRITES.get(true, pIsMouseOver), pLeft, pTop, pWidth, pHeight + 5);
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             graphics.drawCenteredString(minecraft.font, this.component, pLeft + pWidth / 2, pTop + 5, 0xFFFFFF);
             pose.popPose();

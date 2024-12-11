@@ -4,14 +4,15 @@ import com.google.common.collect.ImmutableList;
 import de.teamlapen.vampirism.client.core.ModEntitiesRender;
 import de.teamlapen.vampirism.util.MixinHooks;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.animation.AnimationDefinition;
+import net.minecraft.client.model.HumanoidArmorModel;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
-import net.minecraft.client.model.geom.builders.CubeListBuilder;
-import net.minecraft.client.model.geom.builders.LayerDefinition;
-import net.minecraft.client.model.geom.builders.MeshDefinition;
-import net.minecraft.client.model.geom.builders.PartDefinition;
+import net.minecraft.client.model.geom.builders.*;
+import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.AnimationState;
 import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.NotNull;
 
@@ -28,17 +29,6 @@ public class CloakModel extends VampirismArmorModel {
     private static final String RIGHT_LONG = "right_long";
     private static final String SHOULDER_LEFT = "shoulder_left";
     private static final String SHOULDER_RIGHT = "shoulder_right";
-
-    private static CloakModel cloakItemModel;
-
-    public static CloakModel getAdjustedCloak(HumanoidModel<?> wearerModel, LivingEntity entity) {
-        if (cloakItemModel == null) {
-            cloakItemModel = new CloakModel(Minecraft.getInstance().getEntityModels().bakeLayer(ModEntitiesRender.CLOAK));
-        }
-        cloakItemModel.copyFromHumanoid(wearerModel);
-        cloakItemModel.setupAnimation(entity);
-        return cloakItemModel;
-    }
 
     public static @NotNull LayerDefinition createLayer() {
         MeshDefinition mesh = new MeshDefinition();
@@ -66,6 +56,7 @@ public class CloakModel extends VampirismArmorModel {
     private final @NotNull ModelPart shoulderleft;
 
     public CloakModel(@NotNull ModelPart part) {
+        super(part);
         cloakback = part.getChild(CLOAK_BACK);
         leftlong = part.getChild(LEFT_LONG);
         rightmedium = part.getChild(RIGHT_MEDIUM);
@@ -77,71 +68,16 @@ public class CloakModel extends VampirismArmorModel {
         shoulderright = part.getChild(SHOULDER_RIGHT);
     }
 
-    private void setupAnimation(LivingEntity entity) {
-        boolean shouldSit = entity.isPassenger() && (entity.getVehicle() != null && entity.getVehicle().shouldRiderSit());
-
-        float f = Mth.rotLerp(MixinHooks.armorLayerPartialTicks, entity.yBodyRotO, entity.yBodyRot);
-        float f1 = Mth.rotLerp(MixinHooks.armorLayerPartialTicks, entity.yHeadRotO, entity.yHeadRot);
-        float f2 = f1 - f;
-
-        float f6 = Mth.lerp(MixinHooks.armorLayerPartialTicks, entity.xRotO, entity.getXRot());
-
-        if (shouldSit && entity.getVehicle() instanceof LivingEntity livingentity) {
-            f = Mth.rotLerp(MixinHooks.armorLayerPartialTicks, livingentity.yBodyRotO, livingentity.yBodyRot);
-            f2 = f1 - f;
-            float f3 = Mth.wrapDegrees(f2);
-            if (f3 < -85.0F) {
-                f3 = -85.0F;
-            }
-
-            if (f3 >= 85.0F) {
-                f3 = 85.0F;
-            }
-
-            f = f1 - f3;
-            if (f3 * f3 > 2500.0F) {
-                f += f3 * 0.2F;
-            }
-
-            f2 = f1 - f;
-        }
-
-        if (isEntityUpsideDown(entity)) {
-            f6 *= -1.0F;
-            f2 *= -1.0F;
-        }
-
-        float f8 = 0.0F;
-        float f5 = 0.0F;
-        if (!shouldSit && entity.isAlive()) {
-            f8 = entity.walkAnimation.speed(MixinHooks.armorLayerPartialTicks);
-            f5 = entity.walkAnimation.position(MixinHooks.armorLayerPartialTicks);
-            if (entity.isBaby()) {
-                f5 *= 3.0F;
-            }
-
-            if (f8 > 1.0F) {
-                f8 = 1.0F;
-            }
-        }
-        cloakItemModel.setupAnim(entity, f5, f8, entity.tickCount + MixinHooks.armorLayerPartialTicks, f2, f6);
+    @Override
+    public @NotNull Iterable<ModelPart> getBodyModels() {
+        return ImmutableList.of(cloakback, leftlong, rightmedium, leftmedium, rightshort, leftshort, rightlong, shoulderright, shoulderleft);
     }
 
-    public void setupAnim(@NotNull LivingEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-        boolean flag = entity != null && entity.getFallFlyingTicks() > 4;
+    @Override
+    public void setupAnim(@NotNull HumanoidRenderState state) {
+        super.setupAnim(state);
 
-        float f6 = 1.0F;
-        if (flag) {
-            f6 = (float) (entity.getDeltaMovement().x * entity.getDeltaMovement().x + entity.getDeltaMovement().y * entity.getDeltaMovement().y + entity.getDeltaMovement().z * entity.getDeltaMovement().z);
-            f6 = f6 / 0.2F;
-            f6 = f6 * f6 * f6;
-        }
-
-        if (f6 < 1.0F) {
-            f6 = 1.0F;
-        }
-
-        float rotation = Mth.cos(limbSwing * 0.6662F) * 1.4F * (limbSwingAmount / 1.8f) / f6;
+        float rotation = Mth.cos(state.walkAnimationPos * 0.6662F) * 1.4F * (state.walkAnimationSpeed / 1.8f) / state.speedValue;
         if (rotation < 0.0F) {
             rotation *= -1;
         }
@@ -153,7 +89,7 @@ public class CloakModel extends VampirismArmorModel {
         this.rightshort.xRot = 0.0872665F + (rotation / 3);
         this.leftshort.xRot = 0.0872665F + (rotation / 3);
 
-        if (entity.isCrouching()) {
+        if (state.isCrouching) {
             this.cloakback.xRot += 0.5F;
             this.leftlong.xRot += 0.5F;
             this.rightlong.xRot += 0.5F;
@@ -162,11 +98,6 @@ public class CloakModel extends VampirismArmorModel {
             this.leftshort.xRot += 0.5F;
             this.rightshort.xRot += 0.5F;
         }
-    }
-
-    @Override
-    protected @NotNull Iterable<ModelPart> getBodyModels() {
-        return ImmutableList.of(cloakback, leftlong, rightmedium, leftmedium, rightshort, leftshort, rightlong, shoulderright, shoulderleft);
     }
 
 

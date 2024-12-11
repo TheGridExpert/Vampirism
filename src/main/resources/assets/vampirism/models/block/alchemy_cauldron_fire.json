@@ -2,6 +2,7 @@
   "__comment": "Designed by Maxanier with Cubik Studio",
   "ambientocclusion": false,
   "textures": {
+    "particle": "block/fire_0",
     "fire": "block/fire_0",
     "fire1": "block/fire_1"
   },

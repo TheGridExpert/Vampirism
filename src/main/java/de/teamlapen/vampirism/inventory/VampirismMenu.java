@@ -60,7 +60,7 @@ public class VampirismMenu extends InventoryContainerMenu implements TaskMenu {
         this.refinementsAvailable = factionPlayer.getFaction().value().hasRefinements();
         this.addPlayerSlots(playerInventory, 37, 124);
         this.refinementStacks = this.factionPlayer instanceof IRefinementPlayer<?> refinementPlayer ? refinementPlayer.getRefinementHandler().getRefinementItems() : NonNullList.create();
-        this.registry = playerInventory.player.level().registryAccess().registryOrThrow(VampirismRegistries.Keys.TASK);
+        this.registry = playerInventory.player.level().registryAccess().lookupOrThrow(VampirismRegistries.Keys.TASK);
     }
 
     @Override

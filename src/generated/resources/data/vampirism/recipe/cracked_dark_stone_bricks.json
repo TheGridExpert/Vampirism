@@ -3,9 +3,7 @@
   "category": "blocks",
   "cookingtime": 200,
   "experience": 0.1,
-  "ingredient": {
-    "item": "vampirism:dark_stone_bricks"
-  },
+  "ingredient": "vampirism:dark_stone_bricks",
   "result": {
     "count": 1,
     "id": "vampirism:cracked_dark_stone_bricks"

@@ -13,8 +13,11 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.PlacementInfo;
+import net.minecraft.world.item.crafting.RecipeBookCategory;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
@@ -23,6 +26,8 @@ import java.util.Optional;
 public class AlchemyTableRecipe extends AbstractBrewingRecipe {
 
     private final List<ISkill<?>> requiredSkills;
+    @Nullable
+    private PlacementInfo placementInfo;
 
     public AlchemyTableRecipe(String group, Ingredient ingredient, Ingredient input, ItemStack result, List<ISkill<?>> skills) {
         super(ModRecipes.ALCHEMICAL_TABLE_TYPE.get(), group, ingredient, input, result);
@@ -42,21 +47,34 @@ public class AlchemyTableRecipe extends AbstractBrewingRecipe {
         return isInput(input) && isIngredient(ingredient) ? this.result.copy() : ItemStack.EMPTY;
     }
 
+    @Override
+    public @NotNull PlacementInfo placementInfo() {
+        if (this.placementInfo == null) {
+            this.placementInfo = PlacementInfo.create(List.of(this.ingredient, this.input));
+        }
+        return this.placementInfo;
+    }
+
+    @Override
+    public @NotNull RecipeBookCategory recipeBookCategory() {
+        return ModRecipes.ALCHEMICAL_TABLE_CATEGORY.get();
+    }
+
     public List<ISkill<?>> getRequiredSkills() {
         return requiredSkills;
     }
 
     @NotNull
     @Override
-    public RecipeSerializer<?> getSerializer() {
+    public RecipeSerializer<AlchemyTableRecipe> getSerializer() {
         return ModRecipes.ALCHEMICAL_TABLE.get();
     }
 
     public static class Serializer implements RecipeSerializer<AlchemyTableRecipe> {
         public static final MapCodec<AlchemyTableRecipe> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
                 Codec.STRING.optionalFieldOf("group", "").forGetter(p_300832_ -> p_300832_.group),
-                Ingredient.CODEC_NONEMPTY.fieldOf("ingredient").forGetter(p_300831_ -> p_300831_.ingredient),
-                Ingredient.CODEC_NONEMPTY.fieldOf("input").forGetter(p_300830_ -> p_300830_.input),
+                Ingredient.CODEC.fieldOf("ingredient").forGetter(p_300831_ -> p_300831_.ingredient),
+                Ingredient.CODEC.fieldOf("input").forGetter(p_300830_ -> p_300830_.input),
                 ItemStack.CODEC.fieldOf("result").forGetter(p_300829_ -> p_300829_.result),
                 ModRegistries.SKILLS.byNameCodec().listOf().optionalFieldOf("skill", Collections.emptyList()).forGetter(p -> p.requiredSkills)
         ).apply(inst, AlchemyTableRecipe::new));

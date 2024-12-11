@@ -1,5 +1,7 @@
 package de.teamlapen.vampirism.client.gui.screens;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import de.teamlapen.lib.lib.client.gui.GuiRenderer;
 import de.teamlapen.vampirism.REFERENCE;
 import de.teamlapen.vampirism.VampirismMod;
 import de.teamlapen.vampirism.api.util.VResourceLocation;
@@ -8,6 +10,7 @@ import de.teamlapen.vampirism.network.ServerboundSimpleInputEvent;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -60,8 +63,8 @@ public class HunterBasicScreen extends AbstractContainerScreen<HunterBasicMenu> 
 
     @Override
     protected void renderBg(@NotNull GuiGraphics graphics, float partialTicks, int mouseX, int mouseY) {
-        graphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
-        graphics.blit(guiTexture, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
+        GuiRenderer.resetColor();
+        GuiRenderer.blit(graphics, guiTexture, this.leftPos, this.topPos, this.imageWidth, this.imageHeight);
     }
 
     @Override

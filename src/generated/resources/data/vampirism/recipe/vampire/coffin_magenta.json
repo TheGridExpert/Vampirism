@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "X": {
-      "tag": "minecraft:planks"
-    },
-    "Y": {
-      "item": "minecraft:magenta_wool"
-    }
+    "X": "#minecraft:planks",
+    "Y": "minecraft:magenta_wool"
   },
   "pattern": [
     "XXX",

@@ -7,6 +7,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSources;
 import net.minecraft.world.entity.Entity;
@@ -30,7 +31,7 @@ public class TeleportBehavior implements IVampirismCrossbowArrow.ICrossbowArrowB
     @Override
     public void onHitBlock(ItemStack arrow, @NotNull BlockPos blockPos, AbstractArrow arrowEntity, @Nullable Entity shootingEntity, Direction up) {
         if (shootingEntity != null) {
-            if (!shootingEntity.level().isClientSide && shootingEntity.isAlive()) {
+            if (shootingEntity.level() instanceof ServerLevel level && shootingEntity.isAlive()) {
                 if (shootingEntity instanceof ServerPlayer player) {
                     if (player.connection.getConnection().isConnected() && player.level() == arrowEntity.level() && !player.isSleeping()) {
 
@@ -40,7 +41,7 @@ public class TeleportBehavior implements IVampirismCrossbowArrow.ICrossbowArrowB
 
                         player.teleportTo(blockPos.getX(), blockPos.getY(), blockPos.getZ());
                         player.fallDistance = 0.0F;
-                        DamageHandler.hurtVanilla(player, DamageSources::fall, 1);
+                        DamageHandler.hurtVanilla(level, player, DamageSources::fall, 1);
                     }
                 } else {
                     shootingEntity.teleportTo(blockPos.getX(), blockPos.getY(), blockPos.getZ());

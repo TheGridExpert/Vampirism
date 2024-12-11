@@ -22,7 +22,7 @@ public class ModSuggestionProvider {
         });
     });
     public static final SuggestionProvider<CommandSourceStack> BIOMES = SuggestionProviders.register(VResourceLocation.mod("biomes"), (context, builder) -> {
-        Registry<Biome> biomes = context.getSource().registryAccess().registryOrThrow(Registries.BIOME);
+        Registry<Biome> biomes = context.getSource().registryAccess().lookupOrThrow(Registries.BIOME);
         return SharedSuggestionProvider.suggestResource(biomes.stream(), builder, biomes::getKey, (c) -> {
             return Component.translatable(Util.makeDescriptionId("biome", biomes.getKey(c)));
         });

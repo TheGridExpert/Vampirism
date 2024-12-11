@@ -7,11 +7,13 @@ import de.teamlapen.vampirism.entity.player.vampire.VampirePlayer;
 import de.teamlapen.vampirism.util.DamageHandler;
 import de.teamlapen.vampirism.util.Helper;
 import de.teamlapen.vampirism.world.ModDamageSources;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.player.Player;
+import org.jetbrains.annotations.NotNull;
 
 public class BleedingEffect extends MobEffect {
 
@@ -30,13 +32,13 @@ public class BleedingEffect extends MobEffect {
     }
 
     @Override
-    public boolean applyEffectTick(LivingEntity entityLivingBaseIn, int amplifier) {
+    public boolean applyEffectTick(@NotNull ServerLevel level, LivingEntity entityLivingBaseIn, int amplifier) {
         if (entityLivingBaseIn.isInvertedHealAndHarm()) {
             return false;
         }
 
         if (entityLivingBaseIn.getHealth() > 1.0F) {
-            DamageHandler.hurtModded(entityLivingBaseIn, ModDamageSources::bleeding, VampirismConfig.BALANCE.bleedingEffectDamage.get().floatValue());
+            DamageHandler.hurtModded(level, entityLivingBaseIn, ModDamageSources::bleeding, VampirismConfig.BALANCE.bleedingEffectDamage.get().floatValue());
             if (entityLivingBaseIn.getRandom().nextInt(4) == 0) {
                 if (Helper.isVampire(entityLivingBaseIn)) {
                     if (entityLivingBaseIn instanceof Player) {

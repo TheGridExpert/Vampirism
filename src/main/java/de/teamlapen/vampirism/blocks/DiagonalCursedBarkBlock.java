@@ -6,11 +6,13 @@ import de.teamlapen.vampirism.core.ModBlocks;
 import de.teamlapen.vampirism.util.Helper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
@@ -42,8 +44,8 @@ public class DiagonalCursedBarkBlock extends CursedBarkBlock {
     public static final BooleanProperty SOUTH_EAST = createProperty(Direction.SOUTH, Direction.EAST);
     public static final BooleanProperty EAST_NORTH = createProperty(Direction.EAST, Direction.NORTH);
 
-    public DiagonalCursedBarkBlock() {
-        super(BlockBehaviour.Properties.of().sound(SoundType.EMPTY));
+    public DiagonalCursedBarkBlock(BlockBehaviour.Properties properties) {
+        super(properties.sound(SoundType.EMPTY));
         this.registerDefaultState(this.defaultBlockState()
                 .setValue(UP_WEST, false)
                 .setValue(UP_NORTH, false)
@@ -66,8 +68,8 @@ public class DiagonalCursedBarkBlock extends CursedBarkBlock {
     }
 
     @Override
-    public @NotNull BlockState updateShape(@NotNull BlockState state, @NotNull Direction direction, @NotNull BlockState otherState, @NotNull LevelAccessor levelAccessor, @NotNull BlockPos pos, @NotNull BlockPos otherPos) {
-        if (!otherState.is(ModBlocks.DIRECT_CURSED_BARK.get())) {
+    public @NotNull BlockState updateShape(@NotNull BlockState state, @NotNull LevelReader levelReader, @NotNull ScheduledTickAccess tickAccess, @NotNull BlockPos pos, @NotNull Direction direction, BlockPos pos2, BlockState state2, RandomSource random) {
+        if (!state2.is(ModBlocks.DIRECT_CURSED_BARK.get())) {
             for (Map.Entry<Direction, BooleanProperty> entry : PROPERTY_TABLE.column(direction).entrySet()) {
                 state = state.setValue(entry.getValue(), false);
             }
@@ -76,7 +78,7 @@ public class DiagonalCursedBarkBlock extends CursedBarkBlock {
             }
         } else {
             for (Map.Entry<Direction, BooleanProperty> entry : PROPERTY_TABLE.row(direction).entrySet()) {
-                if (levelAccessor.getBlockState(pos.relative(entry.getKey())).is(ModBlocks.DIRECT_CURSED_BARK.get())) {
+                if (levelReader.getBlockState(pos.relative(entry.getKey())).is(ModBlocks.DIRECT_CURSED_BARK.get())) {
                     state.setValue(entry.getValue(), true);
                 }
             }

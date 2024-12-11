@@ -1,6 +1,7 @@
 package de.teamlapen.vampirism.inventory;
 
 import de.teamlapen.lib.lib.inventory.BooleanDataSlot;
+import de.teamlapen.vampirism.VampirismMod;
 import de.teamlapen.vampirism.api.entity.player.skills.ISkill;
 import de.teamlapen.vampirism.api.items.IWeaponTableRecipe;
 import de.teamlapen.vampirism.blocks.WeaponTableBlock;
@@ -13,6 +14,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
@@ -27,6 +29,7 @@ import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.network.IContainerFactory;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -159,19 +162,33 @@ public class WeaponTableMenu extends AbstractContainerMenu {
 
     public Optional<List<Holder<ISkill<?>>>> missingSkills() {
         return this.worldPos.evaluate((world, pos) -> {
-            Optional<RecipeHolder<IWeaponTableRecipe>> recipeFor = quickCheck.getRecipeFor(CraftingInput.of(this.craftMatrix.getWidth(), this.craftMatrix.getHeight(), this.craftMatrix.getItems()), world);
-            return recipeFor.stream().flatMap(s -> s.value().getRequiredSkills().stream()).filter(s -> !hunterPlayer.getSkillHandler().isSkillEnabled(s)).toList();
+            CraftingInput input = CraftingInput.of(this.craftMatrix.getWidth(), this.craftMatrix.getHeight(), this.craftMatrix.getItems());
+            Optional<RecipeHolder<IWeaponTableRecipe>> recipe;
+            if (world instanceof ServerLevel serverLevel) {
+                recipe = quickCheck.getRecipeFor(input, serverLevel);
+            } else {
+                recipe = VampirismMod.proxy.recipeMap(world).getRecipesFor(ModRecipes.WEAPONTABLE_CRAFTING_TYPE.get(), input, world).findFirst();
+            }
+            if (world instanceof ServerLevel serverLevel) {
+                return recipe.stream().flatMap(s -> s.value().getRequiredSkills().stream()).filter(s -> !hunterPlayer.getSkillHandler().isSkillEnabled(s)).toList();
+            }
+            return Collections.emptyList();
         });
     }
 
     private void slotChangedCraftingGrid(@NotNull Level worldIn, Player playerIn, @NotNull HunterPlayer hunter, @NotNull CraftingInput craftMatrixIn, @NotNull ResultContainer craftResultIn) {
         if (!worldIn.isClientSide && playerIn instanceof ServerPlayer serverPlayer) {
-            Optional<RecipeHolder<IWeaponTableRecipe>> optional = quickCheck.getRecipeFor(craftMatrixIn, worldIn);
+            Optional<RecipeHolder<IWeaponTableRecipe>> optional;
+            if (worldIn instanceof ServerLevel serverLevel) {
+                optional = quickCheck.getRecipeFor(craftMatrixIn, serverLevel);
+            } else {
+                optional = VampirismMod.proxy.recipeMap(worldIn).getRecipesFor(ModRecipes.WEAPONTABLE_CRAFTING_TYPE.get(), craftMatrixIn, worldIn).findFirst();
+            }
             this.missingLava.set(false);
             craftResultIn.setItem(0, ItemStack.EMPTY);
             if (optional.isPresent()) {
                 RecipeHolder<IWeaponTableRecipe> recipe = optional.get();
-                if ((craftResultIn.setRecipeUsed(worldIn, serverPlayer, recipe) || ModList.get().isLoaded("fastbench")) && recipe.value().getRequiredLevel() <= hunter.getLevel() && Helper.areSkillsEnabled(hunter.getSkillHandler(), recipe.value().getRequiredSkills())) {
+                if ((craftResultIn.setRecipeUsed(serverPlayer, recipe) || ModList.get().isLoaded("fastbench")) && recipe.value().getRequiredLevel() <= hunter.getLevel() && Helper.areSkillsEnabled(hunter.getSkillHandler(), recipe.value().getRequiredSkills())) {
                     this.worldPos.execute((world, pos) -> {
                         if (world.getBlockState(pos).getValue(WeaponTableBlock.LAVA) >= recipe.value().getRequiredLavaUnits()) {
                             craftResultIn.setItem(0, recipe.value().assemble(craftMatrixIn, world.registryAccess()));

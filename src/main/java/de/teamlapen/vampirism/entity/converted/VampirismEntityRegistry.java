@@ -24,6 +24,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 public class VampirismEntityRegistry implements IVampirismEntityRegistry {
 
@@ -40,13 +41,14 @@ public class VampirismEntityRegistry implements IVampirismEntityRegistry {
     @NotNull
     public Map<EntityType<?>, ResourceLocation> getConvertibleOverlay() {
         DefaultedRegistry<EntityType<?>> registry = BuiltInRegistries.ENTITY_TYPE;
+        Stream<Map.Entry<? extends EntityType<?>, ResourceLocation>> entryStream = registry.getDataMap(ModDataMaps.ENTITY_CONVERTER_MAP).entrySet().stream().flatMap(s -> s.getValue().overlay().flatMap(l -> Optional.ofNullable(registry.getValue(s.getKey())).map(p -> Map.entry(p, l))).stream());
         //noinspection unchecked
-        return Map.ofEntries(registry.getDataMap(ModDataMaps.ENTITY_CONVERTER_MAP).entrySet().stream().flatMap(s -> s.getValue().overlay().flatMap(l -> Optional.ofNullable(registry.get(s.getKey())).map(p -> Map.entry(p, l))).stream()).toArray(Map.Entry[]::new));
+        return Map.ofEntries(entryStream.toArray(Map.Entry[]::new));
     }
 
     @Override
     public @Nullable ResourceLocation getConvertibleOverlay(@NotNull String originalEntity) {
-        return BuiltInRegistries.ENTITY_TYPE.getHolder(ResourceKey.create(Registries.ENTITY_TYPE, ResourceLocation.parse(originalEntity))).map(s -> s.getData(VampirismDataMaps.ENTITY_CONVERTER.get())).flatMap(IConverterEntry::overlay).orElse(null);
+        return BuiltInRegistries.ENTITY_TYPE.get(ResourceKey.create(Registries.ENTITY_TYPE, ResourceLocation.parse(originalEntity))).map(s -> s.getData(VampirismDataMaps.ENTITY_CONVERTER.get())).flatMap(IConverterEntry::overlay).orElse(null);
     }
 
     @Override

@@ -3,9 +3,7 @@
   "category": "building",
   "group": "planks",
   "ingredients": [
-    {
-      "tag": "vampirism:dark_spruce_log"
-    }
+    "#vampirism:dark_spruce_log"
   ],
   "result": {
     "count": 4,

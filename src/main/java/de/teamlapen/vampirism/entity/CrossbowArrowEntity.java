@@ -93,9 +93,6 @@ public class CrossbowArrowEntity extends AbstractArrow implements IEntityCrossbo
         super.onHitBlock(blockRayTraceResult);
     }
 
-    public void setEffectsFromItem(ItemStack p_200887_2_) {
-    }
-
     @Override
     public void shoot(double pX, double pY, double pZ, float pVelocity, float pInaccuracy) {
         super.shoot(pX, pY, pZ, pVelocity, pInaccuracy);

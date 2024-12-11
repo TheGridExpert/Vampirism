@@ -7,12 +7,14 @@ import de.teamlapen.vampirism.util.Helper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
@@ -29,7 +31,10 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
 import java.util.Optional;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class WeaponTableBlock extends VampirismHorizontalBlock {
     public static final int MAX_LAVA = 5;
@@ -60,8 +65,15 @@ public class WeaponTableBlock extends VampirismHorizontalBlock {
         return Shapes.or(a, b, c, d, e, e1, e2, e3, e4, e5, e6, e7, e8, f, g);
     }
 
-    public WeaponTableBlock() {
-        super(Properties.of().mapColor(MapColor.METAL).strength(3).noOcclusion(), makeShape());
+    public WeaponTableBlock(BlockBehaviour.Properties properties) {
+        super(properties.mapColor(MapColor.METAL).strength(3).noOcclusion().lightLevel(x ->  {
+            int value = x.getValue(LAVA);
+            if (value == 0) {
+                return 0;
+            } else {
+                return value * 2 + 5;
+            }
+        }), makeShape());
         this.registerDefaultState(this.getStateDefinition().any().setValue(LAVA, 0).setValue(FACING, Direction.NORTH));
 
     }
@@ -74,42 +86,44 @@ public class WeaponTableBlock extends VampirismHorizontalBlock {
 
 
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
-        if (!world.isClientSide) {
-            if (!Helper.isHunter(player)) {
-                player.displayClientMessage(Component.translatable("text.vampirism.unfamiliar"), true);
-                return ItemInteractionResult.CONSUME;
-            }
+    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        ItemStack heldItem = player.getItemInHand(hand);
+        if (FluidUtil.getFluidHandler(heldItem).stream().flatMap(handler -> IntStream.range(0, handler.getTanks()).mapToObj(handler::getFluidInTank)).anyMatch(x -> x.is(Fluids.LAVA))) {
+            if (world instanceof ServerLevel serverLevel) {
+                if (!Helper.isHunter(player)) {
+                    player.displayClientMessage(Component.translatable("text.vampirism.unfamiliar"), true);
+                    return InteractionResult.CONSUME;
+                }
 
-            int fluid = world.getBlockState(pos).getValue(LAVA);
-            boolean flag = false;
-            ItemStack heldItem = player.getItemInHand(hand);
-            if (fluid < MAX_LAVA) {
-                Optional<IFluidHandlerItem> opt = FluidUtil.getFluidHandler(heldItem);
-                flag = opt.map(fluidHandler -> {
-                    FluidStack missing = new FluidStack(Fluids.LAVA, (MAX_LAVA - fluid) * MB_PER_META);
-                    FluidStack drainable = fluidHandler.drain(missing, IFluidHandler.FluidAction.SIMULATE);
-                    if (drainable.isEmpty()) { //Buckets can only provide {@link Fluid.BUCKET_VOLUME} at a time, so try this too. Additional lava is wasted though
-                        missing.setAmount(FluidType.BUCKET_VOLUME);
-                        drainable = fluidHandler.drain(missing, IFluidHandler.FluidAction.SIMULATE);
-                    }
-                    if (drainable.getAmount() >= MB_PER_META) {
-                        FluidStack drained = fluidHandler.drain(missing, IFluidHandler.FluidAction.EXECUTE);
-                        if (drained.getAmount() > 0) {
-                            world.setBlockAndUpdate(pos, state.setValue(LAVA, Math.min(MAX_LAVA, fluid + drained.getAmount() / MB_PER_META)));
-                            player.setItemInHand(hand, fluidHandler.getContainer());
-                            return true;
+                int fluid = world.getBlockState(pos).getValue(LAVA);
+                boolean flag = false;
+                if (fluid < MAX_LAVA) {
+                    Optional<IFluidHandlerItem> opt = FluidUtil.getFluidHandler(heldItem);
+                    flag = opt.map(fluidHandler -> {
+                        FluidStack missing = new FluidStack(Fluids.LAVA, (MAX_LAVA - fluid) * MB_PER_META);
+                        FluidStack drainable = fluidHandler.drain(missing, IFluidHandler.FluidAction.SIMULATE);
+                        if (drainable.isEmpty()) { //Buckets can only provide {@link Fluid.BUCKET_VOLUME} at a time, so try this too. Additional lava is wasted though
+                            missing.setAmount(FluidType.BUCKET_VOLUME);
+                            drainable = fluidHandler.drain(missing, IFluidHandler.FluidAction.SIMULATE);
                         }
-                    }
-                    return false;
-                }).orElse(false);
+                        if (drainable.getAmount() >= MB_PER_META) {
+                            FluidStack drained = fluidHandler.drain(missing, IFluidHandler.FluidAction.EXECUTE);
+                            if (drained.getAmount() > 0) {
+                                world.setBlockAndUpdate(pos, state.setValue(LAVA, Math.min(MAX_LAVA, fluid + drained.getAmount() / MB_PER_META)));
+                                player.setItemInHand(hand, fluidHandler.getContainer());
+                                return true;
+                            }
+                        }
+                        return false;
+                    }).orElse(false);
+                }
+                if (flag) {
+                    return InteractionResult.SUCCESS_SERVER;
+                }
             }
-            if (flag) {
-                return ItemInteractionResult.SUCCESS;
-            }
+            return InteractionResult.CONSUME;
         }
-
-        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        return InteractionResult.PASS;
     }
 
     @Override
@@ -121,7 +135,7 @@ public class WeaponTableBlock extends VampirismHorizontalBlock {
                 player.displayClientMessage(Component.translatable("text.vampirism.not_learned"), true);
             }
         }
-        return InteractionResult.sidedSuccess(level.isClientSide);
+        return InteractionResult.SUCCESS_SERVER;
     }
 
     @Override

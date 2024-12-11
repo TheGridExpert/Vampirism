@@ -143,7 +143,7 @@ public class TaskInstance implements ITaskInstance {
     }
 
     public boolean isUnique(Registry<Task> registry) {
-        return registry.getHolder(this.task).map(s -> s.is(ModTaskTags.IS_UNIQUE)).orElse(false);
+        return registry.get(this.task).map(s -> s.is(ModTaskTags.IS_UNIQUE)).orElse(false);
     }
 
     public void startTask(long timestamp) {

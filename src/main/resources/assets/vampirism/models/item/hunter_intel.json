@@ -1,6 +1,7 @@
 {
   "__comment": "Designed by Maxanier",
   "textures": {
+    "particle": "vampirism:item/hunter_table_book",
     "texture": "vampirism:item/hunter_table_book"
   },
   "elements": [

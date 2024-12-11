@@ -30,7 +30,7 @@ public class ModDamageSources {
     private final DamageSource bleeding;
 
     public ModDamageSources(RegistryAccess access) {
-        this.damageTypes = access.registryOrThrow(Registries.DAMAGE_TYPE);
+        this.damageTypes = access.lookupOrThrow(Registries.DAMAGE_TYPE);
         this.sunDamage = init(ModDamageTypes.SUN_DAMAGE);
         this.vampireOnFire = init(ModDamageTypes.VAMPIRE_ON_FIRE);
         this.vampireInFire = init(ModDamageTypes.VAMPIRE_IN_FIRE);
@@ -41,7 +41,7 @@ public class ModDamageSources {
     }
 
     private DamageSource init(ResourceKey<DamageType> key) {
-        return new DamageSource(this.damageTypes.getHolderOrThrow(key));
+        return new DamageSource(this.damageTypes.getOrThrow(key));
     }
 
     public DamageSource sunDamage() {
@@ -69,19 +69,19 @@ public class ModDamageSources {
     }
 
     public DamageSource stake(LivingEntity attacker) {
-        return new DamageSource(this.damageTypes.getHolderOrThrow(ModDamageTypes.STAKE), attacker);
+        return new DamageSource(this.damageTypes.getOrThrow(ModDamageTypes.STAKE), attacker);
     }
 
     public MinionDamageSource minion(@NotNull MinionEntity<?> entity) {
-        return new MinionDamageSource(this.damageTypes.getHolderOrThrow(ModDamageTypes.MINION), entity);
+        return new MinionDamageSource(this.damageTypes.getOrThrow(ModDamageTypes.MINION), entity);
     }
 
     public DBNODamageSource dbno(@Nullable Component originalSource) {
-        return new DBNODamageSource(this.damageTypes.getHolderOrThrow(ModDamageTypes.DBNO), originalSource);
+        return new DBNODamageSource(this.damageTypes.getOrThrow(ModDamageTypes.DBNO), originalSource);
     }
 
     public PlayerAttackDamageSourceBypassArmor getPlayerAttackWithBypassArmor(@NotNull Player attacker) {
-        return new PlayerAttackDamageSourceBypassArmor(this.damageTypes.getHolderOrThrow(DamageTypes.PLAYER_ATTACK), attacker);
+        return new PlayerAttackDamageSourceBypassArmor(this.damageTypes.getOrThrow(DamageTypes.PLAYER_ATTACK), attacker);
     }
 
     public DamageSource bleeding() {

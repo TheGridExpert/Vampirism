@@ -15,16 +15,6 @@ public class ClothingPantsModel extends VampirismArmorModel {
     private static final String RIGHT_LEG = "right_leg";
     private static final String BELT = "belt";
 
-    private static ClothingPantsModel instance;
-
-    public static ClothingPantsModel getAdjustedInstance(HumanoidModel<?> wearerModel) {
-        if (instance == null) {
-            instance = new ClothingPantsModel(Minecraft.getInstance().getEntityModels().bakeLayer(ModEntitiesRender.CLOTHING_PANTS));
-        }
-        instance.copyFromHumanoid(wearerModel);
-        return instance;
-    }
-
     public static @NotNull LayerDefinition createLayer() {
         MeshDefinition mesh = new MeshDefinition();
         PartDefinition part = mesh.getRoot();
@@ -40,7 +30,7 @@ public class ClothingPantsModel extends VampirismArmorModel {
     public final @NotNull ModelPart belt;
 
     public ClothingPantsModel(@NotNull ModelPart part) {
-        super();
+        super(part);
         this.belt = part.getChild(BELT);
         this.leftLeg = part.getChild(LEFT_LEG);
         this.rightLeg = part.getChild(RIGHT_LEG);

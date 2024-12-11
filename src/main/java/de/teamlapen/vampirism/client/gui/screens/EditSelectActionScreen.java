@@ -1,5 +1,7 @@
 package de.teamlapen.vampirism.client.gui.screens;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import de.teamlapen.lib.lib.client.gui.GuiRenderer;
 import de.teamlapen.vampirism.VampirismMod;
 import de.teamlapen.vampirism.api.entity.player.IFactionPlayer;
 import de.teamlapen.vampirism.api.entity.player.ISkillPlayer;
@@ -20,6 +22,7 @@ import net.minecraft.client.gui.components.*;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.options.controls.KeyBindsScreen;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -42,7 +45,8 @@ public class EditSelectActionScreen<T extends ISkillPlayer<T>> extends Reorderin
 
     private static void drawActionPart(@Nullable Holder<IAction<?>> action, GuiGraphics graphics, int posX, int posY, int size, boolean transparent) {
         if (action == null) return;
-        graphics.blit(getActionIcon(action), posX, posY, 0, 0, 0, 16, 16, 16, 16);
+        RenderSystem.disableBlend();
+        GuiRenderer.blit(graphics, getActionIcon(action), posX, posY, 16, 16, 16, 16);
     }
 
     private static ResourceLocation getActionIcon(Holder<IAction<?>> action) {
@@ -55,7 +59,7 @@ public class EditSelectActionScreen<T extends ISkillPlayer<T>> extends Reorderin
     }
 
     private static <T extends IFactionPlayer<T>> ItemOrdering<Holder<IAction<?>>> getOrdering(T player) {
-        return new ItemOrdering<>(ClientConfigHelper.getActionOrder(player.getFaction()).stream().filter(s -> s.value().showInSelectAction(player.asEntity())).toList(), new ArrayList<>(), () -> ModRegistries.ACTIONS.holders().filter(action -> action.value().matchesFaction(player.getFaction())).filter(s -> s.value().showInSelectAction(player.asEntity())).collect(Collectors.toList()));
+        return new ItemOrdering<>(ClientConfigHelper.getActionOrder(player.getFaction()).stream().filter(s -> s.value().showInSelectAction(player.asEntity())).toList(), new ArrayList<>(), () -> ModRegistries.ACTIONS.listElements().filter(action -> action.value().matchesFaction(player.getFaction())).filter(s -> s.value().showInSelectAction(player.asEntity())).collect(Collectors.toList()));
     }
 
     private static <T extends IFactionPlayer<T>> void saveOrdering(T player, ItemOrdering<Holder<IAction<?>>> ordering) {
@@ -91,9 +95,9 @@ public class EditSelectActionScreen<T extends ISkillPlayer<T>> extends Reorderin
     @Override
     public void renderBackground(@NotNull GuiGraphics graphics, int p_296369_, int p_296477_, float p_294317_) {
         super.renderBackground(graphics, p_296369_, p_296477_, p_294317_);
-        graphics.setColor(0.5F, 0.5F, 0.5F, 1.0F);
-        graphics.blitSprite(BACKGROUND, this.width - 140, 0, 140, this.height);
-        graphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderColor(0.5F, 0.5F, 0.5F, 1.0F);
+        graphics.blitSprite(RenderType::guiTextured, BACKGROUND, this.width - 140, 0, 140, this.height);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
         graphics.drawCenteredString(this.font, Component.translatable("text.vampirism.key_shortcuts"), this.width - 70, 5, -1);
     }
@@ -123,7 +127,7 @@ public class EditSelectActionScreen<T extends ISkillPlayer<T>> extends Reorderin
 
 
         @Override
-        protected int getScrollbarPosition() {
+        protected int scrollBarX() {
             return this.getRight() - 6;
         }
 
@@ -138,7 +142,7 @@ public class EditSelectActionScreen<T extends ISkillPlayer<T>> extends Reorderin
         }
 
         @Override
-        protected int getRowTop(int pIndex) {
+        public int getRowTop(int pIndex) {
             return super.getRowTop(pIndex);
         }
 
@@ -215,7 +219,7 @@ public class EditSelectActionScreen<T extends ISkillPlayer<T>> extends Reorderin
             @Override
             public void renderBack(@NotNull GuiGraphics pGuiGraphics, int pIndex, int pTop, int pLeft, int pWidth, int pHeight, int pMouseX, int pMouseY, boolean pIsMouseOver, float pPartialTick) {
                 if (movingItem != null) {
-                    pGuiGraphics.blitSprite(BUTTON.get(true, pIsMouseOver), pLeft, pTop, pWidth, pHeight + 5);
+                    pGuiGraphics.blitSprite(RenderType::guiTextured, BUTTON.get(true, pIsMouseOver), pLeft, pTop, pWidth, pHeight + 5);
                 }
             }
 

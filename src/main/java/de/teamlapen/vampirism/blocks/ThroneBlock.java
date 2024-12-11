@@ -20,8 +20,8 @@ import org.jetbrains.annotations.NotNull;
 
 public class ThroneBlock extends VampirismSplitBlock {
 
-    public ThroneBlock() {
-        super(BlockBehaviour.Properties.of().mapColor(MapColor.WOOD).ignitedByLava().pushReaction(PushReaction.DESTROY).strength(2, 3), BlockVoxelshapes.throneBottom, BlockVoxelshapes.throneTop, true);
+    public ThroneBlock(BlockBehaviour.Properties properties) {
+        super(properties.mapColor(MapColor.WOOD).ignitedByLava().pushReaction(PushReaction.DESTROY).strength(2, 3), BlockVoxelshapes.throneBottom, BlockVoxelshapes.throneTop, true);
         markDecorativeBlock();
     }
 
@@ -32,10 +32,10 @@ public class ThroneBlock extends VampirismSplitBlock {
         player.awardStat(ModStats.INTERACT_WITH_THRONE.get());
         if (part == Part.MAIN && (traceResult.getDirection() == Direction.UP || traceResult.getDirection() == oppFacing)) {
             SitHandler.startSitting(player, world, pos, 0.5);
-            return InteractionResult.sidedSuccess(world.isClientSide);
+            return InteractionResult.SUCCESS;
         } else if (part == Part.SUB && traceResult.getDirection() == oppFacing && world.getBlockState(pos.below()).is(this)) {
             SitHandler.startSitting(player, world, pos.below(), 0.5);
-            return InteractionResult.sidedSuccess(world.isClientSide);
+            return InteractionResult.SUCCESS;
         }
         return InteractionResult.PASS;
     }

@@ -56,31 +56,19 @@ public abstract class ContainerObjectSelectionListWithDummy<Z, T extends Contain
         super.renderItem(graphics, pMouseX, pMouseY, pPartialTick, pIndex, pLeft, pTop, pWidth - 6, pHeight);
     }
 
-    @Nullable
     @Override
-    protected Entry<Z> getEntryAtPosition(double pMouseX, double pMouseY) {
-        int i = this.getRowWidth() / 2;
-        int j = this.getX() + this.width / 2;
-        int k = j - i;
-        int l = j + i;
-        int i1 = Mth.floor(pMouseY - (double) this.getY()) - this.headerHeight + (int) this.getScrollAmount() - 4;
-        int j1 = i1 / this.itemHeight;
-        return pMouseX >= (double) k && pMouseX <= (double) l - 6 && j1 >= 0 && i1 >= 0 && j1 < this.getItemCount() ? this.children().get(j1) : null;
-    }
-
-    @Override
-    protected int getScrollbarPosition() {
+    protected int scrollBarY() {
         return this.getRight() - 5;
     }
 
     @Override
-    protected int getRowTop(int pIndex) {
+    public int getRowTop(int pIndex) {
         return super.getRowTop(pIndex) - 4;
     }
 
     @Override
-    public int getMaxScroll() {
-        return Math.max(0, super.getMaxScroll() - 4);
+    public int maxScrollAmount() {
+        return Math.max(0, super.maxScrollAmount() - 4);
     }
 
     protected abstract T createItem(Z item);
@@ -96,7 +84,7 @@ public abstract class ContainerObjectSelectionListWithDummy<Z, T extends Contain
     }
 
     public void updateContent() {
-        double scrollAmount = this.getScrollAmount();
+        double scrollAmount = this.scrollAmount();
         //noinspection unchecked
         this.replaceEntries((List<Entry<Z>>) (Object) this.itemSupplier.get().stream().map(this::createItem).toList());
         if (this.dummyItem != null) {
@@ -112,7 +100,7 @@ public abstract class ContainerObjectSelectionListWithDummy<Z, T extends Contain
     }
 
     protected void selectItem(Entry<Z> item) {
-        double scrollAmount = this.getScrollAmount();
+        double scrollAmount = this.scrollAmount();
         if (this.dummyItem != null) {
             this.removeEntry(this.dummyItem);
         }

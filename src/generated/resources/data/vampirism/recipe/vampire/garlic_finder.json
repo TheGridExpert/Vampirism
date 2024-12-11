@@ -2,18 +2,10 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": {
-      "tag": "c:dusts/redstone"
-    },
-    "X": {
-      "item": "vampirism:blood_infused_iron_ingot"
-    },
-    "Y": {
-      "tag": "c:crops/garlic"
-    },
-    "Z": {
-      "tag": "minecraft:planks"
-    }
+    "A": "#c:dusts/redstone",
+    "X": "vampirism:blood_infused_iron_ingot",
+    "Y": "#c:crops/garlic",
+    "Z": "#minecraft:planks"
   },
   "pattern": [
     "XXX",

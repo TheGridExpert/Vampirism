@@ -5,7 +5,6 @@ import de.teamlapen.vampirism.VampirismMod;
 import de.teamlapen.vampirism.blocks.CoffinBlock;
 import de.teamlapen.vampirism.blocks.TentBlock;
 import de.teamlapen.vampirism.client.gui.screens.*;
-import de.teamlapen.vampirism.client.renderer.blockentity.ModBlockEntityItemRenderer;
 import de.teamlapen.vampirism.entity.minion.HunterMinionEntity;
 import de.teamlapen.vampirism.entity.minion.VampireMinionEntity;
 import de.teamlapen.vampirism.util.PlayerModelType;
@@ -19,11 +18,13 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.EntityHitResult;
@@ -33,9 +34,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Consumer;
 
 import static de.teamlapen.vampirism.blocks.TentBlock.FACING;
@@ -46,7 +45,7 @@ import static de.teamlapen.vampirism.blocks.TentBlock.POSITION;
  */
 public class ClientProxy extends CommonProxy {
     private final Map<UUID, ResourceKey<SoundEvent>> bossEventSounds = new HashMap<>();
-    private ModBlockEntityItemRenderer blockEntityItemRenderer;
+    private RecipeMap recipeMap = RecipeMap.EMPTY;
 
     public ClientProxy() {
     }
@@ -169,10 +168,6 @@ public class ClientProxy extends CommonProxy {
         return (ClientProxy) VampirismMod.proxy;
     }
 
-    public ModBlockEntityItemRenderer getBlockEntityItemRenderer() {
-        return blockEntityItemRenderer;
-    }
-
     @Override
     public void addBossEventSound(UUID bossEventUuid, ResourceKey<SoundEvent> sound) {
         this.bossEventSounds.put(bossEventUuid, sound);
@@ -182,7 +177,25 @@ public class ClientProxy extends CommonProxy {
         return this.bossEventSounds.get(bossEventUuid);
     }
 
-    public void registerBlockEntityItemRenderer() {
-        this.blockEntityItemRenderer = new ModBlockEntityItemRenderer(Minecraft.getInstance().getBlockEntityRenderDispatcher(), Minecraft.getInstance().getEntityModels());
+    @Override
+    public @NotNull RecipeMap recipeMap(Level level) {
+        if (level instanceof ServerLevel serverLevel) {
+            return serverLevel.recipeAccess().recipeMap();
+        } else {
+            return this.recipeMap;
+        }
+    }
+
+    public void setRecipes(Collection<RecipeHolder<?>> recipes) {
+        this.recipeMap = RecipeMap.create(recipes);
+    }
+
+    @Override
+    public <I extends RecipeInput, T extends Recipe<I>> Optional<RecipeHolder<T>> getRecipeFor(RecipeType<T> type, I input, Level level, RecipeManager.CachedCheck<I, T> check) {
+        if (level instanceof ServerLevel serverLevel) {
+            return check.getRecipeFor(input, serverLevel);
+        } else {
+            return this.recipeMap.getRecipesFor(type, input, level).findFirst();
+        }
     }
 }

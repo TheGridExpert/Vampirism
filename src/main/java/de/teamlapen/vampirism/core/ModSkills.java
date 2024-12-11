@@ -34,6 +34,7 @@ public class ModSkills {
         }
     });
 
+    @SuppressWarnings("EmptyMethod")
     public static void init() {
     }
 

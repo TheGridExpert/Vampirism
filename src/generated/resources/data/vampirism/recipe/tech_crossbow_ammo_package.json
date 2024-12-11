@@ -2,15 +2,9 @@
   "type": "vampirism:shaped_crafting_weapontable",
   "category": "equipment",
   "key": {
-    "I": {
-      "tag": "c:ingots/iron"
-    },
-    "L": {
-      "tag": "c:leathers"
-    },
-    "P": {
-      "tag": "minecraft:planks"
-    }
+    "I": "#c:ingots/iron",
+    "L": "#c:leathers",
+    "P": "#minecraft:planks"
   },
   "lava": 1,
   "pattern": [

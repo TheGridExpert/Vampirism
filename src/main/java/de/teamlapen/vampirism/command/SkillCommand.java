@@ -95,7 +95,7 @@ public class SkillCommand extends BasicCommand {
     private static <T extends IFactionPlayer<T> & ISkillPlayer<T>> int enableAll(@NotNull CommandSourceStack commandSource, @NotNull ServerPlayer asPlayer) throws CommandSyntaxException {
         FactionPlayerHandler handler = FactionPlayerHandler.get(asPlayer);
         ISkillHandler<T> skillHandler = handler.<T>getSkillHandler().orElseThrow(NO_FACTION::create);
-        ModRegistries.SKILLS.holders().forEach(holder -> {
+        ModRegistries.SKILLS.listElements().forEach(holder -> {
             if (IFaction.is(handler.getFaction(), holder.value().factions())) {
                 //noinspection unchecked
                 skillHandler.enableSkill((Holder<ISkill<T>>) (Object) holder);

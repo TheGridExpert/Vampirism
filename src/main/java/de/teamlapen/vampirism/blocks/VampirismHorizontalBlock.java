@@ -11,7 +11,7 @@ import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -20,14 +20,14 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Implements some basic horizontal rotation functionality. <br>
- * Don't forget to use {@code horizontalBlock} in {@link de.teamlapen.vampirism.data.provider.BlockStateProvider} so the model is actually rotated
+ * Don't forget to use {@code horizontalBlock} in {@link de.teamlapen.vampirism.data.provider.model.BlockModelGenerators} so the model is actually rotated
  * If your subclass adds additional states: <br>
  * - Add {@code FACING} to the defaultState in the constructor
  * {@code this.setDefaultState(this.getStateContainer().getBaseState().with(FACING, Direction.NORTH));} <br>
  * - Add {@code FACING} to {@link Block#createBlockStateDefinition(StateDefinition.Builder)}
  */
 public class VampirismHorizontalBlock extends VampirismBlock {
-    public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
+    public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
     private final VoxelShape NORTH;
     private final @NotNull VoxelShape EAST;
     private final @NotNull VoxelShape SOUTH;

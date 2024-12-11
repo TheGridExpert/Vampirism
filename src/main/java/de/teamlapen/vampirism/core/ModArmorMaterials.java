@@ -1,21 +1,19 @@
 package de.teamlapen.vampirism.core;
 
-import de.teamlapen.vampirism.REFERENCE;
 import de.teamlapen.vampirism.api.util.VResourceLocation;
 import de.teamlapen.vampirism.core.tags.ModItemTags;
 import net.minecraft.Util;
 import net.minecraft.core.Holder;
-import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.ArmorMaterial;
-import net.minecraft.world.item.ArmorMaterials;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.equipment.*;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.common.Tags;
-import net.neoforged.neoforge.registries.DeferredHolder;
-import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.EnumMap;
 import java.util.List;
@@ -24,60 +22,65 @@ import java.util.function.Supplier;
 
 public class ModArmorMaterials {
 
-    public static final DeferredRegister<ArmorMaterial> ARMOR_MATERIALS = DeferredRegister.create(Registries.ARMOR_MATERIAL, REFERENCE.MODID);
+    public static class Asset {
+        public static final ResourceKey<EquipmentAsset> VAMPIRE_CLOTH = createId("vampire_cloth");
+        public static final ResourceKey<EquipmentAsset> HUNTER_COAT_NORMAL = createId("hunter_coat");
+        public static final ResourceKey<EquipmentAsset> HUNTER_COAT_ENHANCED = createId("hunter_coat_enhanced");
+        public static final ResourceKey<EquipmentAsset> HUNTER_COAT_ULTIMATE = createId("hunter_coat_ultimate");
+        public static final ResourceKey<EquipmentAsset> SWIFTNESS_NORMAL = createId("armor_of_swiftness_normal");
+        public static final ResourceKey<EquipmentAsset> SWIFTNESS_ENHANCED = createId("armor_of_swiftness_enhanced");
+        public static final ResourceKey<EquipmentAsset> SWIFTNESS_ULTIMATE = createId("armor_of_swiftness_ultimate");
+        public static final ResourceKey<EquipmentAsset> HUNTER_HAT_0 = createId("hunter_hat_0");
+        public static final ResourceKey<EquipmentAsset> HUNTER_HAT_1 = createId("hunter_hat_1");
+        public static final ResourceKey<EquipmentAsset> VAMPIRE_CLOAK_BLACK_BLUE = createId("vampire_cloak_black_blue");
+        public static final ResourceKey<EquipmentAsset> VAMPIRE_CLOAK_BLACK_RED = createId("vampire_cloak_black_red");
+        public static final ResourceKey<EquipmentAsset> VAMPIRE_CLOAK_BLACK_WHITE = createId("vampire_cloak_black_white");
+        public static final ResourceKey<EquipmentAsset> VAMPIRE_CLOAK_RED_BLACK = createId("vampire_cloak_red_black");
+        public static final ResourceKey<EquipmentAsset> VAMPIRE_CLOAK_WHITE_BLACK = createId("vampire_cloak_white_black");
 
-    public static final DeferredHolder<ArmorMaterial, ArmorMaterial> VAMPIRE_CLOTH = register("vampire_cloth", createReduction(1, 3, 2, 1), 15, SoundEvents.ARMOR_EQUIP_LEATHER, () -> Ingredient.of(ModItemTags.HEART), 0, 0);
-    public static final DeferredHolder<ArmorMaterial, ArmorMaterial> VAMPIRE_CLOTH_CROWN = copyWithNewLayer("vampire_clothing_crown", VAMPIRE_CLOTH);
-    public static final DeferredHolder<ArmorMaterial, ArmorMaterial> VAMPIRE_CLOTH_HAT = copyWithNewLayer("vampire_clothing_hat", VAMPIRE_CLOTH);
-    public static final DeferredHolder<ArmorMaterial, ArmorMaterial> VAMPIRE_CLOTH_LEGS = copyWithNewLayer("vampire_clothing_legs", VAMPIRE_CLOTH);
-    public static final DeferredHolder<ArmorMaterial, ArmorMaterial> VAMPIRE_CLOTH_BOOTS = copyWithNewLayer("vampire_clothing_boots", VAMPIRE_CLOTH);
-    public static final DeferredHolder<ArmorMaterial, ArmorMaterial> VAMPIRE_CLOAK_BLACK_BLUE = copyWithNewLayer("vampire_cloak_black_blue", VAMPIRE_CLOTH);
-    public static final DeferredHolder<ArmorMaterial, ArmorMaterial> VAMPIRE_CLOAK_BLACK_RED = copyWithNewLayer("vampire_cloak_black_red", VAMPIRE_CLOTH);
-    public static final DeferredHolder<ArmorMaterial, ArmorMaterial> VAMPIRE_CLOAK_BLACK_WHITE = copyWithNewLayer("vampire_cloak_black_white", VAMPIRE_CLOTH);
-    public static final DeferredHolder<ArmorMaterial, ArmorMaterial> VAMPIRE_CLOAK_RED_BLACK = copyWithNewLayer("vampire_cloak_red_black", VAMPIRE_CLOTH);
-    public static final DeferredHolder<ArmorMaterial, ArmorMaterial> VAMPIRE_CLOAK_WHITE_BLACK = copyWithNewLayer("vampire_cloak_white_black", VAMPIRE_CLOTH);
-    public static final DeferredHolder<ArmorMaterial, ArmorMaterial> NORMAL_HUNTER_COAT = register("hunter_coat", createReduction(2, 6, 5, 2), 10, SoundEvents.ARMOR_EQUIP_IRON, () -> Ingredient.of(Tags.Items.INGOTS_IRON), 2, 0);
-    public static final DeferredHolder<ArmorMaterial, ArmorMaterial> ENHANCED_HUNTER_COAT = register("hunter_coat_enhanced", createReduction(3, 8, 6, 3), 10, SoundEvents.ARMOR_EQUIP_IRON, () -> Ingredient.of(Tags.Items.INGOTS_IRON), 2, 0);
-    public static final DeferredHolder<ArmorMaterial, ArmorMaterial> ULTIMATE_HUNTER_COAT = register("hunter_coat_ultimate", createReduction(3, 9, 9, 3), 10, SoundEvents.ARMOR_EQUIP_IRON, () -> Ingredient.of(Tags.Items.GEMS_DIAMOND), 2, 0);
-    public static final DeferredHolder<ArmorMaterial, ArmorMaterial> NORMAL_SWIFTNESS = register("armor_of_swiftness_normal", createReduction(1, 3, 2, 1), 12, SoundEvents.ARMOR_EQUIP_LEATHER, () -> Ingredient.of(Tags.Items.LEATHERS), 0, 0);
-    public static final DeferredHolder<ArmorMaterial, ArmorMaterial> ENHANCED_SWIFTNESS = register("armor_of_swiftness_enhanced", createReduction(2, 6, 5, 2), 12, SoundEvents.ARMOR_EQUIP_LEATHER, () -> Ingredient.of(Tags.Items.LEATHERS), 0, 0);
-    public static final DeferredHolder<ArmorMaterial, ArmorMaterial> ULTIMATE_SWIFTNESS = register("armor_of_swiftness_ultimate", createReduction(3, 8, 6, 3), 12, SoundEvents.ARMOR_EQUIP_LEATHER, () -> Ingredient.of(Tags.Items.LEATHERS), 0, 0);
-    public static final DeferredHolder<ArmorMaterial, ArmorMaterial> HUNTER_HAT_0 = copyWithNewLayer("hunter_hat_head_0", ArmorMaterials.IRON);
-    public static final DeferredHolder<ArmorMaterial, ArmorMaterial> HUNTER_HAT_1 = copyWithNewLayer("hunter_hat_head_1", ArmorMaterials.IRON);
+        public static final ResourceKey<EquipmentAsset> VAMPIRE_CLOTH_CROWN = createId("vampire_clothing_crown");
+        public static final ResourceKey<EquipmentAsset> VAMPIRE_CLOTH_HAT = createId("vampire_clothing_hat");
+        public static final ResourceKey<EquipmentAsset> VAMPIRE_CLOTH_LEGS = createId("vampire_clothing_legs");
+        public static final ResourceKey<EquipmentAsset> VAMPIRE_CLOTH_BOOTS = createId("vampire_clothing_boots");
 
-
-    static void register(IEventBus bus) {
-        ARMOR_MATERIALS.register(bus);
+        private static ResourceKey<EquipmentAsset> createId(String id) {
+            return ResourceKey.create(EquipmentAssets.ROOT_ID, VResourceLocation.mod(id));
+        }
     }
 
-    private static DeferredHolder<ArmorMaterial, ArmorMaterial> copyWithNewLayer(String name, Holder<ArmorMaterial> sourceHolder) {
-        return ARMOR_MATERIALS.register(name, () -> {
-            ArmorMaterial source = sourceHolder.value();
-            var layers = List.of(new ArmorMaterial.Layer(VResourceLocation.mod(name)));
-            return new ArmorMaterial(source.defense(), source.enchantmentValue(), source.equipSound(), source.repairIngredient(), layers, source.toughness(), source.knockbackResistance());
-        });
+    private static final ArmorMaterial VAMPIRE_CLOTH = register(4, createReduction(1, 3, 2, 1), 15, SoundEvents.ARMOR_EQUIP_LEATHER, 0,0 ,ModItemTags.HEART, Asset.VAMPIRE_CLOTH);
+    public static final ArmorMaterial VAMPIRE_CLOTH_CROWN = copyWithNewLayer(VAMPIRE_CLOTH, Asset.VAMPIRE_CLOTH_CROWN);
+    public static final ArmorMaterial VAMPIRE_CLOTH_HAT = copyWithNewLayer(VAMPIRE_CLOTH, Asset.VAMPIRE_CLOTH_HAT);
+    public static final ArmorMaterial VAMPIRE_CLOTH_LEGS = copyWithNewLayer(VAMPIRE_CLOTH, Asset.VAMPIRE_CLOTH_LEGS);
+    public static final ArmorMaterial VAMPIRE_CLOTH_BOOTS = copyWithNewLayer(VAMPIRE_CLOTH, Asset.VAMPIRE_CLOTH_BOOTS);
+    public static final ArmorMaterial VAMPIRE_CLOAK_BLACK_BLUE = copyWithNewLayer(VAMPIRE_CLOTH, Asset.VAMPIRE_CLOAK_BLACK_BLUE);
+    public static final ArmorMaterial VAMPIRE_CLOAK_BLACK_RED = copyWithNewLayer(VAMPIRE_CLOTH, Asset.VAMPIRE_CLOAK_BLACK_RED);
+    public static final ArmorMaterial VAMPIRE_CLOAK_BLACK_WHITE = copyWithNewLayer(VAMPIRE_CLOTH, Asset.VAMPIRE_CLOAK_BLACK_WHITE);
+    public static final ArmorMaterial VAMPIRE_CLOAK_RED_BLACK = copyWithNewLayer(VAMPIRE_CLOTH, Asset.VAMPIRE_CLOAK_RED_BLACK);
+    public static final ArmorMaterial VAMPIRE_CLOAK_WHITE_BLACK = copyWithNewLayer(VAMPIRE_CLOTH, Asset.VAMPIRE_CLOAK_WHITE_BLACK);
+    public static final ArmorMaterial NORMAL_HUNTER_COAT = register(4, createReduction(2, 6, 5, 2), 10, SoundEvents.ARMOR_EQUIP_IRON, 2, 0, Tags.Items.INGOTS_IRON, Asset.HUNTER_COAT_NORMAL );
+    public static final ArmorMaterial ENHANCED_HUNTER_COAT = register(4, createReduction(3, 8, 6, 3), 10, SoundEvents.ARMOR_EQUIP_IRON, 2, 0, Tags.Items.INGOTS_IRON, Asset.HUNTER_COAT_ENHANCED);
+    public static final ArmorMaterial ULTIMATE_HUNTER_COAT = register(4, createReduction(3, 9, 9, 3), 10, SoundEvents.ARMOR_EQUIP_IRON, 2, 0, Tags.Items.GEMS_DIAMOND, Asset.HUNTER_COAT_ULTIMATE);
+    public static final ArmorMaterial NORMAL_SWIFTNESS = register(4, createReduction(1, 3, 2, 1), 12, SoundEvents.ARMOR_EQUIP_LEATHER, 0, 0,Tags.Items.LEATHERS, Asset.SWIFTNESS_NORMAL);
+    public static final ArmorMaterial ENHANCED_SWIFTNESS = register(4, createReduction(2, 6, 5, 2), 12, SoundEvents.ARMOR_EQUIP_LEATHER, 0, 0, Tags.Items.LEATHERS, Asset.SWIFTNESS_ENHANCED);
+    public static final ArmorMaterial ULTIMATE_SWIFTNESS = register(4, createReduction(3, 8, 6, 3), 12, SoundEvents.ARMOR_EQUIP_LEATHER, 0, 0, Tags.Items.LEATHERS, Asset.SWIFTNESS_ULTIMATE);
+    public static final ArmorMaterial HUNTER_HAT_0 = copyWithNewLayer(ArmorMaterials.IRON, Asset.HUNTER_HAT_0);
+    public static final ArmorMaterial HUNTER_HAT_1 = copyWithNewLayer(ArmorMaterials.IRON, Asset.HUNTER_HAT_1);
+
+    private static ArmorMaterial copyWithNewLayer(ArmorMaterial source, ResourceKey<EquipmentAsset> asset) {
+        return new ArmorMaterial(source.durability(), source.defense(), source.enchantmentValue(), source.equipSound(), source.toughness(), source.knockbackResistance(), source.repairIngredient(), asset);
     }
 
-    private static DeferredHolder<ArmorMaterial, ArmorMaterial> register(String name, Map<ArmorItem.Type, Integer> defense, int enchantmentValue, Holder<SoundEvent> equipSound, Supplier<Ingredient> repairIngredient, float toughness, float knockbackResistance) {
-        return ARMOR_MATERIALS.register(name, () -> {
-            List<ArmorMaterial.Layer> list = List.of(new ArmorMaterial.Layer(VResourceLocation.mod(name)));
-            return new ArmorMaterial(defense, enchantmentValue, equipSound, repairIngredient, list, toughness, knockbackResistance);
-        });
+    private static ArmorMaterial register(int durability, Map<ArmorType, Integer> defense, int enchantmentValue, Holder<SoundEvent> equipSound, float toughness, float knockbackResistance, TagKey<Item> repairIngredient, ResourceKey<EquipmentAsset> equipmentAsset) {
+        return new ArmorMaterial(durability, defense, enchantmentValue, equipSound, toughness, knockbackResistance, repairIngredient, equipmentAsset);
     }
 
-    private static DeferredHolder<ArmorMaterial, ArmorMaterial> registerWithOverlay(String name, Map<ArmorItem.Type, Integer> defense, int enchantmentValue, Holder<SoundEvent> equipSound, Supplier<Ingredient> repairIngredient, float toughness, float knockbackResistance) {
-        return ARMOR_MATERIALS.register(name, () -> {
-            List<ArmorMaterial.Layer> list = List.of(new ArmorMaterial.Layer(VResourceLocation.mod(name), "", true), new ArmorMaterial.Layer(VResourceLocation.mod(name), "_overlay", false));
-            return new ArmorMaterial(defense, enchantmentValue, equipSound, repairIngredient, list, toughness, knockbackResistance);
-        });
-    }
-
-    private static EnumMap<ArmorItem.Type, Integer> createReduction(int helmet, int chestplate, int leggings, int boots) {
-        return Util.make(new EnumMap<>(ArmorItem.Type.class), (map) -> {
-            map.put(ArmorItem.Type.BOOTS, boots);
-            map.put(ArmorItem.Type.LEGGINGS, leggings);
-            map.put(ArmorItem.Type.CHESTPLATE, chestplate);
-            map.put(ArmorItem.Type.HELMET, helmet);
+    private static EnumMap<ArmorType, Integer> createReduction(int helmet, int chestplate, int leggings, int boots) {
+        return Util.make(new EnumMap<>(ArmorType.class), (map) -> {
+            map.put(ArmorType.BOOTS, boots);
+            map.put(ArmorType.LEGGINGS, leggings);
+            map.put(ArmorType.CHESTPLATE, chestplate);
+            map.put(ArmorType.HELMET, helmet);
         });
     }
 

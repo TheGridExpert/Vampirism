@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "X": {
-      "item": "minecraft:stick"
-    },
-    "Y": {
-      "item": "minecraft:red_carpet"
-    },
-    "Z": {
-      "tag": "minecraft:planks"
-    }
+    "X": "minecraft:stick",
+    "Y": "minecraft:red_carpet",
+    "Z": "#minecraft:planks"
   },
   "pattern": [
     " YZ",

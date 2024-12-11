@@ -12,6 +12,7 @@ import net.minecraft.advancements.critereon.ContextAwarePredicate;
 import net.minecraft.advancements.critereon.EntityPredicate;
 import net.minecraft.advancements.critereon.SimpleCriterionTrigger;
 import net.minecraft.core.Holder;
+import net.minecraft.server.PlayerAdvancements;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.StringRepresentable;
@@ -26,30 +27,6 @@ public class FactionCriterionTrigger extends SimpleCriterionTrigger<FactionCrite
 
     public void trigger(@NotNull ServerPlayer player, Holder<? extends IPlayableFaction<?>> faction, int level, int lordLevel) {
         this.trigger(player, instance -> instance.matches(faction, level, lordLevel));
-    }
-
-    public void revokeAll(ServerPlayer player) {
-        this.revoke(player, instance -> true);
-    }
-
-    public void revokeLevel(ServerPlayer player, Holder<? extends IPlayableFaction<?>> faction, Type type, int newLevel) {
-        this.revoke(player, instance -> instance.faction == faction && instance.type == type && instance.level > newLevel);
-    }
-
-    private void revoke(ServerPlayer player, Predicate<TriggerInstance> instancePredicate) {
-//        PlayerAdvancements advancements = player.getAdvancements();
-//        ((PlayerAdvancementsAccessor) advancements).getAdvancements().entrySet().stream().filter(entry -> !entry.getValue().isDone()).forEach(advancementProgressEntry -> {
-//            AdvancementProgress progress = advancementProgressEntry.getValue();
-//            StreamSupport.stream(progress.getCompletedCriteria().spliterator(), false).map(progress::getCriterion).filter(s -> {
-//                s.revoke();
-//            })
-//            if(advancementProgressEntry.getValue().getCompletedCriteria()..getCriteria().values().stream().anyMatch(pair -> {
-//                CriterionTriggerInstance trigger = pair.getTrigger();
-//                return trigger != null && trigger.getCriterion().equals(FactionCriterionTrigger.ID) && instancePredicate.test(((TriggerInstance) trigger));
-//            })) {
-//                advancementProgressEntry.getValue().getCompletedCriteria().forEach(a -> advancements.revoke(advancementProgressEntry.getKey(), a));
-//            }
-//        });
     }
 
     @Override

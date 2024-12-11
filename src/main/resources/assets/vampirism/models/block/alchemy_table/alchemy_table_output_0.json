@@ -1,6 +1,7 @@
 {
   "credit": "Made by Cheaterpaul",
   "textures": {
+    "particle": "vampirism:item/oil_bottle_screen",
     "4": "vampirism:item/oil_bottle_screen"
   },
   "render_type": "minecraft:cutout",

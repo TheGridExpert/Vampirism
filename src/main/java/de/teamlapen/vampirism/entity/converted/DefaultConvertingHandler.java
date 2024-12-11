@@ -10,6 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -45,7 +46,7 @@ public class DefaultConvertingHandler<T extends PathfinderMob> implements IConve
     @Override
     public IConvertedCreature<T> createFrom(@NotNull T entity) {
         //noinspection unchecked
-        return Helper.createEntity((EntityType<ConvertedCreatureEntity<T>>) (Object) ModEntities.CONVERTED_CREATURE.get(), entity.getCommandSenderWorld()).map(convertedCreature -> {
+        return Helper.createEntity((EntityType<ConvertedCreatureEntity<T>>) (Object) ModEntities.CONVERTED_CREATURE.get(), entity.getCommandSenderWorld(), EntitySpawnReason.CONVERSION).map(convertedCreature -> {
             copyImportantStuff(convertedCreature, entity);
             convertedCreature.setUUID(Mth.createInsecureUUID(convertedCreature.getRandom())); //Set a new uuid to avoid confusion as the class of the entity associated with the uuid changes
             convertedCreature.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 200, 2));

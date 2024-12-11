@@ -7,12 +7,16 @@ import de.teamlapen.vampirism.config.VampirismConfig;
 import de.teamlapen.vampirism.core.ModAttributes;
 import de.teamlapen.vampirism.core.ModEffects;
 import de.teamlapen.vampirism.core.tags.ModBiomeTags;
+import de.teamlapen.vampirism.items.consume.BloodFoodProperties;
+import de.teamlapen.vampirism.mixin.accessor.FoodDataAccessor;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodData;
+import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.level.GameRules;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -80,14 +84,13 @@ public class BloodStats implements IBloodStats, ISyncableSaveData {
      * Updated the blood level
      * Only call this if the player is a vampire
      *
-     * @return Whether it changed or not
      */
     public void onUpdate() {
         FoodData foodStats = player.getFoodData();
         foodStats.setFoodLevel(10);
         Difficulty enumDifficulty = player.getCommandSenderWorld().getDifficulty();
-        float exhaustion = foodStats.getExhaustionLevel();
-        foodStats.setExhaustion(0);
+        float exhaustion = ((FoodDataAccessor)foodStats).getExhaustionLevel();
+        ((FoodDataAccessor)foodStats).setExhaustionLevel(0);
         addExhaustion(exhaustion);
         this.prevBloodLevel = bloodLevel;
         float bloodExhaustionGate = player.getCommandSenderWorld().getBiome(player.blockPosition()).is(ModBiomeTags.HasFaction.IS_VAMPIRE_BIOME) ? 6f : 4f;
@@ -99,35 +102,37 @@ public class BloodStats implements IBloodStats, ISyncableSaveData {
                 this.bloodLevel = Math.max(bloodLevel - 1, 0);
             }
         }
-        boolean regen = player.getCommandSenderWorld().getGameRules().getBoolean(GameRules.RULE_NATURAL_REGENERATION);
-        if (regen && this.bloodSaturationLevel > 0 && player.isHurt() && this.bloodLevel >= maxBlood) {
-            ++this.bloodTimer;
-            if (this.bloodTimer >= 10) {
-                float f = Math.min(this.bloodSaturationLevel, 6F);
-                player.heal(f / 6F);
-                this.addExhaustion(f);
-                this.bloodTimer = 0;
-            }
-        } else if (regen && this.bloodLevel >= (18) && player.isHurt()) {
-            ++this.bloodTimer;
-
-            if (this.bloodTimer >= 80) {
-                player.heal(1.0F);
-                this.addExhaustion(6F);
-                this.bloodTimer = 0;
-            }
-        } else if (this.bloodLevel <= 0) {
-            ++this.bloodTimer;
-
-            if (this.bloodTimer >= 80) {
-                if (player.getHealth() > 10.0F || enumDifficulty == Difficulty.HARD || player.getHealth() > 1.0F && enumDifficulty == Difficulty.NORMAL) {
-                    this.player.addEffect(new MobEffectInstance(ModEffects.NO_BLOOD, 150, 0));
+        if (player.getCommandSenderWorld() instanceof ServerLevel level) {
+            boolean regen = level.getGameRules().getBoolean(GameRules.RULE_NATURAL_REGENERATION);
+            if (regen && this.bloodSaturationLevel > 0 && player.isHurt() && this.bloodLevel >= maxBlood) {
+                ++this.bloodTimer;
+                if (this.bloodTimer >= 10) {
+                    float f = Math.min(this.bloodSaturationLevel, 6F);
+                    player.heal(f / 6F);
+                    this.addExhaustion(f);
+                    this.bloodTimer = 0;
                 }
+            } else if (regen && this.bloodLevel >= (18) && player.isHurt()) {
+                ++this.bloodTimer;
 
+                if (this.bloodTimer >= 80) {
+                    player.heal(1.0F);
+                    this.addExhaustion(6F);
+                    this.bloodTimer = 0;
+                }
+            } else if (this.bloodLevel <= 0) {
+                ++this.bloodTimer;
+
+                if (this.bloodTimer >= 80) {
+                    if (player.getHealth() > 10.0F || enumDifficulty == Difficulty.HARD || player.getHealth() > 1.0F && enumDifficulty == Difficulty.NORMAL) {
+                        this.player.addEffect(new MobEffectInstance(ModEffects.NO_BLOOD, 150, 0));
+                    }
+
+                    this.bloodTimer = 0;
+                }
+            } else {
                 this.bloodTimer = 0;
             }
-        } else {
-            this.bloodTimer = 0;
         }
         if (this.prevBloodLevel != this.bloodLevel) {
             this.changed = true;
@@ -174,6 +179,10 @@ public class BloodStats implements IBloodStats, ISyncableSaveData {
             amount *= (float) player.getAttributeValue(ModAttributes.BLOOD_EXHAUSTION);
         }
         this.bloodExhaustionLevel = Math.min(bloodExhaustionLevel + amount, 40F);
+    }
+
+    public void eat(BloodFoodProperties bloodFoodProperties) {
+        this.addBlood(bloodFoodProperties.blood(), bloodFoodProperties.saturation());
     }
 
     @Override

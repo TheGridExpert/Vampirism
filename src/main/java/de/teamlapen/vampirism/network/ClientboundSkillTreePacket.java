@@ -49,7 +49,7 @@ public record ClientboundSkillTreePacket(List<ConfigHolder> skillTrees) implemen
         );
 
         public SkillTreeConfiguration toConfiguration(Registry<ISkillTree> treeRegistry, Registry<ISkillNode> nodeRegistry) {
-            return new SkillTreeConfiguration(treeRegistry.getHolderOrThrow(skillTree), nodeRegistry.getHolderOrThrow(root), children.stream().map(x -> x.toConfiguration(nodeRegistry)).toList());
+            return new SkillTreeConfiguration(treeRegistry.getOrThrow(skillTree), nodeRegistry.getOrThrow(root), children.stream().map(x -> x.toConfiguration(nodeRegistry)).toList());
         }
     }
 
@@ -61,7 +61,7 @@ public record ClientboundSkillTreePacket(List<ConfigHolder> skillTrees) implemen
         );
 
         public SkillTreeConfiguration.SkillTreeNodeConfiguration toConfiguration(Registry<ISkillNode> registry) {
-            return new SkillTreeConfiguration.SkillTreeNodeConfiguration(registry.getHolderOrThrow(node), children.stream().map(x -> x.toConfiguration(registry)).toList());
+            return new SkillTreeConfiguration.SkillTreeNodeConfiguration(registry.getOrThrow(node), children.stream().map(x -> x.toConfiguration(registry)).toList());
         }
     }
 

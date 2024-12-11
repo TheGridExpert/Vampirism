@@ -8,21 +8,31 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.math.Axis;
 import de.teamlapen.vampirism.core.ModBlocks;
 import de.teamlapen.vampirism.core.ModItems;
+import net.jpountz.lz4.LZ4FrameOutputStream;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 
 public class GarlicDiffuserBESR extends VampirismBESR<de.teamlapen.vampirism.blockentity.diffuser.GarlicDiffuserBlockEntity> {
-    public GarlicDiffuserBESR(BlockEntityRendererProvider.Context context) {
 
+    private final ItemStackRenderState garlicRenderState;
+
+    public GarlicDiffuserBESR(BlockEntityRendererProvider.Context context) {
+        this.garlicRenderState = new ItemStackRenderState();
+        context.getItemModelResolver().updateForTopItem(garlicRenderState, ModBlocks.GARLIC.toStack(), ItemDisplayContext.GROUND, false, null, null, 16);
     }
 
     @Override
@@ -40,8 +50,7 @@ public class GarlicDiffuserBESR extends VampirismBESR<de.teamlapen.vampirism.blo
             matrixStackIn.translate(-0.5D, 0, -0.5);
             matrixStackIn.pushPose();
 
-            BakedModel garlic_model = Minecraft.getInstance().getItemRenderer().getModel(new ItemStack(ModBlocks.GARLIC.get()), null, null, 0);
-            Minecraft.getInstance().getItemRenderer().renderModelLists(garlic_model, new ItemStack(ModBlocks.GARLIC.get()), combinedLightIn, combinedOverlayIn, matrixStackIn, vertexConsumer);
+            this.garlicRenderState.render(matrixStackIn, renderType -> vertexConsumer, combinedLightIn, combinedOverlayIn);
             matrixStackIn.popPose();
             matrixStackIn.popPose();
         }

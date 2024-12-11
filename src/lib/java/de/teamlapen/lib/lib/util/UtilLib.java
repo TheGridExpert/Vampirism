@@ -175,10 +175,10 @@ public class UtilLib {
 
     }
 
-    public static <T extends Mob> @Nullable Entity spawnEntityBehindEntity(@NotNull LivingEntity entity, @NotNull EntityType<T> toSpawn, @NotNull MobSpawnType reason) {
+    public static <T extends Mob> @Nullable Entity spawnEntityBehindEntity(@NotNull LivingEntity entity, @NotNull EntityType<T> toSpawn, @NotNull EntitySpawnReason reason) {
 
         BlockPos behind = getPositionBehindEntity(entity, 2);
-        Mob e = toSpawn.create(entity.getCommandSenderWorld());
+        Mob e = toSpawn.create(entity.getCommandSenderWorld(), reason);
         if (e == null) return null;
         Level level = entity.getCommandSenderWorld();
         e.setPos(behind.getX(), entity.getY(), behind.getZ());
@@ -202,7 +202,7 @@ public class UtilLib {
     /**
      * Call {@link Mob#finalizeSpawn(ServerLevelAccessor, DifficultyInstance, MobSpawnType, SpawnGroupData, CompoundTag)} if applicable
      */
-    private static void onInitialSpawn(@NotNull ServerLevel level, Entity e, @NotNull MobSpawnType reason) {
+    private static void onInitialSpawn(@NotNull ServerLevel level, Entity e, @NotNull EntitySpawnReason reason) {
         if (e instanceof Mob mob) {
             mob.finalizeSpawn(level, e.getCommandSenderWorld().getCurrentDifficultyAt(e.blockPosition()), reason, null);
         }
@@ -226,7 +226,7 @@ public class UtilLib {
      * @param reason          Spawn reason
      * @return Successful spawn
      */
-    public static boolean spawnEntityInWorld(@NotNull ServerLevel world, @NotNull AABB box, @NotNull Entity e, int maxTry, @NotNull List<? extends LivingEntity> avoidedEntities, @NotNull MobSpawnType reason) {
+    public static boolean spawnEntityInWorld(@NotNull ServerLevel world, @NotNull AABB box, @NotNull Entity e, int maxTry, @NotNull List<? extends LivingEntity> avoidedEntities, @NotNull EntitySpawnReason reason) {
         if (!world.hasChunksAt((int) box.minX, (int) box.minY, (int) box.minZ, (int) box.maxX, (int) box.maxY, (int) box.maxZ)) {
             return false;
         }
@@ -274,8 +274,8 @@ public class UtilLib {
      * @return The spawned creature or null if not successful
      */
     @Nullable
-    public static Entity spawnEntityInWorld(@NotNull ServerLevel world, @NotNull AABB box, @NotNull EntityType<?> entityType, int maxTry, @NotNull List<? extends LivingEntity> avoidedEntities, @NotNull MobSpawnType reason) {
-        Entity e = entityType.create(world);
+    public static Entity spawnEntityInWorld(@NotNull ServerLevel world, @NotNull AABB box, @NotNull EntityType<?> entityType, int maxTry, @NotNull List<? extends LivingEntity> avoidedEntities, @NotNull EntitySpawnReason reason) {
+        Entity e = entityType.create(world, reason);
         if (spawnEntityInWorld(world, box, e, maxTry, avoidedEntities, reason)) {
             return e;
         } else {
@@ -389,7 +389,7 @@ public class UtilLib {
     public static void sendMessageToAllExcept(Player player, @NotNull Component message) {
         for (Player o : ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers()) {
             if (!o.equals(player)) {
-                o.sendSystemMessage(message);
+                o.displayClientMessage(message, false);
             }
         }
     }
@@ -626,9 +626,9 @@ public class UtilLib {
 
     public static @NotNull Optional<StructureStart> getStructureStartAt(Level level, @NotNull BlockPos pos, @NotNull TagKey<Structure> structureTag) {
         if (level instanceof ServerLevel serverLevel && serverLevel.isLoaded(pos)) {
-            Registry<Structure> registry = serverLevel.registryAccess().registryOrThrow(Registries.STRUCTURE);
+            Registry<Structure> registry = serverLevel.registryAccess().lookupOrThrow(Registries.STRUCTURE);
             return serverLevel.structureManager().startsForStructure(new ChunkPos(pos), structure -> {
-                return registry.getHolder(registry.getId(structure)).map(a -> a.is(structureTag)).orElse(false);
+                return registry.get(registry.getId(structure)).map(a -> a.is(structureTag)).orElse(false);
             }).stream().findFirst();
         }
         return Optional.empty();
@@ -699,7 +699,7 @@ public class UtilLib {
             ResourceLocation id = ResourceLocation.tryParse(string);
             if (id != null) {
                 if (ServerLifecycleHooks.getCurrentServer() != null) {
-                    return ServerLifecycleHooks.getCurrentServer().registryAccess().registryOrThrow(key).containsKey(id);
+                    return ServerLifecycleHooks.getCurrentServer().registryAccess().lookupOrThrow(key).containsKey(id);
                 }
             }
         }
@@ -731,7 +731,7 @@ public class UtilLib {
     }
 
     public static boolean matchesItem(@NotNull Ingredient ingredient, @NotNull ItemStack searchStack) {
-        return Arrays.stream(ingredient.getItems()).anyMatch(stack -> ItemStack.isSameItemSameComponents(stack, searchStack));
+        return ingredient.test(searchStack);
     }
 
     public enum RotationAmount {

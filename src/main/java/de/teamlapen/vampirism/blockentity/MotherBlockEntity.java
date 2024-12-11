@@ -27,6 +27,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.BossEvent;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -86,7 +87,7 @@ public class MotherBlockEntity extends BlockEntity {
                     for (BlockPos p : hierarchy.get()) {
                         if (level.getBlockState(p).getBlock() instanceof IRemainsBlock) {
                             level.setBlock(p, Blocks.AIR.defaultBlockState(), 3);
-                            ModParticles.spawnParticlesServer(level, new DustParticleOptions(new Vector3f(0.7f, 0.7f, 0.7f), 1), p.getX() + 0.5, p.getY() + 0.5, p.getZ() + 0.5f, 20, 0.3, 0.3, 0.3, 0.01);
+                            ModParticles.spawnParticlesServer(level, new DustParticleOptions(1, -1), p.getX() + 0.5, p.getY() + 0.5, p.getZ() + 0.5f, 20, 0.3, 0.3, 0.3, 0.01);
                             e.level.playSound(null, p, ModSounds.REMAINS_DEATH.get(), SoundSource.BLOCKS, 0.2f, 1f);
                         }
                     }
@@ -296,7 +297,7 @@ public class MotherBlockEntity extends BlockEntity {
     }
 
     private void spawnGhost(Level level, BlockPos pos) {
-        SpawnHelper.spawn(ModEntities.GHOST, level, ghost -> {
+        SpawnHelper.spawn(ModEntities.GHOST, level, EntitySpawnReason.STRUCTURE, ghost -> {
             ghost.setPos(Vec3.atCenterOf(pos));
             ghost.setHome(getArea().inflate(15));
         });

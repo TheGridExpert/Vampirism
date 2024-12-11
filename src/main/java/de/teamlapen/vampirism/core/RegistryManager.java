@@ -67,7 +67,6 @@ public class RegistryManager {
         ModSkills.init();
         ModEnchantments.register(eventBus);
         ModDataComponents.register(eventBus);
-        ModArmorMaterials.register(eventBus);
         ModFactions.register(eventBus);
     }
 
@@ -88,7 +87,6 @@ public class RegistryManager {
         this.eventBus.addListener(ModItems::registerOtherCreativeTabItems);
         this.eventBus.addListener(ModRegistries::registerRegistries);
         this.eventBus.addListener(PackRepositories::registerPackRepository);
-        this.eventBus.addListener(ModRecipes::registerCategories);
         this.eventBus.addListener(ModTiles::registerTileExtensions);
     }
 

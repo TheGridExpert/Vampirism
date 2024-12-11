@@ -11,7 +11,10 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -24,7 +27,7 @@ import org.jetbrains.annotations.Nullable;
 public class SitEntity extends Entity {
 
     public static @NotNull SitEntity newEntity(@NotNull Level level, @NotNull BlockPos pos, double offset, Vec3 playerPos) {
-        SitEntity e = ModEntities.dummy_sit_entity.get().create(level);
+        SitEntity e = ModEntities.dummy_sit_entity.get().create(level, EntitySpawnReason.MOB_SUMMONED);
         e.setPos(pos.getX() + 0.5D, pos.getY() + offset, pos.getZ() + 0.5D);
         e.noPhysics = true;
         e.setPlayerPos(playerPos);
@@ -72,6 +75,11 @@ public class SitEntity extends Entity {
         SitUtil.removeSitEntity(level(), blockPosition());
 
         super.remove(reason);
+    }
+
+    @Override
+    public boolean hurtServer(ServerLevel p_376804_, DamageSource p_376155_, float p_376892_) {
+        return false;
     }
 
     @Override

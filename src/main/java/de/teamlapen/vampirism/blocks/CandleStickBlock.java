@@ -8,6 +8,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -16,6 +17,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.AbstractCandleBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -77,12 +79,12 @@ public abstract class CandleStickBlock extends AbstractCandleBlock implements Si
                 if (!pPlayer.getAbilities().instabuild) {
                     stack.shrink(1);
                 }
-                return InteractionResult.sidedSuccess(pLevel.isClientSide);
+                return InteractionResult.SUCCESS_SERVER;
             }
         } else if (pPlayer.getAbilities().mayBuild && pPlayer.getItemInHand(InteractionHand.MAIN_HAND).isEmpty()) {
             if (pState.getValue(LIT)) {
                 extinguish(pPlayer, pState, pLevel, pPos);
-                return InteractionResult.sidedSuccess(pLevel.isClientSide);
+                return InteractionResult.SUCCESS_SERVER;
             } else {
                 if (this.emptyBlock != null) {
                     pLevel.setBlock(pPos, this.getEmptyState(pState, this.emptyBlock.get()), 3);
@@ -105,12 +107,12 @@ public abstract class CandleStickBlock extends AbstractCandleBlock implements Si
     }
 
     @Override
-    public @NotNull BlockState updateShape(@NotNull BlockState pState, @NotNull Direction pDirection, @NotNull BlockState pNeighborState, @NotNull LevelAccessor pLevel, @NotNull BlockPos pPos, @NotNull BlockPos pNeighborPos) {
+    public @NotNull BlockState updateShape(@NotNull BlockState pState, LevelReader pLevel, ScheduledTickAccess tickAccess, BlockPos pPos, @NotNull Direction pDirection, @NotNull BlockPos pNeighborPos, @NotNull BlockState pNeighborState, RandomSource randomSource) {
         if (pState.getValue(WATERLOGGED)) {
-            pLevel.scheduleTick(pPos, Fluids.WATER, Fluids.WATER.getTickDelay(pLevel));
+            tickAccess.scheduleTick(pPos, Fluids.WATER, Fluids.WATER.getTickDelay(pLevel));
         }
 
-        return super.updateShape(pState, pDirection, pNeighborState, pLevel, pPos, pNeighborPos);
+        return super.updateShape(pState, pLevel, tickAccess, pPos, pDirection, pNeighborPos, pNeighborState, randomSource);
     }
 
     @Override

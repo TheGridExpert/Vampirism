@@ -3,9 +3,7 @@
   "category": "blocks",
   "cookingtime": 200,
   "experience": 0.1,
-  "ingredient": {
-    "item": "vampirism:cobbled_dark_stone"
-  },
+  "ingredient": "vampirism:cobbled_dark_stone",
   "result": {
     "count": 1,
     "id": "vampirism:dark_stone"

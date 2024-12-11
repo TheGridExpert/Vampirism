@@ -12,6 +12,7 @@ import de.teamlapen.vampirism.network.ServerboundSelectAmmoTypePacket;
 import de.teamlapen.vampirism.util.Helper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
@@ -53,7 +54,7 @@ public class SelectAmmoScreen extends GuiRadialMenu<SelectAmmoScreen.AmmoType> {
             graphics.renderItem(action.renderStack, posX, posY);
             graphics.renderItemDecorations(Minecraft.getInstance().screen.font, action.renderStack, posX, posY, String.valueOf(action.count));
         } else {
-            graphics.blitSprite(NO_RESTRICTION, posX, posY, 16, 16);
+            graphics.blitSprite(RenderType::guiTextured, NO_RESTRICTION, posX, posY, 16, 16);
         }
     }
 

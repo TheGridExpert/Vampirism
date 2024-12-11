@@ -83,10 +83,10 @@ public class CoffinBESR extends VampirismBESR<CoffinBlockEntity> {
             }
         }
 
-        BakedModel baseModel = Minecraft.getInstance().getModelManager().getModel(ModelResourceLocation.standalone(VResourceLocation.mod("block/coffin/coffin_bottom_" + tile.color.getName())));
+        BakedModel baseModel = Minecraft.getInstance().getModelManager().getStandaloneModel(VResourceLocation.mod("block/coffin/coffin_bottom_" + tile.color.getName()));
         ModelData modelData = baseModel.getModelData(tile.getLevel(), tile.getBlockPos(), state, ModelData.EMPTY);
         for (RenderType renderType : baseModel.getRenderTypes(state, RandomSource.create(42), modelData)) {
-            Minecraft.getInstance().getBlockRenderer().getModelRenderer().renderModel(matrixStack.last(), iRenderTypeBuffer.getBuffer(RenderTypeHelper.getEntityRenderType(renderType, false)), state, baseModel, 1, 1, 1, i, i1, modelData, renderType);
+            Minecraft.getInstance().getBlockRenderer().getModelRenderer().renderModel(matrixStack.last(), iRenderTypeBuffer.getBuffer(RenderTypeHelper.getEntityRenderType(renderType)), state, baseModel, 1, 1, 1, i, i1, modelData, renderType);
         }
 
         matrixStack.pushPose();
@@ -98,10 +98,10 @@ public class CoffinBESR extends VampirismBESR<CoffinBlockEntity> {
             matrixStack.translate(0, 0, -0.5 * tile.lidPos);
         }
 
-        BakedModel lidModel = Minecraft.getInstance().getModelManager().getModel(ModelResourceLocation.standalone(VResourceLocation.mod("block/coffin/coffin_top_" + tile.color.getName())));
+        BakedModel lidModel = Minecraft.getInstance().getModelManager().getStandaloneModel(VResourceLocation.mod("block/coffin/coffin_top_" + tile.color.getName()));
         modelData = lidModel.getModelData(tile.getLevel(), tile.getBlockPos(), state, ModelData.EMPTY);
         for (RenderType renderType : lidModel.getRenderTypes(state, RandomSource.create(42), modelData)) {
-            Minecraft.getInstance().getBlockRenderer().getModelRenderer().renderModel(matrixStack.last(), iRenderTypeBuffer.getBuffer(RenderTypeHelper.getEntityRenderType(renderType, false)), state, lidModel, 1, 1, 1, i, i1, modelData, renderType);
+            Minecraft.getInstance().getBlockRenderer().getModelRenderer().renderModel(matrixStack.last(), iRenderTypeBuffer.getBuffer(RenderTypeHelper.getEntityRenderType(renderType)), state, lidModel, 1, 1, 1, i, i1, modelData, renderType);
         }
         matrixStack.popPose();
         matrixStack.popPose();
@@ -116,7 +116,7 @@ public class CoffinBESR extends VampirismBESR<CoffinBlockEntity> {
         } catch (IllegalArgumentException e) {
             LOGGER.error(COFFIN, "Failed to check coffin head at {} caused by wrong blockstate. Block at that pos: {}", pos, world.getBlockState(pos));
         } catch (Exception e) {
-            LOGGER.error(COFFIN, "Failed to check coffin head at " + pos + ".", e);
+            LOGGER.error(COFFIN, "Failed to check coffin head at {}.", pos, e);
         }
         return false;
     }

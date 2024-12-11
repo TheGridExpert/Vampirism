@@ -7,7 +7,6 @@ import de.teamlapen.vampirism.util.Helper;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
@@ -17,13 +16,13 @@ import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
 public class VampireFangItem extends Item {
-    public VampireFangItem() {
-        super(new Properties());
+    public VampireFangItem(Item.Properties properties) {
+        super(properties);
     }
 
     @NotNull
     @Override
-    public InteractionResultHolder<ItemStack> use(@NotNull Level worldIn, @NotNull Player playerIn, @NotNull InteractionHand handIn) {
+    public InteractionResult use(@NotNull Level worldIn, @NotNull Player playerIn, @NotNull InteractionHand handIn) {
 
         ItemStack stack = playerIn.getItemInHand(handIn);
         if (!worldIn.isClientSide) {
@@ -43,7 +42,7 @@ public class VampireFangItem extends Item {
                 stack.shrink(1);
             }
         }
-        return new InteractionResultHolder<>(InteractionResult.SUCCESS, stack);
+        return InteractionResult.SUCCESS_SERVER;
     }
 
 }

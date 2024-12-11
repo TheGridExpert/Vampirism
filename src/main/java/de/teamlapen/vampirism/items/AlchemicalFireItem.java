@@ -23,8 +23,8 @@ import java.util.List;
  * @author maxanier
  */
 public class AlchemicalFireItem extends Item {
-    public AlchemicalFireItem() {
-        super(new Properties());
+    public AlchemicalFireItem(Item.Properties properties) {
+        super(properties);
     }
 
 

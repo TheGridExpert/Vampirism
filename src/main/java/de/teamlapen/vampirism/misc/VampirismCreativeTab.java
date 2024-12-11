@@ -112,7 +112,7 @@ public class VampirismCreativeTab {
             addItem(DARK_SPRUCE_CHEST_BOAT);
             addItem(CURSED_SPRUCE_CHEST_BOAT);
 
-            ModRegistries.OILS.holders().filter(s -> !s.is(ModOils.EMPTY)).map(s -> ItemDataUtils.createOil(OIL_BOTTLE.get(), s)).forEach(this::add);
+            ModRegistries.OILS.listElements().filter(s -> !s.is(ModOils.EMPTY)).map(s -> ItemDataUtils.createOil(OIL_BOTTLE.get(), s)).forEach(this::add);
         }
 
         private void addBlocks() {
