@@ -4,7 +4,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
@@ -65,7 +64,9 @@ public class AltarPillarBlock extends VampirismBlock {
         ItemStack heldItem = playerIn.getItemInHand(InteractionHand.MAIN_HAND);
         if (type != EnumPillarType.NONE && heldItem.isEmpty()) {
             if (!playerIn.getAbilities().instabuild) {
-                playerIn.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(type.fillerBlock));
+                if (!playerIn.getInventory().add(new ItemStack(type.fillerBlock))) {
+                    playerIn.drop(new ItemStack(type.fillerBlock), false);
+                }
             }
 
             worldIn.setBlockAndUpdate(pos, state.setValue(TYPE_PROPERTY, EnumPillarType.NONE));
