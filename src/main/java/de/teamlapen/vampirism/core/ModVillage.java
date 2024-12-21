@@ -137,7 +137,7 @@ public class ModVillage {
                 1, new VillagerTrades.ItemListing[]{
                         new Trades.ItemsForHeart(new Trades.Price(10, 15), ModItems.PURE_BLOOD_0.get(), new Trades.Price(1, 1)),
                         new Trades.BloodBottleForHeart(new Trades.Price(3, 12), new Trades.Price(1, 15), 9),
-                        new VillagerTrades.EmeraldForItems(ModBlocks.VAMPIRE_ORCHID.get(), 4, 1, 3),
+                        new VillagerTrades.EmeraldForItems(ModBlocks.VAMPIRE_ORCHID.get(), 8, 1, 3),
                         new Trades.VampireForestMapTrade(5, 3, 2)
                 },
                 2, new VillagerTrades.ItemListing[]{

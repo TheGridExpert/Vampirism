@@ -13,6 +13,8 @@ public class CommonConfig {
     public final ModConfigSpec.BooleanValue autoConvertGlassBottles;
     public final ModConfigSpec.BooleanValue umbrella;
 
+    public final ModConfigSpec.BooleanValue growVampireOrchidsWithBoneMeal;
+
     // World generation
     public final ModConfigSpec.BooleanValue addVampireForestToOverworld;
     public final ModConfigSpec.IntValue vampireForestWeight_terrablender;
@@ -42,6 +44,7 @@ public class CommonConfig {
                 .push("common-server");
         this.autoConvertGlassBottles = builder.comment("Whether glass bottles should be automatically be converted to blood bottles when needed").define("autoConvertGlassBottles", true);
         this.umbrella = builder.comment("If enabled adds a craftable umbrella that can be used to slowly walk though sunlight without taking damage").define("umbrella", false);
+        this.growVampireOrchidsWithBoneMeal = builder.comment("If enabled bonemealing cursed grass would grow vampire orchids").define("growVampireOrchidsWithBoneMeal", false);
         this.enableFactionLogging = builder.comment("Enable a custom vampirism log file that logs specific faction actions").gameRestart().define("enableFactionLogging", false);
 
         builder.comment("Settings here require a game restart").push("world");

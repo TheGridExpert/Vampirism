@@ -3,10 +3,14 @@ package de.teamlapen.vampirism.data.provider;
 import de.teamlapen.vampirism.REFERENCE;
 import de.teamlapen.vampirism.core.ModRegistries;
 import de.teamlapen.vampirism.data.ModBlockFamilies;
-import de.teamlapen.vampirism.mixin.accessor.RegistriesDatapackGeneratorAccessor;
+import net.minecraft.DetectedVersion;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
+import net.minecraft.data.metadata.PackMetadataGenerator;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.data.DatapackBuiltinEntriesProvider;
@@ -43,5 +47,6 @@ public class DataProvider {
         generator.addProvider(event.includeServer(), new SkillTreeProvider(packOutput, lookupProviderFuture));
         generator.addProvider(event.includeServer(), new DataMapsProvider(packOutput, lookupProviderFuture));
         generator.addProvider(event.includeServer(), new LootModifierGenerator(packOutput, lookupProviderFuture));
+        generator.addProvider(true, new PackMetadataGenerator(packOutput).add(PackMetadataSection.TYPE, new PackMetadataSection(Component.literal("Vampirism resources"), DetectedVersion.BUILT_IN.getPackVersion(PackType.CLIENT_RESOURCES))));
     }
 }

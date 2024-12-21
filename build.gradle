@@ -82,12 +82,11 @@ tasks.named('processResources', ProcessResources).configure {
             jei_version: jei_version,
             guideapi_version: guideapi_version,
             mod_url: mod_url,
-            mod_issue_tracker: mod_issue_tracker,
-            pack_format_number: pack_format_number,
+            mod_issue_tracker: mod_issue_tracker
     ]
     inputs.properties replaceProperties
 
-    filesMatching(['META-INF/neoforge.mods.toml', 'pack.mcmeta']) {
+    filesMatching(['META-INF/neoforge.mods.toml']) {
         expand replaceProperties + [project: project]
     }
 }
