@@ -13,6 +13,7 @@ import de.teamlapen.vampirism.api.util.VResourceLocation;
 import de.teamlapen.vampirism.entity.VampirismEntity;
 import de.teamlapen.vampirism.entity.ai.goals.ForceLookEntityGoal;
 import de.teamlapen.vampirism.entity.ai.goals.LookAtClosestVisibleGoal;
+import de.teamlapen.vampirism.entity.ai.goals.OpenGateGoal;
 import de.teamlapen.vampirism.entity.factions.FactionPlayerHandler;
 import de.teamlapen.vampirism.entity.minion.goals.DefendAreaGoal;
 import de.teamlapen.vampirism.entity.minion.goals.DefendLordGoal;
@@ -573,6 +574,7 @@ public abstract class MinionEntity<T extends MinionData> extends VampirismEntity
         this.goalSelector.addGoal(0, new FloatGoal(this));
         this.goalSelector.addGoal(1, new ForceLookEntityGoal<>(this));
         this.goalSelector.addGoal(2, new OpenDoorGoal(this, true));
+        this.goalSelector.addGoal(2, new OpenGateGoal(this, true));
 
         this.goalSelector.addGoal(4, new FollowLordGoal(this, 1.1));
 

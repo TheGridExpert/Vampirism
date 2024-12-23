@@ -17,10 +17,7 @@ import de.teamlapen.vampirism.core.ModItems;
 import de.teamlapen.vampirism.effects.BadOmenEffect;
 import de.teamlapen.vampirism.entity.VampirismEntity;
 import de.teamlapen.vampirism.entity.action.ActionHandlerEntity;
-import de.teamlapen.vampirism.entity.ai.goals.RangedHunterCrossbowAttackGoal;
-import de.teamlapen.vampirism.entity.ai.goals.AttackVillageGoal;
-import de.teamlapen.vampirism.entity.ai.goals.DefendVillageGoal;
-import de.teamlapen.vampirism.entity.ai.goals.ForceLookEntityGoal;
+import de.teamlapen.vampirism.entity.ai.goals.*;
 import de.teamlapen.vampirism.entity.factions.FactionPlayerHandler;
 import de.teamlapen.vampirism.entity.minion.HunterMinionEntity;
 import de.teamlapen.vampirism.entity.minion.management.MinionTasks;
@@ -497,6 +494,7 @@ public class BasicHunterEntity extends HunterBaseEntity implements IBasicHunter,
         super.registerGoals();
 
         this.goalSelector.addGoal(1, new OpenDoorGoal(this, true));
+        this.goalSelector.addGoal(1, new OpenGateGoal(this, true));
         this.goalSelector.addGoal(3, new ForceLookEntityGoal<>(this));
         this.goalSelector.addGoal(3, new RangedHunterCrossbowAttackGoal<>(this, 0.6, 60));
         this.goalSelector.addGoal(4, new MeleeAttackGoal(this, 1.0, false));
@@ -506,7 +504,7 @@ public class BasicHunterEntity extends HunterBaseEntity implements IBasicHunter,
         this.goalSelector.addGoal(8, new LookAtPlayerGoal(this, VampireBaseEntity.class, 17F));
         this.goalSelector.addGoal(8, new RandomLookAroundGoal(this));
 
-        this.targetSelector.addGoal(1, new HurtByTargetGoal(this, IHunterMob.class));
+        this.targetSelector.addGoal(1, new HurtByTargetGoal(this, IHunterMob.class).setAlertOthers(IHunterMob.class));
         this.targetSelector.addGoal(2, new AttackVillageGoal<>(this));
         this.targetSelector.addGoal(2, new DefendVillageGoal<>(this));//Should automatically be mutually exclusive with  attack village
         this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, Player.class, 5, true, false, VampirismAPI.factionRegistry().getPredicate(getFaction(), true, false, false, false, null)));

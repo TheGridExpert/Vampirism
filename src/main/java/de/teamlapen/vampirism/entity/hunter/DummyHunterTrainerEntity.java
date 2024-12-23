@@ -1,7 +1,9 @@
 package de.teamlapen.vampirism.entity.hunter;
 
 import de.teamlapen.vampirism.api.entity.ICaptureIgnore;
+import de.teamlapen.vampirism.api.entity.hunter.IHunterMob;
 import de.teamlapen.vampirism.entity.VampirismEntity;
+import de.teamlapen.vampirism.entity.ai.goals.OpenGateGoal;
 import de.teamlapen.vampirism.entity.vampire.VampireBaseEntity;
 import de.teamlapen.vampirism.util.Helper;
 import net.minecraft.network.chat.Component;
@@ -76,13 +78,14 @@ public class DummyHunterTrainerEntity extends VampirismEntity implements ICaptur
     protected void registerGoals() {
         super.registerGoals();
         this.goalSelector.addGoal(1, new OpenDoorGoal(this, true));
+        this.goalSelector.addGoal(1, new OpenGateGoal(this, true));
         this.goalSelector.addGoal(4, new MeleeAttackGoal(this, 1.0, false));
         this.goalSelector.addGoal(6, new RandomStrollGoal(this, 0.7));
         this.goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 13F));
         this.goalSelector.addGoal(9, new LookAtPlayerGoal(this, VampireBaseEntity.class, 17F));
         this.goalSelector.addGoal(10, new RandomLookAroundGoal(this));
 
-        this.targetSelector.addGoal(1, new HurtByTargetGoal(this));
+        this.targetSelector.addGoal(1, new HurtByTargetGoal(this).setAlertOthers(IHunterMob.class));
     }
 
 
