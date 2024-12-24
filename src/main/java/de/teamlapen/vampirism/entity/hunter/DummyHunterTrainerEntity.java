@@ -1,8 +1,8 @@
 package de.teamlapen.vampirism.entity.hunter;
 
 import de.teamlapen.vampirism.api.entity.ICaptureIgnore;
-import de.teamlapen.vampirism.api.entity.hunter.IHunterMob;
 import de.teamlapen.vampirism.entity.VampirismEntity;
+import de.teamlapen.vampirism.entity.ai.goals.HunterHurtByTargetGoal;
 import de.teamlapen.vampirism.entity.ai.goals.OpenGateGoal;
 import de.teamlapen.vampirism.entity.vampire.VampireBaseEntity;
 import de.teamlapen.vampirism.util.Helper;
@@ -11,7 +11,6 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.goal.*;
-import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -85,8 +84,8 @@ public class DummyHunterTrainerEntity extends VampirismEntity implements ICaptur
         this.goalSelector.addGoal(9, new LookAtPlayerGoal(this, VampireBaseEntity.class, 17F));
         this.goalSelector.addGoal(10, new RandomLookAroundGoal(this));
 
-        this.targetSelector.addGoal(1, new HurtByTargetGoal(this).setAlertOthers(IHunterMob.class));
+        //this.targetSelector.addGoal(1, new HurtByTargetGoal(this).setAlertOthers(IHunterMob.class));
+        this.targetSelector.addGoal(1, new HunterHurtByTargetGoal(this).setAlertOthers());
     }
-
 
 }

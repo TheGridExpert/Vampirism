@@ -10,7 +10,6 @@ import de.teamlapen.vampirism.api.entity.VampireBookLootProvider;
 import de.teamlapen.vampirism.api.entity.actions.EntityActionTier;
 import de.teamlapen.vampirism.api.entity.actions.IEntityActionUser;
 import de.teamlapen.vampirism.api.entity.hunter.IAdvancedHunter;
-import de.teamlapen.vampirism.api.entity.hunter.IHunterMob;
 import de.teamlapen.vampirism.api.entity.hunter.IVampirismCrossbowUser;
 import de.teamlapen.vampirism.api.items.IVampirismCrossbow;
 import de.teamlapen.vampirism.api.settings.Supporter;
@@ -20,10 +19,7 @@ import de.teamlapen.vampirism.core.ModEntities;
 import de.teamlapen.vampirism.core.ModItems;
 import de.teamlapen.vampirism.entity.VampirismEntity;
 import de.teamlapen.vampirism.entity.action.ActionHandlerEntity;
-import de.teamlapen.vampirism.entity.ai.goals.AttackVillageGoal;
-import de.teamlapen.vampirism.entity.ai.goals.DefendVillageGoal;
-import de.teamlapen.vampirism.entity.ai.goals.OpenGateGoal;
-import de.teamlapen.vampirism.entity.ai.goals.RangedHunterCrossbowAttackGoal;
+import de.teamlapen.vampirism.entity.ai.goals.*;
 import de.teamlapen.vampirism.entity.vampire.VampireBaseEntity;
 import de.teamlapen.vampirism.util.IPlayerOverlay;
 import de.teamlapen.vampirism.util.PlayerModelType;
@@ -45,7 +41,6 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.*;
-import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
 import net.minecraft.world.entity.monster.PatrollingMonster;
@@ -422,7 +417,8 @@ public class AdvancedHunterEntity extends HunterBaseEntity implements IAdvancedH
         this.goalSelector.addGoal(8, new LookAtPlayerGoal(this, VampireBaseEntity.class, 17F));
         this.goalSelector.addGoal(8, new RandomLookAroundGoal(this));
 
-        this.targetSelector.addGoal(1, new HurtByTargetGoal(this).setAlertOthers(IHunterMob.class));
+        //this.targetSelector.addGoal(1, new HurtByTargetGoal(this).setAlertOthers(IHunterMob.class));
+        this.targetSelector.addGoal(1, new HunterHurtByTargetGoal(this).setAlertOthers());
         this.targetSelector.addGoal(2, new AttackVillageGoal<>(this));
         this.targetSelector.addGoal(2, new DefendVillageGoal<>(this));//Should automatically be mutually exclusive with  attack village
         this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, Player.class, 5, true, false, VampirismAPI.factionRegistry().getPredicate(getFaction(), true, false, false, false, null)));
