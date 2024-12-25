@@ -193,13 +193,13 @@ public class ModItems {
     public static final DeferredItem<VampireFangItem> VAMPIRE_FANG = register("vampire_fang", VampireFangItem::new);
     public static final DeferredItem<VampirismItemBloodFoodItem> WEAK_HUMAN_HEART = register("weak_human_heart", () -> new VampirismItemBloodFoodItem(new Item.Properties().food(new FoodProperties.Builder().nutrition(3).saturationModifier(1f).build()), new FoodProperties.Builder().nutrition(10).saturationModifier(0.9F).build()));
 
-    public static final DeferredItem<SpawnEggItem> VAMPIRE_SPAWN_EGG = register("vampire_spawn_egg", () -> new DeferredSpawnEggItem(ModEntities.VAMPIRE, 0x881d99, 0x5e1975, new Item.Properties()));
-    public static final DeferredItem<SpawnEggItem> ADVANCED_VAMPIRE_SPAWN_EGG = register("advanced_vampire_spawn_egg", () -> new DeferredSpawnEggItem(ModEntities.ADVANCED_VAMPIRE, 0x881d99, 0xe3a710, new Item.Properties()));
-    public static final DeferredItem<SpawnEggItem> VAMPIRE_BARON_SPAWN_EGG = register("vampire_baron_spawn_egg", () -> new DeferredSpawnEggItem(ModEntities.VAMPIRE_BARON, 0x9a1b1b, 0x252525, new Item.Properties()));
+    public static final DeferredItem<SpawnEggItem> VAMPIRE_SPAWN_EGG = register("vampire_spawn_egg", CreativeModeTabs.SPAWN_EGGS, () -> new DeferredSpawnEggItem(ModEntities.VAMPIRE, 0x881d99, 0x5e1975, new Item.Properties()));
+    public static final DeferredItem<SpawnEggItem> ADVANCED_VAMPIRE_SPAWN_EGG = register("advanced_vampire_spawn_egg", CreativeModeTabs.SPAWN_EGGS, () -> new DeferredSpawnEggItem(ModEntities.ADVANCED_VAMPIRE, 0x881d99, 0xeaa340, new Item.Properties()));
+    public static final DeferredItem<SpawnEggItem> VAMPIRE_BARON_SPAWN_EGG = register("vampire_baron_spawn_egg", CreativeModeTabs.SPAWN_EGGS, () -> new DeferredSpawnEggItem(ModEntities.VAMPIRE_BARON, 0x9a1b1b, 0x252525, new Item.Properties()));
 
-    public static final DeferredItem<SpawnEggItem> VAMPIRE_HUNTER_SPAWN_EGG = register("vampire_hunter_spawn_egg", () -> new DeferredSpawnEggItem(ModEntities.HUNTER, 0x173f9c, 142163, new Item.Properties()));
-    public static final DeferredItem<SpawnEggItem> ADVANCED_VAMPIRE_HUNTER_SPAWN_EGG = register("advanced_vampire_hunter_spawn_egg", () -> new DeferredSpawnEggItem(ModEntities.ADVANCED_HUNTER, 0x173f9c, 0xe3a710, new Item.Properties()));
-    public static final DeferredItem<SpawnEggItem> HUNTER_TRAINER_SPAWN_EGG = register("hunter_trainer_spawn_egg", () -> new DeferredSpawnEggItem(ModEntities.HUNTER_TRAINER, 0xc1bebe, 0x252525, new Item.Properties()));
+    public static final DeferredItem<SpawnEggItem> VAMPIRE_HUNTER_SPAWN_EGG = register("vampire_hunter_spawn_egg", CreativeModeTabs.SPAWN_EGGS, () -> new DeferredSpawnEggItem(ModEntities.HUNTER, 0x173f9c, 142163, new Item.Properties()));
+    public static final DeferredItem<SpawnEggItem> ADVANCED_VAMPIRE_HUNTER_SPAWN_EGG = register("advanced_vampire_hunter_spawn_egg", CreativeModeTabs.SPAWN_EGGS, () -> new DeferredSpawnEggItem(ModEntities.ADVANCED_HUNTER, 0x173f9c, 0xeaa340, new Item.Properties()));
+    public static final DeferredItem<SpawnEggItem> HUNTER_TRAINER_SPAWN_EGG = register("hunter_trainer_spawn_egg", CreativeModeTabs.SPAWN_EGGS, () -> new DeferredSpawnEggItem(ModEntities.HUNTER_TRAINER, 0xc1bebe, 0x252525, new Item.Properties()));
 
     public static final DeferredItem<UmbrellaItem> UMBRELLA = register("umbrella", UmbrellaItem::new);
 
