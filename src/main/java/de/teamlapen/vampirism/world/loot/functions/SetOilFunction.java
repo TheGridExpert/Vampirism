@@ -5,6 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import de.teamlapen.vampirism.api.items.oil.IOil;
 import de.teamlapen.vampirism.core.ModLoot;
 import de.teamlapen.vampirism.core.ModRegistries;
+import de.teamlapen.vampirism.core.ModTags;
 import de.teamlapen.vampirism.util.ItemDataUtils;
 import net.minecraft.core.Holder;
 import net.minecraft.world.item.ItemStack;
@@ -43,7 +44,7 @@ public class SetOilFunction extends LootItemConditionalFunction {
         Holder<IOil> oil = this.oil;
         if (this.random) {
             List<Holder.Reference<IOil>> values = ModRegistries.OILS.holders().toList();
-            oil = values.stream().skip((int) (values.size() * pContext.getRandom().nextDouble())).findFirst().orElseThrow(() -> new IllegalStateException("No oils registered"));
+            oil = values.stream().filter(currentOil -> !currentOil.is(ModTags.Oils.NON_TREASURE)).skip((int) (values.size() * pContext.getRandom().nextDouble())).findFirst().orElseThrow(() -> new IllegalStateException("No oils registered"));
         }
         return ItemDataUtils.setOil(pStack, oil);
     }

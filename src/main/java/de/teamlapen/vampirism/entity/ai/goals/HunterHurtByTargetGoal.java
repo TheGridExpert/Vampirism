@@ -21,7 +21,7 @@ public class HunterHurtByTargetGoal extends HurtByTargetGoal {
     @Override
     protected void alertOthers() {
         double radius = Math.max(this.getFollowDistance(), 14);
-        if (this.mob.getLastHurtByMob() instanceof IVampire) radius *= 1.5;
+        if (this.mob.getLastHurtByMob() instanceof IVampire) radius *= 1.2;
         AABB aabb = AABB.unitCubeFromLowerCorner(this.mob.position()).inflate(radius, 10.0, radius);
         List<? extends Mob> list = this.mob.level().getEntitiesOfClass(Mob.class, aabb, EntitySelector.NO_SPECTATORS);
 

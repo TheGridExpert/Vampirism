@@ -3,6 +3,7 @@ package de.teamlapen.vampirism.core;
 import de.teamlapen.vampirism.api.VampirismRegistries;
 import de.teamlapen.vampirism.api.entity.factions.ISkillTree;
 import de.teamlapen.vampirism.api.entity.player.task.Task;
+import de.teamlapen.vampirism.api.items.oil.IOil;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
@@ -30,10 +31,13 @@ public class ModTags {
         public static final TagKey<Block> CURSED_EARTH = tag("cursed_earth");
         public static final TagKey<Block> DARK_SPRUCE_LOG = tag("dark_spruce_log");
         public static final TagKey<Block> CURSED_SPRUCE_LOG = tag("cursed_spruce_log");
+
         public static final TagKey<Block> TOTEM_TOP_CRAFTED = tag("totem_top_crafted");
         public static final TagKey<Block> TOTEM_TOP_FRAGILE = tag("totem_top_fragile");
         public static final TagKey<Block> TOTEM_TOP = tag("totem_top");
+
         public static final TagKey<Block> COFFIN = tag("coffin");
+
         public static final TagKey<Block> DARK_STONE = tag("dark_stone");
         public static final TagKey<Block> DARK_STONE_BRICKS = tag("dark_stone_bricks");
         public static final TagKey<Block> POLISHED_DARK_STONE = tag("polished_dark_brick");
@@ -41,14 +45,18 @@ public class ModTags {
         public static final TagKey<Block> DARK_STONE_TILES = tag("dark_brick_tiles");
         public static final TagKey<Block> PURPLE_STONE_BRICKS = tag("purple_brick_bricks");
         public static final TagKey<Block> PURPLE_STONE_TILES = tag("purple_brick_tiles");
+
         public static final TagKey<Block> NO_SPAWN = tag("no_spawn");
         public static final TagKey<Block> VAMPIRE_SPAWN = tag("vampire_spawn");
+
         public static final TagKey<Block> REMAINS = tag("remains");
         public static final TagKey<Block> ACTIVE_REMAINS = tag("active_remains");
         public static final TagKey<Block> VULNERABLE_REMAINS = tag("vulnerable_remains");
         public static final TagKey<Block> MOTHER_GROWS_ON = tag("mother_grows_on");
+
         public static final TagKey<Block> VAMPIRE_BEACON_BASE_BLOCKS = tag("vampire_beacon_base_blocks");
         public static final TagKey<Block> VAMPIRE_BEACON_BASE_ENHANCED_BLOCKS = tag("vampire_beacon_base_enhanced_blocks");
+
         public static final TagKey<Block> GARLIC = tag(common("crops/garlic"));
 
 
@@ -75,32 +83,39 @@ public class ModTags {
     }
 
     public static class Items {
-        public static final TagKey<Item> CROSSBOW_ARROW = tag("crossbow_arrow");
-        public static final TagKey<Item> HUNTER_INTEL = tag("hunter_intel");
-        public static final TagKey<Item> PURE_BLOOD = tag("pure_blood");
-        public static final TagKey<Item> GARLIC = tag(common("crops/garlic"));
-        public static final TagKey<Item> HOLY_WATER = tag("holy_water");
-        public static final TagKey<Item> HOLY_WATER_SPLASH = tag("holy_water_splash");
-        public static final TagKey<Item> CURSEDEARTH = tag("cursed_earth");
+        public static final TagKey<Item> CURSED_EARTH = tag("cursed_earth");
         public static final TagKey<Item> DARK_SPRUCE_LOG = tag("dark_spruce_log");
         public static final TagKey<Item> CURSED_SPRUCE_LOG = tag("cursed_spruce_log");
-        public static final TagKey<Item> HEART = tag("heart");
-        public static final TagKey<Item> APPLICABLE_OIL_SWORD = tag("applicable_oil/sword");
-        public static final TagKey<Item> APPLICABLE_OIL_PICKAXE = tag("applicable_oil/pickaxe");
-        public static final TagKey<Item> APPLICABLE_OIL_ARMOR = tag("applicable_oil/armor");
+
         public static final TagKey<Item> DARK_STONE = tag("dark_stone");
         public static final TagKey<Item> DARK_STONE_BRICKS = tag("dark_stone_bricks");
         public static final TagKey<Item> POLISHED_DARK_STONE = tag("polished_dark_brick");
         public static final TagKey<Item> COBBLED_DARK_STONE = tag("cobbled_dark_brick");
         public static final TagKey<Item> DARK_STONE_TILES = tag("dark_brick_tiles");
+
         public static final TagKey<Item> NO_SPAWN = tag("no_spawn");
         public static final TagKey<Item> VAMPIRE_SPAWN = tag("vampire_spawn");
+
+        public static final TagKey<Item> PURE_BLOOD = tag("pure_blood");
+        public static final TagKey<Item> GARLIC = tag(common("crops/garlic"));
+        public static final TagKey<Item> HEART = tag("heart");
+
+        public static final TagKey<Item> HUNTER_INTEL = tag("hunter_intel");
+        public static final TagKey<Item> HOLY_WATER = tag("holy_water");
+        public static final TagKey<Item> HOLY_WATER_SPLASH = tag("holy_water_splash");
         public static final TagKey<Item> VAMPIRE_BEACON_PAYMENT_ITEM = tag("vampire_beacon_payment_item");
-        public static final TagKey<Item> HEART_SEEKER = tag("swords/heart_seeker");
-        public static final TagKey<Item> HEART_STRIKER = tag("swords/heart_striker");
+
         public static final TagKey<Item> VAMPIRE_SLAYER_ITEMS = tag("enchantable/vampire_slayer");
         public static final TagKey<Item> CROSSBOW_ENCHANTABLE = tag("enchantable/crossbow");
 
+        public static final TagKey<Item> APPLICABLE_OIL_SWORD = tag("applicable_oil/sword");
+        public static final TagKey<Item> APPLICABLE_OIL_PICKAXE = tag("applicable_oil/pickaxe");
+        public static final TagKey<Item> APPLICABLE_OIL_ARMOR = tag("applicable_oil/armor");
+
+        public static final TagKey<Item> HEART_SEEKER = tag("swords/heart_seeker");
+        public static final TagKey<Item> HEART_STRIKER = tag("swords/heart_striker");
+
+        public static final TagKey<Item> CROSSBOW_ARROW = tag("crossbow_arrow");
         public static final TagKey<Item> SINGLE_CROSSBOWS = tag("crossbows/single");
         public static final TagKey<Item> DOUBLE_CROSSBOWS = tag("crossbows/double");
         public static final TagKey<Item> TECH_CROSSBOWS = tag("crossbows/tech");
@@ -117,6 +132,8 @@ public class ModTags {
         public static final TagKey<Item> HUNTER_COAT_NORMAL = tag("armors/hunter_coat/normal");
         public static final TagKey<Item> HUNTER_COAT_ENHANCED = tag("armors/hunter_coat/enhanced");
         public static final TagKey<Item> HUNTER_COAT_ULTIMATE = tag("armors/hunter_coat/ultimate");
+
+        public static final TagKey<Item> POWDER_SNOW_WALKABLE_BOOTS = tag("armors/powder_snow_walkable_boots");
 
         public static final TagKey<Item> VAMPIRE_CLOTHING = tag("armors/vampire_clothing");
         public static final TagKey<Item> VAMPIRE_CLOAK = tag("armors/vampire_clothing/cloak");
@@ -313,4 +330,14 @@ public class ModTags {
         }
 
     }
+
+    public static class Oils {
+        public static final TagKey<IOil> NON_TREASURE = tag("non_treasure");
+
+        private static @NotNull TagKey<IOil> tag(@NotNull String name) {
+            return TagKey.create(VampirismRegistries.Keys.OIL, mod(name));
+        }
+
+    }
+
 }
