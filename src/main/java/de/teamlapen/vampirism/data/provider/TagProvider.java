@@ -13,6 +13,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.*;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.*;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.damagesource.DamageTypes;
@@ -67,7 +68,7 @@ public class TagProvider {
 
         @SuppressWarnings("unchecked")
         @Override
-        protected void addTags(HolderLookup.Provider holderLookup) {
+        protected void addTags(HolderLookup.@NotNull Provider holderLookup) {
             tag(BlockTags.DIRT).add(ModBlocks.CURSED_EARTH.get(), ModBlocks.CURSED_GRASS.get());
             tag(ModTags.Blocks.CURSED_EARTH).add(ModBlocks.CURSED_EARTH.get(), ModBlocks.CURSED_GRASS.get());
             tag(BlockTags.FLOWER_POTS).add(ModBlocks.POTTED_VAMPIRE_ORCHID.get());
@@ -208,6 +209,11 @@ public class TagProvider {
             tag(ModTags.Blocks.VAMPIRE_BEACON_BASE_ENHANCED_BLOCKS).add(ModBlocks.BLOOD_INFUSED_ENHANCED_IRON_BLOCK.get());
             tag(BlockTags.CANDLES).add(ModBlocks.CANDLE_STICK_NORMAL.get(), ModBlocks.WALL_CANDLE_STICK_NORMAL.get(), ModBlocks.CANDLE_STICK_WHITE.get(), ModBlocks.WALL_CANDLE_STICK_WHITE.get(), ModBlocks.CANDLE_STICK_ORANGE.get(), ModBlocks.WALL_CANDLE_STICK_ORANGE.get(), ModBlocks.CANDLE_STICK_MAGENTA.get(), ModBlocks.WALL_CANDLE_STICK_MAGENTA.get(), ModBlocks.CANDLE_STICK_LIGHT_BLUE.get(), ModBlocks.WALL_CANDLE_STICK_LIGHT_BLUE.get(), ModBlocks.CANDLE_STICK_YELLOW.get(), ModBlocks.WALL_CANDLE_STICK_YELLOW.get(), ModBlocks.CANDLE_STICK_LIME.get(), ModBlocks.WALL_CANDLE_STICK_LIME.get(), ModBlocks.CANDLE_STICK_PINK.get(), ModBlocks.WALL_CANDLE_STICK_PINK.get(), ModBlocks.CANDLE_STICK_GRAY.get(), ModBlocks.WALL_CANDLE_STICK_GRAY.get(), ModBlocks.CANDLE_STICK_LIGHT_GRAY.get(), ModBlocks.WALL_CANDLE_STICK_LIGHT_GRAY.get(), ModBlocks.CANDLE_STICK_CYAN.get(), ModBlocks.WALL_CANDLE_STICK_CYAN.get(), ModBlocks.CANDLE_STICK_PURPLE.get(), ModBlocks.WALL_CANDLE_STICK_PURPLE.get(), ModBlocks.CANDLE_STICK_BLUE.get(), ModBlocks.WALL_CANDLE_STICK_BLUE.get(), ModBlocks.CANDLE_STICK_BROWN.get(), ModBlocks.WALL_CANDLE_STICK_BROWN.get(), ModBlocks.CANDLE_STICK_GREEN.get(), ModBlocks.WALL_CANDLE_STICK_GREEN.get(), ModBlocks.CANDLE_STICK_RED.get(), ModBlocks.WALL_CANDLE_STICK_RED.get(), ModBlocks.CANDLE_STICK_BLACK.get(), ModBlocks.WALL_CANDLE_STICK_BLACK.get());
             tag(ModTags.Blocks.GARLIC).add(ModBlocks.GARLIC.get());
+            tag(BlockTags.CROPS).add(ModBlocks.GARLIC.get());
+
+            tag(ModTags.Blocks.Compatibility.SERENE_SEASONS_AUTUMN_CROPS).add(ModBlocks.GARLIC.get());
+            tag(ModTags.Blocks.Compatibility.SERENE_SEASONS_SUMMER_CROPS).add(ModBlocks.GARLIC.get());
+            tag(ModTags.Blocks.Compatibility.TRAY_HEAT_SOURCES).add(ModBlocks.FIRE_PLACE.get());
         }
     }
 
@@ -297,6 +303,14 @@ public class TagProvider {
             tag(ModTags.Items.VAMPIRE_CLOTHING).addTag(ModTags.Items.VAMPIRE_CLOAK);
             tag(ItemTags.MEAT).add(ModItems.HUMAN_HEART.get(), ModItems.WEAK_HUMAN_HEART.get());
             tag(ItemTags.DURABILITY_ENCHANTABLE).add(ModItems.AMULET.get(), ModItems.RING.get(), ModItems.OBI_BELT.get());
+            tag(ItemTags.BOOKSHELF_BOOKS).add(ModItems.VAMPIRE_BOOK.get()).addOptional(ResourceLocation.fromNamespaceAndPath("guideapi_vp", "vampirism-guidebook"));
+
+            tag(Tags.Items.CROPS).addTag(ModTags.Items.Compatibility.CROPS_GARLIC);
+            tag(Tags.Items.FOODS_VEGETABLE).add(ModBlocks.GARLIC.asItem());
+            tag(ModTags.Items.Compatibility.FOODS_GARLIC).add(ModBlocks.GARLIC.asItem());
+
+            tag(ModTags.Items.Compatibility.SERENE_SEASONS_AUTUMN_CROPS).add(ModBlocks.GARLIC.asItem());
+            tag(ModTags.Items.Compatibility.SERENE_SEASONS_SUMMER_CROPS).add(ModBlocks.GARLIC.asItem());
         }
     }
 
