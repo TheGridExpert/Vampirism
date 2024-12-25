@@ -1,6 +1,7 @@
 package de.teamlapen.vampirism.misc;
 
 import de.teamlapen.lib.lib.util.ModDisplayItemGenerator;
+import de.teamlapen.vampirism.REFERENCE;
 import de.teamlapen.vampirism.core.ModItems;
 import de.teamlapen.vampirism.core.ModOils;
 import de.teamlapen.vampirism.core.ModRegistries;
@@ -9,12 +10,16 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.level.ItemLike;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 
 import java.util.Set;
 
 import static de.teamlapen.vampirism.core.ModBlocks.*;
 import static de.teamlapen.vampirism.core.ModItems.*;
 
+@EventBusSubscriber(modid = REFERENCE.MODID, bus = EventBusSubscriber.Bus.MOD)
 public class VampirismCreativeTab {
 
     public static CreativeModeTab.Builder builder(Set<ItemLike> allItems) {
@@ -342,6 +347,19 @@ public class VampirismCreativeTab {
             addItem(CRUCIFIX_NORMAL);
             addItem(CRUCIFIX_ENHANCED);
             addItem(CRUCIFIX_ULTIMATE);
+        }
+    }
+
+    @SubscribeEvent
+    public static void addToExistingCreativeTabs(BuildCreativeModeTabContentsEvent event) {
+        if (event.getTabKey().equals(CreativeModeTabs.SPAWN_EGGS)) {
+            event.accept(VAMPIRE_SPAWN_EGG);
+            event.accept(ADVANCED_VAMPIRE_SPAWN_EGG);
+            event.accept(VAMPIRE_BARON_SPAWN_EGG);
+
+            event.accept(VAMPIRE_HUNTER_SPAWN_EGG);
+            event.accept(ADVANCED_VAMPIRE_HUNTER_SPAWN_EGG);
+            event.accept(HUNTER_TRAINER_SPAWN_EGG);
         }
     }
 }
