@@ -84,7 +84,6 @@ public class DummyHunterTrainerEntity extends VampirismEntity implements ICaptur
         this.goalSelector.addGoal(9, new LookAtPlayerGoal(this, VampireBaseEntity.class, 17F));
         this.goalSelector.addGoal(10, new RandomLookAroundGoal(this));
 
-        //this.targetSelector.addGoal(1, new HurtByTargetGoal(this).setAlertOthers(IHunterMob.class));
         this.targetSelector.addGoal(1, new HunterHurtByTargetGoal(this).setAlertOthers());
     }
 

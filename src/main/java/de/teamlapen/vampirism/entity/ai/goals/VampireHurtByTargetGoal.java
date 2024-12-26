@@ -1,6 +1,5 @@
 package de.teamlapen.vampirism.entity.ai.goals;
 
-import de.teamlapen.vampirism.api.entity.hunter.IHunterMob;
 import de.teamlapen.vampirism.core.ModTags;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
@@ -11,14 +10,14 @@ import net.minecraft.world.phys.AABB;
 
 import java.util.List;
 
-public class HunterHurtByTargetGoal extends HurtByTargetGoal {
-    public HunterHurtByTargetGoal(PathfinderMob mob) {
-        super(mob, IHunterMob.class);
+public class VampireHurtByTargetGoal extends HurtByTargetGoal {
+    public VampireHurtByTargetGoal(PathfinderMob mob) {
+        super(mob);
     }
 
     /**
-     * Spreads the alert to all hunters, not just those of the same type as the attacked one. So that advanced hunters also get angry when the ordinary one is attacked and vice versa.
-     * Doesn't trigger hunter trainers.
+     * Spreads the alert to all vampires, not just those of the same type as the attacked one. So that advanced vampires also get angry when the ordinary one is attacked and vice versa.
+     * Doesn't trigger barons or anyone at all if the attacker is a vampire.
      */
     @Override
     protected void alertOthers() {
@@ -28,7 +27,7 @@ public class HunterHurtByTargetGoal extends HurtByTargetGoal {
 
         for (Mob possibleDefender : list) {
             LivingEntity attacker = mob.getLastHurtByMob();
-            if (possibleDefender != mob && possibleDefender.getType().is(ModTags.Entities.COMPARE_DEFENDING_HUNTERS) && attacker != null && possibleDefender.getTarget() == null && !possibleDefender.isAlliedTo(attacker)) {
+            if (possibleDefender != mob && possibleDefender.getType().is(ModTags.Entities.COMPARE_DEFENDING_VAMPIRES) && attacker != null && attacker.getType().is(ModTags.Entities.VAMPIRE) && possibleDefender.getTarget() == null && !possibleDefender.isAlliedTo(attacker)) {
                 this.alertOther(possibleDefender, attacker);
             }
         }

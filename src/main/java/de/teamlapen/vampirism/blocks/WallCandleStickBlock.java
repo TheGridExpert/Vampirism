@@ -126,12 +126,6 @@ public class WallCandleStickBlock extends CandleStickBlock {
         return isEmpty() ? SHAPES.get(pState.getValue(FACING)) : SHAPES_WITH_CANDLE.get(pState.getValue(FACING));
     }
 
-
-    @Override
-    public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level, BlockPos pos, Player player) {
-        return ModItems.CANDLE_STICK.get().getDefaultInstance();
-    }
-
     @Override
     protected @NotNull MapCodec<? extends AbstractCandleBlock> codec() {
         return CODEC;

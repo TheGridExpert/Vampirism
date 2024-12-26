@@ -3,6 +3,7 @@ package de.teamlapen.vampirism.blocks;
 import com.google.common.collect.Maps;
 import com.mojang.datafixers.Products;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import de.teamlapen.vampirism.core.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -27,6 +28,7 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -161,5 +163,11 @@ public abstract class CandleStickBlock extends AbstractCandleBlock implements Si
 
     public boolean isEmpty() {
         return this.candle.get() == null;
+    }
+
+    @Override
+    public @NotNull ItemStack getCloneItemStack(@NotNull BlockState state, @NotNull HitResult target, @NotNull LevelReader level, @NotNull BlockPos pos, @NotNull Player player) {
+        Item candle = getCandle().get();
+        return candle == null ? ModItems.CANDLE_STICK.get().getDefaultInstance() : candle.getDefaultInstance();
     }
 }

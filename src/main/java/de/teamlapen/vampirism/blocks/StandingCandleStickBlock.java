@@ -51,11 +51,6 @@ public class StandingCandleStickBlock extends CandleStickBlock {
     }
 
     @Override
-    public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level, BlockPos pos, Player player) {
-        return ModItems.CANDLE_STICK.get().getDefaultInstance();
-    }
-
-    @Override
     public boolean canSurvive(@NotNull BlockState pState, @NotNull LevelReader pLevel, @NotNull BlockPos pPos) {
         return pLevel.getBlockState(pPos.below()).isSolid();
     }

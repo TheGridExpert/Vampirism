@@ -180,6 +180,14 @@ public class ModTags {
          */
         public static final TagKey<EntityType<?>> ADVANCED_VAMPIRE = tag("advanced_vampire");
         public static final TagKey<EntityType<?>> CONVERTED_CREATURES = tag("converted_creatures");
+        /**
+         * Hunters that stand up for comrades when their attacked
+         */
+        public static final TagKey<EntityType<?>> COMPARE_DEFENDING_HUNTERS = tag("comrade_defending_hunters");
+        /**
+         * Vampires that stand up for comrades when their attacked
+         */
+        public static final TagKey<EntityType<?>> COMPARE_DEFENDING_VAMPIRES = tag("comrade_defending_vampires");
 
         /**
          * Vanilla zombies
