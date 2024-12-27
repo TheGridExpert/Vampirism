@@ -32,10 +32,7 @@
       ]
     },
     {
-      "processor_type": "vampirism:water_drain"
-    },
-    {
-      "lit_probability": 0.7,
+      "lit_probability": 0.55,
       "processor_type": "vampirism:random_candle_lit"
     }
   ]

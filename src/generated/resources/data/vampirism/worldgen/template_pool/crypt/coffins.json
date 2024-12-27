@@ -67,5 +67,5 @@
       "weight": 1
     }
   ],
-  "fallback": "minecraft:empty"
+  "fallback": "vampirism:crypt/coffins"
 }

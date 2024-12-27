@@ -33,7 +33,7 @@ public class CryptStructurePools {
         Holder<StructureTemplatePool> end = templatePools.getOrThrow(END);
         Holder<StructureTemplatePool> empty = templatePools.getOrThrow(Pools.EMPTY);
 
-        context.register(END, new StructureTemplatePool(empty, ImmutableList.of(Pair.of(single("crypt/corridor/end", cryptDegradation), 1)), StructureTemplatePool.Projection.RIGID));
+        context.register(END, new StructureTemplatePool(end, ImmutableList.of(Pair.of(single("crypt/corridor/end", cryptDegradation), 1)), StructureTemplatePool.Projection.RIGID));
         context.register(CORRIDOR, new StructureTemplatePool(end, ImmutableList.of(
                 Pair.of(single("crypt/corridor/straight_1", cryptDegradation), 3),
                 Pair.of(single("crypt/corridor/straight_2", cryptDegradation), 2),
@@ -49,7 +49,7 @@ public class CryptStructurePools {
         context.register(STAIRS_1, new StructureTemplatePool(empty, ImmutableList.of(Pair.of(single("crypt/stairs1", cryptDegradation), 1)), StructureTemplatePool.Projection.RIGID));
         context.register(STAIRS_2, new StructureTemplatePool(empty, ImmutableList.of(Pair.of(single("crypt/stairs2", cryptDegradation), 1)), StructureTemplatePool.Projection.RIGID));
         context.register(STAIRS_BASE, new StructureTemplatePool(end, ImmutableList.of(Pair.of(single("crypt/stairs_base", cryptDegradation), 1)), StructureTemplatePool.Projection.RIGID));
-        context.register(COFFINS, new StructureTemplatePool(empty, ImmutableList.of(
+        context.register(COFFINS, new StructureTemplatePool(templatePools.getOrThrow(COFFINS), ImmutableList.of(
                 Pair.of(single("crypt/coffin/coffin_1"), 1),
                 Pair.of(single("crypt/coffin/coffin_2"), 1),
                 Pair.of(single("crypt/coffin/coffin_3"), 1),
@@ -57,7 +57,7 @@ public class CryptStructurePools {
                 Pair.of(single("crypt/coffin/coffin_5"), 1),
                 Pair.of(single("crypt/coffin/coffin_6"), 1)
         ), StructureTemplatePool.Projection.RIGID));
-        context.register(LARGE_COFFINS, new StructureTemplatePool(empty, ImmutableList.of(
+        context.register(LARGE_COFFINS, new StructureTemplatePool(templatePools.getOrThrow(LARGE_COFFINS), ImmutableList.of(
                 Pair.of(single("crypt/large_coffin/large_coffin_1"), 2),
                 Pair.of(single("crypt/large_coffin/large_coffin_2"), 1),
                 Pair.of(single("crypt/large_coffin/large_coffin_3"), 1)

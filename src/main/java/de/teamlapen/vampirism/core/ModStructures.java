@@ -37,6 +37,7 @@ import net.minecraft.world.level.levelgen.structure.*;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceType;
 import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadStructurePlacement;
 import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadType;
+import net.minecraft.world.level.levelgen.structure.pools.DimensionPadding;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 import net.minecraft.world.level.levelgen.structure.structures.JigsawStructure;
 import net.minecraft.world.level.levelgen.structure.templatesystem.*;
@@ -46,6 +47,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static de.teamlapen.vampirism.world.gen.VanillaStructureModifications.singleJigsawPieceFunction;
@@ -70,7 +72,6 @@ public class ModStructures {
 
     public static final DeferredHolder<StructureProcessorType<?>, StructureProcessorType<RandomStructureProcessor>> RANDOM_SELECTOR = STRUCTURE_PROCESSOR_TYPES.register("random_selector", () -> () -> RandomStructureProcessor.CODEC);
     public static final DeferredHolder<StructureProcessorType<?>, StructureProcessorType<BiomeTopBlockProcessor>> BIOME_BASED = STRUCTURE_PROCESSOR_TYPES.register("biome_based", () -> () -> BiomeTopBlockProcessor.CODEC);
-    public static final DeferredHolder<StructureProcessorType<?>, StructureProcessorType<DrainProcessor>> WATER_DRAIN = STRUCTURE_PROCESSOR_TYPES.register("water_drain", () -> () -> DrainProcessor.CODEC);
     public static final DeferredHolder<StructureProcessorType<?>, StructureProcessorType<RandomCandleLitProcessor>> RANDOM_CANDLE_LIT = STRUCTURE_PROCESSOR_TYPES.register("random_candle_lit", () -> () -> RandomCandleLitProcessor.CODEC);
 
     public static final ResourceKey<Structure> HUNTER_CAMP = ResourceKey.create(Registries.STRUCTURE, VResourceLocation.mod("hunter_camp"));
@@ -134,8 +135,7 @@ public class ModStructures {
                         new ProcessorRule(new RandomBlockMatchTest(ModBlocks.DARK_STONE_BRICKS.get(), 0.3F), AlwaysTrueTest.INSTANCE, ModBlocks.CRACKED_DARK_STONE_BRICKS.get().defaultBlockState()),
                         new ProcessorRule(new RandomBlockMatchTest(ModBlocks.DARK_STONE_TILES.get(), 0.3F), AlwaysTrueTest.INSTANCE, ModBlocks.CRACKED_DARK_STONE_TILES.get().defaultBlockState())
                 )),
-                new DrainProcessor(),
-                new RandomCandleLitProcessor(0.6f)
+                new RandomCandleLitProcessor(0.55f)
         )));
     }
 
@@ -167,6 +167,6 @@ public class ModStructures {
         context.register(HUNTER_OUTPOST_BADLANDS, new JigsawStructure(new Structure.StructureSettings.Builder(lookup.getOrThrow(ModTags.Biomes.HasStructure.HUNTER_OUTPOST_BADLANDS)).spawnOverrides(Map.of(MobCategory.MONSTER, new StructureSpawnOverride(StructureSpawnOverride.BoundingBoxType.PIECE, WeightedRandomList.create(new MobSpawnSettings.SpawnerData(ModEntities.HUNTER.get(), 80, 2, 4), new MobSpawnSettings.SpawnerData(ModEntities.ADVANCED_HUNTER.get(), 20, 1, 22))))).generationStep(GenerationStep.Decoration.SURFACE_STRUCTURES).terrainAdapation(TerrainAdjustment.BEARD_THIN).build(), lookup1.getOrThrow(BadlandsHunterOutpostPools.START), 7, ConstantHeight.of(VerticalAnchor.absolute(0)), true, Heightmap.Types.WORLD_SURFACE_WG));
         context.register(VAMPIRE_ALTAR, new VampireAltarStructure(new Structure.StructureSettings.Builder(lookup.getOrThrow(ModTags.Biomes.HasStructure.VAMPIRE_ALTAR)).terrainAdapation(TerrainAdjustment.BEARD_BOX).build()));
         context.register(MOTHER, new MotherStructure(new Structure.StructureSettings.Builder(lookup.getOrThrow(ModTags.Biomes.HasStructure.MOTHER)).terrainAdapation(TerrainAdjustment.NONE).build()));
-        context.register(CRYPT, new JigsawStructure(new Structure.StructureSettings.Builder(lookup.getOrThrow(ModTags.Biomes.HasStructure.CRYPT)).terrainAdapation(TerrainAdjustment.BEARD_THIN).build(), lookup1.getOrThrow(CryptStructurePieces.START), 10, ConstantHeight.of(VerticalAnchor.absolute(0)), false, Heightmap.Types.WORLD_SURFACE_WG));
+        context.register(CRYPT, new JigsawStructure(new Structure.StructureSettings.Builder(lookup.getOrThrow(ModTags.Biomes.HasStructure.CRYPT)).terrainAdapation(TerrainAdjustment.BEARD_THIN).build(), lookup1.getOrThrow(CryptStructurePieces.START), Optional.empty(), 10, ConstantHeight.of(VerticalAnchor.absolute(0)), false, Optional.of(Heightmap.Types.WORLD_SURFACE_WG), 80, List.of(), DimensionPadding.ZERO, LiquidSettings.IGNORE_WATERLOGGING));
     }
 }

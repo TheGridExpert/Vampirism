@@ -7,7 +7,7 @@
         "processors": "vampirism:crypt_degradation",
         "projection": "rigid"
       },
-      "weight": 2
+      "weight": 3
     },
     {
       "element": {
@@ -16,7 +16,7 @@
         "processors": "vampirism:crypt_degradation",
         "projection": "rigid"
       },
-      "weight": 1
+      "weight": 2
     },
     {
       "element": {
@@ -52,7 +52,7 @@
         "processors": "vampirism:crypt_degradation",
         "projection": "rigid"
       },
-      "weight": 3
+      "weight": 2
     },
     {
       "element": {
