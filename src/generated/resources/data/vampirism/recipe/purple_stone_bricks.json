@@ -1,0 +1,37 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "vampirism:dark_stone_bricks"
+    },
+    {
+      "item": "vampirism:dark_stone_bricks"
+    },
+    {
+      "item": "vampirism:dark_stone_bricks"
+    },
+    {
+      "item": "vampirism:dark_stone_bricks"
+    },
+    {
+      "item": "vampirism:dark_stone_bricks"
+    },
+    {
+      "item": "vampirism:dark_stone_bricks"
+    },
+    {
+      "item": "vampirism:dark_stone_bricks"
+    },
+    {
+      "item": "vampirism:dark_stone_bricks"
+    },
+    {
+      "item": "vampirism:vampire_orchid"
+    }
+  ],
+  "result": {
+    "count": 8,
+    "id": "vampirism:purple_stone_bricks"
+  }
+}

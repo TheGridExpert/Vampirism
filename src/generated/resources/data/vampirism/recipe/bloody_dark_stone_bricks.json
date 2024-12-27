@@ -1,0 +1,43 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "vampirism:dark_stone_bricks"
+    },
+    {
+      "item": "vampirism:dark_stone_bricks"
+    },
+    {
+      "item": "vampirism:dark_stone_bricks"
+    },
+    {
+      "item": "vampirism:dark_stone_bricks"
+    },
+    {
+      "item": "vampirism:dark_stone_bricks"
+    },
+    {
+      "item": "vampirism:dark_stone_bricks"
+    },
+    {
+      "item": "vampirism:dark_stone_bricks"
+    },
+    {
+      "item": "vampirism:dark_stone_bricks"
+    },
+    {
+      "type": "neoforge:components",
+      "components": {
+        "vampirism:bottle_blood": {
+          "blood": 9
+        }
+      },
+      "items": "vampirism:blood_bottle"
+    }
+  ],
+  "result": {
+    "count": 8,
+    "id": "vampirism:bloody_dark_stone_bricks"
+  }
+}
