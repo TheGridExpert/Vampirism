@@ -1,22 +1,27 @@
 package de.teamlapen.vampirism.entity.villager;
 
+import de.teamlapen.vampirism.core.ModDataComponents;
 import de.teamlapen.vampirism.core.ModItems;
 import de.teamlapen.vampirism.entity.converted.ConvertedVillagerEntity;
 import de.teamlapen.vampirism.items.BloodBottleItem;
+import de.teamlapen.vampirism.items.component.BottleBlood;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.npc.VillagerTrades;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.MapItem;
 import net.minecraft.world.item.trading.ItemCost;
 import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.level.ItemLike;
-import net.minecraft.world.level.saveddata.maps.MapDecorationTypes;
+import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.saveddata.maps.MapDecorationType;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -24,49 +29,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Optional;
 
 public class Trades {
-    public static final VillagerTrades.ItemListing[] converted_trades = new VillagerTrades.ItemListing[]{new net.minecraft.world.entity.npc.VillagerTrades.EmeraldForItems(ModItems.HUMAN_HEART.get(), 9, 2, 2), new VillagerTrades.ItemsForEmeralds(ModItems.HUMAN_HEART.get(), 3, 9, 2), new ItemsForEmeraldsTradeWithDamage(BloodBottleItem.getStackWithDamage(9), 1, 1, 20, 2)};
-
-    /**
-     * copy of {@link VillagerTrades.ItemsForEmeralds} with damage to {@link ItemStack}
-     */
-    public static class ItemsForEmeraldsTradeWithDamage implements VillagerTrades.ItemListing {
-        private final ItemStack result;
-        private final int emeraldAmount;
-        private final int resultAmount;
-        private final int maxUses;
-        private final int givenXP;
-        private final float priceMultiplier;
-
-        public ItemsForEmeraldsTradeWithDamage(Item result, int emeraldAmount, int resultAmount, int givenXP) {
-            this(new ItemStack(result), emeraldAmount, resultAmount, 12, givenXP);
-        }
-
-        public ItemsForEmeraldsTradeWithDamage(Item result, int emeraldAmount, int resultAmount, int maxUses, int givenXP) {
-            this(new ItemStack(result), emeraldAmount, resultAmount, maxUses, givenXP);
-        }
-
-        public ItemsForEmeraldsTradeWithDamage(ItemStack result, int emeraldAmount, int resultAmount, int maxUses, int givenXP) {
-            this(result, emeraldAmount, resultAmount, maxUses, givenXP, 0.05F);
-        }
-
-        public ItemsForEmeraldsTradeWithDamage(ItemStack result, int emeraldAmount, int resultAmount, int maxUses, int givenXP, float priceMultiplier) {
-            this.result = result;
-            this.emeraldAmount = emeraldAmount;
-            this.resultAmount = resultAmount;
-            this.maxUses = maxUses;
-            this.givenXP = givenXP;
-            this.priceMultiplier = priceMultiplier;
-        }
-
-        @NotNull
-        @Override
-        public MerchantOffer getOffer(@NotNull Entity entity, @NotNull RandomSource random) {
-            ItemStack second = new ItemStack(result.getItem(), resultAmount);
-            second.setDamageValue(result.getDamageValue());
-            return new MerchantOffer(new ItemCost(Items.EMERALD, this.emeraldAmount), second, this.maxUses, this.givenXP, this.priceMultiplier);
-        }
-    }
-
     public static class ItemsForSouls implements VillagerTrades.ItemListing {
         private final int xp;
         private final Price price;
@@ -75,27 +37,27 @@ public class Trades {
         private final int maxUses;
 
         public ItemsForSouls(Price priceIn, @NotNull ItemLike sellingItemIn, Price sellingIn) {
-            this(priceIn, new ItemStack[]{new ItemStack(sellingItemIn.asItem())}, sellingIn, 2, 8);
+            this(priceIn, new ItemStack[]{new ItemStack(sellingItemIn.asItem())}, sellingIn, 8, 2);
         }
 
         public ItemsForSouls(Price priceIn, ItemStack[] sellingItemIn, Price sellingIn) {
-            this(priceIn, sellingItemIn, sellingIn, 2, 8);
+            this(priceIn, sellingItemIn, sellingIn, 8, 2);
         }
 
-        public ItemsForSouls(Price priceIn, @NotNull ItemLike sellingItemIn, Price sellingIn, int xpIn, int maxUsesIn) {
+        public ItemsForSouls(Price priceIn, @NotNull ItemLike sellingItemIn, Price sellingIn, int maxUsesIn, int xpIn) {
             this.price = priceIn;
             this.sellingItem = new ItemStack[]{new ItemStack(sellingItemIn.asItem())};
             this.selling = sellingIn;
-            this.xp = xpIn;
             this.maxUses = maxUsesIn;
+            this.xp = xpIn;
         }
 
-        public ItemsForSouls(Price priceIn, ItemStack[] sellingItemIn, Price sellingIn, int xpIn, int maxUsesIn) {
+        public ItemsForSouls(Price priceIn, ItemStack[] sellingItemIn, Price sellingIn, int maxUsesIn, int xpIn) {
             this.price = priceIn;
             this.sellingItem = sellingItemIn;
             this.selling = sellingIn;
-            this.xp = xpIn;
             this.maxUses = maxUsesIn;
+            this.xp = xpIn;
         }
 
         @Nullable
@@ -113,27 +75,27 @@ public class Trades {
         private final int maxUses;
 
         public ItemsForHeart(Price priceIn, @NotNull ItemLike sellingItemIn, Price sellingIn) {
-            this(priceIn, new ItemStack[]{new ItemStack(sellingItemIn.asItem())}, sellingIn, 2, 8);
+            this(priceIn, new ItemStack[]{new ItemStack(sellingItemIn.asItem())}, sellingIn, 8, 2);
         }
 
         public ItemsForHeart(Price priceIn, ItemStack[] sellingItemIn, Price sellingIn) {
-            this(priceIn, sellingItemIn, sellingIn, 2, 8);
+            this(priceIn, sellingItemIn, sellingIn, 8, 2);
         }
 
-        public ItemsForHeart(Price priceIn, @NotNull ItemLike sellingItemIn, Price sellingIn, int xpIn, int maxUsesIn) {
+        public ItemsForHeart(Price priceIn, @NotNull ItemLike sellingItemIn, Price sellingIn, int maxUsesIn, int xpIn) {
             this.price = priceIn;
             this.sellingItem = new ItemStack[]{new ItemStack(sellingItemIn.asItem())};
             this.selling = sellingIn;
-            this.xp = xpIn;
             this.maxUses = maxUsesIn;
+            this.xp = xpIn;
         }
 
-        public ItemsForHeart(Price priceIn, ItemStack[] sellingItemIn, Price sellingIn, int xpIn, int maxUsesIn) {
+        public ItemsForHeart(Price priceIn, ItemStack[] sellingItemIn, Price sellingIn, int maxUsesIn, int xpIn) {
             this.price = priceIn;
             this.sellingItem = sellingItemIn;
             this.selling = sellingIn;
-            this.xp = xpIn;
             this.maxUses = maxUsesIn;
+            this.xp = xpIn;
         }
 
         @Nullable
@@ -143,30 +105,58 @@ public class Trades {
         }
     }
 
+    public static class BloodBottleForEmeralds implements VillagerTrades.ItemListing {
+        private final int emeraldAmount;
+        private final int resultAmount;
+        private final int maxUses;
+        private final int givenXP;
+        private final float priceMultiplier;
+
+        public BloodBottleForEmeralds(int emeraldAmount, int resultAmount, int maxUses, int givenXP) {
+            this(emeraldAmount, resultAmount, maxUses, givenXP, 0.05F);
+        }
+
+        public BloodBottleForEmeralds(int emeraldAmount, int resultAmount, int maxUses, int givenXP, float priceMultiplier) {
+            this.emeraldAmount = emeraldAmount;
+            this.resultAmount = resultAmount;
+            this.maxUses = maxUses;
+            this.givenXP = givenXP;
+            this.priceMultiplier = priceMultiplier;
+        }
+
+        @NotNull
+        @Override
+        public MerchantOffer getOffer(@NotNull Entity entity, @NotNull RandomSource random) {
+            ItemStack bottle = new ItemStack(ModItems.BLOOD_BOTTLE.get(), resultAmount);
+            bottle.set(ModDataComponents.BOTTLE_BLOOD.get(), new BottleBlood(9));
+            return new MerchantOffer(new ItemCost(Items.EMERALD, this.emeraldAmount), bottle, this.maxUses, this.givenXP, this.priceMultiplier);
+        }
+    }
+
     public static class BloodBottleForHeart implements VillagerTrades.ItemListing {
         private final int xp;
         private final Price price;
         private final Price selling;
-        private final int damage;
+        private final int blood;
         private final int maxUses;
 
         public BloodBottleForHeart(Price priceIn, Price sellingIn, int damageIn) {
-            this(priceIn, sellingIn, damageIn, 2, 8);
+            this(priceIn, sellingIn, damageIn, 8, 2);
         }
 
-        BloodBottleForHeart(Price priceIn, Price sellingIn, int damageIn, int xpIn, int maxUsesIn) {
+        public BloodBottleForHeart(Price priceIn, Price sellingIn, int damageIn, int maxUsesIn, int xpIn) {
             this.price = priceIn;
             this.selling = sellingIn;
-            this.damage = damageIn;
-            this.xp = xpIn;
+            this.blood = damageIn;
             this.maxUses = maxUsesIn;
+            this.xp = xpIn;
         }
 
         @Nullable
         @Override
         public MerchantOffer getOffer(@NotNull Entity entity, @NotNull RandomSource random) {
             ItemStack bottle = new ItemStack(ModItems.BLOOD_BOTTLE.get(), selling.getPrice(random));
-            bottle.setDamageValue(damage);
+            bottle.set(ModDataComponents.BOTTLE_BLOOD.get(), new BottleBlood(blood));
             return new MerchantOffer(new ItemCost(ModItems.HUMAN_HEART.get(), price.getPrice(random)), bottle, maxUses, xp, 0.2F);
         }
     }
@@ -177,28 +167,71 @@ public class Trades {
      */
     public static class VampireForestMapTrade implements VillagerTrades.ItemListing {
         private final int emeraldCost;
+        private final String displayName;
+        private final Holder<MapDecorationType> decorationType;
         private final int maxUses;
         private final int villagerXp;
 
-        public VampireForestMapTrade(int pEmeraldCost, int pMaxUses, int pVillagerXp) {
-            this.emeraldCost = pEmeraldCost;
-            this.maxUses = pMaxUses;
-            this.villagerXp = pVillagerXp;
+        public VampireForestMapTrade(int emeraldCost, String displayName, Holder<MapDecorationType> decorationType, int maxUses, int villagerXp) {
+            this.emeraldCost = emeraldCost;
+            this.displayName = displayName;
+            this.decorationType = decorationType;
+            this.maxUses = maxUses;
+            this.villagerXp = villagerXp;
         }
 
         @Nullable
-        public MerchantOffer getOffer(@NotNull Entity pTrader, RandomSource pRand) {
-            if (pTrader instanceof ConvertedVillagerEntity convertedVillager && pTrader.level() instanceof ServerLevel serverLevel) {
+        public MerchantOffer getOffer(@NotNull Entity trader, @NotNull RandomSource random) {
+            if (trader instanceof ConvertedVillagerEntity convertedVillager && trader.level() instanceof ServerLevel serverLevel) {
                 //This may block for a short amount of time if the vampire villager has not completed its forest search yet
-                return convertedVillager.getClosestVampireForest(pTrader.level(), pTrader.blockPosition()).map(blockPos -> {
-                    ItemStack itemstack = MapItem.create(pTrader.level(), blockPos.getX(), blockPos.getZ(), (byte) 3, true, true);
+                return convertedVillager.getClosestVampireForest(trader.level(), trader.blockPosition()).map(blockPos -> {
+                    ItemStack itemstack = MapItem.create(trader.level(), blockPos.getX(), blockPos.getZ(), (byte) 3, true, true);
                     MapItem.renderBiomePreviewMap(serverLevel, itemstack);
-                    MapItemSavedData.addTargetDecoration(itemstack, blockPos, "+", MapDecorationTypes.TARGET_POINT);
-                    itemstack.set(DataComponents.CUSTOM_NAME, Component.translatable("biome.vampirism.vampire_forest"));
+                    MapItemSavedData.addTargetDecoration(itemstack, blockPos, "+", decorationType);
+                    itemstack.set(DataComponents.ITEM_NAME, Component.translatable(this.displayName));
                     return new MerchantOffer(new ItemCost(Items.EMERALD, this.emeraldCost), Optional.of(new ItemCost(Items.COMPASS)), itemstack, this.maxUses, this.villagerXp, 0.2F);
                 }).orElse(null);
             }
             return null;
+        }
+    }
+
+    public static class TreasureMapForEmeralds implements VillagerTrades.ItemListing {
+        private final int emeraldCost;
+        private final TagKey<Structure> destination;
+        private final String displayName;
+        private final Holder<MapDecorationType> decorationType;
+        private final int maxUses;
+        private final int villagerXp;
+
+        public TreasureMapForEmeralds(int emeraldCost, TagKey<Structure> destination, String displayName, Holder<MapDecorationType> decorationType, int maxUses, int villagerXp) {
+            this.emeraldCost = emeraldCost;
+            this.destination = destination;
+            this.displayName = displayName;
+            this.decorationType = decorationType;
+            this.maxUses = maxUses;
+            this.villagerXp = villagerXp;
+        }
+
+        @javax.annotation.Nullable
+        @Override
+        public MerchantOffer getOffer(Entity trader, @NotNull RandomSource random) {
+            if (!(trader.level() instanceof ServerLevel serverlevel)) {
+                return null;
+            } else {
+                BlockPos blockpos = serverlevel.findNearestMapStructure(this.destination, trader.blockPosition(), 100, true);
+                if (blockpos != null) {
+                    ItemStack itemstack = MapItem.create(serverlevel, blockpos.getX(), blockpos.getZ(), (byte)2, true, true);
+                    MapItem.renderBiomePreviewMap(serverlevel, itemstack);
+                    MapItemSavedData.addTargetDecoration(itemstack, blockpos, "+", this.decorationType);
+                    itemstack.set(DataComponents.ITEM_NAME, Component.translatable(this.displayName));
+                    return new MerchantOffer(
+                            new ItemCost(Items.EMERALD, this.emeraldCost), Optional.of(new ItemCost(Items.COMPASS)), itemstack, this.maxUses, this.villagerXp, 0.2F
+                    );
+                } else {
+                    return null;
+                }
+            }
         }
     }
 

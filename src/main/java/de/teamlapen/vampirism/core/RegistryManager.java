@@ -49,6 +49,7 @@ public class RegistryManager {
         ModRefinements.register(eventBus);
         ModRefinementSets.register(eventBus);
         ModSounds.register(eventBus);
+        ModMapDecorations.register(eventBus);
         ModTasks.register(eventBus);
         ModTiles.register(eventBus);
         ModAi.register(eventBus);

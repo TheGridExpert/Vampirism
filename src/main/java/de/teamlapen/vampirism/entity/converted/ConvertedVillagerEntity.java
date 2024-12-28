@@ -261,7 +261,7 @@ public class ConvertedVillagerEntity extends VampirismVillagerEntity implements 
     protected void updateTrades() {
         super.updateTrades();
         if (!this.getOffers().isEmpty() && this.getRandom().nextInt(3) == 0) {
-            this.addOffersFromItemListings(this.getOffers(), Trades.converted_trades, 1);
+            this.addOffersFromItemListings(this.getOffers(), ModVillage.getConvertedTrades(), 1);
         }
     }
 

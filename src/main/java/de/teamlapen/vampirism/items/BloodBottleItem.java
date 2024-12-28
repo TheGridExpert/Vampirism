@@ -41,9 +41,9 @@ public class BloodBottleItem extends Item implements IFactionExclusiveItem, ModD
     private static final int MULTIPLIER = VReference.FOOD_TO_FLUID_BLOOD;
     public static final int CAPACITY = AMOUNT * MULTIPLIER;
 
-    public static @NotNull ItemStack getStackWithDamage(int damage) {
+    public static @NotNull ItemStack getStackWithBlood(int blood) {
         ItemStack stack = new ItemStack(ModItems.BLOOD_BOTTLE.get());
-        stack.set(ModDataComponents.BOTTLE_BLOOD, new BottleBlood(damage));
+        stack.set(ModDataComponents.BOTTLE_BLOOD, new BottleBlood(blood));
         return stack;
     }
 

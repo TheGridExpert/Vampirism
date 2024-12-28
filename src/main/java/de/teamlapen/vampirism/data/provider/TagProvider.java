@@ -516,6 +516,8 @@ public class TagProvider {
 
         @Override
         protected void addTags(HolderLookup.@NotNull Provider pProvider) {
+            this.tag(ModTags.Structures.ON_ANCIENT_REMAINS_MAPS).add(ModStructures.MOTHER);
+            this.tag(ModTags.Structures.ON_CRYPT_MAPS).add(ModStructures.CRYPT);
             this.tag(ModTags.Structures.HUNTER_OUTPOST).add(ModStructures.HUNTER_OUTPOST_BADLANDS, ModStructures.HUNTER_OUTPOST_DESERT, ModStructures.HUNTER_OUTPOST_PLAINS, ModStructures.HUNTER_OUTPOST_VAMPIRE_FOREST);
         }
     }

@@ -301,6 +301,8 @@ public class ModTags {
     }
 
     public static class Structures {
+        public static final TagKey<Structure> ON_ANCIENT_REMAINS_MAPS = tag("on_ancient_remains_maps");
+        public static final TagKey<Structure> ON_CRYPT_MAPS = tag("on_crypt_maps");
         public static final TagKey<Structure> HUNTER_OUTPOST = tag("hunter_outpost");
 
         private static @NotNull TagKey<Structure> tag(@NotNull String name) {
