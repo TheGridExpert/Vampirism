@@ -16,10 +16,10 @@ import java.util.List;
 
 public class ItemReward implements TaskReward {
 
-    public static final MapCodec<ItemReward> CODEC = RecordCodecBuilder.mapCodec(inst -> {
-        return inst.group(ItemStack.CODEC.fieldOf("item").forGetter(i -> i.reward)
-        ).apply(inst, ItemReward::new);
-    });
+    public static final MapCodec<ItemReward> CODEC = RecordCodecBuilder.mapCodec(inst ->
+            inst.group(
+                    ItemStack.CODEC.fieldOf("item").forGetter(i -> i.reward)
+            ).apply(inst, ItemReward::new));
 
     protected final ItemStack reward;
 
@@ -48,9 +48,10 @@ public class ItemReward implements TaskReward {
 
     public record Instance(ItemStack reward) implements ITaskRewardInstance {
 
-        public static final MapCodec<Instance> CODEC = RecordCodecBuilder.mapCodec(inst -> {
-            return inst.group(ItemStack.CODEC.fieldOf("item").forGetter(i -> i.reward)).apply(inst, Instance::new);
-        });
+        public static final MapCodec<Instance> CODEC = RecordCodecBuilder.mapCodec(inst ->
+                inst.group(
+                        ItemStack.CODEC.fieldOf("item").forGetter(i -> i.reward)
+                ).apply(inst, Instance::new));
 
         public Instance(@NotNull ItemStack reward) {
             this.reward = reward;

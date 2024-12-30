@@ -293,6 +293,7 @@ public class ModTags {
         public static final TagKey<Task> IS_VAMPIRE = tag("has_faction/vampire");
         public static final TagKey<Task> IS_HUNTER = tag("has_faction/hunter");
         public static final TagKey<Task> IS_UNIQUE = tag("is_unique");
+        public static final TagKey<Task> IS_BOSS = tag("is_boss");
         public static final TagKey<Task> AWARDS_LORD_LEVEL = tag("awards_lord_level");
 
         private static @NotNull TagKey<Task> tag(@NotNull String name) {

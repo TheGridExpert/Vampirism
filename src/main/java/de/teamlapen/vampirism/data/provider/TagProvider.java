@@ -450,7 +450,9 @@ public class TagProvider {
 
         @Override
         protected void addTags(HolderLookup.@NotNull Provider pProvider) {
-            this.tag(ModTags.Tasks.HAS_FACTION).addTags(ModTags.Tasks.IS_VAMPIRE, ModTags.Tasks.IS_HUNTER);
+            this.tag(ModTags.Tasks.HAS_FACTION)
+                    .addTag(ModTags.Tasks.IS_VAMPIRE)
+                    .addTag(ModTags.Tasks.IS_HUNTER);
             this.tag(ModTags.Tasks.IS_VAMPIRE).add(
                     ModTasks.FEEDING_ADAPTER,
                     ModTasks.VAMPIRE_LORD_1,
@@ -504,6 +506,9 @@ public class TagProvider {
             );
             this.tag(ModTags.Tasks.IS_UNIQUE)
                     .addTag(ModTags.Tasks.AWARDS_LORD_LEVEL)
+            ;
+            this.tag(ModTags.Tasks.IS_BOSS)
+                    .add(ModTasks.ANCIENT_REMAINS_MAP)
             ;
         }
     }

@@ -15,6 +15,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -143,7 +144,15 @@ public class TaskInstance implements ITaskInstance {
     }
 
     public boolean isUnique(Registry<Task> registry) {
-        return registry.getHolder(this.task).map(s -> s.is(ModTags.Tasks.IS_UNIQUE)).orElse(false);
+        return is(ModTags.Tasks.IS_UNIQUE, registry);
+    }
+
+    public boolean isBoss(Registry<Task> registry) {
+        return is(ModTags.Tasks.IS_BOSS, registry);
+    }
+
+    public boolean is(TagKey<Task> tagKey, Registry<Task> registry) {
+        return registry.getHolder(this.task).map(s -> s.is(tagKey)).orElse(false);
     }
 
     public void startTask(long timestamp) {

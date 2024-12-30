@@ -1,12 +1,10 @@
 package de.teamlapen.vampirism.entity.hunter;
 
-import de.teamlapen.vampirism.api.entity.hunter.IHunterMob;
 import de.teamlapen.vampirism.config.BalanceMobProps;
 import de.teamlapen.vampirism.core.ModItems;
 import de.teamlapen.vampirism.entity.IDefaultTaskMasterEntity;
 import de.teamlapen.vampirism.entity.VampirismEntity;
 import de.teamlapen.vampirism.entity.ai.goals.ForceLookEntityGoal;
-import de.teamlapen.vampirism.entity.ai.goals.OpenGateGoal;
 import de.teamlapen.vampirism.entity.vampire.VampireBaseEntity;
 import de.teamlapen.vampirism.inventory.TaskBoardMenu;
 import de.teamlapen.vampirism.util.Helper;

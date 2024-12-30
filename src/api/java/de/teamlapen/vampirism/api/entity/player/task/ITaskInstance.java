@@ -72,6 +72,11 @@ public interface ITaskInstance {
     boolean isUnique(Registry<Task> registry);
 
     /**
+     * whether the task leads to a boss fight or not
+     */
+    boolean isBoss(Registry<Task> registry);
+
+    /**
      * sets the active status and timestamp
      *
      * @param timeStamp the game time this task is no longer completable

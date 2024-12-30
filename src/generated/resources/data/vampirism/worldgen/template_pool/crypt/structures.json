@@ -16,7 +16,7 @@
         "processors": "vampirism:crypt_degradation",
         "projection": "rigid"
       },
-      "weight": 2
+      "weight": 4
     },
     {
       "element": {

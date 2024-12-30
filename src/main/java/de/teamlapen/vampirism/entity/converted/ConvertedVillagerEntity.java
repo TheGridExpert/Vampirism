@@ -15,7 +15,7 @@ import de.teamlapen.vampirism.core.ModVillage;
 import de.teamlapen.vampirism.entity.VampirismVillagerEntity;
 import de.teamlapen.vampirism.entity.player.vampire.VampirePlayer;
 import de.teamlapen.vampirism.entity.vampire.DrinkBloodContext;
-import de.teamlapen.vampirism.entity.villager.Trades;
+import de.teamlapen.vampirism.entity.villager.VampirismTrades;
 import de.teamlapen.vampirism.mixin.accessor.VillagerAccessor;
 import de.teamlapen.vampirism.util.Helper;
 import de.teamlapen.vampirism.util.RegUtil;
@@ -260,8 +260,8 @@ public class ConvertedVillagerEntity extends VampirismVillagerEntity implements 
     @Override
     protected void updateTrades() {
         super.updateTrades();
-        if (!this.getOffers().isEmpty() && this.getRandom().nextInt(3) == 0) {
-            this.addOffersFromItemListings(this.getOffers(), ModVillage.getConvertedTrades(), 1);
+        if (!this.getOffers().isEmpty() && this.getVillagerData().getProfession() != ModVillage.VAMPIRE_EXPERT.get()  && this.getRandom().nextInt(3) == 0) {
+            this.addOffersFromItemListings(this.getOffers(), VampirismTrades.getConvertedTrades(), 1);
         }
     }
 

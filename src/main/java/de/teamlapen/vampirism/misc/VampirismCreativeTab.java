@@ -2,6 +2,7 @@ package de.teamlapen.vampirism.misc;
 
 import de.teamlapen.lib.lib.util.ModDisplayItemGenerator;
 import de.teamlapen.vampirism.REFERENCE;
+import de.teamlapen.vampirism.core.ModBlocks;
 import de.teamlapen.vampirism.core.ModItems;
 import de.teamlapen.vampirism.core.ModOils;
 import de.teamlapen.vampirism.core.ModRegistries;
@@ -240,6 +241,8 @@ public class VampirismCreativeTab {
 
         private void addDecorativeBlocks() {
             addBlock(FIRE_PLACE);
+            addItem(ModItems.CANDLE_STICK);
+            addItem(ITEM_CANDELABRA);
             addBlock(CHANDELIER);
             addBlock(CROSS);
             addBlock(TOMBSTONE1);
@@ -248,7 +251,6 @@ public class VampirismCreativeTab {
             addBlock(GRAVE_CAGE);
             addBlock(VAMPIRE_RACK);
             addBlock(THRONE);
-            addItem(ITEM_CANDELABRA);
             addBlock(BAT_CAGE);
             addBlock(MOTHER_TROPHY);
 

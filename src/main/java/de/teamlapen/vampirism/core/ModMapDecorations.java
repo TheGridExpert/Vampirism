@@ -11,8 +11,8 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 public class ModMapDecorations {
     public static final DeferredRegister<MapDecorationType> MAP_DECORATION_TYPES = DeferredRegister.create(Registries.MAP_DECORATION_TYPE, REFERENCE.MODID);
 
-    public static final DeferredHolder<MapDecorationType, MapDecorationType> ANCIENT_REMAINS = register("ancient_remains", 0xac1606);
-    public static final DeferredHolder<MapDecorationType, MapDecorationType> CRYPT = register("crypt", 0x6c2a86);
+    public static final DeferredHolder<MapDecorationType, MapDecorationType> ANCIENT_REMAINS = register("ancient_remains", 0x851609);
+    public static final DeferredHolder<MapDecorationType, MapDecorationType> CRYPT = register("crypt", 0x671787);
 
     static void register(IEventBus bus) {
         MAP_DECORATION_TYPES.register(bus);

@@ -3,9 +3,8 @@ package de.teamlapen.vampirism.entity.villager;
 import de.teamlapen.vampirism.core.ModDataComponents;
 import de.teamlapen.vampirism.core.ModItems;
 import de.teamlapen.vampirism.entity.converted.ConvertedVillagerEntity;
-import de.teamlapen.vampirism.items.BloodBottleItem;
 import de.teamlapen.vampirism.items.component.BottleBlood;
-import net.minecraft.core.BlockPos;
+import de.teamlapen.vampirism.util.MapUtil;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
@@ -28,7 +27,15 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
-public class Trades {
+public class VampirismTrades {
+    public static VillagerTrades.ItemListing[] getConvertedTrades() {
+        return new VillagerTrades.ItemListing[]{
+                new VillagerTrades.EmeraldForItems(ModItems.HUMAN_HEART.get(), 9, 2, 2),
+                new VillagerTrades.ItemsForEmeralds(ModItems.HUMAN_HEART.get(), 3, 9, 2),
+                new VampirismTrades.BloodBottleForEmeralds(1, 1, 20, 2)
+        };
+    }
+
     public static class ItemsForSouls implements VillagerTrades.ItemListing {
         private final int xp;
         private final Price price;
@@ -157,7 +164,7 @@ public class Trades {
         public MerchantOffer getOffer(@NotNull Entity entity, @NotNull RandomSource random) {
             ItemStack bottle = new ItemStack(ModItems.BLOOD_BOTTLE.get(), selling.getPrice(random));
             bottle.set(ModDataComponents.BOTTLE_BLOOD.get(), new BottleBlood(blood));
-            return new MerchantOffer(new ItemCost(ModItems.HUMAN_HEART.get(), price.getPrice(random)), bottle, maxUses, xp, 0.2F);
+            return new MerchantOffer(new ItemCost(ModItems.HUMAN_HEART.get(), price.getPrice(random)), bottle, maxUses, xp, 0.1F);
         }
     }
 
@@ -213,25 +220,15 @@ public class Trades {
             this.villagerXp = villagerXp;
         }
 
-        @javax.annotation.Nullable
+        @Nullable
         @Override
-        public MerchantOffer getOffer(Entity trader, @NotNull RandomSource random) {
-            if (!(trader.level() instanceof ServerLevel serverlevel)) {
-                return null;
-            } else {
-                BlockPos blockpos = serverlevel.findNearestMapStructure(this.destination, trader.blockPosition(), 100, true);
-                if (blockpos != null) {
-                    ItemStack itemstack = MapItem.create(serverlevel, blockpos.getX(), blockpos.getZ(), (byte)2, true, true);
-                    MapItem.renderBiomePreviewMap(serverlevel, itemstack);
-                    MapItemSavedData.addTargetDecoration(itemstack, blockpos, "+", this.decorationType);
-                    itemstack.set(DataComponents.ITEM_NAME, Component.translatable(this.displayName));
-                    return new MerchantOffer(
-                            new ItemCost(Items.EMERALD, this.emeraldCost), Optional.of(new ItemCost(Items.COMPASS)), itemstack, this.maxUses, this.villagerXp, 0.2F
-                    );
-                } else {
-                    return null;
-                }
+        public MerchantOffer getOffer(@NotNull Entity trader, @NotNull RandomSource random) {
+            ItemStack itemStack = MapUtil.getMap(trader, destination, displayName, decorationType, 100);
+            if (itemStack != null) {
+                return new MerchantOffer(new ItemCost(Items.EMERALD, this.emeraldCost), Optional.of(new ItemCost(Items.COMPASS)), itemStack, this.maxUses, this.villagerXp, 0.2F);
             }
+
+            return null;
         }
     }
 

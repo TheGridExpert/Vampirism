@@ -3,20 +3,21 @@ package de.teamlapen.vampirism.client.gui.screens.taskboard;
 import com.google.common.collect.Lists;
 import de.teamlapen.lib.lib.client.gui.components.ContainerObjectSelectionListWithDummy;
 import de.teamlapen.lib.lib.util.MultilineTooltip;
-import de.teamlapen.vampirism.REFERENCE;
 import de.teamlapen.vampirism.api.VampirismRegistries;
 import de.teamlapen.vampirism.api.entity.player.IFactionPlayer;
 import de.teamlapen.vampirism.api.entity.player.task.ITaskInstance;
+import de.teamlapen.vampirism.api.entity.player.task.ITaskRewardInstance;
 import de.teamlapen.vampirism.api.entity.player.task.Task;
 import de.teamlapen.vampirism.api.entity.player.task.TaskRequirement;
 import de.teamlapen.vampirism.api.util.VResourceLocation;
 import de.teamlapen.vampirism.entity.player.tasks.req.ItemRequirement;
 import de.teamlapen.vampirism.entity.player.tasks.reward.ItemReward;
+import de.teamlapen.vampirism.entity.player.tasks.reward.MapReward;
 import de.teamlapen.vampirism.inventory.TaskMenu;
+import de.teamlapen.vampirism.util.MapUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.ImageButton;
@@ -71,7 +72,7 @@ public class TaskList extends ContainerObjectSelectionListWithDummy<ITaskInstanc
     }
 
     @Override
-    protected void renderListSeparators(GuiGraphics p_331248_) {
+    protected void renderListSeparators(@NotNull GuiGraphics graphics) {
     }
 
     @Override
@@ -100,26 +101,33 @@ public class TaskList extends ContainerObjectSelectionListWithDummy<ITaskInstanc
                 graphics.setColor(0.4f, 0.4f, 0.4f, 1);
             } else {
                 boolean isUnique = this.getItem().isUnique(menu.getRegistry());
+                boolean isBoss = this.getItem().isBoss(menu.getRegistry());
                 boolean remainsTime = this.getItem().getTaskTimeStamp() - minecraft.level.getGameTime() > 0;
                 if (menu.canCompleteTask(this.getItem())) {
-                    if (isUnique) {
+                    if (isBoss) {
+                        graphics.setColor(1f, 0.81171875f, 0, 1);
+                    } else if (isUnique) {
                         graphics.setColor(1f, 0.855859375f, 0, 1);
                     } else {
                         graphics.setColor(0, 0.9f, 0, 1);
                     }
                 } else if (menu.isTaskNotAccepted(this.getItem())) {
-                    if (isUnique) {
+                    if (isBoss) {
+                        graphics.setColor(0.8f, 0.5f, 0.5f, 1);
+                    } else if (isUnique) {
                         graphics.setColor(0.64f, 0.57f, 0.5f, 1);
                     } else {
                         graphics.setColor(0.55f, 0.55f, 0.55f, 1);
                     }
-                } else if (!isUnique && !remainsTime) {
+                } else if (!isUnique && !isBoss && !remainsTime) {
                     graphics.setColor(1f, 85 / 255f, 85 / 255f, 1);
                 } else {
-                    if (isUnique) {
-                        graphics.setColor(1f, 0.9f, 0.6f, 1f);
+                    if (isBoss) {
+                        graphics.setColor(1f, 0.7f, 0.35f, 1);
+                    } else if (isUnique) {
+                        graphics.setColor(1f, 0.9f, 0.6f, 1);
                     } else {
-                        graphics.setColor(0.85f, 1f, 0.85f, 1f);
+                        graphics.setColor(0.85f, 1f, 0.85f, 1);
                     }
                 }
             }
@@ -335,27 +343,32 @@ public class TaskList extends ContainerObjectSelectionListWithDummy<ITaskInstanc
             }
         }
 
-        private class RewardWidget extends ItemWidget {
+        private static class RewardWidget extends ItemWidget {
             protected static final Component REWARD = Component.translatable("gui.vampirism.taskmaster.reward").withStyle(ChatFormatting.UNDERLINE);
 
-            private final ITaskInstance rewardInstance;
+            private final ITaskInstance taskInstance;
             private final Component reward;
 
-            public RewardWidget(int pX, int pY, @NotNull ITaskInstance rewardInstance) {
-                super(pX, pY, rewardInstance.getReward() instanceof ItemReward.Instance items ? items.reward() : PAPER);
-                this.rewardInstance = rewardInstance;
-                this.reward = Component.translatable(Util.makeDescriptionId("task", rewardInstance.getTask().location()) + ".reward");
+            public RewardWidget(int pX, int pY, @NotNull ITaskInstance taskInstance) {
+                super(pX, pY, getRewardStack(taskInstance.getReward()));
+                this.taskInstance = taskInstance;
+                this.reward = Component.translatable(Util.makeDescriptionId("task", taskInstance.getTask().location()) + ".reward");
                 this.setTooltip(new MultilineTooltip(createTooltip(Item.TooltipContext.of(Minecraft.getInstance().level))));
             }
 
             @Override
             protected List<Component> createTooltip(Item.TooltipContext tooltipContext) {
                 Item.TooltipContext context = Item.TooltipContext.of(Minecraft.getInstance().level);
-                if (this.rewardInstance.getReward() instanceof ItemReward.Instance item) {
-                    return this.renderItemTooltip(item.reward(), REWARD, context,false, null);
+                ItemStack reward = getRewardStack(taskInstance.getReward());
+                if (reward != PAPER) {
+                    return this.renderItemTooltip(reward, REWARD, context,false, null);
                 } else {
                     return this.renderItemTooltip(context);
                 }
+            }
+
+            private static ItemStack getRewardStack(ITaskRewardInstance rewardInstance) {
+                return rewardInstance instanceof ItemReward.Instance items ? items.reward() : rewardInstance instanceof MapReward.Instance map ? MapUtil.getPreviewMap(map.displayName(), map.decorationType()) : ItemWidget.PAPER;
             }
 
             private List<Component> renderItemTooltip(Item.TooltipContext context) {
@@ -363,8 +376,6 @@ public class TaskList extends ContainerObjectSelectionListWithDummy<ITaskInstanc
                 tooltips.add(this.reward);
                 return tooltips;
             }
-
-
         }
 
         private class RequirementWidget extends ItemWidget {
