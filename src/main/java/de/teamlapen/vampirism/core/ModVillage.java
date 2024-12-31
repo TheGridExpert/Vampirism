@@ -30,6 +30,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
 public class ModVillage {
     public static final DeferredRegister<VillagerProfession> PROFESSIONS = DeferredRegister.create(Registries.VILLAGER_PROFESSION, REFERENCE.MODID);
@@ -58,7 +59,7 @@ public class ModVillage {
         for (Map.Entry<VillagerProfession, Int2ObjectMap<VillagerTrades.ItemListing[]>> entry : getTrades().entrySet()) {
             VillagerTrades.TRADES.computeIfAbsent(entry.getKey(), trades -> new Int2ObjectOpenHashMap<>()).putAll(entry.getValue());
         }
-        VillagerTrades.WANDERING_TRADER_TRADES.computeIfAbsent(1, getWanderingTraderTrades());
+        VillagerTrades.WANDERING_TRADER_TRADES.put(1, Stream.concat(Arrays.stream(VillagerTrades.WANDERING_TRADER_TRADES.get(1)), Arrays.stream(getWanderingTraderTrades().get(1))).toArray(VillagerTrades.ItemListing[]::new));
     }
 
     private static Set<BlockState> getAllStates(Block @NotNull ... blocks) {
