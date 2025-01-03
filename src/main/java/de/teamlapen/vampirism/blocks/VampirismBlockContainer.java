@@ -8,21 +8,17 @@ import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Vampirism default block container with set creative tab, registry name and unloc name
  */
 public abstract class VampirismBlockContainer extends BaseEntityBlock {
-
-
-    public VampirismBlockContainer(Block.@NotNull Properties properties) {
+    public VampirismBlockContainer(Block.Properties properties) {
         super(properties);
-
     }
 
     @Override
-    public void onRemove(@NotNull BlockState state, @NotNull Level worldIn, @NotNull BlockPos pos, @NotNull BlockState newState, boolean isMoving) {
+    public void onRemove(BlockState state, Level worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
         if (state.hasBlockEntity() && (state.is(newState.getBlock()) || !newState.hasBlockEntity())) {
             this.clearContainer(state, worldIn, pos);
             super.onRemove(state, worldIn, pos, newState, isMoving);
@@ -30,13 +26,12 @@ public abstract class VampirismBlockContainer extends BaseEntityBlock {
     }
 
     protected void clearContainer(BlockState state, Level worldIn, BlockPos pos) {
-
     }
 
     /**
      * drop all items from the tileentity's inventory if {@code instanceof} {@link Container}
      */
-    protected void dropInventoryTileEntityItems(@NotNull Level world, @NotNull BlockPos pos) {
+    protected void dropInventoryTileEntityItems(Level world, BlockPos pos) {
         BlockEntity tileEntity = world.getBlockEntity(pos);
         if (!(tileEntity instanceof Container inventory)) {
             return;
@@ -52,8 +47,7 @@ public abstract class VampirismBlockContainer extends BaseEntityBlock {
         }
     }
 
-    protected void dropItem(@NotNull Level world, @NotNull BlockPos pos, @NotNull ItemStack stack) {
+    protected void dropItem(Level world, BlockPos pos, ItemStack stack) {
         net.minecraft.world.Containers.dropItemStack(world, pos.getX(), pos.getY(), pos.getZ(), stack);
     }
-
 }

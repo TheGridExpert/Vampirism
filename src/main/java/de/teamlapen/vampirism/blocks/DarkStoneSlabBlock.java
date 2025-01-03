@@ -7,18 +7,16 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.block.SlabBlock;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
 public class DarkStoneSlabBlock extends SlabBlock {
-
     public DarkStoneSlabBlock(Properties properties) {
         super(properties);
     }
 
     @Override
-    public void appendHoverText(@NotNull ItemStack stack, Item.TooltipContext context, @NotNull List<Component> tooltip, @NotNull TooltipFlag advanced) {
+    public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag advanced) {
         super.appendHoverText(stack, context, tooltip, advanced);
         if (stack.is(ModTags.Items.NO_SPAWN)) {
             tooltip.add(Component.translatable("block.vampirism.castle_block.no_spawn").withStyle(ChatFormatting.ITALIC, ChatFormatting.GRAY));

@@ -16,7 +16,6 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -32,25 +31,26 @@ import java.util.Optional;
 
 public class FogDiffuserBlock extends VampirismBlockContainer {
     public static final MapCodec<FogDiffuserBlock> CODEC = simpleCodec(FogDiffuserBlock::new);
+
     private static final VoxelShape shape = makeShape();
 
-    private static @NotNull VoxelShape makeShape() {
+    private static VoxelShape makeShape() {
         VoxelShape a = Block.box(1, 0, 1, 15, 2, 15);
         VoxelShape b = Block.box(3, 2, 3, 13, 12, 13);
         return Shapes.or(a, b);
     }
 
-    public FogDiffuserBlock(@NotNull Properties properties) {
+    public FogDiffuserBlock(Properties properties) {
         super(properties);
     }
 
     @Override
-    protected @NotNull MapCodec<? extends BaseEntityBlock> codec() {
+    protected MapCodec<? extends BaseEntityBlock> codec() {
         return CODEC;
     }
 
     @Override
-    public ItemInteractionResult useItemOn(ItemStack stack, @NotNull BlockState pState, @NotNull Level pLevel, @NotNull BlockPos pPos, @NotNull Player pPlayer, @NotNull InteractionHand pHand, @NotNull BlockHitResult pHit) {
+    public ItemInteractionResult useItemOn(ItemStack stack, BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {
         return getBlockEntity(pLevel, pPos).filter(s -> s.interact(stack)).map(blockEntity -> {
             pPlayer.awardStat(ModStats.INTERACT_WITH_FOG_DIFFUSER.get());
             return ItemInteractionResult.sidedSuccess(pLevel.isClientSide);
@@ -63,8 +63,7 @@ public class FogDiffuserBlock extends VampirismBlockContainer {
         return InteractionResult.sidedSuccess(pLevel.isClientSide);
     }
 
-    @NotNull
-    protected Optional<FogDiffuserBlockEntity> getBlockEntity(@NotNull Level level, BlockPos pos) {
+    protected Optional<FogDiffuserBlockEntity> getBlockEntity(Level level, BlockPos pos) {
         BlockEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity instanceof FogDiffuserBlockEntity) {
             return Optional.of((FogDiffuserBlockEntity) blockEntity);
@@ -74,30 +73,25 @@ public class FogDiffuserBlock extends VampirismBlockContainer {
 
     @Nullable
     @Override
-    public BlockEntity newBlockEntity(@NotNull BlockPos pPos, @NotNull BlockState pState) {
+    public BlockEntity newBlockEntity(BlockPos pPos, BlockState pState) {
         return new FogDiffuserBlockEntity(pPos, pState);
-    }
-
-    @Override
-    public @NotNull RenderShape getRenderShape(@NotNull BlockState pState) {
-        return RenderShape.MODEL;
     }
 
     @NotNull
     @Override
-    public VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter worldIn, @NotNull BlockPos pos, @NotNull CollisionContext context) {
+    public VoxelShape getShape(BlockState state, BlockGetter worldIn, BlockPos pos, CollisionContext context) {
         return shape;
     }
 
     @Override
-    public void onRemove(@NotNull BlockState state, @NotNull Level worldIn, @NotNull BlockPos pos, @NotNull BlockState newState, boolean isMoving) {
+    public void onRemove(BlockState state, Level worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
         super.onRemove(state, worldIn, pos, newState, isMoving);
         LevelFog.getOpt(worldIn).ifPresent(levelFog -> levelFog.updateArtificialFogBoundingBox(pos, null));
     }
 
     @Nullable
     @Override
-    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(@NotNull Level pLevel, @NotNull BlockState pState, @NotNull BlockEntityType<T> pBlockEntityType) {
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level pLevel, BlockState pState, BlockEntityType<T> pBlockEntityType) {
         return createTickerHelper(pBlockEntityType, ModTiles.FOG_DIFFUSER.get(), FogDiffuserBlockEntity::tick);
     }
 }

@@ -15,7 +15,6 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -25,16 +24,12 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * Altar of infusion
- */
 public class AltarInfusionBlock extends VampirismBlockContainer {
     protected static final VoxelShape altarBase = makeShape();
 
-    private static @NotNull VoxelShape makeShape() {
+    private static VoxelShape makeShape() {
         //base
         VoxelShape a = Block.box(5, 0, 5, 11, 4, 11);
         VoxelShape b = Block.box(2, 4, 2, 14, 5, 14);
@@ -75,28 +70,19 @@ public class AltarInfusionBlock extends VampirismBlockContainer {
         return CODEC;
     }
 
-    @NotNull
-    @Override
-    public RenderShape getRenderShape(@NotNull BlockState state) {
-        return RenderShape.MODEL;
-    }
-
     @Nullable
     @Override
-    public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new AltarInfusionBlockEntity(pos, state);
     }
 
-    @NotNull
     @Override
-    public VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter worldIn, @NotNull BlockPos pos, @NotNull CollisionContext context) {
+    public VoxelShape getShape(BlockState state, BlockGetter worldIn, BlockPos pos, CollisionContext context) {
         return altarBase;
     }
 
-
-    @NotNull
     @Override
-    public InteractionResult useWithoutItem(BlockState blockState, @NotNull Level worldIn, @NotNull BlockPos pos, @NotNull Player player, @NotNull BlockHitResult hit) {
+    public InteractionResult useWithoutItem(BlockState blockState, Level worldIn, BlockPos pos, Player player, BlockHitResult hit) {
         ItemStack heldItem = player.getItemInHand(InteractionHand.MAIN_HAND);
         AltarInfusionBlockEntity te = (AltarInfusionBlockEntity) worldIn.getBlockEntity(pos);
         //If empty hand and can start -> StartAdvanced
@@ -141,13 +127,13 @@ public class AltarInfusionBlock extends VampirismBlockContainer {
     }
 
     @Override
-    protected void clearContainer(BlockState state, @NotNull Level worldIn, BlockPos pos) {
+    protected void clearContainer(BlockState state, Level worldIn, BlockPos pos) {
         dropInventoryTileEntityItems(worldIn, pos);
     }
 
     @Nullable
     @Override
-    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(@NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type) {
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
         return createTickerHelper(type, ModTiles.ALTAR_INFUSION.get(), AltarInfusionBlockEntity::tick);
     }
 }

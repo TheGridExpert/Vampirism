@@ -19,13 +19,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import org.apache.commons.lang3.tuple.Pair;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class DiagonalCursedBarkBlock extends CursedBarkBlock {
-
     public static final Table<Direction, Direction, BooleanProperty> PROPERTY_TABLE = HashBasedTable.create();
     private static final Map<BooleanProperty, Pair<Direction, Direction>> DIRECTION_MAP = new HashMap<>();
 
@@ -66,7 +64,7 @@ public class DiagonalCursedBarkBlock extends CursedBarkBlock {
     }
 
     @Override
-    public @NotNull BlockState updateShape(@NotNull BlockState state, @NotNull Direction direction, @NotNull BlockState otherState, @NotNull LevelAccessor levelAccessor, @NotNull BlockPos pos, @NotNull BlockPos otherPos) {
+    public BlockState updateShape(BlockState state, Direction direction, BlockState otherState, LevelAccessor levelAccessor, BlockPos pos, BlockPos otherPos) {
         if (!otherState.is(ModBlocks.DIRECT_CURSED_BARK.get())) {
             for (Map.Entry<Direction, BooleanProperty> entry : PROPERTY_TABLE.column(direction).entrySet()) {
                 state = state.setValue(entry.getValue(), false);
@@ -86,7 +84,7 @@ public class DiagonalCursedBarkBlock extends CursedBarkBlock {
     }
 
     @Override
-    public void entityInside(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Entity entity) {
+    public void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
         if (Helper.isVampire(entity) || (entity instanceof Player && ((Player) entity).getAbilities().invulnerable)) return;
         BlockPos targetPos = pos;
         for (Map.Entry<BooleanProperty, Pair<Direction, Direction>> entry : DIRECTION_MAP.entrySet()) {

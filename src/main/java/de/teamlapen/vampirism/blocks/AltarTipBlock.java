@@ -8,7 +8,6 @@ import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Part of the Altar of Infusion structure
@@ -16,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 public class AltarTipBlock extends Block {
     protected static final VoxelShape tipShape = makeShape();
 
-    private static @NotNull VoxelShape makeShape() {
+    private static VoxelShape makeShape() {
         VoxelShape a = Block.box(3, 0, 3, 13, 3, 13);
         VoxelShape b = Block.box(4, 3, 4, 12, 4, 12);
         VoxelShape c = Block.box(5, 4, 5, 11, 5, 11);
@@ -29,12 +28,8 @@ public class AltarTipBlock extends Block {
         super(Properties.of().mapColor(MapColor.METAL).strength(1f).noOcclusion());
     }
 
-
-    @NotNull
     @Override
-    public VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter worldIn, @NotNull BlockPos pos, @NotNull CollisionContext context) {
+    public VoxelShape getShape(BlockState state, BlockGetter worldIn, BlockPos pos, CollisionContext context) {
         return tipShape;
     }
-
-
 }

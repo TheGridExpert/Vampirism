@@ -4,12 +4,9 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import de.teamlapen.lib.lib.util.UtilLib;
-import de.teamlapen.vampirism.core.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelAccessor;
@@ -20,12 +17,10 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.EnumMap;
@@ -36,12 +31,9 @@ public class WallCandleStickBlock extends CandleStickBlock {
     public static final MapCodec<WallCandleStickBlock> CODEC = RecordCodecBuilder.mapCodec(inst ->
             candleStickParts(inst).apply(inst, WallCandleStickBlock::new)
     );
-    private static final Map<Direction, Iterable<Vec3>> PARTICLE_OFFSET = new EnumMap<>(Direction.class) {{
-        put(Direction.NORTH, ImmutableList.of(new Vec3(0.5D, 0.86D, 0.75)));
-        put(Direction.WEST, ImmutableList.of(new Vec3(0.75, 0.86D, 0.5D)));
-        put(Direction.SOUTH, ImmutableList.of(new Vec3(0.5D, 0.86D, 0.25D)));
-        put(Direction.EAST, ImmutableList.of(new Vec3(0.25, 0.86D, 0.5D)));
-    }};
+
+    public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
+    
     private static final Map<Direction, VoxelShape> SHAPES = new EnumMap<>(Direction.class) {{
         put(Direction.NORTH, UtilLib.rotateShape(makeShape(), UtilLib.RotationAmount.HUNDRED_EIGHTY));
         put(Direction.WEST, UtilLib.rotateShape(makeShape(), UtilLib.RotationAmount.NINETY));
@@ -54,13 +46,19 @@ public class WallCandleStickBlock extends CandleStickBlock {
         put(Direction.SOUTH, makeShapeWithCandle());
         put(Direction.EAST, UtilLib.rotateShape(makeShapeWithCandle(), UtilLib.RotationAmount.TWO_HUNDRED_SEVENTY));
     }};
-    public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
+
+    private static final Map<Direction, Iterable<Vec3>> PARTICLE_OFFSET = new EnumMap<>(Direction.class) {{
+        put(Direction.NORTH, ImmutableList.of(new Vec3(0.5D, 0.86D, 0.75)));
+        put(Direction.WEST, ImmutableList.of(new Vec3(0.75, 0.86D, 0.5D)));
+        put(Direction.SOUTH, ImmutableList.of(new Vec3(0.5D, 0.86D, 0.25D)));
+        put(Direction.EAST, ImmutableList.of(new Vec3(0.25, 0.86D, 0.5D)));
+    }};
 
     private WallCandleStickBlock(Block emptyBlock, Item candle, Properties pProperties) {
         this(() -> emptyBlock, () -> candle, pProperties);
     }
 
-    public WallCandleStickBlock(@Nullable Supplier<? extends Block> emptyBlock, @NotNull Supplier<Item> candle, Properties pProperties) {
+    public WallCandleStickBlock(@Nullable Supplier<? extends Block> emptyBlock, Supplier<Item> candle, Properties pProperties) {
         super(emptyBlock, candle, pProperties);
         this.registerDefaultState(this.getStateDefinition().any().setValue(FACING, Direction.NORTH).setValue(WATERLOGGED, false).setValue(LIT, false));
     }
@@ -76,7 +74,7 @@ public class WallCandleStickBlock extends CandleStickBlock {
     }
 
     @Override
-    public boolean canSurvive(@NotNull BlockState pState, @NotNull LevelReader pLevel, @NotNull BlockPos pPos) {
+    public boolean canSurvive(BlockState pState, LevelReader pLevel, BlockPos pPos) {
         return pLevel.getBlockState(pPos.relative(pState.getValue(FACING).getOpposite())).isSolid();
     }
 
@@ -102,22 +100,22 @@ public class WallCandleStickBlock extends CandleStickBlock {
     }
 
     @Override
-    public @NotNull BlockState updateShape(@NotNull BlockState pState, @NotNull Direction pFacing, @NotNull BlockState pFacingState, @NotNull LevelAccessor pLevel, @NotNull BlockPos pCurrentPos, @NotNull BlockPos pFacingPos) {
+    public BlockState updateShape(BlockState pState, Direction pFacing, BlockState pFacingState, LevelAccessor pLevel, BlockPos pCurrentPos, BlockPos pFacingPos) {
         return pFacing.getOpposite() == pState.getValue(FACING) && !pState.canSurvive(pLevel, pCurrentPos) ? Blocks.AIR.defaultBlockState() : super.updateShape(pState, pFacing, pFacingState, pLevel, pCurrentPos, pFacingPos);
     }
 
     @Override
-    public @NotNull BlockState rotate(BlockState pState, Rotation pRotation) {
+    public BlockState rotate(BlockState pState, Rotation pRotation) {
         return pState.setValue(FACING, pRotation.rotate(pState.getValue(FACING)));
     }
 
     @Override
-    public @NotNull BlockState mirror(BlockState pState, Mirror pMirror) {
+    public BlockState mirror(BlockState pState, Mirror pMirror) {
         return pState.setValue(FACING, pMirror.mirror(pState.getValue(FACING)));
     }
 
     @Override
-    protected void createBlockStateDefinition(StateDefinition.@NotNull Builder<Block, BlockState> pBuilder) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> pBuilder) {
         super.createBlockStateDefinition(pBuilder.add(FACING));
     }
 
@@ -127,12 +125,12 @@ public class WallCandleStickBlock extends CandleStickBlock {
     }
 
     @Override
-    protected @NotNull MapCodec<? extends AbstractCandleBlock> codec() {
+    protected MapCodec<? extends AbstractCandleBlock> codec() {
         return CODEC;
     }
 
     @Override
-    protected @NotNull Iterable<Vec3> getParticleOffsets(@NotNull BlockState pState) {
+    protected Iterable<Vec3> getParticleOffsets(BlockState pState) {
         return PARTICLE_OFFSET.get(pState.getValue(FACING));
     }
 

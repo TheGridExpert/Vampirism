@@ -26,10 +26,9 @@ import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.NotNull;
 
 /**
- * Alchemist's fire which does not spread
+ * Alchemical fire which does not spread
  */
 public class AlchemicalFireBlock extends Block {
     public static final IntegerProperty AGE = IntegerProperty.create("age", 0, 15);
@@ -40,11 +39,10 @@ public class AlchemicalFireBlock extends Block {
     }
 
     @Override
-    public void animateTick(@NotNull BlockState stateIn, @NotNull Level worldIn, @NotNull BlockPos pos, @NotNull RandomSource rand) {
+    public void animateTick(BlockState stateIn, Level worldIn, BlockPos pos, RandomSource rand) {
         if (rand.nextInt(24) == 0) {
             worldIn.playLocalSound((float) pos.getX() + 0.5F, (float) pos.getY() + 0.5F, (float) pos.getZ() + 0.5F, SoundEvents.FIRE_AMBIENT, SoundSource.BLOCKS, 1.0F + rand.nextFloat(), rand.nextFloat() * 0.7F + 0.3F, false);
         }
-
 
         for (int i = 0; i < 3; ++i) {
             double d0 = (double) pos.getX() + rand.nextDouble();
@@ -55,9 +53,8 @@ public class AlchemicalFireBlock extends Block {
         }
     }
 
-    @NotNull
     @Override
-    public VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter worldIn, @NotNull BlockPos pos, @NotNull CollisionContext context) {
+    public VoxelShape getShape(BlockState state, BlockGetter worldIn, BlockPos pos, CollisionContext context) {
         return Shapes.empty();
     }
 
@@ -67,12 +64,12 @@ public class AlchemicalFireBlock extends Block {
     }
 
     @Override
-    public boolean canSurvive(@NotNull BlockState state, @NotNull LevelReader worldIn, @NotNull BlockPos pos) {
+    public boolean canSurvive(BlockState state, LevelReader worldIn, BlockPos pos) {
         return worldIn.getBlockState(pos.below()).isFaceSturdy(worldIn, pos.below(), Direction.UP);
     }
 
     @Override
-    public void entityInside(@NotNull BlockState state, @NotNull Level worldIn, @NotNull BlockPos pos, @NotNull Entity entityIn) {
+    public void entityInside(BlockState state, Level worldIn, BlockPos pos, Entity entityIn) {
         if (!entityIn.fireImmune()) {
             entityIn.igniteForSeconds(entityIn.getRemainingFireTicks() + 1);
             if (entityIn.getRemainingFireTicks() == 0) {
@@ -86,7 +83,7 @@ public class AlchemicalFireBlock extends Block {
     }
 
     @Override
-    public void neighborChanged(@NotNull BlockState state, @NotNull Level worldIn, @NotNull BlockPos pos, @NotNull Block blockIn, @NotNull BlockPos fromPos, boolean isMoving) {
+    public void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn, BlockPos fromPos, boolean isMoving) {
         if (!canSurvive(state, worldIn, pos)) {
             worldIn.removeBlock(pos, isMoving);
         }
@@ -95,19 +92,17 @@ public class AlchemicalFireBlock extends Block {
     /**
      * Marks the block to burn for an infinite time
      */
-    public void setBurningInfinite(@NotNull Level worldIn, @NotNull BlockPos pos, @NotNull BlockState state) {
+    public void setBurningInfinite(Level worldIn, BlockPos pos, BlockState state) {
         worldIn.setBlock(pos, state.setValue(AGE, 15), 4);
     }
 
     @Override
-    public void tick(@NotNull BlockState state, @NotNull ServerLevel worldIn, @NotNull BlockPos pos, @NotNull RandomSource random) {
+    public void tick(BlockState state, ServerLevel worldIn, BlockPos pos, RandomSource random) {
         if (!this.canSurvive(state, worldIn, pos)) {
             worldIn.removeBlock(pos, this.hasCollision);
         }
 
-
         int age = (state.getValue(AGE));
-
 
         if (age < 14) {
             state = state.setValue(AGE, age + 1);
@@ -118,11 +113,8 @@ public class AlchemicalFireBlock extends Block {
         worldIn.scheduleTick(pos, this, 30 + random.nextInt(10));
     }
 
-
     @Override
-    protected void createBlockStateDefinition(StateDefinition.@NotNull Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(AGE);
     }
-
-
 }

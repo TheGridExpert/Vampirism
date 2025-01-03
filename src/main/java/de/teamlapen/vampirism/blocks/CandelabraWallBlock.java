@@ -13,14 +13,12 @@ import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.stream.Stream;
 
 public class CandelabraWallBlock extends VampirismHorizontalBlock {
-
-    private static @NotNull VoxelShape makeWallCandelabraShape() {
+    private static VoxelShape makeWallCandelabraShape() {
         return Stream.of(
                 Block.box(6, 1, 15, 10, 5, 16),
                 Block.box(6.5, 1.5, 14, 9.5, 4.5, 15),
@@ -43,7 +41,7 @@ public class CandelabraWallBlock extends VampirismHorizontalBlock {
     }
 
     @Override
-    public boolean canSurvive(@NotNull BlockState state, @NotNull LevelReader worldIn, @NotNull BlockPos pos) {
+    public boolean canSurvive(BlockState state, LevelReader worldIn, BlockPos pos) {
         Direction direction = state.getValue(FACING);
         BlockPos blockpos = pos.relative(direction.getOpposite());
         BlockState blockstate = worldIn.getBlockState(blockpos);
@@ -51,7 +49,7 @@ public class CandelabraWallBlock extends VampirismHorizontalBlock {
     }
 
     @Nullable
-    public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
         BlockState blockstate = this.defaultBlockState();
         LevelReader iworldreader = context.getLevel();
         BlockPos blockpos = context.getClickedPos();
@@ -70,9 +68,8 @@ public class CandelabraWallBlock extends VampirismHorizontalBlock {
         return null;
     }
 
-    @NotNull
     @Override
-    public BlockState updateShape(@NotNull BlockState stateIn, @NotNull Direction facing, @NotNull BlockState facingState, @NotNull LevelAccessor worldIn, @NotNull BlockPos currentPos, @NotNull BlockPos facingPos) {
+    public BlockState updateShape(BlockState stateIn, Direction facing, BlockState facingState, LevelAccessor worldIn, BlockPos currentPos, BlockPos facingPos) {
         return facing.getOpposite() == stateIn.getValue(FACING) && !stateIn.canSurvive(worldIn, currentPos) ? Blocks.AIR.defaultBlockState() : stateIn;
     }
 }

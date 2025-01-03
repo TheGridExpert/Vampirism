@@ -23,7 +23,6 @@ import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Garlic Plant
@@ -35,7 +34,7 @@ import org.jetbrains.annotations.NotNull;
 public class GarlicBlock extends CropBlock {
     private static final VoxelShape[] shape = makeShape();
 
-    private static VoxelShape @NotNull [] makeShape() {
+    private static VoxelShape [] makeShape() {
         return new VoxelShape[]{
                 Block.box(0.0D, 0.0D, 0.0D, 16.0D, 2.0D, 16.0D),
                 Block.box(0.0D, 0.0D, 0.0D, 16.0D, 3.0D, 16.0D),
@@ -53,7 +52,7 @@ public class GarlicBlock extends CropBlock {
     }
 
     @Override
-    public void entityInside(@NotNull BlockState state, @NotNull Level world, @NotNull BlockPos pos, @NotNull Entity entity) {
+    public void entityInside(BlockState state, Level world, BlockPos pos, Entity entity) {
         if (state.getValue(AGE) > 5 && Helper.isVampire(entity)) {
             if (entity instanceof Player) {
                 VReference.VAMPIRE_FACTION.getPlayerCapability((Player) entity).ifPresent(vamp -> DamageHandler.affectVampireGarlicDirect(vamp, EnumStrength.WEAK));
@@ -63,13 +62,11 @@ public class GarlicBlock extends CropBlock {
         }
     }
 
-    @NotNull
     @Override
-    public VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter worldIn, @NotNull BlockPos pos, @NotNull CollisionContext context) {
+    public VoxelShape getShape(BlockState state, BlockGetter worldIn, BlockPos pos, CollisionContext context) {
         return shape[state.getValue(this.getAgeProperty())];
     }
 
-    @NotNull
     @Override
     protected ItemLike getBaseSeedId() {
         return ModBlocks.GARLIC;
@@ -85,6 +82,5 @@ public class GarlicBlock extends CropBlock {
         public void inventoryTick(ItemStack stack, Level world, Entity entity, int slot, boolean held) {
             Helper.handleHeldNonVampireItem(stack, entity, held);
         }
-
     }
 }

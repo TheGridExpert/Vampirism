@@ -441,7 +441,7 @@ public class LootTablesProvider {
             this.dropSelf(ModBlocks.GARLIC_DIFFUSER_NORMAL.get());
             this.dropSelf(ModBlocks.GARLIC_DIFFUSER_IMPROVED.get());
             this.dropSelf(ModBlocks.HUNTER_TABLE.get());
-            this.add(ModBlocks.MED_CHAIR.get(), block -> createSinglePropConditionTable(block, MedChairBlock.PART, MedChairBlock.EnumPart.BOTTOM));
+            this.add(ModBlocks.MED_CHAIR.get(), block -> createSinglePropConditionTable(block, MedChairBlock.PART, MedChairBlock.ChairPart.BOTTOM));
             this.dropSelf(ModBlocks.SUNSCREEN_BEACON.get());
             this.add(ModBlocks.TENT_MAIN.get(), createSingleItemTable(ModItems.ITEM_TENT.get())
                     .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1)).when(TentSpawnerCondition.builder())

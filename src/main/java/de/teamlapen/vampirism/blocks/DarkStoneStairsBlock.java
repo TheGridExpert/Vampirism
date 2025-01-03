@@ -14,13 +14,12 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 public class DarkStoneStairsBlock extends StairBlock {
-
     public DarkStoneStairsBlock(@NotNull Holder<Block> block, Properties properties) {
         super(block.value().defaultBlockState(), properties);
     }
 
     @Override
-    public void appendHoverText(@NotNull ItemStack stack, Item.TooltipContext context, @NotNull List<Component> tooltip, @NotNull TooltipFlag advanced) {
+    public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag advanced) {
         super.appendHoverText(stack, context, tooltip, advanced);
         if (stack.is(ModTags.Items.NO_SPAWN)) {
             tooltip.add(Component.translatable("block.vampirism.castle_block.no_spawn").withStyle(ChatFormatting.ITALIC, ChatFormatting.GRAY));

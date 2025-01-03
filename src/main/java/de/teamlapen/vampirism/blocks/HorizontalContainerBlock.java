@@ -13,20 +13,16 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class HorizontalContainerBlock extends VampirismHorizontalBlock implements EntityBlock {
-
     public HorizontalContainerBlock(Properties properties, VoxelShape shape) {
         super(properties, shape);
     }
 
-    public HorizontalContainerBlock(Properties properties) {
-        super(properties);
-    }
-
     @Override
-    public boolean triggerEvent(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, int p_49229_, int p_49230_) {
-        super.triggerEvent(state, level, pos, p_49229_, p_49230_);
+    @SuppressWarnings("deprecation")
+    protected boolean triggerEvent(BlockState state, Level level, BlockPos pos, int id, int param) {
+        super.triggerEvent(state, level, pos, id, param);
         BlockEntity blockentity = level.getBlockEntity(pos);
-        return blockentity != null && blockentity.triggerEvent(p_49229_, p_49230_);
+        return blockentity != null && blockentity.triggerEvent(id, param);
     }
 
     @Nullable

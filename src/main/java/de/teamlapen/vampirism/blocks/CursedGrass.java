@@ -38,7 +38,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.common.ItemAbilities;
 import net.neoforged.neoforge.common.ItemAbility;
 import net.neoforged.neoforge.common.util.TriState;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -47,12 +46,12 @@ import java.util.Optional;
 public class CursedGrass extends SpreadingSnowyDirtBlock implements BonemealableBlock, HolyWaterEffectConsumer {
     public static final MapCodec<CursedGrass> CODEC = simpleCodec(CursedGrass::new);
 
-    public CursedGrass(@NotNull Properties properties) {
+    public CursedGrass(Properties properties) {
         super(properties);
     }
 
     @Override
-    protected @NotNull MapCodec<? extends SpreadingSnowyDirtBlock> codec() {
+    protected MapCodec<? extends SpreadingSnowyDirtBlock> codec() {
         return CODEC;
     }
 
@@ -60,19 +59,19 @@ public class CursedGrass extends SpreadingSnowyDirtBlock implements Bonemealable
      * copied from {@link net.minecraft.world.level.block.SpreadingSnowyDirtBlock#randomTick(net.minecraft.world.level.block.state.BlockState, net.minecraft.server.level.ServerLevel, net.minecraft.core.BlockPos, net.minecraft.util.RandomSource)} changing dirt to cursed earth
      */
     @Override
-    public void randomTick(@NotNull BlockState p_222508_, @NotNull ServerLevel p_222509_, @NotNull BlockPos p_222510_, @NotNull RandomSource p_222511_) {
-        if (!SpreadingSnowyDirtBlockAccessor.canBeGrass(p_222508_, p_222509_, p_222510_)) {
-            if (!p_222509_.isAreaLoaded(p_222510_, 1)) return; // Forge: prevent loading unloaded chunks when checking neighbor's light and spreading
-            p_222509_.setBlockAndUpdate(p_222510_, ModBlocks.CURSED_EARTH.get().defaultBlockState());
+    public void randomTick(BlockState blockState, ServerLevel level, BlockPos pos, RandomSource randomSource) {
+        if (!SpreadingSnowyDirtBlockAccessor.canBeGrass(blockState, level, pos)) {
+            if (!level.isAreaLoaded(pos, 1)) return; // Forge: prevent loading unloaded chunks when checking neighbor's light and spreading
+            level.setBlockAndUpdate(pos, ModBlocks.CURSED_EARTH.get().defaultBlockState());
         } else {
-            if (!p_222509_.isAreaLoaded(p_222510_, 3)) return; // Forge: prevent loading unloaded chunks when checking neighbor's light and spreading
-            if (p_222509_.getMaxLocalRawBrightness(p_222510_.above()) >= 9) {
+            if (!level.isAreaLoaded(pos, 3)) return; // Forge: prevent loading unloaded chunks when checking neighbor's light and spreading
+            if (level.getMaxLocalRawBrightness(pos.above()) >= 9) {
                 BlockState blockstate = this.defaultBlockState();
 
                 for (int i = 0; i < 4; ++i) {
-                    BlockPos blockpos = p_222510_.offset(p_222511_.nextInt(3) - 1, p_222511_.nextInt(5) - 3, p_222511_.nextInt(3) - 1);
-                    if (p_222509_.getBlockState(blockpos).is(ModBlocks.CURSED_EARTH.get()) && SpreadingSnowyDirtBlockAccessor.canPropagate(blockstate, p_222509_, blockpos)) {
-                        p_222509_.setBlockAndUpdate(blockpos, blockstate.setValue(SNOWY, p_222509_.getBlockState(blockpos.above()).is(Blocks.SNOW)));
+                    BlockPos blockpos = pos.offset(randomSource.nextInt(3) - 1, randomSource.nextInt(5) - 3, randomSource.nextInt(3) - 1);
+                    if (level.getBlockState(blockpos).is(ModBlocks.CURSED_EARTH.get()) && SpreadingSnowyDirtBlockAccessor.canPropagate(blockstate, level, blockpos)) {
+                        level.setBlockAndUpdate(blockpos, blockstate.setValue(SNOWY, level.getBlockState(blockpos.above()).is(Blocks.SNOW)));
                     }
                 }
             }
@@ -84,14 +83,13 @@ public class CursedGrass extends SpreadingSnowyDirtBlock implements Bonemealable
     public TriState canSustainPlant(BlockState state, BlockGetter level, BlockPos soilPosition, Direction facing, BlockState plant) {
         return super.canSustainPlant(state, level, soilPosition, facing, plant);
     }
-
-
+    
     @Override
-    public boolean isValidBonemealTarget(@NotNull LevelReader level, @NotNull BlockPos pPos, @NotNull BlockState pState) {
+    public boolean isValidBonemealTarget(LevelReader level, BlockPos pPos, BlockState pState) {
         return true;
     }
     @Override
-    public boolean isBonemealSuccess(@NotNull Level level, @NotNull RandomSource random, @NotNull BlockPos pos, @NotNull BlockState state) {
+    public boolean isBonemealSuccess(Level level, RandomSource random, BlockPos pos, BlockState state) {
         return true;
     }
 
@@ -101,12 +99,11 @@ public class CursedGrass extends SpreadingSnowyDirtBlock implements Bonemealable
      * and use vampire forest as flower source
      */
     @Override
-    public void performBonemeal(@NotNull ServerLevel level, @NotNull RandomSource random, @NotNull BlockPos pos, @NotNull BlockState state) {
+    public void performBonemeal(ServerLevel level, RandomSource random, BlockPos pos, BlockState state) {
         BlockPos blockpos = pos.above();
         BlockState blockstate = Blocks.SHORT_GRASS.defaultBlockState();
         Optional<Holder.Reference<PlacedFeature>> optional = level.registryAccess().registryOrThrow(Registries.PLACED_FEATURE).getHolder(VegetationPlacements.GRASS_BONEMEAL);
-
-
+        
         label46:
         for (int i = 0; i < 128; ++i) {
             BlockPos blockpos1 = blockpos;
@@ -150,7 +147,7 @@ public class CursedGrass extends SpreadingSnowyDirtBlock implements Bonemealable
     }
 
     @Override
-    public ItemInteractionResult useItemOn(ItemStack stack, @NotNull BlockState state, @NotNull Level worldIn, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand handIn, @NotNull BlockHitResult hit) {
+    public ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level worldIn, BlockPos pos, Player player, InteractionHand handIn, BlockHitResult hit) {
         Item heldItem = stack.getItem();
         if (heldItem instanceof HolyWaterBottleItem&& !(heldItem instanceof HolyWaterSplashBottleItem)) {
             int uses = heldItem == ModItems.HOLY_WATER_BOTTLE_ULTIMATE.get() ? 100 : (heldItem == ModItems.HOLY_WATER_BOTTLE_ENHANCED.get() ? 50 : 25);

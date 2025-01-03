@@ -15,17 +15,14 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.BlockHitResult;
-import org.jetbrains.annotations.NotNull;
-
 
 public class ThroneBlock extends VampirismSplitBlock {
-
     public ThroneBlock() {
         super(BlockBehaviour.Properties.of().mapColor(MapColor.WOOD).ignitedByLava().pushReaction(PushReaction.DESTROY).strength(2, 3), BlockVoxelshapes.throneBottom, BlockVoxelshapes.throneTop, true);
     }
 
     @Override
-    public @NotNull InteractionResult useWithoutItem(@NotNull BlockState state, Level world, BlockPos pos, Player player, BlockHitResult traceResult) {
+    public InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult traceResult) {
         Part part = state.getValue(PART);
         Direction oppFacing = state.getValue(FACING).getOpposite();
         player.awardStat(ModStats.INTERACT_WITH_THRONE.get());

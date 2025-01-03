@@ -14,20 +14,16 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
 public class DarkStoneBlock extends Block {
-
     public DarkStoneBlock(Properties properties) {
         super(properties);
-
     }
 
     @Override
-    public void animateTick(@NotNull BlockState state, @NotNull Level world, @NotNull BlockPos pos, @NotNull RandomSource rand) {
+    public void animateTick(BlockState state, Level world, BlockPos pos, RandomSource rand) {
         if (state.is(ModBlocks.BLOODY_DARK_STONE_BRICKS.get())) {
             if (rand.nextInt(180) == 0) {
                 world.playLocalSound(pos.getX(), pos.getY(), pos.getZ(), ModSounds.AMBIENT_BLOOD_DRIPPING.get(), SoundSource.AMBIENT, 0.8F, 1.0F, false);
@@ -36,7 +32,7 @@ public class DarkStoneBlock extends Block {
     }
 
     @Override
-    public void appendHoverText(@NotNull ItemStack stack, @Nullable Item.TooltipContext context, @NotNull List<Component> tooltip, @NotNull TooltipFlag advanced) {
+    public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag advanced) {
         super.appendHoverText(stack, context, tooltip, advanced);
         if (stack.is(ModTags.Items.NO_SPAWN)) {
             tooltip.add(Component.translatable("block.vampirism.castle_block.no_spawn").withStyle(ChatFormatting.ITALIC, ChatFormatting.GRAY));

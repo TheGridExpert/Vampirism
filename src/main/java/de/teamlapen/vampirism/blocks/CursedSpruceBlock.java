@@ -15,7 +15,6 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.material.MapColor;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.List;
@@ -23,15 +22,14 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class CursedSpruceBlock extends StrippableLogBlock implements HolyWaterEffectConsumer {
-
     private final Supplier<? extends CursedSpruceBlock> curedBlockSupplier;
 
-    public CursedSpruceBlock(@NotNull Supplier<? extends LogBlock> strippedBlock, Supplier<? extends CursedSpruceBlock> curedBlockSupplier) {
+    public CursedSpruceBlock(Supplier<? extends LogBlock> strippedBlock, Supplier<? extends CursedSpruceBlock> curedBlockSupplier) {
         super(BlockBehaviour.Properties.of().mapColor(MapColor.CRIMSON_HYPHAE).strength(2.0F).sound(SoundType.WOOD).randomTicks().ignitedByLava(), strippedBlock);
         this.curedBlockSupplier = curedBlockSupplier;
     }
 
-    public CursedSpruceBlock(@NotNull Supplier<? extends LogBlock> strippedBlock) {
+    public CursedSpruceBlock(Supplier<? extends LogBlock> strippedBlock) {
         this(strippedBlock, null);
     }
 
@@ -50,7 +48,7 @@ public class CursedSpruceBlock extends StrippableLogBlock implements HolyWaterEf
     }
 
     @Override
-    public void randomTick(@NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos pos, @NotNull RandomSource random) {
+    public void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         DirectCursedBarkBlock.Type type = null;
         List<Direction> directions = Arrays.stream(Direction.values()).collect(Collectors.toList());
         Direction direction = null;

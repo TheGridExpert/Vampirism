@@ -1,7 +1,6 @@
 package de.teamlapen.vampirism.blocks;
 
 import de.teamlapen.lib.lib.util.UtilLib;
-import de.teamlapen.vampirism.VampirismMod;
 import de.teamlapen.vampirism.api.VReference;
 import de.teamlapen.vampirism.api.entity.factions.IFactionPlayerHandler;
 import de.teamlapen.vampirism.api.entity.factions.IPlayableFaction;
@@ -22,11 +21,8 @@ import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
-import net.minecraft.world.inventory.MenuConstructor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
@@ -35,6 +31,8 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
@@ -42,30 +40,30 @@ import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import static net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING;
 
 /**
  * Block which represents the top and the bottom part of a "Medical Chair" used for injections
  */
 public class MedChairBlock extends VampirismHorizontalBlock {
-    public static final EnumProperty<EnumPart> PART = EnumProperty.create("part", EnumPart.class);
-    private static final @NotNull VoxelShape SHAPE_TOP = box(2, 6, 0, 14, 16, 16);
-    private static final @NotNull VoxelShape SHAPE_BOTTOM = box(1, 1, 0, 15, 10, 16);
+    public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
+    public static final EnumProperty<ChairPart> PART = EnumProperty.create("part", ChairPart.class);
+
+    private static final VoxelShape SHAPE_TOP = box(2, 6, 0, 14, 16, 16);
+    private static final VoxelShape SHAPE_BOTTOM = box(1, 1, 0, 15, 10, 16);
+
     private final VoxelShape NORTH1;
-    private final @NotNull VoxelShape EAST1;
-    private final @NotNull VoxelShape SOUTH1;
-    private final @NotNull VoxelShape WEST1;
+    private final VoxelShape EAST1;
+    private final VoxelShape SOUTH1;
+    private final VoxelShape WEST1;
     private final VoxelShape NORTH2;
-    private final @NotNull VoxelShape EAST2;
-    private final @NotNull VoxelShape SOUTH2;
-    private final @NotNull VoxelShape WEST2;
+    private final VoxelShape EAST2;
+    private final VoxelShape SOUTH2;
+    private final VoxelShape WEST2;
 
     public MedChairBlock() {
         super(Properties.of().mapColor(MapColor.METAL).pushReaction(PushReaction.DESTROY).strength(1).noOcclusion());
-        this.registerDefaultState(this.getStateDefinition().any().setValue(FACING, Direction.NORTH).setValue(PART, EnumPart.BOTTOM));
+        this.registerDefaultState(this.getStateDefinition().any().setValue(FACING, Direction.NORTH).setValue(PART, ChairPart.BOTTOM));
         NORTH1 = SHAPE_BOTTOM;
         EAST1 = UtilLib.rotateShape(NORTH1, UtilLib.RotationAmount.NINETY);
         SOUTH1 = UtilLib.rotateShape(NORTH1, UtilLib.RotationAmount.HUNDRED_EIGHTY);
@@ -77,7 +75,7 @@ public class MedChairBlock extends VampirismHorizontalBlock {
     }
 
     @Override
-    public ItemInteractionResult useItemOn(ItemStack stack, @NotNull BlockState state, @NotNull Level world, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult hit) {
+    public ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         if (player.isAlive()) {
             if (handleInjections(player, world, stack, pos)) {
                 player.awardStat(ModStats.INTERACT_WITH_INJECTION_CHAIR.get());
@@ -92,7 +90,7 @@ public class MedChairBlock extends VampirismHorizontalBlock {
         return ItemInteractionResult.sidedSuccess(world.isClientSide);
     }
 
-    private boolean handleGarlicInjection(@NotNull Player player, @NotNull Level world, @NotNull IFactionPlayerHandler handler, @Nullable IPlayableFaction<?> currentFaction) {
+    private boolean handleGarlicInjection(Player player, Level world, IFactionPlayerHandler handler, @Nullable IPlayableFaction<?> currentFaction) {
         if (handler.canJoin(VReference.HUNTER_FACTION)) {
             if (world.isClientSide) {
                 VampirismModClient.getINSTANCE().getOverlay().makeRenderFullColor(4, 30, 0xBBBBBBFF);
@@ -109,7 +107,7 @@ public class MedChairBlock extends VampirismHorizontalBlock {
         return false;
     }
 
-    private boolean handleInjections(@NotNull Player player, @NotNull Level world, @NotNull ItemStack stack, @NotNull BlockPos pos) {
+    private boolean handleInjections(Player player, Level world, ItemStack stack, BlockPos pos) {
         FactionPlayerHandler handler = FactionPlayerHandler.get(player);
         IPlayableFaction<?> faction = handler.getCurrentFaction();
 
@@ -122,19 +120,14 @@ public class MedChairBlock extends VampirismHorizontalBlock {
         return false;
     }
 
-    private boolean handleSanguinareInjection(@NotNull Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull IFactionPlayerHandler handler, @Nullable IPlayableFaction<?> currentFaction) {
+    private boolean handleSanguinareInjection(Level level, BlockPos pos, Player player, IFactionPlayerHandler handler, @Nullable IPlayableFaction<?> currentFaction) {
         if (VReference.VAMPIRE_FACTION.equals(currentFaction)) {
             player.displayClientMessage(Component.translatable("text.vampirism.already_vampire"), false);
             return false;
         }
         if (VReference.HUNTER_FACTION.equals(currentFaction)) {
             if (!level.isClientSide) {
-                player.openMenu(new SimpleMenuProvider(new MenuConstructor() {
-                    @Override
-                    public @NotNull AbstractContainerMenu createMenu(int i, @NotNull Inventory inventory, @NotNull Player player) {
-                        return new RevertBackMenu(i, inventory, ContainerLevelAccess.create(level, pos));
-                    }
-                }, Component.empty()));
+                player.openMenu(new SimpleMenuProvider((i, inventory, player1) -> new RevertBackMenu(i, inventory, ContainerLevelAccess.create(level, pos)), Component.empty()));
             }
             return false;
         }
@@ -152,46 +145,32 @@ public class MedChairBlock extends VampirismHorizontalBlock {
         return false;
     }
 
-    public enum EnumPart implements StringRepresentable {
-        TOP("top", 0), BOTTOM("bottom", 1);
-
-        public static @NotNull EnumPart fromMeta(int meta) {
-            if (meta == 1) {
-                return BOTTOM;
-            }
-            return TOP;
-        }
+    public enum ChairPart implements StringRepresentable {
+        TOP("top", 0),
+        BOTTOM("bottom", 1);
 
         public final String name;
         public final int meta;
 
-        EnumPart(String name, int meta) {
+        ChairPart(String name, int meta) {
             this.name = name;
             this.meta = meta;
         }
 
-        @NotNull
         @Override
         public String getSerializedName() {
             return name;
         }
 
         @Override
-        public @NotNull String toString() {
+        public String toString() {
             return getSerializedName();
         }
-
-
     }
-
-    public @NotNull RenderShape getRenderShape(@NotNull BlockState p_149645_1_) {
-        return RenderShape.MODEL;
-    }
-
 
     @Override
-    public @NotNull VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter worldIn, @NotNull BlockPos pos, @NotNull CollisionContext context) {
-        boolean main = state.getValue(PART) == EnumPart.BOTTOM;
+    public VoxelShape getShape(BlockState state, BlockGetter worldIn, BlockPos pos, CollisionContext context) {
+        boolean main = state.getValue(PART) == ChairPart.BOTTOM;
         return switch (state.getValue(FACING)) {
             case NORTH -> main ? NORTH1 : NORTH2;
             case EAST -> main ? EAST1 : EAST2;
@@ -201,13 +180,13 @@ public class MedChairBlock extends VampirismHorizontalBlock {
         };
     }
 
-    @Override
     @Nullable
-    public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
-        Direction enumfacing = context.getHorizontalDirection();
-        BlockPos blockpos = context.getClickedPos();
-        BlockPos blockpos1 = blockpos.relative(enumfacing);
-        return context.getLevel().getBlockState(blockpos1).canBeReplaced(context) ? this.defaultBlockState().setValue(HORIZONTAL_FACING, enumfacing.getOpposite()) : null;
+    @Override
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
+        Direction direction = context.getHorizontalDirection();
+        BlockPos blockPos = context.getClickedPos();
+        BlockPos blockPos1 = blockPos.relative(direction);
+        return context.getLevel().getBlockState(blockPos1).canBeReplaced(context) ? this.defaultBlockState().setValue(FACING, direction.getOpposite()) : null;
     }
 
     @Override
@@ -216,13 +195,13 @@ public class MedChairBlock extends VampirismHorizontalBlock {
     }
 
     @Override
-    public BlockState playerWillDestroy(@NotNull Level world, @NotNull BlockPos blockPos, @NotNull BlockState blockState, @NotNull Player player) {
+    public BlockState playerWillDestroy(Level world, BlockPos blockPos, BlockState blockState, Player player) {
         if (!world.isClientSide && player.isCreative()) {
-            EnumPart part = blockState.getValue(PART);
-            if (part == EnumPart.TOP) {
+            ChairPart part = blockState.getValue(PART);
+            if (part == ChairPart.TOP) {
                 BlockPos blockpos = blockPos.relative(getOtherBlockDirection(blockState));
                 BlockState otherState = world.getBlockState(blockpos);
-                if (otherState.getBlock() == this && otherState.getValue(PART) == EnumPart.BOTTOM) {
+                if (otherState.getBlock() == this && otherState.getValue(PART) == ChairPart.BOTTOM) {
                     world.setBlock(blockpos, Blocks.AIR.defaultBlockState(), 35);
                     world.levelEvent(player, 2001, blockpos, Block.getId(otherState));
                 }
@@ -233,11 +212,11 @@ public class MedChairBlock extends VampirismHorizontalBlock {
     }
 
     @Override
-    public void setPlacedBy(@NotNull Level world, @NotNull BlockPos pos, @NotNull BlockState state, @Nullable LivingEntity placer, @NotNull ItemStack itemStack) {
+    public void setPlacedBy(Level world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
         super.setPlacedBy(world, pos, state, placer, itemStack);
         if (!world.isClientSide) {
             BlockPos blockpos = pos.relative(getOtherBlockDirection(state));
-            BlockState otherState = state.setValue(PART, EnumPart.TOP);
+            BlockState otherState = state.setValue(PART, ChairPart.TOP);
             otherState = otherState.setValue(FACING, otherState.getValue(FACING));
             world.setBlock(blockpos, otherState, 3);
             world.blockUpdated(pos, Blocks.AIR);
@@ -246,9 +225,8 @@ public class MedChairBlock extends VampirismHorizontalBlock {
 
     }
 
-    @NotNull
     @Override
-    public BlockState updateShape(@NotNull BlockState stateIn, @NotNull Direction facing, @NotNull BlockState facingState, @NotNull LevelAccessor worldIn, @NotNull BlockPos currentPos, @NotNull BlockPos facingPos) {
+    public BlockState updateShape(BlockState stateIn, Direction facing, BlockState facingState, LevelAccessor worldIn, BlockPos currentPos, BlockPos facingPos) {
         if (facing == getOtherBlockDirection(stateIn)) {
             return facingState.getBlock() == this && facingState.getValue(PART) != stateIn.getValue(PART) ? updateFromOther(stateIn, facingState) : Blocks.AIR.defaultBlockState();
         } else {
@@ -257,13 +235,13 @@ public class MedChairBlock extends VampirismHorizontalBlock {
     }
 
     @Override
-    protected void createBlockStateDefinition(StateDefinition.@NotNull Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
         builder.add(PART);
     }
 
-    protected @NotNull Direction getOtherBlockDirection(@NotNull BlockState blockState) {
-        return blockState.getValue(PART) == EnumPart.BOTTOM ? blockState.getValue(FACING).getOpposite() : blockState.getValue(FACING);
+    protected Direction getOtherBlockDirection(BlockState blockState) {
+        return blockState.getValue(PART) == ChairPart.BOTTOM ? blockState.getValue(FACING).getOpposite() : blockState.getValue(FACING);
     }
 
     protected BlockState updateFromOther(BlockState thisState, BlockState otherState) {

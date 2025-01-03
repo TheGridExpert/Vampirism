@@ -6,16 +6,14 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.DeadBushBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.NotNull;
 
 public class CursedRootsBlock extends DeadBushBlock {
-
-    public CursedRootsBlock(BlockBehaviour.@NotNull Properties properties) {
+    public CursedRootsBlock(BlockBehaviour.Properties properties) {
         super(properties);
     }
 
     @Override
-    protected boolean mayPlaceOn(@NotNull BlockState blockState, @NotNull BlockGetter blockReader, @NotNull BlockPos pos) {
+    protected boolean mayPlaceOn(BlockState blockState, BlockGetter blockReader, BlockPos pos) {
         return blockState.is(ModTags.Blocks.CURSED_EARTH);
     }
 }

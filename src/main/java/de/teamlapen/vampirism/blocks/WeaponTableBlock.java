@@ -7,7 +7,6 @@ import de.teamlapen.vampirism.util.Helper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerLevelAccess;
@@ -27,7 +26,6 @@ import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.fluids.FluidUtil;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -36,9 +34,10 @@ public class WeaponTableBlock extends VampirismHorizontalBlock {
     public static final int MAX_LAVA = 5;
     public static final int MB_PER_META = 200;
     public static final IntegerProperty LAVA = IntegerProperty.create("lava", 0, MAX_LAVA);
+
     private static final Component name = Component.translatable("gui.vampirism.hunter_weapon_table");
 
-    private static @NotNull VoxelShape makeShape() {
+    private static VoxelShape makeShape() {
         VoxelShape a = Block.box(3, 0, 0, 13, 2, 8);
         VoxelShape b = Block.box(4, 2, 1, 12, 3, 7);
         VoxelShape c = Block.box(5, 3, 2, 11, 6, 6);
@@ -69,7 +68,7 @@ public class WeaponTableBlock extends VampirismHorizontalBlock {
 
     @Nullable
     @Override
-    public MenuProvider getMenuProvider(@NotNull BlockState state, @NotNull Level worldIn, @NotNull BlockPos pos) {
+    public MenuProvider getMenuProvider(BlockState state, Level worldIn, BlockPos pos) {
         return new SimpleMenuProvider((id, playerInventory, playerEntity) -> new WeaponTableMenu(id, playerInventory, ContainerLevelAccess.create(worldIn, pos)), name);
     }
     
@@ -126,14 +125,14 @@ public class WeaponTableBlock extends VampirismHorizontalBlock {
     }
 
     @Override
-    protected void createBlockStateDefinition(StateDefinition.@NotNull Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(LAVA, FACING);
     }
 
     /**
      * @return If the given player is allowed to use this.
      */
-    private boolean canUse(@NotNull Player player) {
+    private boolean canUse(Player player) {
         if (Helper.isHunter(player)) {
             return HunterPlayer.get(player).getSkillHandler().isSkillEnabled(HunterSkills.WEAPON_TABLE.get());
         }

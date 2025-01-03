@@ -25,10 +25,11 @@ import org.jetbrains.annotations.NotNull;
  */
 public class AltarPillarBlock extends Block {
     public final static EnumProperty<EnumPillarType> TYPE_PROPERTY = EnumProperty.create("type", EnumPillarType.class);
+
     protected static final VoxelShape pillarShape = makeShape();
     protected static final VoxelShape pillarShapeFilled = makeShapeFull();
 
-    private static @NotNull VoxelShape makeShape() {
+    private static VoxelShape makeShape() {
         VoxelShape a = Block.box(3, 0, 3, 13, 1, 13);
         VoxelShape b1 = Block.box(3, 0, 3, 4, 16, 4);
         VoxelShape b2 = Block.box(12, 0, 3, 13, 16, 4);
@@ -38,7 +39,7 @@ public class AltarPillarBlock extends Block {
         return Shapes.or(a, b1, b2, b3, b4, c);
     }
 
-    private static @NotNull VoxelShape makeShapeFull() {
+    private static VoxelShape makeShapeFull() {
         VoxelShape b = Block.box(4, 1, 2, 12, 15, 14);
         VoxelShape c = Block.box(2, 1, 4, 14, 15, 12);
         return Shapes.or(pillarShape, b, c);
@@ -50,16 +51,13 @@ public class AltarPillarBlock extends Block {
 
     }
 
-
-    @NotNull
     @Override
-    public VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter worldIn, @NotNull BlockPos pos, @NotNull CollisionContext context) {
+    public VoxelShape getShape(BlockState state, BlockGetter worldIn, BlockPos pos, CollisionContext context) {
         return state.getValue(TYPE_PROPERTY) != EnumPillarType.NONE ? pillarShapeFilled : pillarShape;
     }
 
-    @NotNull
     @Override
-    public InteractionResult useWithoutItem(@NotNull BlockState state, @NotNull Level worldIn, @NotNull BlockPos pos, @NotNull Player playerIn, @NotNull BlockHitResult hit) {
+    public InteractionResult useWithoutItem(BlockState state, Level worldIn, BlockPos pos, Player playerIn, BlockHitResult hit) {
         EnumPillarType type = state.getValue(TYPE_PROPERTY);
         ItemStack heldItem = playerIn.getItemInHand(InteractionHand.MAIN_HAND);
         if (type != EnumPillarType.NONE && heldItem.isEmpty()) {
@@ -88,13 +86,16 @@ public class AltarPillarBlock extends Block {
     }
 
     @Override
-    protected void createBlockStateDefinition(StateDefinition.@NotNull Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(TYPE_PROPERTY);
     }
 
     public enum EnumPillarType implements StringRepresentable {
-        NONE(0, "none", 0, Blocks.AIR), STONE(1, "stone", 1, Blocks.STONE_BRICKS), IRON(2, "iron", 2, Blocks.IRON_BLOCK), GOLD(3, "gold", 3, Blocks.GOLD_BLOCK), BONE(4, "bone", 1.5F, Blocks.BONE_BLOCK);
-
+        NONE(0, "none", 0, Blocks.AIR),
+        STONE(1, "stone", 1, Blocks.STONE_BRICKS),
+        IRON(2, "iron", 2, Blocks.IRON_BLOCK),
+        GOLD(3, "gold", 3, Blocks.GOLD_BLOCK),
+        BONE(4, "bone", 1.5F, Blocks.BONE_BLOCK);
 
         public final String name;
         public final Block fillerBlock;
@@ -108,7 +109,7 @@ public class AltarPillarBlock extends Block {
             this.value = value;
         }
 
-        public @NotNull String getName() {
+        public String getName() {
             return getSerializedName();
         }
 
@@ -126,10 +127,8 @@ public class AltarPillarBlock extends Block {
         }
 
         @Override
-        public @NotNull String toString() {
+        public String toString() {
             return getName();
         }
     }
-
-
 }

@@ -39,6 +39,7 @@ import java.util.function.ToIntFunction;
 public abstract class CandleStickBlock extends AbstractCandleBlock implements SimpleWaterloggedBlock {
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     public static final BooleanProperty LIT = AbstractCandleBlock.LIT;
+
     public static final ToIntFunction<BlockState> LIGHT_EMISSION = (state) -> state.getValue(LIT) ? 6 : 0;
 
     protected static <T extends CandleStickBlock> Products.P3<RecordCodecBuilder.Mu<T>, Block, Item, Properties> candleStickParts(RecordCodecBuilder.Instance<T> instance) {
@@ -50,12 +51,10 @@ public abstract class CandleStickBlock extends AbstractCandleBlock implements Si
     }
 
     private final Map<ResourceLocation, Supplier<Block>> fullHolderByContent = Maps.newHashMap();
-    @Nullable
-    protected final Supplier<? extends Block> emptyBlock;
-    @NotNull
+    protected final @Nullable Supplier<? extends Block> emptyBlock;
     protected final Supplier<Item> candle;
 
-    protected CandleStickBlock(@Nullable Supplier<? extends Block> emptyBlock, @NotNull Supplier<Item> candle, Properties pProperties) {
+    protected CandleStickBlock(@Nullable Supplier<? extends Block> emptyBlock, Supplier<Item> candle, Properties pProperties) {
         super(pProperties);
         this.emptyBlock = emptyBlock;
         this.candle = candle;
@@ -63,13 +62,13 @@ public abstract class CandleStickBlock extends AbstractCandleBlock implements Si
 
     public void addCandle(ResourceLocation candle, Supplier<Block> holder) {
         if (candle == null) {
-            throw new IllegalArgumentException("Cannot add plant to non-empty candle mount");
+            throw new IllegalArgumentException("Cannot add candle to non-empty candle holder");
         }
         this.fullHolderByContent.put(candle, holder);
     }
 
     @Override
-    public @NotNull InteractionResult useWithoutItem(@NotNull BlockState pState, @NotNull Level pLevel, @NotNull BlockPos pPos, @NotNull Player pPlayer, @NotNull BlockHitResult pHit) {
+    public InteractionResult useWithoutItem(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, BlockHitResult pHit) {
         ItemStack stack = pPlayer.getItemInHand(InteractionHand.MAIN_HAND);
         Item item = stack.getItem();
         if (isEmpty()) {
@@ -107,7 +106,7 @@ public abstract class CandleStickBlock extends AbstractCandleBlock implements Si
     }
 
     @Override
-    public @NotNull BlockState updateShape(@NotNull BlockState pState, @NotNull Direction pDirection, @NotNull BlockState pNeighborState, @NotNull LevelAccessor pLevel, @NotNull BlockPos pPos, @NotNull BlockPos pNeighborPos) {
+    public BlockState updateShape(BlockState pState, Direction pDirection, BlockState pNeighborState, LevelAccessor pLevel, BlockPos pPos, BlockPos pNeighborPos) {
         if (pState.getValue(WATERLOGGED)) {
             pLevel.scheduleTick(pPos, Fluids.WATER, Fluids.WATER.getTickDelay(pLevel));
         }
@@ -116,17 +115,17 @@ public abstract class CandleStickBlock extends AbstractCandleBlock implements Si
     }
 
     @Override
-    public @NotNull FluidState getFluidState(@NotNull BlockState pState) {
+    public FluidState getFluidState(BlockState pState) {
         return pState.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(pState);
     }
 
     @Override
-    protected void createBlockStateDefinition(StateDefinition.@NotNull Builder<Block, BlockState> pBuilder) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> pBuilder) {
         pBuilder.add(LIT, WATERLOGGED);
     }
 
     @Override
-    public boolean placeLiquid(@NotNull LevelAccessor pLevel, @NotNull BlockPos pPos, @NotNull BlockState pState, @NotNull FluidState pFluidState) {
+    public boolean placeLiquid(LevelAccessor pLevel, BlockPos pPos, BlockState pState, FluidState pFluidState) {
         if (!pState.getValue(WATERLOGGED) && pFluidState.getType() == Fluids.WATER) {
             BlockState blockstate = pState.setValue(WATERLOGGED, Boolean.TRUE);
             if (pState.getValue(LIT)) {
@@ -143,16 +142,16 @@ public abstract class CandleStickBlock extends AbstractCandleBlock implements Si
     }
 
     @Override
-    protected boolean canBeLit(@NotNull BlockState pState) {
+    protected boolean canBeLit(BlockState pState) {
         return !pState.getValue(WATERLOGGED) && !this.isEmpty() && super.canBeLit(pState);
     }
 
     @Override
-    public boolean canSurvive(@NotNull BlockState pState, @NotNull LevelReader pLevel, @NotNull BlockPos pPos) {
+    public boolean canSurvive(BlockState pState, LevelReader pLevel, BlockPos pPos) {
         return Block.canSupportCenter(pLevel, pPos.below(), Direction.UP);
     }
 
-    public static boolean canLight(@NotNull BlockState pState) {
+    public static boolean canLight(BlockState pState) {
         return pState.is(BlockTags.CANDLES, (p_152810_) -> p_152810_.hasProperty(LIT) && p_152810_.hasProperty(WATERLOGGED)) && !pState.getValue(LIT) && !pState.getValue(WATERLOGGED);
     }
 
@@ -166,7 +165,7 @@ public abstract class CandleStickBlock extends AbstractCandleBlock implements Si
     }
 
     @Override
-    public @NotNull ItemStack getCloneItemStack(@NotNull BlockState state, @NotNull HitResult target, @NotNull LevelReader level, @NotNull BlockPos pos, @NotNull Player player) {
+    public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level, BlockPos pos, Player player) {
         Item candle = getCandle().get();
         return candle == null ? ModItems.CANDLE_STICK.get().getDefaultInstance() : candle.getDefaultInstance();
     }

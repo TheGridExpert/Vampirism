@@ -12,13 +12,11 @@ import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.stream.Stream;
 
-
 public class CandelabraBlock extends VampirismHorizontalBlock {
-    private static @NotNull VoxelShape makeCandelabraShape() {
+    private static VoxelShape makeCandelabraShape() {
         return Stream.of(
                 Block.box(6, 0, 6, 10, 1, 10),
                 Block.box(6.5, 1, 6.5, 9.5, 2, 9.5),
@@ -38,13 +36,12 @@ public class CandelabraBlock extends VampirismHorizontalBlock {
     }
 
     @Override
-    public boolean canSurvive(@NotNull BlockState state, @NotNull LevelReader worldIn, @NotNull BlockPos pos) {
+    public boolean canSurvive(BlockState state, LevelReader worldIn, BlockPos pos) {
         return canSupportCenter(worldIn, pos.below(), Direction.UP);
     }
 
-    @NotNull
     @Override
-    public BlockState updateShape(@NotNull BlockState stateIn, @NotNull Direction facing, @NotNull BlockState facingState, @NotNull LevelAccessor worldIn, @NotNull BlockPos currentPos, @NotNull BlockPos facingPos) {
+    public BlockState updateShape(BlockState stateIn, Direction facing, BlockState facingState, LevelAccessor worldIn, BlockPos currentPos, BlockPos facingPos) {
         return facing == Direction.DOWN && !this.canSurvive(stateIn, worldIn, currentPos) ? Blocks.AIR.defaultBlockState() : super.updateShape(stateIn, facing, facingState, worldIn, currentPos, facingPos);
     }
 }

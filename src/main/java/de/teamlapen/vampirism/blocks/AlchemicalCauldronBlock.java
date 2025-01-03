@@ -20,16 +20,13 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
 
 public class AlchemicalCauldronBlock extends AbstractFurnaceBlock {
     public static final MapCodec<AlchemicalCauldronBlock> CODEC = simpleCodec(AlchemicalCauldronBlock::new);
@@ -40,22 +37,23 @@ public class AlchemicalCauldronBlock extends AbstractFurnaceBlock {
      * 2: Boiling liquid
      */
     public static final IntegerProperty LIQUID = IntegerProperty.create("liquid", 0, 2);
+
     protected static final VoxelShape cauldronShape = makeShape();
 
-    private static @NotNull VoxelShape makeShape() {
+    private static VoxelShape makeShape() {
         VoxelShape a = Block.box(2, 0, 2, 14, 9, 14);
         VoxelShape b = Block.box(1, 9, 1, 15, 13, 15);
         VoxelShape c = Block.box(2, 13, 2, 14, 14, 14);
         return Shapes.or(a, b, c);
     }
 
-    public AlchemicalCauldronBlock(BlockBehaviour.Properties properties) {
+    public AlchemicalCauldronBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any().setValue(LIQUID, 0).setValue(FACING, Direction.NORTH).setValue(LIT, false));
     }
 
     @Override
-    public void animateTick(@NotNull BlockState state, @NotNull Level world, @NotNull BlockPos pos, @NotNull RandomSource rng) {
+    public void animateTick(BlockState state, Level world, BlockPos pos, RandomSource rng) {
         super.animateTick(state, world, pos, rng);
         if (state.getValue(LIQUID) == 2) {
             world.playLocalSound(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, ModSounds.BOILING.get(), SoundSource.BLOCKS, 0.05F, 1, false);
@@ -64,24 +62,23 @@ public class AlchemicalCauldronBlock extends AbstractFurnaceBlock {
 
     @Nullable
     @Override
-    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(@NotNull Level p_153212_, @NotNull BlockState p_153213_, @NotNull BlockEntityType<T> p_153214_) {
-        return p_153212_.isClientSide() ? null : createTickerHelper(p_153214_, ModTiles.ALCHEMICAL_CAULDRON.get(), AlchemicalCauldronBlockEntity::serverTick);
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
+        return level.isClientSide() ? null : createTickerHelper(blockEntityType, ModTiles.ALCHEMICAL_CAULDRON.get(), AlchemicalCauldronBlockEntity::serverTick);
     }
 
     @Nullable
     @Override
-    public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new AlchemicalCauldronBlockEntity(pos, state);
     }
 
-    @NotNull
     @Override
-    public VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter worldIn, @NotNull BlockPos pos, @NotNull CollisionContext context) {
+    public VoxelShape getShape(BlockState state, BlockGetter worldIn, BlockPos pos, CollisionContext context) {
         return cauldronShape;
     }
 
     @Override
-    public void setPlacedBy(@NotNull Level world, @NotNull BlockPos blockPos, @NotNull BlockState blockState, @NotNull LivingEntity entity, @NotNull ItemStack stack) {
+    public void setPlacedBy(Level world, BlockPos blockPos, BlockState blockState, @Nullable LivingEntity entity, ItemStack stack) {
         super.setPlacedBy(world, blockPos, blockState, entity, stack);
         BlockEntity tile = world.getBlockEntity(blockPos);
         if (entity instanceof Player && tile instanceof AlchemicalCauldronBlockEntity cauldronBlockEntity) {
@@ -90,12 +87,12 @@ public class AlchemicalCauldronBlock extends AbstractFurnaceBlock {
     }
 
     @Override
-    protected void createBlockStateDefinition(StateDefinition.@NotNull Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(LIT, FACING, LIQUID);
     }
 
     @Override
-    protected void openContainer(@NotNull Level world, @NotNull BlockPos blockPos, @NotNull Player playerEntity) {
+    protected void openContainer(Level world, BlockPos blockPos, Player playerEntity) {
         BlockEntity tile = world.getBlockEntity(blockPos);
         if (tile instanceof AlchemicalCauldronBlockEntity) {
             playerEntity.openMenu((MenuProvider) tile);
@@ -104,7 +101,7 @@ public class AlchemicalCauldronBlock extends AbstractFurnaceBlock {
     }
 
     @Override
-    protected @NotNull MapCodec<? extends AbstractFurnaceBlock> codec() {
+    protected MapCodec<? extends AbstractFurnaceBlock> codec() {
         return CODEC;
     }
 }

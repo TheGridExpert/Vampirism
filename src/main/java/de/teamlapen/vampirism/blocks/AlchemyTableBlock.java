@@ -11,7 +11,6 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -23,7 +22,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class AlchemyTableBlock extends HorizontalContainerBlock {
@@ -31,6 +29,7 @@ public class AlchemyTableBlock extends HorizontalContainerBlock {
     public static final BooleanProperty HAS_BOTTLE_INPUT_1 = BooleanProperty.create("has_bottle_input_1");
     public static final BooleanProperty HAS_BOTTLE_OUTPUT_0 = BooleanProperty.create("has_bottle_output_0");
     public static final BooleanProperty HAS_BOTTLE_OUTPUT_1 = BooleanProperty.create("has_bottle_output_1");
+
     private static final VoxelShape shape = makeShape();
 
     public AlchemyTableBlock() {
@@ -38,13 +37,7 @@ public class AlchemyTableBlock extends HorizontalContainerBlock {
         this.registerDefaultState(this.defaultBlockState().setValue(HAS_BOTTLE_INPUT_0, false).setValue(HAS_BOTTLE_INPUT_1, false).setValue(HAS_BOTTLE_OUTPUT_0, false).setValue(HAS_BOTTLE_OUTPUT_1, false));
     }
 
-    @NotNull
-    @Override
-    public RenderShape getRenderShape(@NotNull BlockState state) {
-        return RenderShape.MODEL;
-    }
-
-    @org.jetbrains.annotations.Nullable
+    @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new AlchemyTableBlockEntity(pos, state);
@@ -52,13 +45,12 @@ public class AlchemyTableBlock extends HorizontalContainerBlock {
 
     @Nullable
     @Override
-    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(@NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type) {
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
         return level.isClientSide ? null : createTickerHelper(type, ModTiles.ALCHEMICAL_TABLE.get(), AlchemyTableBlockEntity::serverTick);
     }
 
-    @NotNull
     @Override
-    public InteractionResult useWithoutItem(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull BlockHitResult rayTrace) {
+    public InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult rayTrace) {
         if (level.isClientSide) {
             return InteractionResult.SUCCESS;
         } else {
@@ -77,7 +69,7 @@ public class AlchemyTableBlock extends HorizontalContainerBlock {
     }
 
     @Override
-    public void onRemove(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state1, boolean p_196243_5_) {
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState state1, boolean p_196243_5_) {
         if (!state.is(state1.getBlock())) {
             BlockEntity tileEntity = level.getBlockEntity(pos);
             if (tileEntity instanceof AlchemyTableBlockEntity) {
@@ -88,12 +80,12 @@ public class AlchemyTableBlock extends HorizontalContainerBlock {
     }
 
     @Override
-    protected void createBlockStateDefinition(StateDefinition.@NotNull Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
         builder.add(HAS_BOTTLE_INPUT_0).add(HAS_BOTTLE_INPUT_1).add(HAS_BOTTLE_OUTPUT_0).add(HAS_BOTTLE_OUTPUT_1);
     }
 
-    private static @NotNull VoxelShape makeShape() {
+    private static VoxelShape makeShape() {
         VoxelShape shape = Shapes.empty();
         shape = Shapes.join(shape, Shapes.box(0, 0.625, 0.3125, 1, 0.6875, 0.6875), BooleanOp.OR);
         shape = Shapes.join(shape, Shapes.box(0.0625, 0.625, 0.25, 0.9375, 0.6875, 0.3125), BooleanOp.OR);
