@@ -22,7 +22,6 @@ public class ThroneBlock extends VampirismSplitBlock {
 
     public ThroneBlock() {
         super(BlockBehaviour.Properties.of().mapColor(MapColor.WOOD).ignitedByLava().pushReaction(PushReaction.DESTROY).strength(2, 3), BlockVoxelshapes.throneBottom, BlockVoxelshapes.throneTop, true);
-        markDecorativeBlock();
     }
 
     @Override

@@ -31,7 +31,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Alchemist's fire which does not spread
  */
-public class AlchemicalFireBlock extends VampirismBlock {
+public class AlchemicalFireBlock extends Block {
     public static final IntegerProperty AGE = IntegerProperty.create("age", 0, 15);
 
     public AlchemicalFireBlock() {

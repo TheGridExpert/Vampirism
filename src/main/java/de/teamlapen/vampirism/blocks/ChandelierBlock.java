@@ -19,7 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.stream.Stream;
 
 
-public class ChandelierBlock extends VampirismBlock {
+public class ChandelierBlock extends Block {
 
     private final static VoxelShape SHAPE = Stream.of(
             Block.box(7, 10, 8, 8, 16, 9),

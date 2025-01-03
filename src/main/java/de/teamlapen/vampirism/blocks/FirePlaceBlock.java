@@ -17,7 +17,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 
-public class FirePlaceBlock extends VampirismBlock {
+public class FirePlaceBlock extends Block {
     private static final VoxelShape shape = makeShape();
 
     private static @NotNull VoxelShape makeShape() {

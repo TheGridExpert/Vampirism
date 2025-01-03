@@ -1,12 +1,12 @@
 package de.teamlapen.vampirism.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import de.teamlapen.vampirism.REFERENCE;
 import de.teamlapen.vampirism.api.util.VResourceLocation;
 import de.teamlapen.vampirism.client.core.ModEntitiesRender;
 import de.teamlapen.vampirism.client.renderer.entity.layers.TaskMasterTypeLayer;
 import de.teamlapen.vampirism.entity.hunter.HunterTaskMasterEntity;
 import de.teamlapen.vampirism.util.Helper;
+import de.teamlapen.vampirism.util.TaskStatusRendererUtil;
 import net.minecraft.client.model.VillagerModel;
 import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -51,9 +51,17 @@ public class HunterTaskMasterRenderer extends MobRenderer<HunterTaskMasterEntity
     }
 
     @Override
-    protected boolean shouldShowName(HunterTaskMasterEntity pEntity) {
-        return Helper.isHunter(pEntity) && super.shouldShowName(pEntity);
+    public void render(@NotNull HunterTaskMasterEntity entity, float entityYaw, float partialTicks, @NotNull PoseStack poseStack, @NotNull MultiBufferSource buffer, int packedLight) {
+        super.render(entity, entityYaw, partialTicks, poseStack, buffer, packedLight);
+
+        //TaskStatusRendererUtil.renderStatusCloud(this, entity, poseStack, true);
     }
+
+    @Override
+    protected boolean shouldShowName(@NotNull HunterTaskMasterEntity entity) {
+        return Helper.isHunter(entity) && super.shouldShowName(entity);
+    }
+
     private static class HelmetLayer extends RenderLayer<HunterTaskMasterEntity, VillagerModel<HunterTaskMasterEntity>> {
         private final ItemInHandRenderer pItemInHandRenderer;
 

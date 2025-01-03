@@ -13,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Part of the Altar of Infusion structure
  */
-public class AltarTipBlock extends VampirismBlock {
+public class AltarTipBlock extends Block {
     protected static final VoxelShape tipShape = makeShape();
 
     private static @NotNull VoxelShape makeShape() {

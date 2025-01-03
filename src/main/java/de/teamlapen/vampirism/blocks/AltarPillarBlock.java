@@ -23,7 +23,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Pillar for Altar of Infusion structure
  */
-public class AltarPillarBlock extends VampirismBlock {
+public class AltarPillarBlock extends Block {
     public final static EnumProperty<EnumPillarType> TYPE_PROPERTY = EnumProperty.create("type", EnumPillarType.class);
     protected static final VoxelShape pillarShape = makeShape();
     protected static final VoxelShape pillarShapeFilled = makeShapeFull();

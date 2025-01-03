@@ -47,7 +47,7 @@ import static net.minecraft.world.level.block.state.properties.BlockStatePropert
  * Part of a 2x2 block tent
  * Position property contains the position within the 4 block arrangement
  */
-public class TentBlock extends VampirismBlock {
+public class TentBlock extends Block {
     public static final DirectionProperty FACING = HORIZONTAL_FACING;
     /**
      * Arrangement

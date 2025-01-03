@@ -16,7 +16,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 
-public class TotemBaseBlock extends VampirismBlock {
+public class TotemBaseBlock extends Block {
     private static final VoxelShape shape = makeShape();
 
     private static @NotNull VoxelShape makeShape() {

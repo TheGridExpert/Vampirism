@@ -1,13 +1,13 @@
 package de.teamlapen.vampirism.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import de.teamlapen.vampirism.REFERENCE;
 import de.teamlapen.vampirism.api.util.VResourceLocation;
 import de.teamlapen.vampirism.client.core.ModEntitiesRender;
 import de.teamlapen.vampirism.client.renderer.entity.layers.TaskMasterTypeLayer;
 import de.teamlapen.vampirism.client.renderer.entity.layers.VampireEntityLayer;
 import de.teamlapen.vampirism.entity.vampire.VampireTaskMasterEntity;
 import de.teamlapen.vampirism.util.Helper;
+import de.teamlapen.vampirism.util.TaskStatusRendererUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.VillagerModel;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -44,6 +44,13 @@ public class VampireTaskMasterRenderer extends MobRenderer<VampireTaskMasterEnti
         if (dist <= 128) {
             super.renderNameTag(entityIn, displayNameIn, matrixStackIn, bufferIn, packedLightIn, packedLightIn);
         }
+    }
+
+    @Override
+    public void render(@NotNull VampireTaskMasterEntity entity, float entityYaw, float partialTicks, @NotNull PoseStack poseStack, @NotNull MultiBufferSource buffer, int packedLight) {
+        super.render(entity, entityYaw, partialTicks, poseStack, buffer, packedLight);
+
+        //TaskStatusRendererUtil.renderStatusCloud(this, entity, poseStack, false);
     }
 
     @Override

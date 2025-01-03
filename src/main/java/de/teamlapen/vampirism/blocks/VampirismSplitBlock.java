@@ -25,7 +25,7 @@ import org.jetbrains.annotations.Nullable;
 
 import static net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING;
 
-public class VampirismSplitBlock extends VampirismBlock {
+public class VampirismSplitBlock extends Block {
 
     public static final DirectionProperty FACING = HORIZONTAL_FACING;
     public static final EnumProperty<Part> PART = EnumProperty.create("part", Part.class);

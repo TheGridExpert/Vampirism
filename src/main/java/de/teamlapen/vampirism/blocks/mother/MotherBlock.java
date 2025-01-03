@@ -1,12 +1,12 @@
 package de.teamlapen.vampirism.blocks.mother;
 
 import de.teamlapen.vampirism.blockentity.MotherBlockEntity;
-import de.teamlapen.vampirism.blocks.VampirismBlock;
 import de.teamlapen.vampirism.core.ModTiles;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.SoundType;
@@ -24,7 +24,7 @@ import java.util.Optional;
 
 import static de.teamlapen.vampirism.blocks.HorizontalContainerBlock.createTickerHelper;
 
-public class MotherBlock extends VampirismBlock implements EntityBlock, IRemainsBlock {
+public class MotherBlock extends Block implements EntityBlock, IRemainsBlock {
 
 
     public MotherBlock() {

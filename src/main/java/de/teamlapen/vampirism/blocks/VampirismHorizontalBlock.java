@@ -26,7 +26,7 @@ import org.jetbrains.annotations.Nullable;
  * {@code this.setDefaultState(this.getStateContainer().getBaseState().with(FACING, Direction.NORTH));} <br>
  * - Add {@code FACING} to {@link Block#createBlockStateDefinition(StateDefinition.Builder)}
  */
-public class VampirismHorizontalBlock extends VampirismBlock {
+public class VampirismHorizontalBlock extends Block {
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
     private final VoxelShape NORTH;
     private final @NotNull VoxelShape EAST;

@@ -47,6 +47,22 @@ public interface ITaskManager {
     boolean hasAvailableTasks(UUID taskBoardId);
 
     /**
+     * checks if the task board has completed tasks
+     *
+     * @param taskBoardId the id of the task board
+     * @return weather there would be a status cloud showing that there are completed tasks
+     */
+    boolean hasCompletedTasks(UUID taskBoardId);
+
+    /**
+     * checks if the task board has accepted tasks
+     *
+     * @param taskBoardId the id of the task board
+     * @return weather there would be a status cloud showing that there are accepted tasks
+     */
+    boolean hasAcceptedTasks(UUID taskBoardId);
+
+    /**
      * opens a TaskBoardScreen based on the taskBoardId
      *
      * @param taskBoardId the unique id of the task board

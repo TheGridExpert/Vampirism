@@ -169,6 +169,17 @@ public class TaskManager implements ITaskManager, ISavable {
         return !(getTasks(taskBoardId).isEmpty() && getUniqueTasks().isEmpty());
     }
 
+    @Override
+    public boolean hasCompletedTasks(UUID taskBoardId) {
+        return hasAvailableTasks(taskBoardId) && getTasks(taskBoardId).stream().map(ITaskInstance::isCompleted).isParallel();
+    }
+
+    @Override
+    public boolean hasAcceptedTasks(UUID taskBoardId) {
+        //return hasAvailableTasks(taskBoardId) && getTasks(taskBoardId).stream().map(ITaskInstance::isAccepted).isParallel();
+        return this.taskWrapperMap.values().stream().flatMap(wrapper -> wrapper.getAcceptedTasks().stream()).findAny().isPresent();
+    }
+
     /**
      * @param task the task that should be checked
      * @return whether the task is unlocked my the player or not
