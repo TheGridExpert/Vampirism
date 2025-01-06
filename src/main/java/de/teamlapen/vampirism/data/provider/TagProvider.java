@@ -8,6 +8,7 @@ import de.teamlapen.vampirism.api.util.VResourceLocation;
 import de.teamlapen.vampirism.core.*;
 import de.teamlapen.vampirism.entity.player.hunter.skills.HunterSkills;
 import de.teamlapen.vampirism.entity.player.vampire.skills.VampireSkills;
+import de.teamlapen.vampirism.util.Helper;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.DataGenerator;
@@ -75,6 +76,7 @@ public class TagProvider {
             tag(ModTags.Blocks.REMAINS).add(ModBlocks.ACTIVE_VULNERABLE_REMAINS.get(), ModBlocks.VULNERABLE_REMAINS.get(), ModBlocks.REMAINS.get(), ModBlocks.INCAPACITATED_VULNERABLE_REMAINS.get());
             tag(ModTags.Blocks.ACTIVE_REMAINS).add(ModBlocks.ACTIVE_VULNERABLE_REMAINS.get(), ModBlocks.VULNERABLE_REMAINS.get());
             tag(ModTags.Blocks.VULNERABLE_REMAINS).addTag(ModTags.Blocks.ACTIVE_REMAINS).add(ModBlocks.INCAPACITATED_VULNERABLE_REMAINS.get());
+
             // Tool Types
             tag(BlockTags.MINEABLE_WITH_SHOVEL)
                     .add(ModBlocks.CURSED_EARTH.get())
@@ -102,8 +104,6 @@ public class TagProvider {
                     .add(ModBlocks.GARLIC_DIFFUSER_IMPROVED.get())
                     .add(ModBlocks.FOG_DIFFUSER.get())
                     .add(ModBlocks.CHANDELIER.get())
-                    .add(ModBlocks.CANDELABRA.get())
-                    .add(ModBlocks.CANDELABRA_WALL.get())
                     .add(ModBlocks.ALCHEMY_TABLE.get())
                     .add(ModBlocks.BLOOD_INFUSED_IRON_BLOCK.get())
                     .add(ModBlocks.BLOOD_INFUSED_ENHANCED_IRON_BLOCK.get())
@@ -113,6 +113,7 @@ public class TagProvider {
                     .addTag(ModTags.Blocks.DARK_STONE_TILES)
                     .addTag(ModTags.Blocks.POLISHED_DARK_STONE)
                     .addTag(ModTags.Blocks.COBBLED_DARK_STONE)
+                    //.addTag(ModTags.Blocks.CANDELABRA)
             ;
             tag(BlockTags.MINEABLE_WITH_AXE)
                     .add(ModBlocks.ALTAR_INSPIRATION.get())
@@ -151,11 +152,10 @@ public class TagProvider {
                     .add(ModBlocks.WEAPON_TABLE.get())
                     .add(ModBlocks.ALTAR_INFUSION.get())
                     .add(ModBlocks.ALCHEMICAL_CAULDRON.get())
-                    .add(ModBlocks.CANDELABRA.get())
-                    .add(ModBlocks.CANDELABRA_WALL.get())
                     .add(ModBlocks.ALCHEMY_TABLE.get())
                     .add(ModBlocks.BLOOD_INFUSED_IRON_BLOCK.get())
                     .add(ModBlocks.BLOOD_INFUSED_ENHANCED_IRON_BLOCK.get())
+                    //.addTag(ModTags.Blocks.CANDELABRA)
             ;
             tag(BlockTags.NEEDS_DIAMOND_TOOL)
                     .add(ModBlocks.TOTEM_BASE.get())
@@ -207,7 +207,19 @@ public class TagProvider {
             tag(Tags.Blocks.STORAGE_BLOCKS).add(ModBlocks.BLOOD_INFUSED_IRON_BLOCK.get(), ModBlocks.BLOOD_INFUSED_ENHANCED_IRON_BLOCK.get());
             tag(ModTags.Blocks.VAMPIRE_BEACON_BASE_BLOCKS).add(ModBlocks.BLOOD_INFUSED_IRON_BLOCK.get(), ModBlocks.BLOOD_INFUSED_ENHANCED_IRON_BLOCK.get());
             tag(ModTags.Blocks.VAMPIRE_BEACON_BASE_ENHANCED_BLOCKS).add(ModBlocks.BLOOD_INFUSED_ENHANCED_IRON_BLOCK.get());
-            tag(BlockTags.CANDLES).add(ModBlocks.CANDLE_STICK_NORMAL.get(), ModBlocks.WALL_CANDLE_STICK_NORMAL.get(), ModBlocks.CANDLE_STICK_WHITE.get(), ModBlocks.WALL_CANDLE_STICK_WHITE.get(), ModBlocks.CANDLE_STICK_ORANGE.get(), ModBlocks.WALL_CANDLE_STICK_ORANGE.get(), ModBlocks.CANDLE_STICK_MAGENTA.get(), ModBlocks.WALL_CANDLE_STICK_MAGENTA.get(), ModBlocks.CANDLE_STICK_LIGHT_BLUE.get(), ModBlocks.WALL_CANDLE_STICK_LIGHT_BLUE.get(), ModBlocks.CANDLE_STICK_YELLOW.get(), ModBlocks.WALL_CANDLE_STICK_YELLOW.get(), ModBlocks.CANDLE_STICK_LIME.get(), ModBlocks.WALL_CANDLE_STICK_LIME.get(), ModBlocks.CANDLE_STICK_PINK.get(), ModBlocks.WALL_CANDLE_STICK_PINK.get(), ModBlocks.CANDLE_STICK_GRAY.get(), ModBlocks.WALL_CANDLE_STICK_GRAY.get(), ModBlocks.CANDLE_STICK_LIGHT_GRAY.get(), ModBlocks.WALL_CANDLE_STICK_LIGHT_GRAY.get(), ModBlocks.CANDLE_STICK_CYAN.get(), ModBlocks.WALL_CANDLE_STICK_CYAN.get(), ModBlocks.CANDLE_STICK_PURPLE.get(), ModBlocks.WALL_CANDLE_STICK_PURPLE.get(), ModBlocks.CANDLE_STICK_BLUE.get(), ModBlocks.WALL_CANDLE_STICK_BLUE.get(), ModBlocks.CANDLE_STICK_BROWN.get(), ModBlocks.WALL_CANDLE_STICK_BROWN.get(), ModBlocks.CANDLE_STICK_GREEN.get(), ModBlocks.WALL_CANDLE_STICK_GREEN.get(), ModBlocks.CANDLE_STICK_RED.get(), ModBlocks.WALL_CANDLE_STICK_RED.get(), ModBlocks.CANDLE_STICK_BLACK.get(), ModBlocks.WALL_CANDLE_STICK_BLACK.get());
+
+            Helper.STANDING_AND_WALL_CANDLE_STICKS.forEach(pair -> {
+                tag(ModTags.Blocks.STANDING_CANDLE_STICK).add(pair.getFirst());
+                tag(ModTags.Blocks.WALL_CANDLE_STICK).add(pair.getSecond());
+            });
+            tag(ModTags.Blocks.CANDLE_STICK).addTags(ModTags.Blocks.STANDING_CANDLE_STICK, ModTags.Blocks.WALL_CANDLE_STICK);
+            Helper.STANDING_AND_WALL_CANDELABRAS.forEach(pair -> {
+                tag(ModTags.Blocks.STANDING_CANDELABRA).add(pair.getFirst());
+                tag(ModTags.Blocks.WALL_CANDELABRA).add(pair.getSecond());
+            });
+            tag(ModTags.Blocks.CANDELABRA).addTags(ModTags.Blocks.STANDING_CANDELABRA, ModTags.Blocks.WALL_CANDELABRA);
+            tag(BlockTags.CANDLES).addTags(ModTags.Blocks.CANDLE_STICK, ModTags.Blocks.CANDELABRA);
+
             tag(ModTags.Blocks.GARLIC).add(ModBlocks.GARLIC.get());
             tag(BlockTags.CROPS).add(ModBlocks.GARLIC.get());
 

@@ -27,6 +27,7 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
+@SuppressWarnings("deprecation")
 public class WallCandleStickBlock extends CandleStickBlock {
     public static final MapCodec<WallCandleStickBlock> CODEC = RecordCodecBuilder.mapCodec(inst ->
             candleStickParts(inst).apply(inst, WallCandleStickBlock::new)
@@ -54,12 +55,12 @@ public class WallCandleStickBlock extends CandleStickBlock {
         put(Direction.EAST, ImmutableList.of(new Vec3(0.25, 0.86D, 0.5D)));
     }};
 
-    private WallCandleStickBlock(Block emptyBlock, Item candle, Properties pProperties) {
-        this(() -> emptyBlock, () -> candle, pProperties);
+    private WallCandleStickBlock(Block emptyBlock, Item candle, Properties properties) {
+        this(() -> emptyBlock, () -> candle, properties);
     }
 
-    public WallCandleStickBlock(@Nullable Supplier<? extends Block> emptyBlock, Supplier<Item> candle, Properties pProperties) {
-        super(emptyBlock, candle, pProperties);
+    public WallCandleStickBlock(@Nullable Supplier<? extends Block> emptyBlock, Supplier<Item> candle, Properties properties) {
+        super(emptyBlock, candle, properties);
         this.registerDefaultState(this.getStateDefinition().any().setValue(FACING, Direction.NORTH).setValue(WATERLOGGED, false).setValue(LIT, false));
     }
 

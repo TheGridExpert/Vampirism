@@ -4,6 +4,7 @@ import de.teamlapen.vampirism.api.VReference;
 import de.teamlapen.vampirism.blocks.*;
 import de.teamlapen.vampirism.core.*;
 import de.teamlapen.vampirism.mixin.accessor.VanillaBlockLootAccessor;
+import de.teamlapen.vampirism.util.Helper;
 import de.teamlapen.vampirism.world.loot.conditions.AdjustableLevelCondition;
 import de.teamlapen.vampirism.world.loot.conditions.StakeCondition;
 import de.teamlapen.vampirism.world.loot.conditions.TentSpawnerCondition;
@@ -464,9 +465,11 @@ public class LootTablesProvider {
             this.dropSelf(ModBlocks.DARK_SPRUCE_SAPLING.get());
             this.dropSelf(ModBlocks.CURSED_SPRUCE_SAPLING.get());
             this.add(ModBlocks.DARK_SPRUCE_LEAVES.get(), (block) -> createLeavesDrops(block, ModBlocks.DARK_SPRUCE_SAPLING.get(), DEFAULT_SAPLING_DROP_RATES));
+            Helper.STANDING_AND_WALL_CANDELABRAS.forEach(pair -> {
+                this.add(pair.getFirst(), createSingleItemTable(pair.getFirst().asItem()));
+                this.add(pair.getSecond(), createSingleItemTable(pair.getFirst().asItem()));
+            });
             this.dropSelf(ModBlocks.CHANDELIER.get());
-            this.add(ModBlocks.CANDELABRA_WALL.get(), createSingleItemTable(ModItems.ITEM_CANDELABRA.get()));
-            this.add(ModBlocks.CANDELABRA.get(), createSingleItemTable(ModItems.ITEM_CANDELABRA.get()));
             this.add(ModBlocks.CROSS.get(), (p_218567_0_) -> createSinglePropConditionTable(p_218567_0_, VampirismSplitBlock.PART, VampirismSplitBlock.Part.MAIN));
             this.dropSelf(ModBlocks.TOMBSTONE1.get());
             this.dropSelf(ModBlocks.TOMBSTONE2.get());

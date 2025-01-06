@@ -24,6 +24,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Supplier;
 
+@SuppressWarnings("deprecation")
 public class StandingCandleStickBlock extends CandleStickBlock {
     public static final MapCodec<StandingCandleStickBlock> CODEC = RecordCodecBuilder.mapCodec(inst ->
             candleStickParts(inst).apply(inst, StandingCandleStickBlock::new)
@@ -40,8 +41,8 @@ public class StandingCandleStickBlock extends CandleStickBlock {
         this(() -> emptyBlock, () -> candle, pProperties);
     }
 
-    public StandingCandleStickBlock(@Nullable Supplier<? extends Block> emptyBlock, Supplier<Item> candle, Properties pProperties) {
-        super(emptyBlock, candle, pProperties);
+    public StandingCandleStickBlock(@Nullable Supplier<? extends Block> emptyBlock, Supplier<Item> candle, Properties properties) {
+        super(emptyBlock, candle, properties);
         this.registerDefaultState(this.getStateDefinition().any().setValue(FACING, Direction.NORTH).setValue(WATERLOGGED, false).setValue(LIT, false));
     }
 

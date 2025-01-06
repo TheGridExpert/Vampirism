@@ -4,6 +4,7 @@ import de.teamlapen.vampirism.REFERENCE;
 import de.teamlapen.vampirism.api.util.VResourceLocation;
 import de.teamlapen.vampirism.blocks.*;
 import de.teamlapen.vampirism.core.ModBlocks;
+import de.teamlapen.vampirism.util.Helper;
 import de.teamlapen.vampirism.util.RegUtil;
 import net.minecraft.core.Direction;
 import net.minecraft.data.PackOutput;
@@ -223,8 +224,6 @@ public class BlockStateProvider extends net.neoforged.neoforge.client.model.gene
                 .part().modelFile(hunterTableHammer).rotationY(180).addModel().condition(HunterTableBlock.FACING, Direction.SOUTH).condition(HunterTableBlock.VARIANT, HunterTableBlock.TableVariant.WEAPON, HunterTableBlock.TableVariant.WEAPON_CAULDRON, HunterTableBlock.TableVariant.WEAPON_POTION, HunterTableBlock.TableVariant.COMPLETE).end()
                 .part().modelFile(hunterTableHammer).rotationY(270).addModel().condition(HunterTableBlock.FACING, Direction.WEST).condition(HunterTableBlock.VARIANT, HunterTableBlock.TableVariant.WEAPON, HunterTableBlock.TableVariant.WEAPON_CAULDRON, HunterTableBlock.TableVariant.WEAPON_POTION, HunterTableBlock.TableVariant.COMPLETE).end();
         simpleBlock(ModBlocks.CHANDELIER.get(), models().getExistingFile(modLoc("block/chandelier")));
-        horizontalBlock(ModBlocks.CANDELABRA.get(), models().getExistingFile(modLoc("block/candelabra")));
-        horizontalBlock(ModBlocks.CANDELABRA_WALL.get(), models().getExistingFile(modLoc("block/candelabra_wall")));
         horizontalBlock(ModBlocks.CROSS.get(), models().getExistingFile(modLoc("block/cross")));
         horizontalBlock(ModBlocks.TOMBSTONE1.get(), models().getExistingFile(modLoc("block/tombstone1")));
         horizontalBlock(ModBlocks.TOMBSTONE2.get(), models().getExistingFile(modLoc("block/tombstone2")));
@@ -337,30 +336,41 @@ public class BlockStateProvider extends net.neoforged.neoforge.client.model.gene
         simpleBlock(ModBlocks.DARK_SPRUCE_WALL_HANGING_SIGN.get(), models().getBuilder("vampirism:dark_spruce_wall_hanging_sign").texture("particle", "vampirism:block/dark_spruce_planks"));
         simpleBlock(ModBlocks.CURSED_SPRUCE_HANGING_SIGN.get(), models().getBuilder("vampirism:cursed_spruce_hanging_sign").texture("particle", "vampirism:block/cursed_spruce_planks"));
         simpleBlock(ModBlocks.CURSED_SPRUCE_WALL_HANGING_SIGN.get(), models().getBuilder("vampirism:cursed_spruce_wall_hanging_sign").texture("particle", "vampirism:block/cursed_spruce_planks"));
+
         horizontalBlock(ModBlocks.WALL_CANDLE_STICK.get(), models().getExistingFile(modLoc("block/wall_candle_stick")));
         horizontalBlock(ModBlocks.CANDLE_STICK.get(), models().getExistingFile(modLoc("block/candle_stick")));
-        candleHolder(ModBlocks.CANDLE_STICK_NORMAL.get(), ModBlocks.WALL_CANDLE_STICK_NORMAL.get(), Items.CANDLE);
-        candleHolder(ModBlocks.CANDLE_STICK_WHITE.get(), ModBlocks.WALL_CANDLE_STICK_WHITE.get(), Items.WHITE_CANDLE);
-        candleHolder(ModBlocks.CANDLE_STICK_ORANGE.get(), ModBlocks.WALL_CANDLE_STICK_ORANGE.get(), Items.ORANGE_CANDLE);
-        candleHolder(ModBlocks.CANDLE_STICK_MAGENTA.get(), ModBlocks.WALL_CANDLE_STICK_MAGENTA.get(), Items.MAGENTA_CANDLE);
-        candleHolder(ModBlocks.CANDLE_STICK_LIGHT_BLUE.get(), ModBlocks.WALL_CANDLE_STICK_LIGHT_BLUE.get(), Items.LIGHT_BLUE_CANDLE);
-        candleHolder(ModBlocks.CANDLE_STICK_YELLOW.get(), ModBlocks.WALL_CANDLE_STICK_YELLOW.get(), Items.YELLOW_CANDLE);
-        candleHolder(ModBlocks.CANDLE_STICK_LIME.get(), ModBlocks.WALL_CANDLE_STICK_LIME.get(), Items.LIME_CANDLE);
-        candleHolder(ModBlocks.CANDLE_STICK_PINK.get(), ModBlocks.WALL_CANDLE_STICK_PINK.get(), Items.PINK_CANDLE);
-        candleHolder(ModBlocks.CANDLE_STICK_GRAY.get(), ModBlocks.WALL_CANDLE_STICK_GRAY.get(), Items.GRAY_CANDLE);
-        candleHolder(ModBlocks.CANDLE_STICK_LIGHT_GRAY.get(), ModBlocks.WALL_CANDLE_STICK_LIGHT_GRAY.get(), Items.LIGHT_GRAY_CANDLE);
-        candleHolder(ModBlocks.CANDLE_STICK_CYAN.get(), ModBlocks.WALL_CANDLE_STICK_CYAN.get(), Items.CYAN_CANDLE);
-        candleHolder(ModBlocks.CANDLE_STICK_PURPLE.get(), ModBlocks.WALL_CANDLE_STICK_PURPLE.get(), Items.PURPLE_CANDLE);
-        candleHolder(ModBlocks.CANDLE_STICK_BLUE.get(), ModBlocks.WALL_CANDLE_STICK_BLUE.get(), Items.BLUE_CANDLE);
-        candleHolder(ModBlocks.CANDLE_STICK_BROWN.get(), ModBlocks.WALL_CANDLE_STICK_BROWN.get(), Items.BROWN_CANDLE);
-        candleHolder(ModBlocks.CANDLE_STICK_GREEN.get(), ModBlocks.WALL_CANDLE_STICK_GREEN.get(), Items.GREEN_CANDLE);
-        candleHolder(ModBlocks.CANDLE_STICK_RED.get(), ModBlocks.WALL_CANDLE_STICK_RED.get(), Items.RED_CANDLE);
-        candleHolder(ModBlocks.CANDLE_STICK_BLACK.get(), ModBlocks.WALL_CANDLE_STICK_BLACK.get(), Items.BLACK_CANDLE);
+
+        createCandleStick(ModBlocks.CANDLE_STICK_NORMAL.get(), ModBlocks.WALL_CANDLE_STICK_NORMAL.get(), Items.CANDLE);
+        createCandleStick(ModBlocks.CANDLE_STICK_WHITE.get(), ModBlocks.WALL_CANDLE_STICK_WHITE.get(), Items.WHITE_CANDLE);
+        createCandleStick(ModBlocks.CANDLE_STICK_ORANGE.get(), ModBlocks.WALL_CANDLE_STICK_ORANGE.get(), Items.ORANGE_CANDLE);
+        createCandleStick(ModBlocks.CANDLE_STICK_MAGENTA.get(), ModBlocks.WALL_CANDLE_STICK_MAGENTA.get(), Items.MAGENTA_CANDLE);
+        createCandleStick(ModBlocks.CANDLE_STICK_LIGHT_BLUE.get(), ModBlocks.WALL_CANDLE_STICK_LIGHT_BLUE.get(), Items.LIGHT_BLUE_CANDLE);
+        createCandleStick(ModBlocks.CANDLE_STICK_YELLOW.get(), ModBlocks.WALL_CANDLE_STICK_YELLOW.get(), Items.YELLOW_CANDLE);
+        createCandleStick(ModBlocks.CANDLE_STICK_LIME.get(), ModBlocks.WALL_CANDLE_STICK_LIME.get(), Items.LIME_CANDLE);
+        createCandleStick(ModBlocks.CANDLE_STICK_PINK.get(), ModBlocks.WALL_CANDLE_STICK_PINK.get(), Items.PINK_CANDLE);
+        createCandleStick(ModBlocks.CANDLE_STICK_GRAY.get(), ModBlocks.WALL_CANDLE_STICK_GRAY.get(), Items.GRAY_CANDLE);
+        createCandleStick(ModBlocks.CANDLE_STICK_LIGHT_GRAY.get(), ModBlocks.WALL_CANDLE_STICK_LIGHT_GRAY.get(), Items.LIGHT_GRAY_CANDLE);
+        createCandleStick(ModBlocks.CANDLE_STICK_CYAN.get(), ModBlocks.WALL_CANDLE_STICK_CYAN.get(), Items.CYAN_CANDLE);
+        createCandleStick(ModBlocks.CANDLE_STICK_PURPLE.get(), ModBlocks.WALL_CANDLE_STICK_PURPLE.get(), Items.PURPLE_CANDLE);
+        createCandleStick(ModBlocks.CANDLE_STICK_BLUE.get(), ModBlocks.WALL_CANDLE_STICK_BLUE.get(), Items.BLUE_CANDLE);
+        createCandleStick(ModBlocks.CANDLE_STICK_BROWN.get(), ModBlocks.WALL_CANDLE_STICK_BROWN.get(), Items.BROWN_CANDLE);
+        createCandleStick(ModBlocks.CANDLE_STICK_GREEN.get(), ModBlocks.WALL_CANDLE_STICK_GREEN.get(), Items.GREEN_CANDLE);
+        createCandleStick(ModBlocks.CANDLE_STICK_RED.get(), ModBlocks.WALL_CANDLE_STICK_RED.get(), Items.RED_CANDLE);
+        createCandleStick(ModBlocks.CANDLE_STICK_BLACK.get(), ModBlocks.WALL_CANDLE_STICK_BLACK.get(), Items.BLACK_CANDLE);
+
+        horizontalBlock(ModBlocks.CANDELABRA.get(), models().getExistingFile(modLoc("block/candelabra")));
+        horizontalBlock(ModBlocks.WALL_CANDELABRA.get(), models().getExistingFile(modLoc("block/wall_candelabra")));
+
+        Helper.STANDING_AND_WALL_CANDELABRAS.forEach(pair -> {
+            if (pair.getFirst() != ModBlocks.CANDELABRA.get()) {
+                createCandelabra(pair.getFirst(), pair.getSecond(), pair.getFirst().getCandle().get());
+            }
+        });
     }
 
     private static final int DEFAULT_ANGLE_OFFSET = 180;
 
-    private void candleHolder(StandingCandleStickBlock standingBlock, WallCandleStickBlock wallBlock, Item candle) {
+    private void createCandleStick(StandingCandleStickBlock standingBlock, WallCandleStickBlock wallBlock, Item candle) {
         ResourceLocation candleId = RegUtil.id(candle);
         ResourceLocation candleOut = candleId.withPrefix("block/");
         ResourceLocation candleLit = candleOut.withSuffix("_lit");
@@ -374,6 +384,23 @@ public class BlockStateProvider extends net.neoforged.neoforge.client.model.gene
         var wallLit = models().withExistingParent(RegUtil.id(wallBlock).withPrefix("block/").withSuffix("_lit").getPath(), modLoc("block/wall_candle_stick_filled")).texture("candle", candleLit);
         getVariantBuilder(wallBlock).forAllStates(state -> ConfiguredModel.builder()
                 .modelFile(state.getValue(WallCandleStickBlock.LIT) ? wallLit : wallOut)
+                .rotationY(((int) state.getValue(BlockStateProperties.HORIZONTAL_FACING).toYRot() + DEFAULT_ANGLE_OFFSET) % 360)
+                .build());
+    }
+
+    private void createCandelabra(StandingCandelabraBlock standingBlock, WallCandelabraBlock wallBlock, Item candle) {
+        createCandleLikePiece(standingBlock, candle, "candelabra_filled");
+        createCandleLikePiece(wallBlock, candle, "wall_candelabra_filled");
+    }
+
+    private void createCandleLikePiece(CandleStickBlock candleHolderBlock, Item candle, String baseModelName) {
+        ResourceLocation candleId = RegUtil.id(candle);
+        ResourceLocation candleOut = candleId.withPrefix("block/");
+        ResourceLocation candleLit = candleOut.withSuffix("_lit");
+        BlockModelBuilder out = models().withExistingParent(RegUtil.id(candleHolderBlock).withPrefix("block/").getPath(), modLoc("block/" + baseModelName)).texture("candle", candleOut);
+        BlockModelBuilder lit = models().withExistingParent(RegUtil.id(candleHolderBlock).withPrefix("block/").withSuffix("_lit").getPath(), modLoc("block/" + baseModelName)).texture("candle", candleLit);
+        getVariantBuilder(candleHolderBlock).forAllStates(state -> ConfiguredModel.builder()
+                .modelFile(state.getValue(CandleStickBlock.LIT) ? lit : out)
                 .rotationY(((int) state.getValue(BlockStateProperties.HORIZONTAL_FACING).toYRot() + DEFAULT_ANGLE_OFFSET) % 360)
                 .build());
     }

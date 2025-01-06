@@ -6,6 +6,8 @@ import de.teamlapen.vampirism.api.util.VResourceLocation;
 import de.teamlapen.vampirism.client.core.ModItemsRender;
 import de.teamlapen.vampirism.core.ModBlocks;
 import de.teamlapen.vampirism.core.ModItems;
+import de.teamlapen.vampirism.util.Helper;
+import de.teamlapen.vampirism.util.RegUtil;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.DyeColor;
@@ -278,7 +280,12 @@ public class ItemModelGenerator extends BaseItemModelGenerator {
         item(ModItems.AMULET.get(), modLoc("item/vampire_amulet_layer0"), modLoc("item/vampire_amulet_layer1"));
         item(ModItems.OBI_BELT.get(), modLoc("item/vampire_obi_belt_layer0"), modLoc("item/vampire_obi_belt_layer1"));
 
-        withExistingParent(ModItems.ITEM_CANDELABRA.get(), modLoc("block/candelabra"));
+        withExistingParent(ModItems.CANDELABRA.get(), modLoc("block/candelabra"));
+        Helper.STANDING_AND_WALL_CANDELABRAS.forEach(pair -> {
+            if (pair.getFirst() != ModBlocks.CANDELABRA.get()) {
+                withExistingParent(pair.getFirst(), modLoc("block/" + RegUtil.id(pair.getFirst()).getPath()));
+            }
+        });
 
         withExistingParent(ModItems.CRUCIFIX_NORMAL.get(), modLoc("item/crucifix")).texture("texture", "item/crucifix_wooden");
         withExistingParent(ModItems.CRUCIFIX_ENHANCED.get(), modLoc("item/crucifix")).texture("texture", "item/crucifix_iron");

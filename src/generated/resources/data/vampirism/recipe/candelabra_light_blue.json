@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "vampirism:candelabra"
+    },
+    {
+      "item": "minecraft:light_blue_candle"
+    },
+    {
+      "item": "minecraft:light_blue_candle"
+    },
+    {
+      "item": "minecraft:light_blue_candle"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "vampirism:candelabra_light_blue"
+  }
+}

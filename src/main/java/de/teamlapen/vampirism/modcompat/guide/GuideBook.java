@@ -508,7 +508,7 @@ public class GuideBook implements IGuideBook {
         ItemStack activatedOil = ModItems.OIL_BOTTLE.get().withOil(ModOils.VAMPIRE_BLOOD);
         helper.info(ModBlocks.ALCHEMY_TABLE.get()).recipes("alchemy_table").setFormats(ModItems.OIL_BOTTLE.get().getName(activatedOil)).build(entries);
 
-        List<IPage> decorativeBlocks = new ArrayList<>(PageHelper.pagesForLongText(translateComponent(base + "decorative.text"), ModItems.ITEM_CANDELABRA.get()));
+        List<IPage> decorativeBlocks = new ArrayList<>(PageHelper.pagesForLongText(translateComponent(base + "decorative.text"), ModItems.CANDELABRA.get()));
         decorativeBlocks.add(helper.getRecipePage(VResourceLocation.mod("vampire/candelabra")));
         decorativeBlocks.add(helper.getRecipePage(VResourceLocation.mod("vampire/chandelier")));
         decorativeBlocks.add(helper.getRecipePage(VResourceLocation.mod("hunter/cross")));
@@ -517,7 +517,7 @@ public class GuideBook implements IGuideBook {
         decorativeBlocks.add(helper.getRecipePage(VResourceLocation.mod("general/tombstone3")));
         decorativeBlocks.add(helper.getRecipePage(VResourceLocation.mod("general/grave_cage")));
 
-        entries.put(VResourceLocation.mod(base + "decorative"), new EntryItemStack(decorativeBlocks, Component.translatable(base + "decorative.title"), new ItemStack(ModItems.ITEM_CANDELABRA.get())));
+        entries.put(VResourceLocation.mod(base + "decorative"), new EntryItemStack(decorativeBlocks, Component.translatable(base + "decorative.title"), new ItemStack(ModItems.CANDELABRA.get())));
         return entries;
     }
 

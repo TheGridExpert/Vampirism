@@ -1,6 +1,7 @@
 package de.teamlapen.lib.lib.util;
 
 import com.google.common.collect.Lists;
+import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -585,6 +586,19 @@ public class UtilLib {
 
     public static @NotNull VoxelShape blockBox(double pX1, double pY1, double pZ1, double pX2, double pY2, double pZ2) {
         return Block.box(Math.min(pX1, pX2), Math.min(pY1, pY2), Math.min(pZ1, pZ2), Math.max(pX1, pX2), Math.max(pY1, pY2), Math.max(pZ1, pZ2));
+    }
+
+    public static Map<Direction, VoxelShape> getShapeRotatedFromNorth(VoxelShape shapeOnNorth) {
+        return new EnumMap<>(Direction.class) {{
+            put(Direction.NORTH, shapeOnNorth);
+            put(Direction.WEST, UtilLib.rotateShape(shapeOnNorth, UtilLib.RotationAmount.TWO_HUNDRED_SEVENTY));
+            put(Direction.SOUTH, UtilLib.rotateShape(shapeOnNorth, UtilLib.RotationAmount.HUNDRED_EIGHTY));
+            put(Direction.EAST, UtilLib.rotateShape(shapeOnNorth, UtilLib.RotationAmount.NINETY));
+        }};
+    }
+
+    public static Pair<VoxelShape, VoxelShape> getShapeRotatedSymmetrically(VoxelShape shapeOnNorth) {
+        return Pair.of(shapeOnNorth, UtilLib.rotateShape(shapeOnNorth, UtilLib.RotationAmount.NINETY));
     }
 
     @Nullable

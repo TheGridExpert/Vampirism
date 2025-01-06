@@ -1,6 +1,7 @@
 package de.teamlapen.vampirism.core;
 
 import de.teamlapen.vampirism.data.PackRepositories;
+import de.teamlapen.vampirism.data.provider.RecipesProvider;
 import de.teamlapen.vampirism.entity.action.EntityActions;
 import de.teamlapen.vampirism.entity.minion.management.MinionTasks;
 import de.teamlapen.vampirism.entity.player.hunter.actions.HunterActions;
@@ -96,7 +97,7 @@ public class RegistryManager {
 
     public void registerForgeEventHandler() {
         IEventBus eventBus = NeoForge.EVENT_BUS;
-        eventBus.addListener(ModItems::registerCraftingRecipes);
+        eventBus.addListener(RecipesProvider::registerBrewingRecipes);
         eventBus.addListener(ModCommands::registerCommands);
         eventBus.addListener(ModLootTables::onLootLoad);
         eventBus.addListener(ModPotions::registerPotionMixes);

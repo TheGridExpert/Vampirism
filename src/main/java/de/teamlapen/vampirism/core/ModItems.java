@@ -8,13 +8,14 @@ import de.teamlapen.vampirism.api.VReference;
 import de.teamlapen.vampirism.api.items.IItemWithTier;
 import de.teamlapen.vampirism.api.items.IRefinementItem;
 import de.teamlapen.vampirism.api.util.VResourceLocation;
+import de.teamlapen.vampirism.blocks.StandingCandelabraBlock;
+import de.teamlapen.vampirism.blocks.WallCandelabraBlock;
 import de.teamlapen.vampirism.items.*;
 import de.teamlapen.vampirism.items.crossbow.ArrowContainer;
 import de.teamlapen.vampirism.items.crossbow.DoubleCrossbowItem;
 import de.teamlapen.vampirism.items.crossbow.SingleCrossbowItem;
 import de.teamlapen.vampirism.items.crossbow.TechCrossbowItem;
 import de.teamlapen.vampirism.misc.VampirismCreativeTab;
-import de.teamlapen.vampirism.util.ItemDataUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Direction;
 import net.minecraft.core.dispenser.BoatDispenseItemBehavior;
@@ -23,16 +24,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.*;
-import net.minecraft.world.item.alchemy.PotionBrewing;
-import net.minecraft.world.item.alchemy.Potions;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.block.DispenserBlock;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.common.DeferredSpawnEggItem;
 import net.neoforged.neoforge.common.EffectCure;
-import net.neoforged.neoforge.common.brewing.BrewingRecipe;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
-import net.neoforged.neoforge.event.brewing.RegisterBrewingRecipesEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -226,7 +222,7 @@ public class ModItems {
 
     public static final DeferredItem<Item> GARLIC_FINDER = register("garlic_finder", () -> new Item(props().rarity(Rarity.RARE)));
 
-    public static final DeferredItem<StandingAndWallBlockItem> ITEM_CANDELABRA = register("item_candelabra", () -> new StandingAndWallBlockItem(ModBlocks.CANDELABRA.get(), ModBlocks.CANDELABRA_WALL.get(), new Item.Properties(), Direction.DOWN));
+    //public static final DeferredItem<StandingAndWallBlockItem> ITEM_CANDELABRA = register("item_candelabra", () -> new StandingAndWallBlockItem(ModBlocks.CANDELABRA.get(), ModBlocks.CANDELABRA_WALL.get(), new Item.Properties(), Direction.DOWN));
     public static final DeferredItem<SignItem> DARK_SPRUCE_SIGN = register("dark_spruce_sign", () -> new SignItem((new Item.Properties()).stacksTo(16), ModBlocks.DARK_SPRUCE_SIGN.get(), ModBlocks.DARK_SPRUCE_WALL_SIGN.get()));
     public static final DeferredItem<SignItem> CURSED_SPRUCE_SIGN = register("cursed_spruce_sign", () -> new SignItem((new Item.Properties()).stacksTo(16), ModBlocks.CURSED_SPRUCE_SIGN.get(), ModBlocks.CURSED_SPRUCE_WALL_SIGN.get()));
 
@@ -244,34 +240,27 @@ public class ModItems {
     public static final DeferredItem<HangingSignItem> CURSED_SPRUCE_HANGING_SIGN = register("cursed_spruce_hanging_sign", () -> new HangingSignItem(ModBlocks.CURSED_SPRUCE_HANGING_SIGN.get(), ModBlocks.CURSED_SPRUCE_WALL_HANGING_SIGN.get(), new Item.Properties().stacksTo(16)));
 
     public static final DeferredItem<Item> MOTHER_CORE = register("mother_core", () -> new Item(props().rarity(Rarity.UNCOMMON)));
+
     public static final DeferredItem<StandingAndWallBlockItem> CANDLE_STICK = register("candle_stick", () -> new StandingAndWallBlockItem(ModBlocks.CANDLE_STICK.get(), ModBlocks.WALL_CANDLE_STICK.get(), new Item.Properties(), Direction.DOWN));
 
-    static void registerCraftingRecipes(RegisterBrewingRecipesEvent event) {
-        PotionBrewing.Builder builder = event.getBuilder();
-        // Brewing
-        builder.addRecipe(Ingredient.of(ItemDataUtils.createPotion(Potions.WATER)), Ingredient.of(new ItemStack(PURE_SALT.get())), new ItemStack(PURE_SALT_WATER.get()));
-
-        builder.addRecipe(new BrewingRecipe(Ingredient.of(HOLY_WATER_BOTTLE_NORMAL.get()), Ingredient.of(Items.GUNPOWDER), new ItemStack(HOLY_WATER_SPLASH_BOTTLE_NORMAL.get())) {
-            @Override
-            public boolean isInput(@NotNull ItemStack stack) {
-
-                return HOLY_WATER_BOTTLE_NORMAL.get().equals(stack.getItem());
-            }
-        });
-        builder.addRecipe(new BrewingRecipe(Ingredient.of(HOLY_WATER_BOTTLE_ENHANCED.get()), Ingredient.of(Items.GUNPOWDER), new ItemStack(HOLY_WATER_SPLASH_BOTTLE_ENHANCED.get())) {
-            @Override
-            public boolean isInput(@NotNull ItemStack stack) {
-
-                return HOLY_WATER_BOTTLE_ENHANCED.get().equals(stack.getItem());
-            }
-        });
-        builder.addRecipe(new BrewingRecipe(Ingredient.of(HOLY_WATER_BOTTLE_ULTIMATE.get()), Ingredient.of(Items.GUNPOWDER), new ItemStack(HOLY_WATER_SPLASH_BOTTLE_ULTIMATE.get())) {
-            @Override
-            public boolean isInput(@NotNull ItemStack stack) {
-                return HOLY_WATER_BOTTLE_ULTIMATE.get().equals(stack.getItem());
-            }
-        });
-    }
+    public static final DeferredItem<CandelabraItem> CANDELABRA = ITEMS.register("candelabra", () -> new CandelabraItem(ModBlocks.CANDELABRA.get(), ModBlocks.WALL_CANDELABRA.get(), new Item.Properties(), Direction.DOWN));
+    public static final DeferredItem<CandelabraItem> CANDELABRA_NORMAL = ITEMS.register("candelabra_normal", () -> new CandelabraItem(ModBlocks.CANDELABRA_NORMAL.get(), ModBlocks.WALL_CANDELABRA_NORMAL.get(), new Item.Properties(), Direction.DOWN));
+    public static final DeferredItem<CandelabraItem> CANDELABRA_WHITE = ITEMS.register("candelabra_white", () -> new CandelabraItem(ModBlocks.CANDELABRA_WHITE.get(), ModBlocks.WALL_CANDELABRA_WHITE.get(), new Item.Properties(), Direction.DOWN));
+    public static final DeferredItem<CandelabraItem> CANDELABRA_ORANGE = ITEMS.register("candelabra_orange", () -> new CandelabraItem(ModBlocks.CANDELABRA_ORANGE.get(), ModBlocks.WALL_CANDELABRA_ORANGE.get(), new Item.Properties(), Direction.DOWN));
+    public static final DeferredItem<CandelabraItem> CANDELABRA_MAGENTA = ITEMS.register("candelabra_magenta", () -> new CandelabraItem(ModBlocks.CANDELABRA_MAGENTA.get(), ModBlocks.WALL_CANDELABRA_MAGENTA.get(), new Item.Properties(), Direction.DOWN));
+    public static final DeferredItem<CandelabraItem> CANDELABRA_LIGHT_BLUE = ITEMS.register("candelabra_light_blue", () -> new CandelabraItem(ModBlocks.CANDELABRA_LIGHT_BLUE.get(), ModBlocks.WALL_CANDELABRA_LIGHT_BLUE.get(), new Item.Properties(), Direction.DOWN));
+    public static final DeferredItem<CandelabraItem> CANDELABRA_YELLOW = ITEMS.register("candelabra_yellow", () -> new CandelabraItem(ModBlocks.CANDELABRA_YELLOW.get(), ModBlocks.WALL_CANDELABRA_YELLOW.get(), new Item.Properties(), Direction.DOWN));
+    public static final DeferredItem<CandelabraItem> CANDELABRA_LIME = ITEMS.register("candelabra_lime", () -> new CandelabraItem(ModBlocks.CANDELABRA_LIME.get(), ModBlocks.WALL_CANDELABRA_LIME.get(), new Item.Properties(), Direction.DOWN));
+    public static final DeferredItem<CandelabraItem> CANDELABRA_PINK = ITEMS.register("candelabra_pink", () -> new CandelabraItem(ModBlocks.CANDELABRA_PINK.get(), ModBlocks.WALL_CANDELABRA_PINK.get(), new Item.Properties(), Direction.DOWN));
+    public static final DeferredItem<CandelabraItem> CANDELABRA_GRAY = ITEMS.register("candelabra_gray", () -> new CandelabraItem(ModBlocks.CANDELABRA_GRAY.get(), ModBlocks.WALL_CANDELABRA_GRAY.get(), new Item.Properties(), Direction.DOWN));
+    public static final DeferredItem<CandelabraItem> CANDELABRA_LIGHT_GRAY = ITEMS.register("candelabra_light_gray", () -> new CandelabraItem(ModBlocks.CANDELABRA_LIGHT_GRAY.get(), ModBlocks.WALL_CANDELABRA_LIGHT_GRAY.get(), new Item.Properties(), Direction.DOWN));
+    public static final DeferredItem<CandelabraItem> CANDELABRA_CYAN = ITEMS.register("candelabra_cyan", () -> new CandelabraItem(ModBlocks.CANDELABRA_CYAN.get(), ModBlocks.WALL_CANDELABRA_CYAN.get(), new Item.Properties(), Direction.DOWN));
+    public static final DeferredItem<CandelabraItem> CANDELABRA_PURPLE = ITEMS.register("candelabra_purple", () -> new CandelabraItem(ModBlocks.CANDELABRA_PURPLE.get(), ModBlocks.WALL_CANDELABRA_PURPLE.get(), new Item.Properties(), Direction.DOWN));
+    public static final DeferredItem<CandelabraItem> CANDELABRA_BLUE = ITEMS.register("candelabra_blue", () -> new CandelabraItem(ModBlocks.CANDELABRA_BLUE.get(), ModBlocks.WALL_CANDELABRA_BLUE.get(), new Item.Properties(), Direction.DOWN));
+    public static final DeferredItem<CandelabraItem> CANDELABRA_BROWN = ITEMS.register("candelabra_brown", () -> new CandelabraItem(ModBlocks.CANDELABRA_BROWN.get(), ModBlocks.WALL_CANDELABRA_BROWN.get(), new Item.Properties(), Direction.DOWN));
+    public static final DeferredItem<CandelabraItem> CANDELABRA_GREEN = ITEMS.register("candelabra_green", () -> new CandelabraItem(ModBlocks.CANDELABRA_GREEN.get(), ModBlocks.WALL_CANDELABRA_GREEN.get(), new Item.Properties(), Direction.DOWN));
+    public static final DeferredItem<CandelabraItem> CANDELABRA_RED = ITEMS.register("candelabra_red", () -> new CandelabraItem(ModBlocks.CANDELABRA_RED.get(), ModBlocks.WALL_CANDELABRA_RED.get(), new Item.Properties(), Direction.DOWN));
+    public static final DeferredItem<CandelabraItem> CANDELABRA_BLACK = ITEMS.register("candelabra_black", () -> new CandelabraItem(ModBlocks.CANDELABRA_BLACK.get(), ModBlocks.WALL_CANDELABRA_BLACK.get(), new Item.Properties(), Direction.DOWN));
 
     static <I extends Item> DeferredItem<I> register(final String name, ResourceKey<CreativeModeTab> tab, final Supplier<? extends I> sup) {
         DeferredItem<I> item = ITEMS.register(name, sup);
@@ -297,6 +286,10 @@ public class ModItems {
             DUMMY_ITEMS.register(bus);
             VAMPIRISM_TAB_ITEMS.add(dummy_item);
         }
+    }
+
+    static DeferredItem<StandingAndWallBlockItem> registerCandelabraItem(String name, StandingCandelabraBlock standingCandelabraBlock, WallCandelabraBlock wallCandelabraBlock) {
+        return register(name, () -> new StandingAndWallBlockItem(standingCandelabraBlock, wallCandelabraBlock, new Item.Properties(), Direction.DOWN));
     }
 
     private static Item.@NotNull Properties props() {

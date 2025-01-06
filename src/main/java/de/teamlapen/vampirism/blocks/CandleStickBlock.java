@@ -7,8 +7,9 @@ import de.teamlapen.vampirism.core.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.BlockTags;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -17,10 +18,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.block.AbstractCandleBlock;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.SimpleWaterloggedBlock;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -33,6 +31,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.function.ToIntFunction;
 
@@ -44,7 +43,7 @@ public abstract class CandleStickBlock extends AbstractCandleBlock implements Si
 
     protected static <T extends CandleStickBlock> Products.P3<RecordCodecBuilder.Mu<T>, Block, Item, Properties> candleStickParts(RecordCodecBuilder.Instance<T> instance) {
         return instance.group(
-                BuiltInRegistries.BLOCK.byNameCodec().fieldOf("empty_block").forGetter(i -> i.emptyBlock.get()),
+                BuiltInRegistries.BLOCK.byNameCodec().fieldOf("empty_block").forGetter(i -> Optional.ofNullable(i.emptyBlock).map(Supplier::get).orElse(null)),
                 BuiltInRegistries.ITEM.byNameCodec().fieldOf("candle").forGetter(i -> i.candle.get()),
                 propertiesCodec()
         );
@@ -54,16 +53,13 @@ public abstract class CandleStickBlock extends AbstractCandleBlock implements Si
     protected final @Nullable Supplier<? extends Block> emptyBlock;
     protected final Supplier<Item> candle;
 
-    protected CandleStickBlock(@Nullable Supplier<? extends Block> emptyBlock, Supplier<Item> candle, Properties pProperties) {
-        super(pProperties);
+    protected CandleStickBlock(@Nullable Supplier<? extends Block> emptyBlock, Supplier<Item> candle, Properties properties) {
+        super(properties);
         this.emptyBlock = emptyBlock;
         this.candle = candle;
     }
 
     public void addCandle(ResourceLocation candle, Supplier<Block> holder) {
-        if (candle == null) {
-            throw new IllegalArgumentException("Cannot add candle to non-empty candle holder");
-        }
         this.fullHolderByContent.put(candle, holder);
     }
 
@@ -74,11 +70,16 @@ public abstract class CandleStickBlock extends AbstractCandleBlock implements Si
         if (isEmpty()) {
             Block orDefault = this.fullHolderByContent.getOrDefault(BuiltInRegistries.ITEM.getKey(item), () -> Blocks.AIR).get();
             if (orDefault != Blocks.AIR) {
-                pLevel.setBlock(pPos, getFilledState(pState, orDefault), 3);
-                if (!pPlayer.getAbilities().instabuild) {
-                    stack.shrink(1);
+                if (stack.getCount() < getNumberOfCandles()) {
+                    pPlayer.displayClientMessage(Component.translatable("text.vampirism.not_enough_candles", getNumberOfCandles()), true);
+                } else {
+                    pLevel.setBlock(pPos, getFilledState(pState, orDefault), 3);
+                    if (!pPlayer.getAbilities().instabuild) {
+                        stack.shrink(getNumberOfCandles());
+                    }
+                    pLevel.playSound(pPlayer, pPos, SoundType.CANDLE.getPlaceSound(), SoundSource.BLOCKS, (SoundType.CANDLE.getVolume() + 1.0F) / 2.0F, SoundType.CANDLE.getPitch() * 0.8F);
+                    return InteractionResult.sidedSuccess(pLevel.isClientSide);
                 }
-                return InteractionResult.sidedSuccess(pLevel.isClientSide);
             }
         } else if (pPlayer.getAbilities().mayBuild && pPlayer.getItemInHand(InteractionHand.MAIN_HAND).isEmpty()) {
             if (pState.getValue(LIT)) {
@@ -88,13 +89,18 @@ public abstract class CandleStickBlock extends AbstractCandleBlock implements Si
                 if (this.emptyBlock != null) {
                     pLevel.setBlock(pPos, this.getEmptyState(pState, this.emptyBlock.get()), 3);
                     if (!pPlayer.getAbilities().instabuild) {
-                        pPlayer.addItem(this.candle.get().getDefaultInstance());
+                        pPlayer.addItem(new ItemStack(candle.get(), getNumberOfCandles()));
                     }
+                    pLevel.playSound(pPlayer, pPos, SoundType.CANDLE.getBreakSound(), SoundSource.BLOCKS, (SoundType.CANDLE.getVolume() + 1.0F) / 2.0F, SoundType.CANDLE.getPitch() * 0.8F);
                 }
             }
         }
 
         return InteractionResult.PASS;
+    }
+
+    public int getNumberOfCandles() {
+        return 1;
     }
 
     protected BlockState getFilledState(BlockState sourceState, Block block) {
@@ -129,7 +135,7 @@ public abstract class CandleStickBlock extends AbstractCandleBlock implements Si
         if (!pState.getValue(WATERLOGGED) && pFluidState.getType() == Fluids.WATER) {
             BlockState blockstate = pState.setValue(WATERLOGGED, Boolean.TRUE);
             if (pState.getValue(LIT)) {
-                extinguish((Player) null, blockstate, pLevel, pPos);
+                extinguish(null, blockstate, pLevel, pPos);
             } else {
                 pLevel.setBlock(pPos, blockstate, 3);
             }
@@ -149,10 +155,6 @@ public abstract class CandleStickBlock extends AbstractCandleBlock implements Si
     @Override
     public boolean canSurvive(BlockState pState, LevelReader pLevel, BlockPos pPos) {
         return Block.canSupportCenter(pLevel, pPos.below(), Direction.UP);
-    }
-
-    public static boolean canLight(BlockState pState) {
-        return pState.is(BlockTags.CANDLES, (p_152810_) -> p_152810_.hasProperty(LIT) && p_152810_.hasProperty(WATERLOGGED)) && !pState.getValue(LIT) && !pState.getValue(WATERLOGGED);
     }
 
     @NotNull

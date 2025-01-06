@@ -3,6 +3,7 @@ package de.teamlapen.vampirism.data.provider;
 import com.google.common.collect.Sets;
 import de.teamlapen.vampirism.REFERENCE;
 import de.teamlapen.vampirism.api.util.VResourceLocation;
+import de.teamlapen.vampirism.blocks.StandingCandelabraBlock;
 import de.teamlapen.vampirism.core.*;
 import de.teamlapen.vampirism.data.ModBlockFamilies;
 import de.teamlapen.vampirism.data.recipebuilder.*;
@@ -13,7 +14,9 @@ import de.teamlapen.vampirism.mixin.accessor.RecipeProviderAccessor;
 import de.teamlapen.vampirism.recipes.ApplicableOilRecipe;
 import de.teamlapen.vampirism.recipes.CleanOilRecipe;
 import de.teamlapen.vampirism.recipes.ConfigCondition;
+import de.teamlapen.vampirism.util.Helper;
 import de.teamlapen.vampirism.util.ItemDataUtils;
+import de.teamlapen.vampirism.util.RegUtil;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.AdvancementRequirements;
@@ -37,6 +40,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.Potion;
+import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -49,10 +53,12 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.common.Tags;
+import net.neoforged.neoforge.common.brewing.BrewingRecipe;
 import net.neoforged.neoforge.common.conditions.ModLoadedCondition;
 import net.neoforged.neoforge.common.conditions.NotCondition;
 import net.neoforged.neoforge.common.crafting.CompoundIngredient;
 import net.neoforged.neoforge.common.crafting.DataComponentIngredient;
+import net.neoforged.neoforge.event.brewing.RegisterBrewingRecipesEvent;
 import net.neoforged.neoforge.fluids.FluidStack;
 import org.jetbrains.annotations.NotNull;
 
@@ -284,7 +290,7 @@ public class RecipesProvider extends RecipeProvider {
         new Shaped(RecipeCategory.MISC, blood_bottle_stack).pattern("XYX").pattern(" X ").define('X', glass).define('Y', rotten_flesh).unlockedBy("has_glass", has(glass)).save(output.withConditions(new NotCondition(new ConfigCondition("auto_convert"))), vampire("blood_bottle"));
 
         new IItemWIthTierRecipeBuilder(RecipeCategory.COMBAT, ModItems.HEART_SEEKER_NORMAL.get(), 1).pattern(" X ").pattern("XYX").define('X', blood_infused_iron_ingot).define('Y', ModItems.HEART_SEEKER_NORMAL.get()).unlockedBy("has_heart_seeker", has(ModItems.HEART_SEEKER_NORMAL.get())).save(output, vampire("heart_seeker_normal_repair"));
-        new IItemWIthTierRecipeBuilder(RecipeCategory.COMBAT,ModItems.HEART_STRIKER_NORMAL.get(), 1).pattern("XXX").pattern("XYX").define('X', blood_infused_iron_ingot).define('Y', ModItems.HEART_STRIKER_NORMAL.get()).unlockedBy("has_heart_striker", has(ModItems.HEART_STRIKER_NORMAL.get())).save(output, vampire("heart_striker_normal_repair"));
+        new IItemWIthTierRecipeBuilder(RecipeCategory.COMBAT, ModItems.HEART_STRIKER_NORMAL.get(), 1).pattern("XXX").pattern("XYX").define('X', blood_infused_iron_ingot).define('Y', ModItems.HEART_STRIKER_NORMAL.get()).unlockedBy("has_heart_striker", has(ModItems.HEART_STRIKER_NORMAL.get())).save(output, vampire("heart_striker_normal_repair"));
         new IItemWIthTierRecipeBuilder(RecipeCategory.COMBAT, ModItems.HEART_SEEKER_ENHANCED.get(), 1).pattern(" X ").pattern("XYX").define('X', blood_infused_enhanced_iron_ingot).define('Y', ModItems.HEART_SEEKER_ENHANCED.get()).unlockedBy("has_heart_seeker", has(ModItems.HEART_SEEKER_ENHANCED.get())).save(output, vampire("heart_seeker_enhanced_repair"));
         new IItemWIthTierRecipeBuilder(RecipeCategory.COMBAT, ModItems.HEART_STRIKER_ENHANCED.get(), 1).pattern("XXX").pattern("XYX").define('X', blood_infused_enhanced_iron_ingot).define('Y', ModItems.HEART_STRIKER_ENHANCED.get()).unlockedBy("has_heart_striker", has(ModItems.HEART_STRIKER_ENHANCED.get())).save(output, vampire("heart_striker_enhanced_repair"));
 
@@ -298,10 +304,6 @@ public class RecipesProvider extends RecipeProvider {
         ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ModItems.VAMPIRE_CLOTHING_CROWN.get()).pattern("XYX").pattern("XXX").define('X', Items.GOLD_INGOT).define('Y', Ingredient.of(heart)).unlockedBy("has_heart", has(heart)).unlockedBy("has_gold", has(Items.GOLD_INGOT)).save(output, vampire("vampire_clothing_crown"));
 
         ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModBlocks.CROSS.get()).pattern(" X ").pattern("XYX").pattern(" X ").define('X', planks).define('Y', holy_water).unlockedBy("has_planks", has(planks)).unlockedBy("has_holy", has(holy_water)).save(output, hunter("cross"));
-        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModItems.ITEM_CANDELABRA.get()).pattern("XXX").pattern("YYY").pattern("ZAZ").define('X', string).define('Y', Items.HONEYCOMB).define('Z', iron_ingot).define('A', gold_ingot).unlockedBy("has_honey", has(Items.HONEYCOMB)).unlockedBy("has_string", has(string)).unlockedBy("has_iron", has(iron_ingot)).unlockedBy("has_gold", has(gold_ingot)).save(output, vampire("candelabra"));
-        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModItems.ITEM_CANDELABRA.get()).pattern("YYY").pattern("ZAZ").define('Y', ItemTags.CANDLES).define('Z', iron_ingot).define('A', gold_ingot).unlockedBy("has_honey", has(ItemTags.CANDLES)).unlockedBy("has_iron", has(iron_ingot)).unlockedBy("has_gold", has(gold_ingot)).save(output, vampire("candelabra_candles"));
-        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModBlocks.CHANDELIER.get()).pattern("XYX").pattern("ZYZ").pattern("BAB").define('X', string).define('Y', ModItems.ITEM_CANDELABRA.get()).define('Z', Items.HONEYCOMB).define('B', iron_ingot).define('A', gold_ingot).unlockedBy("has_string", has(string)).unlockedBy("has_honey", has(Items.HONEYCOMB)).unlockedBy("has_candelabra", has(ModItems.ITEM_CANDELABRA.get())).save(output, vampire("chandelier"));
-        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModBlocks.CHANDELIER.get()).pattern(" Y ").pattern("ZYZ").pattern("BAB").define('Y', ModItems.ITEM_CANDELABRA.get()).define('Z', ItemTags.CANDLES).define('B', iron_ingot).define('A', gold_ingot).unlockedBy("has_honey", has(ItemTags.CANDLES)).unlockedBy("has_candelabra", has(ModItems.ITEM_CANDELABRA.get())).save(output, vampire("chandelier_candle"));
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.GARLIC_FINDER.get()).pattern("XXX").pattern("XYX").pattern("ZAZ").define('X', blood_infused_iron_ingot).define('Y', garlic).define('Z', planks).define('A', Tags.Items.DUSTS_REDSTONE).unlockedBy("has_garlic", has(garlic)).unlockedBy("has_bloodiron", has(blood_infused_iron_ingot)).unlockedBy("has_redstone", has(Tags.Items.DUSTS_REDSTONE)).save(output, vampire("garlic_finder"));
         ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModBlocks.TOMBSTONE2.get()).pattern("XX ").pattern("XYX").pattern("XXX").define('X', Blocks.COBBLESTONE).define('Y', Tags.Items.STONES).unlockedBy("has_coble", has(Blocks.COBBLESTONE)).unlockedBy("has_stone", has(Tags.Items.STONES)).save(output, general("tombstone2"));
         ShapelessRecipeBuilder.shapeless(RecipeCategory.DECORATIONS, ModBlocks.TOMBSTONE1.get()).requires(ModBlocks.TOMBSTONE2.get()).unlockedBy("has_tomb", has(ModBlocks.TOMBSTONE2.get())).save(output, general("tombstone1"));
@@ -504,11 +506,36 @@ public class RecipesProvider extends RecipeProvider {
         stonecutterResultFromBase(output, RecipeCategory.DECORATIONS, ModBlocks.PURPLE_STONE_TILES_STAIRS.get(), ModBlocks.PURPLE_STONE_BRICKS.get());
         stonecutterResultFromBase(output, RecipeCategory.DECORATIONS, ModBlocks.PURPLE_STONE_TILES_STAIRS.get(), ModBlocks.PURPLE_STONE_TILES.get());
 
-        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModItems.CANDLE_STICK.get()).pattern(" X ").pattern("YYY").define('X', iron_ingot).define('Y', Items.IRON_NUGGET).unlockedBy("has_iron", has(iron_ingot)).unlockedBy("has_nugget", has(Items.IRON_NUGGET)).save(output, vampire("candle_stick"));
+        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModItems.CANDLE_STICK.get()).pattern(" I ").pattern("NNN").define('I', iron_ingot).define('N', Items.IRON_NUGGET).unlockedBy("has_iron", has(iron_ingot)).unlockedBy("has_nugget", has(Items.IRON_NUGGET)).save(output, modId("candle_stick"));
+        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModItems.CANDELABRA.get()).pattern("III").pattern("NIN").define('I', iron_ingot).define('N', Items.IRON_NUGGET).unlockedBy("has_iron", has(iron_ingot)).unlockedBy("has_nugget", has(Items.IRON_NUGGET)).save(output, modId("candelabra"));
+        Helper.STANDING_AND_WALL_CANDELABRAS.forEach(pair -> candelabraWithCandles(pair.getFirst(), output));
+        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModBlocks.CHANDELIER.get()).pattern(" N ").pattern("ICI").define('C', ModItems.CANDELABRA.get()).define('I', iron_ingot).define('N', Items.IRON_NUGGET).unlockedBy("has_iron", has(iron_ingot)).unlockedBy("has_nugget", has(Items.IRON_NUGGET)).unlockedBy("has_candelabra", has(ModItems.CANDELABRA.get())).save(output, modId("chandelier"));
     }
 
-    private void enchantment(ItemStack stack, int level, @NotNull Holder<Enchantment> enchantment) {
-        stack.enchant(enchantment, level);
+    public static void registerBrewingRecipes(RegisterBrewingRecipesEvent event) {
+        PotionBrewing.Builder builder = event.getBuilder();
+        builder.addRecipe(Ingredient.of(ItemDataUtils.createPotion(Potions.WATER)), Ingredient.of(new ItemStack(ModItems.PURE_SALT.get())), new ItemStack(ModItems.PURE_SALT_WATER.get()));
+
+        builder.addRecipe(new BrewingRecipe(Ingredient.of(ModItems.HOLY_WATER_BOTTLE_NORMAL.get()), Ingredient.of(Items.GUNPOWDER), new ItemStack(ModItems.HOLY_WATER_SPLASH_BOTTLE_NORMAL.get())) {
+            @Override
+            public boolean isInput(@NotNull ItemStack stack) {
+
+                return ModItems.HOLY_WATER_BOTTLE_NORMAL.get().equals(stack.getItem());
+            }
+        });
+        builder.addRecipe(new BrewingRecipe(Ingredient.of(ModItems.HOLY_WATER_BOTTLE_ENHANCED.get()), Ingredient.of(Items.GUNPOWDER), new ItemStack(ModItems.HOLY_WATER_SPLASH_BOTTLE_ENHANCED.get())) {
+            @Override
+            public boolean isInput(@NotNull ItemStack stack) {
+
+                return ModItems.HOLY_WATER_BOTTLE_ENHANCED.get().equals(stack.getItem());
+            }
+        });
+        builder.addRecipe(new BrewingRecipe(Ingredient.of(ModItems.HOLY_WATER_BOTTLE_ULTIMATE.get()), Ingredient.of(Items.GUNPOWDER), new ItemStack(ModItems.HOLY_WATER_SPLASH_BOTTLE_ULTIMATE.get())) {
+            @Override
+            public boolean isInput(@NotNull ItemStack stack) {
+                return ModItems.HOLY_WATER_BOTTLE_ULTIMATE.get().equals(stack.getItem());
+            }
+        });
     }
 
     private @NotNull ResourceLocation general(String path) {
@@ -539,6 +566,17 @@ public class RecipesProvider extends RecipeProvider {
 
     protected void coffinFromWool(RecipeOutput consumer, ItemLike coffin, ItemLike wool, ResourceLocation path) {
         ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, coffin).pattern("XXX").pattern("YYY").pattern("XXX").define('X', ItemTags.PLANKS).define('Y', wool).unlockedBy("has_wool", has(wool)).save(consumer, path);
+    }
+
+    protected void candelabraWithCandles(StandingCandelabraBlock candleCandelabraBlock, RecipeOutput output) {
+        Item candle = candleCandelabraBlock.getCandle().get();
+        if (candle == null) return;
+
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.DECORATIONS, candleCandelabraBlock)
+                .requires(ModItems.CANDELABRA.get())
+                .requires(candle, 3)
+                .unlockedBy("has_candelabra", has(ModItems.CANDELABRA.get()))
+                .save(output, modId(RegUtil.id(candleCandelabraBlock).getPath()));
     }
 
     private @NotNull ResourceLocation vampire(String path) {

@@ -84,7 +84,7 @@ public class MigrationData {
         mapping.remap("vampirism:obsidian_armor_legs_ultimate","vampirism:hunter_coat_legs_ultimate" );
         mapping.remap("vampirism:obsidian_armor_feet_ultimate", "vampirism:hunter_coat_feet_ultimate");
         mapping.remap("vampirism:item_garlic", "vampirism:garlic");
-
+        mapping.remap("vampirism:item_candelabra", "vampirism:candelabra_normal");
     }
 
     private static void fixBlocks(@NotNull Mapping mapping) {
@@ -113,6 +113,7 @@ public class MigrationData {
         mapping.remap("castle_block_purple_brick_wall", "vampirism:purple_stone_brick_wall");
         mapping.remap("dark_spruce_pressure_place", "vampirism:dark_spruce_pressure_plate");
         mapping.remap("cursed_spruce_pressure_place", "vampirism:cursed_spruce_pressure_plate");
+        mapping.remap("vampirism:candelabra_wall", "vampirism:wall_candelabra_normal");
     }
 
     private static void fixEntityTypes(@NotNull Mapping mapping) {
