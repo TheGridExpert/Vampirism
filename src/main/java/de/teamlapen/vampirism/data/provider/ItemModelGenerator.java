@@ -1,8 +1,10 @@
 package de.teamlapen.vampirism.data.provider;
 
+import com.mojang.datafixers.util.Pair;
 import de.teamlapen.lib.lib.data.BaseItemModelGenerator;
 import de.teamlapen.vampirism.REFERENCE;
 import de.teamlapen.vampirism.api.util.VResourceLocation;
+import de.teamlapen.vampirism.blocks.CandleHolderBlock;
 import de.teamlapen.vampirism.client.core.ModItemsRender;
 import de.teamlapen.vampirism.core.ModBlocks;
 import de.teamlapen.vampirism.core.ModItems;
@@ -42,7 +44,6 @@ public class ItemModelGenerator extends BaseItemModelGenerator {
             add(ModBlocks.CURSED_EARTH.get());
             add(ModBlocks.SUNSCREEN_BEACON.get());
             add(ModBlocks.TOTEM_TOP.get());
-            add(ModBlocks.CHANDELIER.get());
             add(ModBlocks.CROSS.get());
             add(ModBlocks.TOMBSTONE1.get());
             add(ModBlocks.TOMBSTONE2.get());
@@ -280,13 +281,6 @@ public class ItemModelGenerator extends BaseItemModelGenerator {
         item(ModItems.AMULET.get(), modLoc("item/vampire_amulet_layer0"), modLoc("item/vampire_amulet_layer1"));
         item(ModItems.OBI_BELT.get(), modLoc("item/vampire_obi_belt_layer0"), modLoc("item/vampire_obi_belt_layer1"));
 
-        withExistingParent(ModItems.CANDELABRA.get(), modLoc("block/candelabra"));
-        Helper.STANDING_AND_WALL_CANDELABRAS.forEach(pair -> {
-            if (pair.getFirst() != ModBlocks.CANDELABRA.get()) {
-                withExistingParent(pair.getFirst(), modLoc("block/" + RegUtil.id(pair.getFirst()).getPath()));
-            }
-        });
-
         withExistingParent(ModItems.CRUCIFIX_NORMAL.get(), modLoc("item/crucifix")).texture("texture", "item/crucifix_wooden");
         withExistingParent(ModItems.CRUCIFIX_ENHANCED.get(), modLoc("item/crucifix")).texture("texture", "item/crucifix_iron");
         withExistingParent(ModItems.CRUCIFIX_ULTIMATE.get(), modLoc("item/crucifix")).texture("texture", "item/crucifix_gold");
@@ -344,7 +338,23 @@ public class ItemModelGenerator extends BaseItemModelGenerator {
         withExistingParent(ModBlocks.INFESTED_DARK_STONE.get(), modLoc("block/dark_stone"));
         block(ModBlocks.FOG_DIFFUSER.get(), "fog_diffuser");
         withExistingParent(ModBlocks.CURSED_HANGING_ROOTS.get().asItem(), mcLoc("item/generated")).texture("layer0", REFERENCE.MODID + ":block/cursed_hanging_roots");
-        withExistingParent(ModItems.CANDLE_STICK.get(), modLoc("block/candle_stick"));
-    }
 
+        withExistingParent(ModItems.CANDLE_STICK.get(), modLoc("block/candle_stick"));
+        for (int i = 1; i < Helper.STANDING_AND_WALL_CANDLE_STICKS.size(); i++) {
+            Pair<CandleHolderBlock, CandleHolderBlock> pair = Helper.STANDING_AND_WALL_CANDLE_STICKS.get(i);
+            withExistingParent(pair.getFirst(), modLoc("block/" + RegUtil.id(pair.getFirst()).getPath()));
+        }
+
+        withExistingParent(ModItems.CANDELABRA.get(), modLoc("block/candelabra"));
+        for (int i = 1; i < Helper.STANDING_AND_WALL_CANDELABRAS.size(); i++) {
+            Pair<CandleHolderBlock, CandleHolderBlock> pair = Helper.STANDING_AND_WALL_CANDELABRAS.get(i);
+            withExistingParent(pair.getFirst(), modLoc("block/" + RegUtil.id(pair.getFirst()).getPath()));
+        }
+
+        withExistingParent(ModItems.CHANDELIER.get(), modLoc("block/chandelier"));
+        for (int i = 1; i < Helper.HANGING_CHANDELIERS.size(); i++) {
+            CandleHolderBlock block = Helper.HANGING_CHANDELIERS.get(i);
+            withExistingParent(block, modLoc("block/" + RegUtil.id(block).getPath()));
+        }
+    }
 }

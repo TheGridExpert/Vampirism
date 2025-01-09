@@ -113,7 +113,9 @@ public class TagProvider {
                     .addTag(ModTags.Blocks.DARK_STONE_TILES)
                     .addTag(ModTags.Blocks.POLISHED_DARK_STONE)
                     .addTag(ModTags.Blocks.COBBLED_DARK_STONE)
-                    //.addTag(ModTags.Blocks.CANDELABRA)
+                    .addTag(ModTags.Blocks.CANDLE_STICK)
+                    .addTag(ModTags.Blocks.CANDELABRA)
+                    .addTag(ModTags.Blocks.CHANDELIER)
             ;
             tag(BlockTags.MINEABLE_WITH_AXE)
                     .add(ModBlocks.ALTAR_INSPIRATION.get())
@@ -144,7 +146,6 @@ public class TagProvider {
                     .add(ModBlocks.GRAVE_CAGE.get())
                     .add(ModBlocks.MED_CHAIR.get())
                     .add(ModBlocks.MED_CHAIR.get())
-                    .add(ModBlocks.CHANDELIER.get())
             ;
             tag(BlockTags.NEEDS_IRON_TOOL)
                     .add(ModBlocks.BLOOD_PEDESTAL.get())
@@ -155,7 +156,6 @@ public class TagProvider {
                     .add(ModBlocks.ALCHEMY_TABLE.get())
                     .add(ModBlocks.BLOOD_INFUSED_IRON_BLOCK.get())
                     .add(ModBlocks.BLOOD_INFUSED_ENHANCED_IRON_BLOCK.get())
-                    //.addTag(ModTags.Blocks.CANDELABRA)
             ;
             tag(BlockTags.NEEDS_DIAMOND_TOOL)
                     .add(ModBlocks.TOTEM_BASE.get())
@@ -218,7 +218,8 @@ public class TagProvider {
                 tag(ModTags.Blocks.WALL_CANDELABRA).add(pair.getSecond());
             });
             tag(ModTags.Blocks.CANDELABRA).addTags(ModTags.Blocks.STANDING_CANDELABRA, ModTags.Blocks.WALL_CANDELABRA);
-            tag(BlockTags.CANDLES).addTags(ModTags.Blocks.CANDLE_STICK, ModTags.Blocks.CANDELABRA);
+            Helper.HANGING_CHANDELIERS.forEach(block -> tag(ModTags.Blocks.CHANDELIER).add(block));
+            tag(BlockTags.CANDLES).addTags(ModTags.Blocks.CANDLE_STICK, ModTags.Blocks.CANDELABRA, ModTags.Blocks.CHANDELIER);
 
             tag(ModTags.Blocks.GARLIC).add(ModBlocks.GARLIC.get());
             tag(BlockTags.CROPS).add(ModBlocks.GARLIC.get());

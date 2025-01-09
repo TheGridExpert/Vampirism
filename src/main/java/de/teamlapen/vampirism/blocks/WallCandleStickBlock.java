@@ -13,11 +13,8 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
-import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -26,33 +23,25 @@ import javax.annotation.Nullable;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 @SuppressWarnings("deprecation")
-public class WallCandleStickBlock extends CandleStickBlock {
+public class WallCandleStickBlock extends CandleHolderBlock {
     public static final MapCodec<WallCandleStickBlock> CODEC = RecordCodecBuilder.mapCodec(inst ->
             candleStickParts(inst).apply(inst, WallCandleStickBlock::new)
     );
 
-    public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
-    
-    private static final Map<Direction, VoxelShape> SHAPES = new EnumMap<>(Direction.class) {{
-        put(Direction.NORTH, UtilLib.rotateShape(makeShape(), UtilLib.RotationAmount.HUNDRED_EIGHTY));
-        put(Direction.WEST, UtilLib.rotateShape(makeShape(), UtilLib.RotationAmount.NINETY));
-        put(Direction.SOUTH, makeShape());
-        put(Direction.EAST, UtilLib.rotateShape(makeShape(), UtilLib.RotationAmount.TWO_HUNDRED_SEVENTY));
-    }};
-    private static final Map<Direction, VoxelShape> SHAPES_WITH_CANDLE = new EnumMap<>(Direction.class) {{
-        put(Direction.NORTH, UtilLib.rotateShape(makeShapeWithCandle(), UtilLib.RotationAmount.HUNDRED_EIGHTY));
-        put(Direction.WEST, UtilLib.rotateShape(makeShapeWithCandle(), UtilLib.RotationAmount.NINETY));
-        put(Direction.SOUTH, makeShapeWithCandle());
-        put(Direction.EAST, UtilLib.rotateShape(makeShapeWithCandle(), UtilLib.RotationAmount.TWO_HUNDRED_SEVENTY));
-    }};
+    private static final VoxelShape SHAPE = Stream.of(Block.box(6, 1, 15, 10, 5, 16), Block.box(7, 2, 13, 9, 4, 15), Block.box(7, 2, 11, 9, 5, 13), Block.box(6, 5, 10, 10, 7, 14)).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
+    private static final VoxelShape SHAPE_WITH_CANDLE = Shapes.or(SHAPE, Block.box(7, 7, 11, 9, 13, 13));
+
+    private static final Map<Direction, VoxelShape> SHAPES = UtilLib.getShapeRotatedFromNorth(SHAPE);
+    private static final Map<Direction, VoxelShape> SHAPES_WITH_CANDLE = UtilLib.getShapeRotatedFromNorth(SHAPE_WITH_CANDLE);
 
     private static final Map<Direction, Iterable<Vec3>> PARTICLE_OFFSET = new EnumMap<>(Direction.class) {{
-        put(Direction.NORTH, ImmutableList.of(new Vec3(0.5D, 0.86D, 0.75)));
-        put(Direction.WEST, ImmutableList.of(new Vec3(0.75, 0.86D, 0.5D)));
-        put(Direction.SOUTH, ImmutableList.of(new Vec3(0.5D, 0.86D, 0.25D)));
-        put(Direction.EAST, ImmutableList.of(new Vec3(0.25, 0.86D, 0.5D)));
+        put(Direction.NORTH, ImmutableList.of(new Vec3(8 / 16d, 14.75 / 16d, 12 / 16d)));
+        put(Direction.WEST, ImmutableList.of(new Vec3(12 / 16d, 14.75 / 16d, 8 / 16d)));
+        put(Direction.SOUTH, ImmutableList.of(new Vec3(8 / 16d, 14.75 / 16d, 4 / 16d)));
+        put(Direction.EAST, ImmutableList.of(new Vec3(4 / 16d, 14.75 / 16d, 8 / 16d)));
     }};
 
     private WallCandleStickBlock(Block emptyBlock, Item candle, Properties properties) {
@@ -61,17 +50,6 @@ public class WallCandleStickBlock extends CandleStickBlock {
 
     public WallCandleStickBlock(@Nullable Supplier<? extends Block> emptyBlock, Supplier<Item> candle, Properties properties) {
         super(emptyBlock, candle, properties);
-        this.registerDefaultState(this.getStateDefinition().any().setValue(FACING, Direction.NORTH).setValue(WATERLOGGED, false).setValue(LIT, false));
-    }
-
-    @Override
-    protected BlockState getFilledState(BlockState sourceState, Block block) {
-        return super.getFilledState(sourceState, block).setValue(FACING, sourceState.getValue(FACING));
-    }
-
-    @Override
-    protected BlockState getEmptyState(BlockState sourceState, Block block) {
-        return super.getEmptyState(sourceState, block).setValue(FACING, sourceState.getValue(FACING));
     }
 
     @Override
@@ -79,45 +57,14 @@ public class WallCandleStickBlock extends CandleStickBlock {
         return pLevel.getBlockState(pPos.relative(pState.getValue(FACING).getOpposite())).isSolid();
     }
 
-    @Nullable
+    @Override
     public BlockState getStateForPlacement(BlockPlaceContext pContext) {
-        BlockState blockstate = this.defaultBlockState();
-        FluidState fluidstate = pContext.getLevel().getFluidState(pContext.getClickedPos());
-        LevelReader levelreader = pContext.getLevel();
-        BlockPos blockpos = pContext.getClickedPos();
-        Direction[] adirection = pContext.getNearestLookingDirections();
-
-        for (Direction direction : adirection) {
-            if (direction.getAxis().isHorizontal()) {
-                Direction direction1 = direction.getOpposite();
-                blockstate = blockstate.setValue(FACING, direction1);
-                if (blockstate.canSurvive(levelreader, blockpos)) {
-                    return blockstate.setValue(WATERLOGGED, fluidstate.getType() == Fluids.WATER);
-                }
-            }
-        }
-
-        return null;
+        return getStateForWallPlacement(pContext);
     }
 
     @Override
     public BlockState updateShape(BlockState pState, Direction pFacing, BlockState pFacingState, LevelAccessor pLevel, BlockPos pCurrentPos, BlockPos pFacingPos) {
         return pFacing.getOpposite() == pState.getValue(FACING) && !pState.canSurvive(pLevel, pCurrentPos) ? Blocks.AIR.defaultBlockState() : super.updateShape(pState, pFacing, pFacingState, pLevel, pCurrentPos, pFacingPos);
-    }
-
-    @Override
-    public BlockState rotate(BlockState pState, Rotation pRotation) {
-        return pState.setValue(FACING, pRotation.rotate(pState.getValue(FACING)));
-    }
-
-    @Override
-    public BlockState mirror(BlockState pState, Mirror pMirror) {
-        return pState.setValue(FACING, pMirror.mirror(pState.getValue(FACING)));
-    }
-
-    @Override
-    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> pBuilder) {
-        super.createBlockStateDefinition(pBuilder.add(FACING));
     }
 
     @Override
@@ -133,20 +80,5 @@ public class WallCandleStickBlock extends CandleStickBlock {
     @Override
     protected Iterable<Vec3> getParticleOffsets(BlockState pState) {
         return PARTICLE_OFFSET.get(pState.getValue(FACING));
-    }
-
-    private static VoxelShape makeShape() {
-        VoxelShape shape = Shapes.empty();
-        shape = Shapes.or(shape, Shapes.box(6f / 16, 0, 0, 10f / 16, 4f / 16, 1f / 16));
-        shape = Shapes.or(shape, Shapes.box(7f / 16, 1f / 16, 1f / 16, 9f / 16, 3f / 16, 5f / 16));
-        shape = Shapes.or(shape, Shapes.box(7f / 16, 1f / 16, 3f / 16, 9f / 16, 4f / 16, 5f / 16));
-        shape = Shapes.or(shape, Shapes.box(6f / 16, 4f / 16, 2f / 16, 10f / 16, 6f / 16, 6f / 16));
-        return shape;
-    }
-
-    private static VoxelShape makeShapeWithCandle() {
-        VoxelShape shape = makeShape();
-        shape = Shapes.or(shape, Shapes.box(7f / 16, 6f / 16, 3f / 16, 9f / 16, 12f / 16, 5f / 16));
-        return shape;
     }
 }

@@ -35,6 +35,34 @@
 			}
 		},
 		{
+			"name": "support_left",
+			"from": [9, 0, 8],
+			"to": [15, 6, 8],
+			"rotation": {"angle": 0, "axis": "y", "origin": [9, 0, 10]},
+			"faces": {
+				"north": {"uv": [6, 10, 0, 16], "texture": "#base"},
+				"east": {"uv": [0, 0, 0, 0], "texture": "#base"},
+				"south": {"uv": [0, 10, 6, 16], "texture": "#base"},
+				"west": {"uv": [0, 0, 0, 0], "texture": "#base"},
+				"up": {"uv": [0, 0, 0, 0], "rotation": 180, "texture": "#base"},
+				"down": {"uv": [0, 0, 0, 0], "rotation": 180, "texture": "#base"}
+			}
+		},
+		{
+			"name": "support_right",
+			"from": [1, 0, 8],
+			"to": [7, 6, 8],
+			"rotation": {"angle": 0, "axis": "y", "origin": [7, 0, 6]},
+			"faces": {
+				"north": {"uv": [0, 10, 6, 16], "texture": "#base"},
+				"east": {"uv": [0, 0, 0, 0], "texture": "#base"},
+				"south": {"uv": [6, 10, 0, 16], "texture": "#base"},
+				"west": {"uv": [0, 0, 0, 0], "texture": "#base"},
+				"up": {"uv": [0, 0, 0, 0], "texture": "#base"},
+				"down": {"uv": [0, 0, 0, 0], "texture": "#base"}
+			}
+		},
+		{
 			"from": [11, 6, 6],
 			"to": [15, 7, 10],
 			"rotation": {"angle": 0, "axis": "y", "origin": [13, 3, 8]},
@@ -228,60 +256,32 @@
 				"up": {"uv": [16, 16, 16, 16], "rotation": 90, "texture": "#base"},
 				"down": {"uv": [16, 16, 16, 16], "rotation": 90, "texture": "#base"}
 			}
-		},
-		{
-			"name": "support_right",
-			"from": [1, 0, 8],
-			"to": [7, 6, 8],
-			"rotation": {"angle": 0, "axis": "y", "origin": [7, 0, 6]},
-			"faces": {
-				"north": {"uv": [0, 10, 6, 16], "texture": "#base"},
-				"east": {"uv": [0, 0, 0, 0], "texture": "#base"},
-				"south": {"uv": [6, 10, 0, 16], "texture": "#base"},
-				"west": {"uv": [0, 0, 0, 0], "texture": "#base"},
-				"up": {"uv": [0, 0, 0, 0], "texture": "#base"},
-				"down": {"uv": [0, 0, 0, 0], "texture": "#base"}
-			}
-		},
-		{
-			"name": "support_left",
-			"from": [9, 0, 8],
-			"to": [15, 6, 8],
-			"rotation": {"angle": 0, "axis": "y", "origin": [9, 0, 10]},
-			"faces": {
-				"north": {"uv": [6, 10, 0, 16], "texture": "#base"},
-				"east": {"uv": [0, 0, 0, 0], "texture": "#base"},
-				"south": {"uv": [0, 10, 6, 16], "texture": "#base"},
-				"west": {"uv": [0, 0, 0, 0], "texture": "#base"},
-				"up": {"uv": [0, 0, 0, 0], "rotation": 180, "texture": "#base"},
-				"down": {"uv": [0, 0, 0, 0], "rotation": 180, "texture": "#base"}
-			}
 		}
 	],
 	"display": {
 		"thirdperson_righthand": {
 			"rotation": [30, 0, 0],
 			"translation": [0, 2, 1],
-			"scale": [0.7, 0.7, 0.7]
+			"scale": [0.5, 0.5, 0.5]
 		},
 		"thirdperson_lefthand": {
 			"rotation": [30, 0, 0],
 			"translation": [0, 2, 1],
-			"scale": [0.7, 0.7, 0.7]
+			"scale": [0.5, 0.5, 0.5]
 		},
 		"firstperson_righthand": {
 			"rotation": [0, 15, 0],
-			"translation": [1.5, 2.5, 0],
-			"scale": [0.7, 0.7, 0.7]
+			"translation": [1, 2, 0],
+			"scale": [0.6, 0.6, 0.6]
 		},
 		"firstperson_lefthand": {
 			"rotation": [0, 15, 0],
-			"translation": [1.5, 2.5, 0],
-			"scale": [0.7, 0.7, 0.7]
+			"translation": [1, 2, 0],
+			"scale": [0.6, 0.6, 0.6]
 		},
 		"ground": {
-			"translation": [0, 2, 0],
-			"scale": [0.5, 0.5, 0.5]
+			"translation": [0, 3, 0],
+			"scale": [0.65, 0.65, 0.65]
 		},
 		"gui": {
 			"rotation": [30, 135, 0],
@@ -292,27 +292,36 @@
 		}
 	},
 	"groups": [
-		0,
-		1,
 		{
-			"name": "holder_left",
-			"origin": [24, 0, 8],
+			"name": "shaft",
+			"origin": [8, 8, 8],
 			"color": 0,
-			"children": [2, 3, 4, 5, 6]
+			"children": [0, 1, 2, 3]
 		},
 		{
-			"name": "holder_middle",
-			"origin": [24, 0, 8],
+			"name": "holders",
+			"origin": [8, 8, 8],
 			"color": 0,
-			"children": [7, 8, 9, 10, 11]
-		},
-		{
-			"name": "holder_right",
-			"origin": [24, 0, 8],
-			"color": 0,
-			"children": [12, 13, 14, 15, 16]
-		},
-		17,
-		18
+			"children": [
+				{
+					"name": "holder_left",
+					"origin": [24, 0, 8],
+					"color": 0,
+					"children": [4, 5, 6, 7, 8]
+				},
+				{
+					"name": "holder_middle",
+					"origin": [24, 0, 8],
+					"color": 0,
+					"children": [9, 10, 11, 12, 13]
+				},
+				{
+					"name": "holder_right",
+					"origin": [24, 0, 8],
+					"color": 0,
+					"children": [14, 15, 16, 17, 18]
+				}
+			]
+		}
 	]
 }

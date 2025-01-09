@@ -46,6 +46,8 @@ public class ModTags {
         public static final TagKey<Block> STANDING_CANDELABRA = tag("standing_candelabra");
         public static final TagKey<Block> WALL_CANDELABRA = tag("wall_candelabra");
 
+        public static final TagKey<Block> CHANDELIER = tag("chandelier");
+
         public static final TagKey<Block> DARK_STONE = tag("dark_stone");
         public static final TagKey<Block> DARK_STONE_BRICKS = tag("dark_stone_bricks");
         public static final TagKey<Block> POLISHED_DARK_STONE = tag("polished_dark_brick");

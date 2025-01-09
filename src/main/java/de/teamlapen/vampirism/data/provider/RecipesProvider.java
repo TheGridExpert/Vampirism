@@ -3,7 +3,7 @@ package de.teamlapen.vampirism.data.provider;
 import com.google.common.collect.Sets;
 import de.teamlapen.vampirism.REFERENCE;
 import de.teamlapen.vampirism.api.util.VResourceLocation;
-import de.teamlapen.vampirism.blocks.StandingCandelabraBlock;
+import de.teamlapen.vampirism.blocks.CandleHolderBlock;
 import de.teamlapen.vampirism.core.*;
 import de.teamlapen.vampirism.data.ModBlockFamilies;
 import de.teamlapen.vampirism.data.recipebuilder.*;
@@ -14,7 +14,6 @@ import de.teamlapen.vampirism.mixin.accessor.RecipeProviderAccessor;
 import de.teamlapen.vampirism.recipes.ApplicableOilRecipe;
 import de.teamlapen.vampirism.recipes.CleanOilRecipe;
 import de.teamlapen.vampirism.recipes.ConfigCondition;
-import de.teamlapen.vampirism.util.Helper;
 import de.teamlapen.vampirism.util.ItemDataUtils;
 import de.teamlapen.vampirism.util.RegUtil;
 import net.minecraft.advancements.Advancement;
@@ -508,7 +507,6 @@ public class RecipesProvider extends RecipeProvider {
 
         ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModItems.CANDLE_STICK.get()).pattern(" I ").pattern("NNN").define('I', iron_ingot).define('N', Items.IRON_NUGGET).unlockedBy("has_iron", has(iron_ingot)).unlockedBy("has_nugget", has(Items.IRON_NUGGET)).save(output, modId("candle_stick"));
         ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModItems.CANDELABRA.get()).pattern("III").pattern("NIN").define('I', iron_ingot).define('N', Items.IRON_NUGGET).unlockedBy("has_iron", has(iron_ingot)).unlockedBy("has_nugget", has(Items.IRON_NUGGET)).save(output, modId("candelabra"));
-        Helper.STANDING_AND_WALL_CANDELABRAS.forEach(pair -> candelabraWithCandles(pair.getFirst(), output));
         ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModBlocks.CHANDELIER.get()).pattern(" N ").pattern("ICI").define('C', ModItems.CANDELABRA.get()).define('I', iron_ingot).define('N', Items.IRON_NUGGET).unlockedBy("has_iron", has(iron_ingot)).unlockedBy("has_nugget", has(Items.IRON_NUGGET)).unlockedBy("has_candelabra", has(ModItems.CANDELABRA.get())).save(output, modId("chandelier"));
     }
 
@@ -568,7 +566,7 @@ public class RecipesProvider extends RecipeProvider {
         ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, coffin).pattern("XXX").pattern("YYY").pattern("XXX").define('X', ItemTags.PLANKS).define('Y', wool).unlockedBy("has_wool", has(wool)).save(consumer, path);
     }
 
-    protected void candelabraWithCandles(StandingCandelabraBlock candleCandelabraBlock, RecipeOutput output) {
+    protected void candelabraWithCandles(CandleHolderBlock candleCandelabraBlock, RecipeOutput output) {
         Item candle = candleCandelabraBlock.getCandle().get();
         if (candle == null) return;
 
