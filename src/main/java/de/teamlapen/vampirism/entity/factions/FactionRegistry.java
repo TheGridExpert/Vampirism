@@ -6,6 +6,7 @@ import de.teamlapen.vampirism.api.entity.factions.IFactionEntity;
 import de.teamlapen.vampirism.api.entity.factions.IFactionRegistry;
 import de.teamlapen.vampirism.api.entity.factions.IPlayableFaction;
 import de.teamlapen.vampirism.api.entity.minion.IMinionEntry;
+import de.teamlapen.vampirism.core.ModFactions;
 import de.teamlapen.vampirism.core.ModRegistries;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
@@ -35,6 +36,7 @@ public class FactionRegistry implements IFactionRegistry {
 
     private final MinionEntryCallbacks minionEntryCallbacks = new MinionEntryCallbacks();
 
+    @NotNull
     @Override
     public Holder<? extends IFaction<?>> getFaction(Entity entity) {
         if (entity instanceof Player player) {
@@ -42,10 +44,10 @@ public class FactionRegistry implements IFactionRegistry {
         } else if (entity instanceof IFactionEntity factionEntity) {
             return factionEntity.getFaction();
         }
-        return ModRegistries.FACTIONS.listElements().filter(s -> s.value().getTag(Registries.ENTITY_TYPE).flatMap(BuiltInRegistries.ENTITY_TYPE::get).filter(tag -> entity.getType().is(tag)).isPresent()).findFirst().orElse(null);
+        return ModRegistries.FACTIONS.listElements().map(s -> (Holder<IFaction<?>>)s).filter(s -> s.value().getTag(Registries.ENTITY_TYPE).flatMap(BuiltInRegistries.ENTITY_TYPE::get).filter(tag -> entity.getType().is(tag)).isPresent()).findFirst().orElse((Holder<IFaction<?>>) (Object) ModFactions.NEUTRAL);
     }
 
-    @Nullable
+    @NotNull
     public Holder<? extends IFaction<?>> getFaction(Player player) {
         return FactionPlayerHandler.get(player).getFaction();
     }

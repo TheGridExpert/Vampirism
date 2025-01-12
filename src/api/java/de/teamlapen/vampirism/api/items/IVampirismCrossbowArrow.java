@@ -12,18 +12,14 @@ import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public interface IVampirismCrossbowArrow<T extends AbstractArrow & IEntityCrossbowArrow> extends IFactionExclusiveItem {
-
-    @Override
-    default @NotNull TagKey<IFaction<?>> getExclusiveFaction(@NotNull ItemStack stack) {
-        return VampirismTags.Factions.IS_HUNTER;
-    }
+public interface IVampirismCrossbowArrow<T extends AbstractArrow & IEntityCrossbowArrow> extends ItemLike {
 
     /**
      * @return If an arrow of this type can be used in an infinite crossbow

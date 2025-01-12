@@ -1,19 +1,14 @@
 package de.teamlapen.vampirism.items;
 
 import de.teamlapen.vampirism.REFERENCE;
-import de.teamlapen.vampirism.VampirismMod;
 import de.teamlapen.vampirism.api.ItemPropertiesExtension;
-import de.teamlapen.vampirism.api.entity.factions.IFaction;
 import de.teamlapen.vampirism.api.entity.factions.IPlayableFaction;
-import de.teamlapen.vampirism.api.items.IFactionExclusiveItem;
 import de.teamlapen.vampirism.core.ModEffects;
 import de.teamlapen.vampirism.core.ModFactions;
 import de.teamlapen.vampirism.core.tags.ModFactionTags;
 import de.teamlapen.vampirism.entity.player.VampirismPlayerAttributes;
-import de.teamlapen.vampirism.util.Helper;
+import de.teamlapen.vampirism.items.component.FactionRestriction;
 import net.minecraft.core.Holder;
-import net.minecraft.network.chat.Component;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -26,26 +21,13 @@ import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-
 /**
  * Base class for all hunter only armor tileInventory
  */
-public abstract class HunterArmorItem extends ArmorItem implements IFactionExclusiveItem {
+public abstract class HunterArmorItem extends ArmorItem {
 
     public HunterArmorItem(@NotNull ArmorMaterial materialIn, @NotNull ArmorType type, Item.@NotNull Properties props) {
-        super(materialIn, type, ItemPropertiesExtension.descriptionWithout(props, "_normal|_enhanced|_ultimate"));
-    }
-
-    @Override
-    public void appendHoverText(@NotNull ItemStack stack, @Nullable TooltipContext context, @NotNull List<Component> tooltip, @NotNull TooltipFlag flagIn) {
-        this.addFactionToolTips(stack, context, tooltip, flagIn, VampirismMod.proxy.getClientPlayer());
-    }
-
-
-    @Override
-    public @NotNull TagKey<IFaction<?>> getExclusiveFaction(@NotNull ItemStack stack) {
-        return ModFactionTags.IS_HUNTER;
+        super(materialIn, type, FactionRestriction.builder(ModFactionTags.IS_HUNTER).apply(ItemPropertiesExtension.descriptionWithout(props, "_normal|_enhanced|_ultimate")));
     }
 
     @Override
@@ -60,7 +42,7 @@ public abstract class HunterArmorItem extends ArmorItem implements IFactionExclu
 
     @Override
     public boolean canEquip(ItemStack stack, EquipmentSlot armorType, LivingEntity entity) {
-        return super.canEquip(stack, armorType, entity) && Helper.isHunter(entity);
+        return super.canEquip(stack, armorType, entity) && FactionRestriction.canUse(entity, stack, true);
     }
 
     protected String getTextureLocation(String name, EquipmentSlot slot, @Nullable String type) {

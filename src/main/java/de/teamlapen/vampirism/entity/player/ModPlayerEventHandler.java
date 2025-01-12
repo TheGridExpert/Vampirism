@@ -7,10 +7,7 @@ import de.teamlapen.vampirism.api.VampirismAPI;
 import de.teamlapen.vampirism.api.entity.factions.IFaction;
 import de.teamlapen.vampirism.api.entity.factions.IPlayableFaction;
 import de.teamlapen.vampirism.api.entity.player.actions.IActionHandler;
-import de.teamlapen.vampirism.api.entity.player.skills.ISkill;
 import de.teamlapen.vampirism.api.entity.vampire.IVampire;
-import de.teamlapen.vampirism.api.items.IFactionExclusiveItem;
-import de.teamlapen.vampirism.api.items.IFactionLevelItem;
 import de.teamlapen.vampirism.api.items.IFactionSlayerItem;
 import de.teamlapen.vampirism.blockentity.TotemBlockEntity;
 import de.teamlapen.vampirism.blocks.AltarInspirationBlock;
@@ -22,6 +19,7 @@ import de.teamlapen.vampirism.core.ModBlocks;
 import de.teamlapen.vampirism.core.ModEffects;
 import de.teamlapen.vampirism.core.ModFluids;
 import de.teamlapen.vampirism.core.ModItems;
+import de.teamlapen.vampirism.core.tags.ModFactionTags;
 import de.teamlapen.vampirism.effects.VampirismPoisonEffect;
 import de.teamlapen.vampirism.effects.VampirismPotion;
 import de.teamlapen.vampirism.entity.factions.FactionPlayerHandler;
@@ -31,6 +29,7 @@ import de.teamlapen.vampirism.entity.player.vampire.VampirePlayer;
 import de.teamlapen.vampirism.entity.player.vampire.actions.BatVampireAction;
 import de.teamlapen.vampirism.items.BloodBottleFluidHandler;
 import de.teamlapen.vampirism.items.GarlicBreadItem;
+import de.teamlapen.vampirism.items.component.FactionRestriction;
 import de.teamlapen.vampirism.items.crossbow.HunterCrossbowItem;
 import de.teamlapen.vampirism.util.DamageHandler;
 import de.teamlapen.vampirism.util.Helper;
@@ -50,7 +49,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -175,7 +173,7 @@ public class ModPlayerEventHandler {
                 event.setCanceled(true);
             }
             HunterPlayer.get(player).breakDisguise();
-            if (!checkItemUsePerm(player.getMainHandItem(), player)) {
+            if (!FactionRestriction.canUse(player, player.getMainHandItem(), true)) {
                 event.setCanceled(true);
             }
         }
@@ -235,7 +233,7 @@ public class ModPlayerEventHandler {
 
     @SubscribeEvent
     public void onItemRightClick(PlayerInteractEvent.@NotNull RightClickItem event) {
-        if (!checkItemUsePerm(event.getItemStack(), event.getEntity())) {
+        if (!FactionRestriction.canUse(event.getEntity(), event.getItemStack(), true)) {
             event.setCanceled(true);
         }
 
@@ -251,7 +249,7 @@ public class ModPlayerEventHandler {
             if (VampirismPlayerAttributes.get(player).getVampSpecial().isCannotInteract()) {
                 event.setCanceled(true);
             }
-            if (!checkItemUsePerm(event.getItem(), player)) {
+            if (!FactionRestriction.canUse(player, event.getItem(), true)) {
                 event.setCanceled(true);
             }
             if (event.getItem().getItem() instanceof HunterCrossbowItem && HunterPlayer.get(player).getSkillHandler().isSkillEnabled(HunterSkills.CROSSBOW_TECHNIQUE)) {
@@ -422,7 +420,7 @@ public class ModPlayerEventHandler {
         if (VampirismConfig.SERVER.factionColorInChat.get()) {
             FactionPlayerHandler handler = FactionPlayerHandler.get(event.getEntity());
             Holder<? extends IFaction<?>> f = handler.factionPlayer().getDisguise().getViewedFaction(Optional.ofNullable(VampirismMod.proxy.getClientPlayer()).map(FactionPlayerHandler::get).map(FactionPlayerHandler::getFaction).orElse(null));
-            if (f != null) {
+            if (!IFaction.is(f, ModFactionTags.IS_NEUTRAL)) {
                 MutableComponent displayName;
                 displayName = Optional.of(handler).filter(h -> h.getLordLevel() > 0).filter(x -> VampirismConfig.SERVER.lordPrefixInChat.get()).map(FactionPlayerHandler::getLordTitle)
                         .map(x -> Component.literal("[").append(x).append("] ").append(event.getDisplayname()))
@@ -471,44 +469,6 @@ public class ModPlayerEventHandler {
         }
     }
 
-    /**
-     * Checks if the player is allowed to use that item ({@link IFactionLevelItem}) and cancels the event if not.
-     *
-     * @return If it is allowed to use the item
-     */
-    private boolean checkItemUsePerm(@NotNull ItemStack stack, @NotNull Player player) {
-
-        boolean message = !player.getCommandSenderWorld().isClientSide;
-        if (!stack.isEmpty() && stack.getItem() instanceof IFactionExclusiveItem factionItem) {
-            if (!player.isAlive()) return false;
-            FactionPlayerHandler handler = FactionPlayerHandler.get(player);
-            TagKey<IFaction<?>> usingFaction = factionItem.getExclusiveFaction(stack);
-            if (!handler.isInFaction(usingFaction) && checkExceptions(player, handler.getFaction(), stack)) {
-                if (message) {
-                    player.displayClientMessage(Component.translatable("text.vampirism.can_not_be_used_faction"), true);
-                }
-                return false;
-            } else if (stack.getItem() instanceof IFactionLevelItem<?> levelItem) {
-                Holder<ISkill<?>> requiredSkill = levelItem.requiredSkill(stack);
-
-                if (handler.getCurrentLevel() < levelItem.getMinLevel(stack)) {
-                    if (message) {
-                        player.displayClientMessage(Component.translatable("text.vampirism.can_not_be_used_level"), true);
-                    }
-                    return false;
-                } else if (requiredSkill != null) {
-                    if (handler.getSkillHandler().map(s -> !s.isSkillEnabled(requiredSkill)).orElse(true)) {
-                        if (message) {
-                            player.displayClientMessage(Component.translatable("text.vampirism.can_not_be_used_skill"), true);
-                        }
-                        return false;
-                    }
-                }
-            }
-        }
-        return true;
-    }
-
     private boolean checkExceptions(@NotNull Player player, Holder<? extends IPlayableFaction<?>> currentFaction, @NotNull ItemStack stack) { // stupid implementation. Otherwise we would need a better IFactionExclusiveItem#getExclusiveFaction method.
         return !stack.is(ModItems.GARLIC_BREAD) || currentFaction != null;
     }
@@ -519,7 +479,7 @@ public class ModPlayerEventHandler {
         ItemStack stack = event.getEntity().getMainHandItem();
         if (!stack.isEmpty() && stack.getItem() instanceof IFactionSlayerItem item) {
             Holder<? extends IFaction<?>> faction = VampirismAPI.factionRegistry().getFaction(event.getTarget());
-            if (faction != null && IFaction.is(faction, item.getSlayedFaction())) {
+            if (IFaction.is(faction, item.getSlayedFaction())) {
                 event.setDamageMultiplier(event.getDamageMultiplier() + (event.getVanillaMultiplier() * (item.getDamageMultiplierForFaction(stack) - 1)));
             }
         }

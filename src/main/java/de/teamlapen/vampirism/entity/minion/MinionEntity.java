@@ -5,12 +5,10 @@ import de.teamlapen.lib.HelperLib;
 import de.teamlapen.lib.lib.storage.ISyncable;
 import de.teamlapen.lib.lib.storage.UpdateParams;
 import de.teamlapen.vampirism.VampirismMod;
-import de.teamlapen.vampirism.api.entity.factions.IFaction;
 import de.teamlapen.vampirism.api.entity.minion.IMinionEntity;
 import de.teamlapen.vampirism.api.entity.minion.IMinionInventory;
 import de.teamlapen.vampirism.api.entity.minion.IMinionTask;
 import de.teamlapen.vampirism.api.entity.player.ILordPlayer;
-import de.teamlapen.vampirism.api.items.IFactionExclusiveItem;
 import de.teamlapen.vampirism.api.util.VResourceLocation;
 import de.teamlapen.vampirism.entity.VampirismEntity;
 import de.teamlapen.vampirism.entity.ai.goals.ForceLookEntityGoal;
@@ -24,6 +22,7 @@ import de.teamlapen.vampirism.entity.minion.management.MinionData;
 import de.teamlapen.vampirism.entity.minion.management.MinionTasks;
 import de.teamlapen.vampirism.entity.minion.management.PlayerMinionController;
 import de.teamlapen.vampirism.inventory.MinionContainer;
+import de.teamlapen.vampirism.items.component.FactionRestriction;
 import de.teamlapen.vampirism.util.IPlayerOverlay;
 import de.teamlapen.vampirism.util.Permissions;
 import de.teamlapen.vampirism.util.PlayerModelType;
@@ -452,7 +451,7 @@ public abstract class MinionEntity<T extends MinionData> extends VampirismEntity
     }
 
     public @NotNull Predicate<ItemStack> getEquipmentPredicate(EquipmentSlot slotType) {
-        return itemStack -> !(itemStack.getItem() instanceof IFactionExclusiveItem) || IFaction.is(this.getFaction(), ((IFactionExclusiveItem) itemStack.getItem()).getExclusiveFaction(itemStack));
+        return itemStack -> FactionRestriction.matchFaction(itemStack, getFaction());
 
     }
 

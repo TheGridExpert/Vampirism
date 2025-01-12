@@ -1,11 +1,5 @@
 package de.teamlapen.vampirism.items;
 
-import de.teamlapen.vampirism.VampirismMod;
-import de.teamlapen.vampirism.api.entity.factions.IFaction;
-import de.teamlapen.vampirism.api.entity.player.hunter.IHunterPlayer;
-import de.teamlapen.vampirism.api.entity.player.skills.ISkill;
-import de.teamlapen.vampirism.api.items.IFactionExclusiveItem;
-import de.teamlapen.vampirism.api.items.IFactionLevelItem;
 import de.teamlapen.vampirism.api.items.IItemWithTier;
 import de.teamlapen.vampirism.api.util.VResourceLocation;
 import de.teamlapen.vampirism.core.ModEffects;
@@ -17,15 +11,14 @@ import de.teamlapen.vampirism.entity.player.hunter.skills.HunterSkills;
 import de.teamlapen.vampirism.entity.player.vampire.VampirePlayer;
 import de.teamlapen.vampirism.entity.vampire.AdvancedVampireEntity;
 import de.teamlapen.vampirism.entity.vampire.VampireBaronEntity;
+import de.teamlapen.vampirism.items.component.FactionRestriction;
 import de.teamlapen.vampirism.mixin.accessor.EntityAccessor;
 import de.teamlapen.vampirism.util.Helper;
-import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.EntityTypeTags;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -46,36 +39,18 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 
-public class CrucifixItem extends Item implements IItemWithTier, IFactionExclusiveItem, IFactionLevelItem<IHunterPlayer> {
+public class CrucifixItem extends Item implements IItemWithTier {
 
-    private final static String baseRegName = "crucifix";
     private final TIER tier;
     private static final ResourceLocation COOLDOWN_GROUP = VResourceLocation.mod("crucifix");
 
     public CrucifixItem(TIER tier, Item.Properties properties) {
-        super(properties.stacksTo(1).component(DataComponents.USE_COOLDOWN, new UseCooldown( switch (tier) {
+        super(FactionRestriction.builder(ModFactionTags.IS_HUNTER).skill(tier ==TIER.ULTIMATE ? HunterSkills.ULTIMATE_CRUCIFIX : HunterSkills.CRUCIFIX_WIELDER).apply(properties).stacksTo(1).component(DataComponents.USE_COOLDOWN, new UseCooldown( switch (tier) {
             case NORMAL -> 7;
             case ENHANCED -> 5;
             case ULTIMATE -> 3;
         }, Optional.of(COOLDOWN_GROUP))));
         this.tier = tier;
-    }
-
-    @Override
-    public int getMinLevel(@NotNull ItemStack stack) {
-        return 1;
-    }
-
-    @Nullable
-    @Override
-    public Holder<ISkill<?>> requiredSkill(@NotNull ItemStack stack) {
-        if (tier == TIER.ULTIMATE) return HunterSkills.ULTIMATE_CRUCIFIX;
-        return HunterSkills.CRUCIFIX_WIELDER;
-    }
-
-    @Override
-    public @NotNull TagKey<IFaction<?>> getExclusiveFaction(@NotNull ItemStack stack) {
-        return ModFactionTags.IS_HUNTER;
     }
 
     @Override
@@ -99,7 +74,6 @@ public class CrucifixItem extends Item implements IItemWithTier, IFactionExclusi
     @Override
     public void appendHoverText(ItemStack stack, @Nullable TooltipContext context, List<Component> tooltip, TooltipFlag flagIn) {
         this.addTierInformation(tooltip);
-        this.addFactionToolTips(stack, context, tooltip, flagIn, VampirismMod.proxy.getClientPlayer());
     }
 
     @Override

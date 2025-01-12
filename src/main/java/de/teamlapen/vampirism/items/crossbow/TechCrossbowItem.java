@@ -3,8 +3,10 @@ package de.teamlapen.vampirism.items.crossbow;
 import de.teamlapen.vampirism.api.entity.player.skills.ISkill;
 import de.teamlapen.vampirism.api.items.IArrowContainer;
 import de.teamlapen.vampirism.core.ModDataComponents;
+import de.teamlapen.vampirism.core.tags.ModFactionTags;
 import de.teamlapen.vampirism.entity.player.hunter.HunterPlayer;
 import de.teamlapen.vampirism.entity.player.hunter.skills.HunterSkills;
+import de.teamlapen.vampirism.items.component.FactionRestriction;
 import de.teamlapen.vampirism.util.ModEnchantmentHelper;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
@@ -25,9 +27,8 @@ import java.util.function.Predicate;
 public class TechCrossbowItem extends HunterCrossbowItem {
 
     public TechCrossbowItem(Item.Properties properties, float arrowVelocity, int chargeTime, ToolMaterial itemTier, Holder<ISkill<?>> requiredSkill) {
-        super(properties.repairable(Tags.Items.INGOTS_IRON), arrowVelocity, chargeTime, itemTier, requiredSkill);
+        super(properties.repairable(Tags.Items.INGOTS_IRON).component(ModDataComponents.FACTION_RESTRICTION, FactionRestriction.builder(ModFactionTags.IS_HUNTER).skill(requiredSkill).build()), arrowVelocity, chargeTime, itemTier);
     }
-
 
     @Nonnull
     @Override

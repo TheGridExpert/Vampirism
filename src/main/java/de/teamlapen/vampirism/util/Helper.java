@@ -4,15 +4,12 @@ import com.mojang.authlib.minecraft.MinecraftProfileTextures;
 import de.teamlapen.vampirism.api.EnumStrength;
 import de.teamlapen.vampirism.api.VampirismAPI;
 import de.teamlapen.vampirism.api.entity.factions.IFaction;
-import de.teamlapen.vampirism.api.entity.factions.IFactionPlayerHandler;
 import de.teamlapen.vampirism.api.entity.hunter.IHunterMob;
 import de.teamlapen.vampirism.api.entity.player.IFactionPlayer;
-import de.teamlapen.vampirism.api.entity.player.ISkillPlayer;
 import de.teamlapen.vampirism.api.entity.player.skills.ISkill;
 import de.teamlapen.vampirism.api.entity.player.skills.ISkillHandler;
 import de.teamlapen.vampirism.api.entity.player.vampire.IVampirePlayer;
 import de.teamlapen.vampirism.api.entity.vampire.IVampire;
-import de.teamlapen.vampirism.api.items.IFactionLevelItem;
 import de.teamlapen.vampirism.api.items.IVampireFinisher;
 import de.teamlapen.vampirism.config.VampirismConfig;
 import de.teamlapen.vampirism.core.ModFactions;
@@ -33,16 +30,13 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
-import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
-import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.*;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.state.BlockState;
@@ -225,19 +219,6 @@ public class Helper {
 
     public static ResourceLocation getBiomeId(@NotNull CommonLevelAccessor world, @NotNull Holder<Biome> biome) {
         return biome.unwrap().map(ResourceKey::location, b -> world.registryAccess().lookupOrThrow(Registries.BIOME).getKey(b));
-    }
-
-    /**
-     * Checks if the given {@link IFactionLevelItem} can be used by the given player
-     */
-    public static <T extends IFactionPlayer<T> & ISkillPlayer<T>> boolean canUseFactionItem(@NotNull ItemStack stack, @NotNull IFactionLevelItem<T> item, @NotNull IFactionPlayerHandler playerHandler) {
-        @NotNull TagKey<IFaction<?>> usingFaction = item.getExclusiveFaction(stack);
-        Holder<ISkill<?>> requiredSkill = item.requiredSkill(stack);
-        int reqLevel = item.getMinLevel(stack);
-        if (!playerHandler.isInFaction(usingFaction)) return false;
-        if (playerHandler.getCurrentLevel() < reqLevel) return false;
-        if (requiredSkill == null) return true;
-        return playerHandler.getSkillHandler().map(s -> s.isSkillEnabled(requiredSkill)).orElse(false);
     }
 
     /**

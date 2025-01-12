@@ -5,6 +5,7 @@ import de.teamlapen.vampirism.api.entity.player.refinement.IRefinementSet;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ItemLike;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * @implSpec should only be implemented by {@link net.minecraft.world.item.Item}s
  */
-public interface IRefinementItem extends IFactionExclusiveItem {
+public interface IRefinementItem extends ItemLike {
 
     /**
      * Gets the refinement set that is applied to this refinement item

@@ -2,19 +2,15 @@ package de.teamlapen.vampirism.items;
 
 import de.teamlapen.lib.lib.util.ModDisplayItemGenerator;
 import de.teamlapen.vampirism.api.VReference;
-import de.teamlapen.vampirism.api.entity.factions.IFaction;
 import de.teamlapen.vampirism.api.entity.vampire.IVampire;
-import de.teamlapen.vampirism.api.items.IFactionExclusiveItem;
 import de.teamlapen.vampirism.core.ModDataComponents;
 import de.teamlapen.vampirism.core.ModItems;
-import de.teamlapen.vampirism.core.tags.ModFactionTags;
 import de.teamlapen.vampirism.entity.player.vampire.VampirePlayer;
 import de.teamlapen.vampirism.entity.vampire.DrinkBloodContext;
 import de.teamlapen.vampirism.fluids.BloodHelper;
 import de.teamlapen.vampirism.items.component.BottleBlood;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
@@ -22,7 +18,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
@@ -37,7 +32,7 @@ import org.jetbrains.annotations.NotNull;
  * Currently the only thing that can interact with the players bloodstats.
  * Can only store blood in {@link BloodBottleItem#CAPACITY} tenth units.
  */
-public class BloodBottleItem extends Item implements IFactionExclusiveItem, ModDisplayItemGenerator.CreativeTabItemProvider {
+public class BloodBottleItem extends Item implements ModDisplayItemGenerator.CreativeTabItemProvider {
 
     public static final int AMOUNT = 9;
     private static final int MULTIPLIER = VReference.FOOD_TO_FLUID_BLOOD;
@@ -78,11 +73,6 @@ public class BloodBottleItem extends Item implements IFactionExclusiveItem, ModD
             stack.set(ModDataComponents.BOTTLE_BLOOD, new BottleBlood(i));
             output.accept(stack, i == 0 || i == BloodBottleItem.AMOUNT ? CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS : CreativeModeTab.TabVisibility.SEARCH_TAB_ONLY);
         }
-    }
-
-    @Override
-    public @NotNull TagKey<IFaction<?>> getExclusiveFaction(@NotNull ItemStack stack) {
-        return ModFactionTags.IS_VAMPIRE;
     }
 
     @NotNull

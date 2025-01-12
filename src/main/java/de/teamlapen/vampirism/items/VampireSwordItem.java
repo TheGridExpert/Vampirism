@@ -3,37 +3,29 @@ package de.teamlapen.vampirism.items;
 import de.teamlapen.lib.lib.util.UtilLib;
 import de.teamlapen.vampirism.VampirismMod;
 import de.teamlapen.vampirism.api.VReference;
-import de.teamlapen.vampirism.api.entity.factions.IFaction;
 import de.teamlapen.vampirism.api.entity.player.skills.IRefinementHandler;
-import de.teamlapen.vampirism.api.entity.player.skills.ISkill;
 import de.teamlapen.vampirism.api.entity.player.skills.ISkillHandler;
 import de.teamlapen.vampirism.api.entity.player.vampire.IVampirePlayer;
 import de.teamlapen.vampirism.api.items.IBloodChargeable;
-import de.teamlapen.vampirism.api.items.IFactionExclusiveItem;
-import de.teamlapen.vampirism.api.items.IFactionLevelItem;
 import de.teamlapen.vampirism.api.util.VResourceLocation;
 import de.teamlapen.vampirism.config.VampirismConfig;
-import de.teamlapen.vampirism.core.ModDataComponents;
-import de.teamlapen.vampirism.core.ModParticles;
-import de.teamlapen.vampirism.core.ModRefinements;
+import de.teamlapen.vampirism.core.*;
 import de.teamlapen.vampirism.core.tags.ModEntityTags;
-import de.teamlapen.vampirism.core.tags.ModFactionTags;
 import de.teamlapen.vampirism.entity.player.vampire.VampirePlayer;
 import de.teamlapen.vampirism.entity.player.vampire.skills.VampireSkills;
 import de.teamlapen.vampirism.items.component.BloodCharged;
+import de.teamlapen.vampirism.items.component.FactionRestriction;
 import de.teamlapen.vampirism.items.component.SwordTraining;
 import de.teamlapen.vampirism.particle.FlyingBloodParticleOptions;
 import de.teamlapen.vampirism.particle.GenericParticleOptions;
 import de.teamlapen.vampirism.util.DamageHandler;
 import de.teamlapen.vampirism.util.Helper;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.tags.TagKey;
 import net.minecraft.util.Unit;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -50,7 +42,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public abstract class VampireSwordItem extends VampirismSwordItem implements IBloodChargeable, IFactionExclusiveItem, IFactionLevelItem<IVampirePlayer> {
+public abstract class VampireSwordItem extends VampirismSwordItem implements IBloodChargeable {
 
     /**
      * Speed modifier on max training
@@ -58,7 +50,7 @@ public abstract class VampireSwordItem extends VampirismSwordItem implements IBl
     private final float trainedAttackSpeedIncrease;
 
     public VampireSwordItem(@NotNull ToolMaterial material, int attackDamage, float trainSpeedIncrease, @NotNull Properties prop) {
-        super(material, attackDamage, material.speed(), prop);
+        super(material, attackDamage, material.speed(), FactionRestriction.apply(ModFactions.VAMPIRE, prop));
         this.trainedAttackSpeedIncrease = trainSpeedIncrease;
     }
 
@@ -70,7 +62,6 @@ public abstract class VampireSwordItem extends VampirismSwordItem implements IBl
         tooltip.add(Component.translatable("text.vampirism.sword_trained").append(Component.literal(" " + ((int) Math.ceil(trained * 100f)) + "%")).withStyle(ChatFormatting.DARK_AQUA));
 
         super.appendHoverText(stack, context, tooltip, flagIn);
-        this.addFactionToolTips(stack, context, tooltip, flagIn, VampirismMod.proxy.getClientPlayer());
     }
 
     @Override
@@ -92,22 +83,6 @@ public abstract class VampireSwordItem extends VampirismSwordItem implements IBl
      */
     public void doNotName(@NotNull ItemStack stack) {
         stack.set(ModDataComponents.DO_NOT_NAME, Unit.INSTANCE);
-    }
-
-    @Override
-    public @NotNull TagKey<IFaction<?>> getExclusiveFaction(@NotNull ItemStack stack) {
-        return ModFactionTags.IS_VAMPIRE;
-    }
-
-    @Override
-    public int getMinLevel(@NotNull ItemStack stack) {
-        return 0;
-    }
-
-    @Nullable
-    @Override
-    public Holder<ISkill<?>> requiredSkill(@NotNull ItemStack stack) {
-        return null;
     }
 
     @Override

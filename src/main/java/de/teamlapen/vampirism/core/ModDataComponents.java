@@ -34,6 +34,7 @@ public class ModDataComponents {
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Unit>> CROSSBOW_FRUGALITY_TRIGGERED = ITEM_DATA_COMPONENTS.registerComponentType("crossbow_frugality_triggered", (builder) -> builder.persistent(Codec.unit(Unit.INSTANCE)).networkSynchronized(StreamCodec.unit(Unit.INSTANCE)));
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Unit>> IS_FACTION_BANNER = ITEM_DATA_COMPONENTS.registerComponentType(VampirismDataComponents.Keys.IS_FACTION_BANNER.getPath(), (builder) -> builder.persistent(Unit.CODEC).networkSynchronized(StreamCodec.unit(Unit.INSTANCE)));
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<BloodFoodProperties>> VAMPIRE_FOOD = ITEM_DATA_COMPONENTS.registerComponentType(VampirismDataComponents.Keys.VAMPIRE_FOOD.getPath(), (builder) -> builder.persistent(BloodFoodProperties.DIRECT_CODEC).networkSynchronized(BloodFoodProperties.DIRECT_STREAM_CODEC));
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<FactionRestriction>> FACTION_RESTRICTION = ITEM_DATA_COMPONENTS.registerComponentType(VampirismDataComponents.Keys.FACTION_RESTRICTION.getPath(), builder -> builder.persistent(FactionRestriction.CODEC).networkSynchronized(FactionRestriction.STREAM_CODEC));
 
     static void register(IEventBus eventBus) {
         ITEM_DATA_COMPONENTS.register(eventBus);

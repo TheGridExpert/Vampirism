@@ -1,24 +1,17 @@
 package de.teamlapen.vampirism.items.crossbow;
 
-import de.teamlapen.vampirism.VampirismMod;
-import de.teamlapen.vampirism.api.entity.factions.IFaction;
-import de.teamlapen.vampirism.api.entity.player.hunter.IHunterPlayer;
-import de.teamlapen.vampirism.api.entity.player.skills.ISkill;
 import de.teamlapen.vampirism.api.items.IArrowContainer;
 import de.teamlapen.vampirism.api.items.IEntityCrossbowArrow;
-import de.teamlapen.vampirism.api.items.IFactionLevelItem;
 import de.teamlapen.vampirism.api.items.IHunterCrossbow;
 import de.teamlapen.vampirism.core.ModDataComponents;
-import de.teamlapen.vampirism.core.ModTasks;
-import de.teamlapen.vampirism.core.tags.ModFactionTags;
 import de.teamlapen.vampirism.core.tags.ModItemTags;
 import de.teamlapen.vampirism.entity.player.hunter.HunterPlayer;
 import de.teamlapen.vampirism.entity.player.hunter.skills.HunterSkills;
+import de.teamlapen.vampirism.items.component.FactionRestriction;
 import de.teamlapen.vampirism.items.component.SelectedAmmunition;
 import de.teamlapen.vampirism.util.ModEnchantmentHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.advancements.CriteriaTriggers;
-import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
@@ -28,10 +21,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
-import net.minecraft.tags.TagKey;
 import net.minecraft.util.Unit;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
@@ -41,7 +32,6 @@ import net.minecraft.world.item.component.ChargedProjectiles;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.common.Tags;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -50,31 +40,23 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-public abstract class HunterCrossbowItem extends CrossbowItem implements IFactionLevelItem<IHunterPlayer>, IHunterCrossbow {
+public abstract class HunterCrossbowItem extends CrossbowItem implements IHunterCrossbow {
 
     protected final ToolMaterial itemTier;
-    private final Holder<ISkill<?>> requiredSkill;
     protected final float arrowVelocity;
     protected final int chargeTime;
 
-    public HunterCrossbowItem(Properties properties, float arrowVelocity, int chargeTime, ToolMaterial itemTier, @NotNull Holder<@Nullable ISkill<?>> requiredSkill) {
+    public HunterCrossbowItem(Properties properties, float arrowVelocity, int chargeTime, ToolMaterial itemTier) {
         super(properties.repairable(ModItemTags.CROSSBOW_REPAIRABLE).enchantable(itemTier.enchantmentValue()));
         this.arrowVelocity = arrowVelocity;
         this.chargeTime = chargeTime;
         this.itemTier = itemTier;
-        this.requiredSkill = requiredSkill;
-    }
-
-    @Override
-    public @Nullable Holder<ISkill<?>> requiredSkill(@NotNull ItemStack stack) {
-        return this.requiredSkill;
     }
 
     @Override
     public void appendHoverText(@NotNull ItemStack stack, @Nullable TooltipContext context, @NotNull List<Component> tooltips, @NotNull TooltipFlag flag) {
         super.appendHoverText(stack, context, tooltips, flag);
         this.addAmmunitionTypeHoverText(stack, context, tooltips, flag);
-        this.addFactionToolTips(stack, context, tooltips, flag, VampirismMod.proxy.getClientPlayer());
     }
 
     protected void addAmmunitionTypeHoverText(@NotNull ItemStack stack, @Nullable TooltipContext context, @NotNull List<Component> tooltips, @NotNull TooltipFlag flag) {
@@ -91,16 +73,6 @@ public abstract class HunterCrossbowItem extends CrossbowItem implements IFactio
     @Override
     public @NotNull Predicate<ItemStack> getAllSupportedProjectiles(@NotNull ItemStack stack) {
         return getSupportedProjectiles(stack);
-    }
-
-    @Override
-    public int getMinLevel(@NotNull ItemStack stack) {
-        return 0;
-    }
-
-    @Override
-    public @NotNull TagKey<IFaction<?>> getExclusiveFaction(@NotNull ItemStack stack) {
-        return ModFactionTags.IS_HUNTER;
     }
 
     @NotNull

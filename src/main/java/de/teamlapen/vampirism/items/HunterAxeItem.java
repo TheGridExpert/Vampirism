@@ -4,6 +4,8 @@ import de.teamlapen.lib.lib.util.ModDisplayItemGenerator;
 import de.teamlapen.vampirism.api.VReference;
 import de.teamlapen.vampirism.api.items.IItemWithTier;
 import de.teamlapen.vampirism.core.ModFactions;
+import de.teamlapen.vampirism.core.tags.ModFactionTags;
+import de.teamlapen.vampirism.items.component.FactionRestriction;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
@@ -29,7 +31,7 @@ public class HunterAxeItem extends HunterSwordItem implements IItemWithTier, Mod
     private final TIER tier;
 
     public HunterAxeItem(ToolMaterial material, TIER tier, Item.Properties properties) {
-        super(material, 3, -2.9f, properties);
+        super(material, 3, -2.9f, FactionRestriction.builder(ModFactionTags.IS_HUNTER).minLevel(getMinLevel(tier)).apply(properties));
         this.tier = tier;
     }
 
@@ -61,11 +63,6 @@ public class HunterAxeItem extends HunterSwordItem implements IItemWithTier, Mod
     }
 
     @Override
-    public int getMinLevel(@NotNull ItemStack stack) {
-        return getMinLevel();
-    }
-
-    @Override
     public TIER getVampirismTier() {
         return tier;
     }
@@ -83,7 +80,7 @@ public class HunterAxeItem extends HunterSwordItem implements IItemWithTier, Mod
         };
     }
 
-    private int getMinLevel() {
+    private static int getMinLevel(TIER tier) {
         return switch (tier) {
             case ULTIMATE -> 8;
             case ENHANCED -> 6;

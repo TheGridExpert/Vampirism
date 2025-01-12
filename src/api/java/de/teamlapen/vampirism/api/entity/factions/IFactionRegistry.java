@@ -8,6 +8,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.player.Player;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
@@ -18,10 +19,10 @@ import java.util.function.Predicate;
 
 public interface IFactionRegistry {
 
-    @Nullable
+    @NotNull
     Holder<? extends IFaction<?>> getFaction(Entity entity);
 
-    @Nullable
+    @NotNull
     Holder<? extends IFaction<?>> getFaction(Player entity);
 
     boolean isEntityOfFaction(Entity entity, Holder<? extends IFaction<?>> faction);
