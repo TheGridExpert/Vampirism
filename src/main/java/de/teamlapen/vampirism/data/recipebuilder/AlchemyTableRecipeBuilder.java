@@ -14,6 +14,7 @@ import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.resources.ResourceKey;
@@ -32,14 +33,15 @@ import java.util.*;
 
 public class AlchemyTableRecipeBuilder implements RecipeBuilder {
 
-    public static @NotNull AlchemyTableRecipeBuilder builder(@NotNull ItemStack stack) {
-        return new AlchemyTableRecipeBuilder(stack);
+    public static @NotNull AlchemyTableRecipeBuilder builder(HolderLookup.RegistryLookup<Item> itemLookup, @NotNull ItemStack stack) {
+        return new AlchemyTableRecipeBuilder(itemLookup, stack);
     }
 
-    public static @NotNull AlchemyTableRecipeBuilder builder(@NotNull Holder<IOil> oilStack) {
-        return new AlchemyTableRecipeBuilder(OilContent.createItemStack(ModItems.OIL_BOTTLE.get(), oilStack));
+    public static @NotNull AlchemyTableRecipeBuilder builder(HolderLookup.RegistryLookup<Item> itemLookup, @NotNull Holder<IOil> oilStack) {
+        return new AlchemyTableRecipeBuilder(itemLookup, OilContent.createItemStack(ModItems.OIL_BOTTLE.get(), oilStack));
     }
 
+    protected HolderLookup.RegistryLookup<Item> itemLookup;
     protected final @NotNull ItemStack result;
     protected String group;
     protected Ingredient ingredient;
@@ -48,7 +50,8 @@ public class AlchemyTableRecipeBuilder implements RecipeBuilder {
     protected final List<ISkill<?>> skills = new LinkedList<>();
     protected final Map<String, Criterion<?>> criteria = new LinkedHashMap<>();
 
-    public AlchemyTableRecipeBuilder(@NotNull ItemStack result) {
+    public AlchemyTableRecipeBuilder(HolderLookup.RegistryLookup<Item> itemLookup, @NotNull ItemStack result) {
+        this.itemLookup = itemLookup;
         this.result = result;
     }
 
@@ -67,12 +70,12 @@ public class AlchemyTableRecipeBuilder implements RecipeBuilder {
         return this;
     }
 
-    public AlchemyTableRecipeBuilder plantOilIngredient(HolderGetter<Item> holderGetter) {
-        return ingredient(DataComponentIngredient.of(false, ModDataComponents.OIL, new OilContent(ModOils.PLANT), ModItems.OIL_BOTTLE.get())).unlockedBy("has_bottles", has(holderGetter, ModItems.OIL_BOTTLE.get()));
+    public AlchemyTableRecipeBuilder plantOilIngredient() {
+        return ingredient(DataComponentIngredient.of(false, ModDataComponents.OIL, new OilContent(ModOils.PLANT), ModItems.OIL_BOTTLE.get())).unlockedBy("has_bottles", has(this.itemLookup, ModItems.OIL_BOTTLE.get()));
     }
 
-    public AlchemyTableRecipeBuilder bloodOilIngredient(HolderGetter<Item> holderGetter) {
-        return ingredient(DataComponentIngredient.of(false, ModDataComponents.OIL, new OilContent(ModOils.VAMPIRE_BLOOD), ModItems.OIL_BOTTLE.get())).unlockedBy("has_bottles", has(holderGetter, ModItems.OIL_BOTTLE.get()));
+    public AlchemyTableRecipeBuilder bloodOilIngredient() {
+        return ingredient(DataComponentIngredient.of(false, ModDataComponents.OIL, new OilContent(ModOils.VAMPIRE_BLOOD), ModItems.OIL_BOTTLE.get())).unlockedBy("has_bottles", has(this.itemLookup, ModItems.OIL_BOTTLE.get()));
     }
 
     public @NotNull AlchemyTableRecipeBuilder input(@NotNull Ingredient input) {

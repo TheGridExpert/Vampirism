@@ -3,7 +3,7 @@
   "category": "equipment",
   "key": {
     "X": "#c:ingots/iron",
-    "Y": "minecraft:string",
+    "Y": "#c:strings",
     "Z": "#c:gems/diamond"
   },
   "lava": 5,

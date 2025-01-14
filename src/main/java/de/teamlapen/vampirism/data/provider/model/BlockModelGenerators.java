@@ -61,13 +61,11 @@ public class BlockModelGenerators extends de.teamlapen.lib.lib.data.BlockModelGe
         createAlchemicalFire();
         createPlants();
         createWood();
+        createCursedEarthPath();
 
-        ResourceLocation pathModel = ModelTemplates.DIRT_PATH.create(ModBlocks.CURSED_EARTH_PATH.get(), new TextureMapping().put(TextureSlot.PARTICLE, mod("block/cursed_earth")).put(TextureSlot.DOWN, mod("block/cursed_earth")).put(TextureSlot.SIDE, mod("block/cursed_earth_path_side")).put(TextureSlot.UP, mod("block/cursed_earth_path_top")), this.modelOutput);
-        this.blockStateOutput.accept(createRotatedVariant(ModBlocks.CURSED_EARTH_PATH.get(), pathModel));
-        createDefaultBlockItem(ModBlocks.CURSED_EARTH_PATH.get(), pathModel);
+
         createLantern(ModBlocks.VAMPIRE_SOUL_LANTERN.get());
         createCropBlock(ModBlocks.GARLIC.get(), BlockStateProperties.AGE_7, 0,0,1,1,2,2,2,3);
-
         createTintedLeaves(ModBlocks.DARK_SPRUCE_LEAVES.get(), TexturedModel.LEAVES, -1);
         ResourceLocation sunscreenModel = ModelTemplates.BEACON_MODEL.create(ModBlocks.SUNSCREEN_BEACON.get(), new TextureMapping().put(TextureSlots.BEACON, mod("block/cursed_earth")), this.modelOutput);
         this.blockStateOutput.accept(createSimpleBlock(ModBlocks.SUNSCREEN_BEACON.get(), sunscreenModel));
@@ -87,6 +85,12 @@ public class BlockModelGenerators extends de.teamlapen.lib.lib.data.BlockModelGe
         ResourceLocation inspirationModel = mod("block/altar_inspiration/altar_inspiration");
         this.blockStateOutput.accept(createSimpleBlock(ModBlocks.ALTAR_INSPIRATION.get(), inspirationModel));
         createDefaultBlockItem(ModBlocks.ALTAR_INSPIRATION.get(), inspirationModel);
+    }
+
+    protected void createCursedEarthPath() {
+        ResourceLocation pathModel = ModelTemplates.DIRT_PATH.create(ModBlocks.CURSED_EARTH_PATH.get(), new TextureMapping().put(TextureSlot.PARTICLE, mod("block/cursed_earth")).put(TextureSlot.DOWN, mod("block/cursed_earth")).put(TextureSlot.SIDE, mod("block/cursed_earth_path_side")).put(TextureSlot.UP, mod("block/cursed_earth_path_top")), this.modelOutput);
+        this.blockStateOutput.accept(createRotatedVariant(ModBlocks.CURSED_EARTH_PATH.get(), pathModel));
+        createDefaultBlockItem(ModBlocks.CURSED_EARTH_PATH.get(), pathModel);
     }
 
     protected void createPlants() {

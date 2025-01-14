@@ -25,7 +25,7 @@
       "conditions": {
         "items": [
           {
-            "items": "#c:leathers"
+            "items": "#c:crops/garlic"
           }
         ]
       },

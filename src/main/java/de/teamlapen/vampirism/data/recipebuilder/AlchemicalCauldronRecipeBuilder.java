@@ -10,6 +10,7 @@ import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.resources.ResourceKey;
@@ -26,14 +27,16 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 public class AlchemicalCauldronRecipeBuilder implements RecipeBuilder {
-    public static @NotNull AlchemicalCauldronRecipeBuilder cauldronRecipe(@NotNull Item item) {
-        return AlchemicalCauldronRecipeBuilder.cauldronRecipe(item, 1);
+
+    public static @NotNull AlchemicalCauldronRecipeBuilder cauldronRecipe(HolderLookup.RegistryLookup<Item> itemLookup, @NotNull Item item) {
+        return AlchemicalCauldronRecipeBuilder.cauldronRecipe(itemLookup, item, 1);
     }
 
-    public static @NotNull AlchemicalCauldronRecipeBuilder cauldronRecipe(@NotNull Item item, int count) {
-        return new AlchemicalCauldronRecipeBuilder(item, count);
+    public static @NotNull AlchemicalCauldronRecipeBuilder cauldronRecipe(HolderLookup.RegistryLookup<Item> itemLookup, @NotNull Item item, int count) {
+        return new AlchemicalCauldronRecipeBuilder(itemLookup, item, count);
     }
 
+    private final HolderLookup.RegistryLookup<Item> itemLookup;
     protected final @NotNull ItemStack result;
     protected String group;
     protected Ingredient ingredient;
@@ -44,7 +47,8 @@ public class AlchemicalCauldronRecipeBuilder implements RecipeBuilder {
     protected float exp = 0.2f;
     protected final Map<String, Criterion<?>> criteria = new LinkedHashMap<>();
 
-    public AlchemicalCauldronRecipeBuilder(@NotNull Item result, int count) {
+    public AlchemicalCauldronRecipeBuilder(HolderLookup.RegistryLookup<Item> itemLookup, @NotNull Item result, int count) {
+        this.itemLookup = itemLookup;
         this.result = new ItemStack(result, count);
     }
 
@@ -90,8 +94,8 @@ public class AlchemicalCauldronRecipeBuilder implements RecipeBuilder {
         return this;
     }
 
-    public @NotNull AlchemicalCauldronRecipeBuilder withFluid(HolderGetter<Item> lookup, @NotNull TagKey<Item> tag) {
-        this.fluid = Either.left(Ingredient.of(lookup.getOrThrow(tag)));
+    public @NotNull AlchemicalCauldronRecipeBuilder withFluid(@NotNull TagKey<Item> tag) {
+        this.fluid = Either.left(Ingredient.of(this.itemLookup.getOrThrow(tag)));
         return this;
     }
 
@@ -110,13 +114,13 @@ public class AlchemicalCauldronRecipeBuilder implements RecipeBuilder {
         return this;
     }
 
-    public @NotNull AlchemicalCauldronRecipeBuilder withIngredient(HolderGetter<Item> lookup, @NotNull TagKey<Item> tag) {
-        this.ingredient = Ingredient.of(lookup.getOrThrow(tag));
+    public @NotNull AlchemicalCauldronRecipeBuilder withIngredient(@NotNull TagKey<Item> tag) {
+        this.ingredient = Ingredient.of(this.itemLookup.getOrThrow(tag));
         return this;
     }
 
-    @SuppressWarnings("unchecked")
-    public @NotNull AlchemicalCauldronRecipeBuilder withSkills(@NotNull Holder<ISkill<?>>... skills) {
+    @SafeVarargs
+    public final @NotNull AlchemicalCauldronRecipeBuilder withSkills(@NotNull Holder<ISkill<?>>... skills) {
         this.skills.addAll(Arrays.asList(skills));
         return this;
     }
