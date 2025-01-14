@@ -8,7 +8,6 @@ import org.jetbrains.annotations.NotNull;
 
 public class VampirismSwordItem extends SwordItem {
 
-
     public VampirismSwordItem(@NotNull ToolMaterial material, int attackDamageIn, float attackSpeedIn, @NotNull Properties builder) {
         super(material, attackDamageIn, attackSpeedIn, ItemPropertiesExtension.descriptionWithout(builder, "_normal|_enhanced|_ultimate"));
     }

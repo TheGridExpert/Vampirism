@@ -1,6 +1,7 @@
 package de.teamlapen.vampirism.items.consume;
 
 import com.google.common.base.Preconditions;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import de.teamlapen.vampirism.api.VampirismAPI;
@@ -26,6 +27,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public record FactionBasedConsumeEffect(HolderSet<IFaction<?>> faction, List<ConsumeEffect> effects) implements ConsumeEffect {
 
@@ -37,7 +39,7 @@ public record FactionBasedConsumeEffect(HolderSet<IFaction<?>> faction, List<Con
     }));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, FactionBasedConsumeEffect> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.fromCodec(RegistryCodecs.homogeneousList(VampirismRegistries.Keys.FACTION)), FactionBasedConsumeEffect::faction,
+            ByteBufCodecs.holderSet(VampirismRegistries.Keys.FACTION), FactionBasedConsumeEffect::faction,
             ConsumeEffect.STREAM_CODEC.apply(ByteBufCodecs.list()), FactionBasedConsumeEffect::effects,
             FactionBasedConsumeEffect::new
     );
@@ -72,6 +74,7 @@ public record FactionBasedConsumeEffect(HolderSet<IFaction<?>> faction, List<Con
 
         private final TagKey<IFaction<?>> faction;
         private final List<ConsumeEffect> effects = new ArrayList<>();
+        private Integer levelRequirement;
 
         public Builder(TagKey<IFaction<?>> faction) {
             this.faction = faction;

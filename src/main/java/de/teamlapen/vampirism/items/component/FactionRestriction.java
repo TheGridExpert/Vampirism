@@ -10,6 +10,7 @@ import de.teamlapen.vampirism.api.entity.factions.IFaction;
 import de.teamlapen.vampirism.api.entity.player.skills.ISkill;
 import de.teamlapen.vampirism.core.ModDataComponents;
 import de.teamlapen.vampirism.core.ModRegistries;
+import de.teamlapen.vampirism.core.tags.ModFactionTags;
 import de.teamlapen.vampirism.entity.factions.FactionPlayerHandler;
 import net.minecraft.ChatFormatting;
 import net.minecraft.MethodsReturnNonnullByDefault;
@@ -34,6 +35,7 @@ import java.util.stream.Stream;
 @MethodsReturnNonnullByDefault
 public record FactionRestriction(HolderSet<IFaction<?>> factions, Optional<HolderSet<ISkill<?>>> skills, Optional<Integer> minLevel) {
 
+    public static final FactionRestriction ALL = FactionRestriction.builder(ModFactionTags.ALL_FACTIONS).build();
     public static final Codec<FactionRestriction> CODEC = RecordCodecBuilder.create(inst -> {
         return inst.group(
                 RegistryCodecs.homogeneousList(VampirismRegistries.Keys.FACTION).fieldOf("factions").forGetter(FactionRestriction::factions),
@@ -47,6 +49,10 @@ public record FactionRestriction(HolderSet<IFaction<?>> factions, Optional<Holde
             ByteBufCodecs.optional(ByteBufCodecs.INT), FactionRestriction::minLevel,
             FactionRestriction::new
     );
+
+    public static FactionRestriction get(ItemStack stack) {
+        return stack.getOrDefault(ModDataComponents.FACTION_RESTRICTION, ALL);
+    }
 
     public FactionRestriction(HolderSet<IFaction<?>> factions) {
         this(factions, Optional.empty(), Optional.empty());

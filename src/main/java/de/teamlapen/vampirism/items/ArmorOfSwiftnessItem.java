@@ -1,20 +1,26 @@
 package de.teamlapen.vampirism.items;
 
 import de.teamlapen.vampirism.api.items.IItemWithTier;
+import de.teamlapen.vampirism.api.util.VResourceLocation;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.EquipmentSlotGroup;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.equipment.ArmorMaterial;
 import net.minecraft.world.item.equipment.ArmorType;
 import net.minecraft.world.item.equipment.Equippable;
 import net.minecraft.world.level.Level;
+import org.checkerframework.checker.units.qual.A;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,11 +39,8 @@ public class ArmorOfSwiftnessItem extends HunterArmorItem implements IItemWithTi
     }
 
     public ArmorOfSwiftnessItem(@NotNull ArmorMaterial material, @NotNull ArmorType type, @NotNull TIER tier, Item.Properties properties) {
-        super(material, type, properties);
+        super(material, type, properties, ItemAttributeModifiers.builder().add(Attributes.MOVEMENT_SPEED, new AttributeModifier(VResourceLocation.mod("armor_modifier_" + type.getSerializedName()), getSpeedReduction(tier), AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL), EquipmentSlotGroup.bySlot(type.getSlot())).build());
         this.tier = tier;
-//        Supplier<ItemAttributeModifiers> defaultModifiers = ((ArmorItemAccessor) this).getDefaultModifiers();
-//        defaultModifiers = Suppliers.compose((ItemAttributeModifiers modifiers) -> modifiers.withModifierAdded(Attributes.MOVEMENT_SPEED, new AttributeModifier(VResourceLocation.mod("armor_modifier_" + type.getSerializedName()), getSpeedReduction(tier), AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL), EquipmentSlotGroup.bySlot(type.getSlot())), defaultModifiers::get);
-//        ((ArmorItemAccessor) this).setDefaultModifiers(defaultModifiers);
     }
 
     @Override

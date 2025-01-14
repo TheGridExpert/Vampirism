@@ -1,19 +1,20 @@
 package de.teamlapen.vampirism.items;
 
 import de.teamlapen.lib.lib.util.ModDisplayItemGenerator;
-import de.teamlapen.vampirism.api.VReference;
 import de.teamlapen.vampirism.api.items.IItemWithTier;
+import de.teamlapen.vampirism.core.ModDataComponents;
 import de.teamlapen.vampirism.core.ModFactions;
 import de.teamlapen.vampirism.core.tags.ModFactionTags;
 import de.teamlapen.vampirism.items.component.FactionRestriction;
+import de.teamlapen.vampirism.items.component.FactionSlayer;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.Unit;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.*;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.neoforged.neoforge.common.Tags;
@@ -22,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class HunterAxeItem extends HunterSwordItem implements IItemWithTier, ModDisplayItemGenerator.CreativeTabItemProvider {
+public class HunterAxeItem extends VampirismSwordItem implements IItemWithTier, ModDisplayItemGenerator.CreativeTabItemProvider {
 
     public static final ToolMaterial NORMAL = new ToolMaterial(BlockTags.INCORRECT_FOR_IRON_TOOL, 250, 3.5f, 6.0F, 14, Tags.Items.INGOTS_IRON);
     public static final ToolMaterial ENHANCED = new ToolMaterial(BlockTags.INCORRECT_FOR_DIAMOND_TOOL, 1561, 3.4f, 7.0F, 14, Tags.Items.GEMS_DIAMOND);
@@ -31,14 +32,14 @@ public class HunterAxeItem extends HunterSwordItem implements IItemWithTier, Mod
     private final TIER tier;
 
     public HunterAxeItem(ToolMaterial material, TIER tier, Item.Properties properties) {
-        super(material, 3, -2.9f, FactionRestriction.builder(ModFactionTags.IS_HUNTER).minLevel(getMinLevel(tier)).apply(properties));
+        super(material, 3, -2.9f, FactionRestriction.builder(ModFactionTags.IS_HUNTER).minLevel(getMinLevel(tier)).apply(properties).component(ModDataComponents.FACTION_SLAYER, FactionSlayer.create(ModFactionTags.IS_VAMPIRE, getVampireMult(tier))).component(ModDataComponents.DROP_VAMPIRE_SOUL, Unit.INSTANCE));
         this.tier = tier;
     }
 
     @Override
     public void appendHoverText(@NotNull ItemStack stack, @Nullable TooltipContext context, @NotNull List<Component> tooltip, @NotNull TooltipFlag flagIn) {
         addTierInformation(tooltip);
-        tooltip.add(Component.translatable("text.vampirism.deals_more_damage_to", Math.round((getVampireMult() - 1) * 100), ModFactions.VAMPIRE.value().getNamePlural()).withStyle(ChatFormatting.GRAY));
+        tooltip.add(Component.translatable("text.vampirism.deals_more_damage_to", Math.round((getVampireMult(tier) - 1) * 100), ModFactions.VAMPIRE.value().getNamePlural()).withStyle(ChatFormatting.GRAY));
         super.appendHoverText(stack, context, tooltip, flagIn);
     }
 
@@ -46,11 +47,6 @@ public class HunterAxeItem extends HunterSwordItem implements IItemWithTier, Mod
     public void generateCreativeTab(CreativeModeTab.@NotNull ItemDisplayParameters parameters, CreativeModeTab.Output output) {
         HolderLookup.RegistryLookup<Enchantment> enchantments = parameters.holders().lookupOrThrow(Registries.ENCHANTMENT);
         output.accept(getEnchantedStack(enchantments));
-    }
-
-    @Override
-    public float getDamageMultiplierForFaction(@NotNull ItemStack stack) {
-        return getVampireMult();
     }
 
     /**
@@ -88,7 +84,7 @@ public class HunterAxeItem extends HunterSwordItem implements IItemWithTier, Mod
         };
     }
 
-    private float getVampireMult() {
+    private static float getVampireMult(TIER tier) {
         return switch (tier) {
             case ULTIMATE -> 1.4F;
             case ENHANCED -> 1.3F;

@@ -12,10 +12,12 @@ import de.teamlapen.vampirism.core.ModDataComponents;
 import de.teamlapen.vampirism.core.ModRegistries;
 import de.teamlapen.vampirism.entity.player.refinements.RefinementSet;
 import de.teamlapen.vampirism.items.component.EffectiveRefinementSet;
+import de.teamlapen.vampirism.items.component.FactionRestriction;
 import de.teamlapen.vampirism.util.RegUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderSet;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.random.WeightedEntry;
@@ -35,7 +37,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public abstract class RefinementItem extends Item implements IRefinementItem, ModDisplayItemGenerator.CreativeTabItemProvider {
+public class RefinementItem extends Item implements IRefinementItem, ModDisplayItemGenerator.CreativeTabItemProvider {
 
     public static final int MAX_DAMAGE = 500;
     private static final RandomSource RANDOM = RandomSource.create();
@@ -58,7 +60,7 @@ public abstract class RefinementItem extends Item implements IRefinementItem, Mo
     }
 
     public static @Nullable IRefinementSet getRandomRefinementForItem(@Nullable Holder<? extends IFaction<?>> faction, @NotNull IRefinementItem stack) {
-        List<WeightedEntry.Wrapper<IRefinementSet>> sets = RegUtil.values(ModRegistries.REFINEMENT_SETS).stream().filter(set -> faction == null || IFaction.is(set.getFaction(), faction)).filter(set -> set.getSlotType().map(s -> s == stack.getSlotType()).orElse(true)).map(a -> ((RefinementSet) a).getWeightedRandom()).collect(Collectors.toList());
+        List<WeightedEntry.Wrapper<IRefinementSet>> sets = RegUtil.values(ModRegistries.REFINEMENT_SETS).stream().filter(set -> faction == null || IFaction.is(faction, set.getFaction())).filter(set -> set.getSlotType().map(s -> s == stack.getSlotType()).orElse(true)).map(a -> ((RefinementSet) a).getWeightedRandom()).collect(Collectors.toList());
         if (sets.isEmpty()) return null;
         return WeightedRandom.getRandomItem(RANDOM, sets).map(WeightedEntry.Wrapper::data).orElse(null);
     }
@@ -68,6 +70,12 @@ public abstract class RefinementItem extends Item implements IRefinementItem, Mo
     public RefinementItem(@NotNull Properties properties, AccessorySlotType type) {
         super(properties.durability(MAX_DAMAGE));
         this.type = type;
+    }
+
+    @Override
+    @NotNull
+    public HolderSet<IFaction<?>> getExclusiveFactions(@NotNull ItemStack stack) {
+        return FactionRestriction.get(stack).factions();
     }
 
     @Override
@@ -135,7 +143,7 @@ public abstract class RefinementItem extends Item implements IRefinementItem, Mo
     @Override
     public void generateCreativeTab(CreativeModeTab.@NotNull ItemDisplayParameters parameters, CreativeModeTab.Output output) {
         ItemStack stack = getDefaultInstance();
-        ModRegistries.REFINEMENT_SETS.stream().filter(set -> IFaction.is(set.getFaction(), getExclusiveFaction(stack))).filter(set -> set.getSlotType().map(s -> s == getSlotType()).orElse(true)).map(set -> {
+        ModRegistries.REFINEMENT_SETS.stream().filter(set -> IFaction.contains(getExclusiveFactions(stack), set.getFaction())).filter(set -> set.getSlotType().map(s -> s == getSlotType()).orElse(true)).map(set -> {
             ItemStack s = stack.copy();
             applyRefinementSet(s, set);
             return s;

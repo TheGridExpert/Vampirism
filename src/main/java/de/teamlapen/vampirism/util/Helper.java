@@ -10,7 +10,6 @@ import de.teamlapen.vampirism.api.entity.player.skills.ISkill;
 import de.teamlapen.vampirism.api.entity.player.skills.ISkillHandler;
 import de.teamlapen.vampirism.api.entity.player.vampire.IVampirePlayer;
 import de.teamlapen.vampirism.api.entity.vampire.IVampire;
-import de.teamlapen.vampirism.api.items.IVampireFinisher;
 import de.teamlapen.vampirism.config.VampirismConfig;
 import de.teamlapen.vampirism.core.ModFactions;
 import de.teamlapen.vampirism.core.tags.ModBiomeTags;
@@ -19,6 +18,7 @@ import de.teamlapen.vampirism.entity.CrossbowArrowEntity;
 import de.teamlapen.vampirism.entity.factions.FactionPlayerHandler;
 import de.teamlapen.vampirism.entity.player.VampirismPlayerAttributes;
 import de.teamlapen.vampirism.items.StakeItem;
+import de.teamlapen.vampirism.items.crossbow.arrow.VampireKillerBehavior;
 import de.teamlapen.vampirism.world.fog.FogLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -272,7 +272,7 @@ public class Helper {
                     //Maybe use all IVampireFinisher??
                     return source.getDirectEntity() instanceof IHunterMob || ((LivingEntity) source.getDirectEntity()).getMainHandItem().getItem() instanceof StakeItem;
                 } else if (source.getDirectEntity() instanceof CrossbowArrowEntity) {
-                    return ((CrossbowArrowEntity) source.getDirectEntity()).getArrowType() instanceof IVampireFinisher;
+                    return ((CrossbowArrowEntity) source.getDirectEntity()).getArrowType() instanceof VampireKillerBehavior;
                 }
                 return false;
             }

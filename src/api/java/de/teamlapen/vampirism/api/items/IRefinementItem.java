@@ -2,7 +2,7 @@ package de.teamlapen.vampirism.api.items;
 
 import de.teamlapen.vampirism.api.entity.factions.IFaction;
 import de.teamlapen.vampirism.api.entity.player.refinement.IRefinementSet;
-import net.minecraft.tags.TagKey;
+import net.minecraft.core.HolderSet;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
@@ -41,8 +41,7 @@ public interface IRefinementItem extends ItemLike {
     boolean applyRefinementSet(ItemStack stack, IRefinementSet set);
 
     @NotNull
-    TagKey<IFaction<?>> getExclusiveFaction(@NotNull ItemStack stack);
-
+    HolderSet<IFaction<?>> getExclusiveFactions(@NotNull ItemStack stack);
     /**
      * Slots types for {@link IRefinementItem}
      * <br>

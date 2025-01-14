@@ -5,6 +5,7 @@ import de.teamlapen.vampirism.api.items.IRefinementItem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.StringRepresentable;
 import org.jetbrains.annotations.NotNull;
 
@@ -17,7 +18,7 @@ public interface IRefinementSet {
     int getColor();
 
     @NotNull
-    Holder<? extends IFaction<?>> getFaction();
+    TagKey<IFaction<?>> getFaction();
 
     @NotNull
     Component getName();

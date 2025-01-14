@@ -35,6 +35,8 @@ public class ModDataComponents {
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Unit>> IS_FACTION_BANNER = ITEM_DATA_COMPONENTS.registerComponentType(VampirismDataComponents.Keys.IS_FACTION_BANNER.getPath(), (builder) -> builder.persistent(Unit.CODEC).networkSynchronized(StreamCodec.unit(Unit.INSTANCE)));
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<BloodFoodProperties>> VAMPIRE_FOOD = ITEM_DATA_COMPONENTS.registerComponentType(VampirismDataComponents.Keys.VAMPIRE_FOOD.getPath(), (builder) -> builder.persistent(BloodFoodProperties.DIRECT_CODEC).networkSynchronized(BloodFoodProperties.DIRECT_STREAM_CODEC));
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<FactionRestriction>> FACTION_RESTRICTION = ITEM_DATA_COMPONENTS.registerComponentType(VampirismDataComponents.Keys.FACTION_RESTRICTION.getPath(), builder -> builder.persistent(FactionRestriction.CODEC).networkSynchronized(FactionRestriction.STREAM_CODEC));
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<FactionSlayer>>  FACTION_SLAYER = ITEM_DATA_COMPONENTS.registerComponentType(VampirismDataComponents.Keys.FACTION_SLAYER.getPath(), builder -> builder.persistent(FactionSlayer.CODEC).networkSynchronized(FactionSlayer.STREAM_CODEC));
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Unit>> DROP_VAMPIRE_SOUL = ITEM_DATA_COMPONENTS.registerComponentType(VampirismDataComponents.Keys.DROP_VAMPIRE_SOUL.getPath(), builder -> builder.persistent(Unit.CODEC).networkSynchronized(StreamCodec.unit(Unit.INSTANCE)));
 
     static void register(IEventBus eventBus) {
         ITEM_DATA_COMPONENTS.register(eventBus);

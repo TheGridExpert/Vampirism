@@ -62,7 +62,7 @@ public class DamageHandler {
         affectVampireGarlic(vampire, strength, 20, false);
     }
 
-    private static void affectVampireGarlic(@NotNull IVampire vampire, @NotNull EnumStrength strength, float multiplier, boolean ambient) {
+    public static void affectVampireGarlic(@NotNull IVampire vampire, @NotNull EnumStrength strength, float multiplier, boolean ambient) {
         if (strength == EnumStrength.NONE) return;
         LivingEntity entity = vampire.asEntity();
         entity.addEffect(new MobEffectInstance(ModEffects.GARLIC, (int) (multiplier * 20), strength.getStrength() - 1, ambient, true));

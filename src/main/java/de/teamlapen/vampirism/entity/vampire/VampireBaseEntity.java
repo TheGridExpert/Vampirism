@@ -8,13 +8,9 @@ import de.teamlapen.vampirism.api.entity.player.vampire.IDrinkBloodContext;
 import de.teamlapen.vampirism.api.entity.vampire.IVampireMob;
 import de.teamlapen.vampirism.api.event.BloodDrinkEvent;
 import de.teamlapen.vampirism.api.items.IItemWithTier;
-import de.teamlapen.vampirism.api.items.IVampireFinisher;
 import de.teamlapen.vampirism.config.BalanceMobProps;
 import de.teamlapen.vampirism.config.VampirismConfig;
-import de.teamlapen.vampirism.core.ModAttributes;
-import de.teamlapen.vampirism.core.ModBlocks;
-import de.teamlapen.vampirism.core.ModEffects;
-import de.teamlapen.vampirism.core.ModParticles;
+import de.teamlapen.vampirism.core.*;
 import de.teamlapen.vampirism.core.tags.ModBiomeTags;
 import de.teamlapen.vampirism.core.tags.ModBlockTags;
 import de.teamlapen.vampirism.entity.CrossbowArrowEntity;
@@ -48,7 +44,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
-import org.apache.logging.log4j.core.jmx.Server;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -167,7 +162,7 @@ public abstract class VampireBaseEntity extends VampirismEntity implements IVamp
             dropSoul = true;
         } else if (cause.getDirectEntity() instanceof Player && Helper.isHunter(cause.getDirectEntity())) {
             ItemStack weapon = ((Player) cause.getDirectEntity()).getMainHandItem();
-            if (!weapon.isEmpty() && weapon.getItem() instanceof IVampireFinisher) {
+            if (!weapon.isEmpty() && weapon.has(ModDataComponents.DROP_VAMPIRE_SOUL)) {
                 dropSoul = true;
             }
         } else {

@@ -5,12 +5,8 @@ import de.teamlapen.vampirism.advancements.critereon.HunterActionCriterionTrigge
 import de.teamlapen.vampirism.api.entity.factions.IFaction;
 import de.teamlapen.vampirism.api.entity.hunter.IAdvancedHunter;
 import de.teamlapen.vampirism.api.entity.vampire.IVampireMob;
-import de.teamlapen.vampirism.api.items.IVampireFinisher;
 import de.teamlapen.vampirism.config.VampirismConfig;
-import de.teamlapen.vampirism.core.ModAdvancements;
-import de.teamlapen.vampirism.core.ModFactions;
-import de.teamlapen.vampirism.core.ModSounds;
-import de.teamlapen.vampirism.core.ModStats;
+import de.teamlapen.vampirism.core.*;
 import de.teamlapen.vampirism.entity.factions.FactionPlayerHandler;
 import de.teamlapen.vampirism.entity.player.hunter.skills.HunterSkills;
 import de.teamlapen.vampirism.util.DamageHandler;
@@ -18,6 +14,7 @@ import de.teamlapen.vampirism.util.Helper;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Unit;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -28,7 +25,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Does almost no damage, but can one hit kill vampire from behind when used by skilled hunters
  */
-public class StakeItem extends VampirismSwordItem implements IVampireFinisher {
+public class StakeItem extends VampirismSwordItem {
     public static boolean canKillInstant(@NotNull LivingEntity target, LivingEntity attacker) {
         boolean instaKillLowHealth = false;
         if (attacker instanceof Player player && attacker.isAlive()) {
@@ -44,7 +41,7 @@ public class StakeItem extends VampirismSwordItem implements IVampireFinisher {
     }
 
     public StakeItem(Item.Properties properties) {
-        super(ToolMaterial.WOOD, 1, -1, properties);
+        super(ToolMaterial.WOOD, 1, -1, properties.component(ModDataComponents.DROP_VAMPIRE_SOUL, Unit.INSTANCE));
     }
 
     @Override

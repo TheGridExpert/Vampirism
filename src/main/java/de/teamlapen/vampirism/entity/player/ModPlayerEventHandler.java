@@ -2,23 +2,17 @@ package de.teamlapen.vampirism.entity.player;
 
 import com.google.common.collect.ImmutableList;
 import de.teamlapen.vampirism.VampirismMod;
-import de.teamlapen.vampirism.api.EnumStrength;
 import de.teamlapen.vampirism.api.VampirismAPI;
 import de.teamlapen.vampirism.api.entity.factions.IFaction;
 import de.teamlapen.vampirism.api.entity.factions.IPlayableFaction;
 import de.teamlapen.vampirism.api.entity.player.actions.IActionHandler;
-import de.teamlapen.vampirism.api.entity.vampire.IVampire;
-import de.teamlapen.vampirism.api.items.IFactionSlayerItem;
 import de.teamlapen.vampirism.blockentity.TotemBlockEntity;
 import de.teamlapen.vampirism.blocks.AltarInspirationBlock;
 import de.teamlapen.vampirism.blocks.BloodContainerBlock;
 import de.teamlapen.vampirism.blocks.CoffinBlock;
 import de.teamlapen.vampirism.blocks.mother.MotherBlock;
 import de.teamlapen.vampirism.config.VampirismConfig;
-import de.teamlapen.vampirism.core.ModBlocks;
-import de.teamlapen.vampirism.core.ModEffects;
-import de.teamlapen.vampirism.core.ModFluids;
-import de.teamlapen.vampirism.core.ModItems;
+import de.teamlapen.vampirism.core.*;
 import de.teamlapen.vampirism.core.tags.ModFactionTags;
 import de.teamlapen.vampirism.effects.VampirismPoisonEffect;
 import de.teamlapen.vampirism.effects.VampirismPotion;
@@ -28,10 +22,9 @@ import de.teamlapen.vampirism.entity.player.hunter.skills.HunterSkills;
 import de.teamlapen.vampirism.entity.player.vampire.VampirePlayer;
 import de.teamlapen.vampirism.entity.player.vampire.actions.BatVampireAction;
 import de.teamlapen.vampirism.items.BloodBottleFluidHandler;
-import de.teamlapen.vampirism.items.GarlicBreadItem;
 import de.teamlapen.vampirism.items.component.FactionRestriction;
+import de.teamlapen.vampirism.items.component.FactionSlayer;
 import de.teamlapen.vampirism.items.crossbow.HunterCrossbowItem;
-import de.teamlapen.vampirism.util.DamageHandler;
 import de.teamlapen.vampirism.util.Helper;
 import de.teamlapen.vampirism.util.RegUtil;
 import de.teamlapen.vampirism.util.TotemHelper;
@@ -268,17 +261,6 @@ public class ModPlayerEventHandler {
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onItemUse(LivingEntityUseItemEvent.@NotNull Finish event) {
-        if (Helper.isVampire(event.getEntity())) {
-            if (event.getItem().getItem() instanceof GarlicBreadItem) {
-                if (!event.getEntity().getCommandSenderWorld().isClientSide) {
-                    if (event.getEntity() instanceof IVampire vampire) {
-                        DamageHandler.affectVampireGarlicDirect(vampire, EnumStrength.MEDIUM);
-                    } else if (event.getEntity() instanceof Player player) {
-                        DamageHandler.affectVampireGarlicDirect(VampirePlayer.get(player), EnumStrength.MEDIUM);
-                    }
-                }
-            }
-        }
         if (!Helper.isHunter(event.getEntity())) {
             ItemStack stack = event.getItem();
             if (stack.getItem() == Items.POTION) {
@@ -477,10 +459,11 @@ public class ModPlayerEventHandler {
     @SubscribeEvent
     public void onPlayerAttackCritical(@NotNull CriticalHitEvent event) {
         ItemStack stack = event.getEntity().getMainHandItem();
-        if (!stack.isEmpty() && stack.getItem() instanceof IFactionSlayerItem item) {
+        if (!stack.isEmpty()) {
+            FactionSlayer factionSlayer = stack.get(ModDataComponents.FACTION_SLAYER);
             Holder<? extends IFaction<?>> faction = VampirismAPI.factionRegistry().getFaction(event.getTarget());
-            if (IFaction.is(faction, item.getSlayedFaction())) {
-                event.setDamageMultiplier(event.getDamageMultiplier() + (event.getVanillaMultiplier() * (item.getDamageMultiplierForFaction(stack) - 1)));
+            if (factionSlayer != null && IFaction.contains(factionSlayer.slayedFactions(), faction)) {
+                event.setDamageMultiplier(event.getDamageMultiplier() + (event.getVanillaMultiplier() * (factionSlayer.multiplier() - 1)));
             }
         }
     }

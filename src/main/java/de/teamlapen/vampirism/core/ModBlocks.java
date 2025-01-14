@@ -12,7 +12,6 @@ import de.teamlapen.vampirism.blocks.diffuser.GarlicDiffuserBlock;
 import de.teamlapen.vampirism.blocks.mother.ActiveVulnerableRemainsBlock;
 import de.teamlapen.vampirism.blocks.mother.MotherBlock;
 import de.teamlapen.vampirism.blocks.mother.RemainsBlock;
-import de.teamlapen.vampirism.items.MotherTrophyItem;
 import de.teamlapen.vampirism.util.BlockVoxelshapes;
 import de.teamlapen.vampirism.world.gen.ModTreeGrower;
 import net.minecraft.core.Holder;
@@ -195,7 +194,7 @@ public class ModBlocks {
         return block;
     });
     public static final DeferredBlock<MotherBlock> MOTHER = BLOCKS.registerBlock("mother", MotherBlock::new);
-    public static final DeferredBlock<Block> MOTHER_TROPHY = registerWithItem("mother_trophy", (prop) -> new MotherTrophyBlock(prop.mapColor(MapColor.COLOR_GRAY).strength(3, 9).lightLevel(s -> 1).noOcclusion()), (block, prop) -> new MotherTrophyItem(block, prop.rarity(Rarity.EPIC).stacksTo(1)), x -> x);
+    public static final DeferredBlock<Block> MOTHER_TROPHY = registerWithItem("mother_trophy", (prop) -> new MotherTrophyBlock(prop.mapColor(MapColor.COLOR_GRAY).strength(3, 9).lightLevel(s -> 1).noOcclusion()),prop -> prop.rarity(Rarity.EPIC).stacksTo(1));
     public static final DeferredBlock<FogDiffuserBlock> FOG_DIFFUSER = registerWithItem("fog_diffuser", (prop) -> new FogDiffuserBlock(prop.noOcclusion().mapColor(MapColor.STONE).strength(40.0F, 1200.0F).sound(SoundType.STONE)));
     public static final DeferredBlock<FlowerPotBlock> POTTED_DARK_SPRUCE_SAPLING = BLOCKS.registerBlock("potted_dark_spruce_sapling", (prop) -> potted(new FlowerPotBlock(() -> (FlowerPotBlock) Blocks.FLOWER_POT, DARK_SPRUCE_SAPLING, prop.noCollission().isViewBlocking(UtilLib::never).pushReaction(PushReaction.DESTROY).instabreak()), DARK_SPRUCE_SAPLING.getId()));
     public static final DeferredBlock<FlowerPotBlock> POTTED_CURSED_SPRUCE_SAPLING = BLOCKS.registerBlock("potted_cursed_spruce_sapling", (prop) -> potted(new FlowerPotBlock(() -> (FlowerPotBlock) Blocks.FLOWER_POT, CURSED_SPRUCE_SAPLING, prop.noCollission().isViewBlocking(UtilLib::never).pushReaction(PushReaction.DESTROY).instabreak()), CURSED_SPRUCE_SAPLING.getId()));
@@ -273,24 +272,24 @@ public class ModBlocks {
     @SuppressWarnings("JavadocReference")
     private static <T extends Block> DeferredBlock<T> registerWithItem(String name, Function<BlockBehaviour.Properties, T> supplier, Supplier<BlockBehaviour.Properties> blockProperties, Function<Item.@NotNull Properties, Item.Properties> properties) {
         DeferredBlock<T> block = BLOCKS.registerBlock(name, prop -> supplier.apply(blockProperties.get().setId(ResourceKey.create(Registries.BLOCK, VResourceLocation.mod(name)))));
-        createItem(name, block, BlockItem::new);
+        createItem(name, block, BlockItem::new, properties);
         return block;
     }
 
     private static <T extends Block> DeferredBlock<T> registerWithItem(String name, Function<BlockBehaviour.Properties, T> supplier, Function<Item.@NotNull Properties, Item.Properties> properties) {
         DeferredBlock<T> block = BLOCKS.registerBlock(name, supplier);
-        createItem(name, block, BlockItem::new);
+        createItem(name, block, BlockItem::new, properties);
         return block;
     }
 
     private static <T extends Block, R extends Item> DeferredBlock<T> registerWithItem(String name, Function<BlockBehaviour.Properties, T> supplier, @NotNull BiFunction<T, Item.Properties, R> itemCreator, Function<Item.@NotNull Properties, Item.Properties> properties) {
         DeferredBlock<T> block = BLOCKS.registerBlock(name, supplier);
-        createItem(name, block, itemCreator);
+        createItem(name, block, itemCreator, properties);
         return block;
     }
 
-    private static <T extends Block, R extends Item> void createItem(String name, Supplier<T> block, BiFunction<T, Item.Properties, R> itemCreator) {
-        ModItems.register(name, prop -> itemCreator.apply(block.get(), prop.overrideDescription(block.get().getDescriptionId())));
+    private static <T extends Block, R extends Item> void createItem(String name, Supplier<T> block, BiFunction<T, Item.Properties, R> itemCreator, Function<Item.@NotNull Properties, Item.Properties> properties) {
+        ModItems.register(name, prop -> itemCreator.apply(block.get(), properties.apply(prop).overrideDescription(block.get().getDescriptionId())));
     }
 
     private static <T extends Block> DeferredBlock<T> registerWithItem(String name, Function<BlockBehaviour.Properties,T> supplier) {

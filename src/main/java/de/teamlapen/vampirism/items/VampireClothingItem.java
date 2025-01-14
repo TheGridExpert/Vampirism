@@ -29,12 +29,12 @@ public class VampireClothingItem extends ArmorItem {
     }
 
     @Override
-    public boolean canEquip(ItemStack stack, EquipmentSlot armorType, LivingEntity entity) {
+    public boolean canEquip(@NotNull ItemStack stack, @NotNull EquipmentSlot armorType, @NotNull LivingEntity entity) {
         return super.canEquip(stack, armorType, entity) && FactionRestriction.canUse(entity, stack, true);
     }
 
     @Override
-    public void inventoryTick(ItemStack pStack, Level pLevel, Entity pEntity, int pSlotId, boolean pIsSelected) {
+    public void inventoryTick(@NotNull ItemStack pStack, @NotNull Level pLevel, @NotNull Entity pEntity, int pSlotId, boolean pIsSelected) {
         if (pEntity instanceof LivingEntity living && pSlotId >= 36 && pSlotId <= 39) {
             if (living.tickCount % 16 == 8) {
                 if (!Helper.isVampire(living)) {

@@ -1,5 +1,6 @@
 package de.teamlapen.vampirism.api.entity.factions;
 
+import de.teamlapen.vampirism.api.VampirismRegistries;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
@@ -69,7 +70,16 @@ public interface IFaction<T extends IFactionEntity> {
     }
 
     @SuppressWarnings("unchecked")
-    static <T extends IFaction<?>> boolean contains(HolderSet<T> first, Holder<? extends IFaction<?>> second) {
-        return first.contains((Holder<T>) (Object) second);
+    static <T extends IFaction<?>> boolean contains(HolderSet<T> first, @Nullable Holder<? extends IFaction<?>> second) {
+        return second != null && first.contains((Holder<T>) second);
+    }
+
+    static <T extends IFaction<?>> boolean contains(HolderSet<T> first, HolderSet<T> second) {
+        return second.stream().allMatch(s -> contains(first, s));
+    }
+
+    @SuppressWarnings("unchecked")
+    static <T extends IFaction<?>> boolean contains(HolderSet<T> first, TagKey<IFaction<?>> second) {
+        return VampirismRegistries.FACTION.get().get(second).map(set -> contains(first, (HolderSet<T>) set)).orElse(false);
     }
 }

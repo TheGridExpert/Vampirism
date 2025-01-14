@@ -6,11 +6,11 @@ import de.teamlapen.vampirism.api.entity.factions.IFaction;
 import de.teamlapen.vampirism.api.items.IItemWithTier;
 import de.teamlapen.vampirism.api.items.IRefinementItem;
 import de.teamlapen.vampirism.api.util.VResourceLocation;
+import de.teamlapen.vampirism.core.tags.ModFactionTags;
 import de.teamlapen.vampirism.entity.player.hunter.skills.HunterSkills;
 import de.teamlapen.vampirism.items.*;
-import de.teamlapen.vampirism.items.consume.BloodFoodProperties;
-import de.teamlapen.vampirism.items.consume.FactionBasedConsumeEffect;
-import de.teamlapen.vampirism.items.consume.OblivionEffect;
+import de.teamlapen.vampirism.items.component.FactionRestriction;
+import de.teamlapen.vampirism.items.consume.*;
 import de.teamlapen.vampirism.items.crossbow.ArrowContainer;
 import de.teamlapen.vampirism.items.crossbow.DoubleCrossbowItem;
 import de.teamlapen.vampirism.items.crossbow.SingleCrossbowItem;
@@ -32,7 +32,6 @@ import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.minecraft.world.item.alchemy.Potions;
-import net.minecraft.world.item.component.Consumable;
 import net.minecraft.world.item.component.Consumables;
 import net.minecraft.world.item.consume_effects.ApplyStatusEffectsConsumeEffect;
 import net.minecraft.world.item.consume_effects.ConsumeEffect;
@@ -74,6 +73,8 @@ public class ModItems {
     // consume effects
     public static final DeferredHolder<ConsumeEffect.Type<?>, ConsumeEffect.Type<OblivionEffect>> OBLIVION = CONSUME_EFFECTS.register("oblivious", () -> new ConsumeEffect.Type<>(OblivionEffect.CODEC, OblivionEffect.STREAM_CODEC));
     public static final DeferredHolder<ConsumeEffect.Type<?>, ConsumeEffect.Type<FactionBasedConsumeEffect>> FACTION_BASED = CONSUME_EFFECTS.register("faction_based", () -> new ConsumeEffect.Type<>(FactionBasedConsumeEffect.CODEC, FactionBasedConsumeEffect.STREAM_CODEC));
+    public static final DeferredHolder<ConsumeEffect.Type<?>, ConsumeEffect.Type<BloodConsume>> CONSUME_BLOOD_EFFECT = CONSUME_EFFECTS.register("blood_consume", () -> new ConsumeEffect.Type<>(BloodConsume.CODEC, BloodConsume.STREAM_CODEC));
+    public static final DeferredHolder<ConsumeEffect.Type<?>, ConsumeEffect.Type<AffectGarlic>> AFFECT_GARLIC = CONSUME_EFFECTS.register("affect_garlic", () -> new ConsumeEffect.Type<>(AffectGarlic.CODEC, AffectGarlic.STREAM_CODEC));
     // items
     public static final DeferredItem<ArmorOfSwiftnessItem> ARMOR_OF_SWIFTNESS_CHEST_NORMAL = register("armor_of_swiftness_chest_normal", (prop) -> new ArmorOfSwiftnessItem(ModArmorMaterials.NORMAL_SWIFTNESS, ArmorType.CHESTPLATE, IItemWithTier.TIER.NORMAL, prop));
     public static final DeferredItem<ArmorOfSwiftnessItem> ARMOR_OF_SWIFTNESS_CHEST_ENHANCED = register("armor_of_swiftness_chest_enhanced", (prop) -> new ArmorOfSwiftnessItem(ModArmorMaterials.ENHANCED_SWIFTNESS, ArmorType.CHESTPLATE, IItemWithTier.TIER.ENHANCED, prop));
@@ -171,13 +172,13 @@ public class ModItems {
     public static final DeferredItem<InjectionItem> INJECTION_SANGUINARE = register("injection_sanguinare", (prop) -> new InjectionItem(InjectionItem.TYPE.SANGUINARE, prop));
 
     public static final DeferredItem<BucketItem> IMPURE_BLOOD_BUCKET = register("impure_blood_bucket", CreativeModeTabs.TOOLS_AND_UTILITIES, (prop) -> new BucketItem(ModFluids.IMPURE_BLOOD.get(), prop.craftRemainder(Items.BUCKET).stacksTo(1)));
-    public static final DeferredItem<GarlicBreadItem> GARLIC_BREAD = register("garlic_bread", GarlicBreadItem::new);
+    public static final DeferredItem<Item> GARLIC_BREAD = register("garlic_bread", props -> new Item(props.food(new FoodProperties.Builder().nutrition(6).saturationModifier(0.7F).build()).component(DataComponents.CONSUMABLE, ModConsumables.GARLIC)));
     public static final DeferredItem<AlchemicalFireItem> ITEM_ALCHEMICAL_FIRE = register("item_alchemical_fire", AlchemicalFireItem::new);
 
     public static final DeferredItem<TentItem> ITEM_TENT = register("item_tent", (prop) -> new TentItem(false, prop));
     public static final DeferredItem<TentItem> ITEM_TENT_SPAWNER = register("item_tent_spawner", (prop) -> new TentItem(true, prop));
 
-    public static final DeferredItem<PitchforkItem> PITCHFORK = register("pitchfork", PitchforkItem::new);
+    public static final DeferredItem<SwordItem> PITCHFORK = register("pitchfork", props -> new SwordItem(ToolMaterial.IRON, 6, -3, props));
 
     public static final DeferredItem<PureBloodItem> PURE_BLOOD_0 = register("pure_blood_0", (prop) -> new PureBloodItem(0, prop));
     public static final DeferredItem<PureBloodItem> PURE_BLOOD_1 = register("pure_blood_1", (prop) -> new PureBloodItem(1, prop));
@@ -198,7 +199,7 @@ public class ModItems {
     public static final DeferredItem<ColoredVampireClothingItem> VAMPIRE_CLOAK_RED_BLACK = register("vampire_cloak_red_black", (prop) -> new ColoredVampireClothingItem(ArmorType.CHESTPLATE, ColoredVampireClothingItem.EnumClothingColor.REDBLACK, prop));
     public static final DeferredItem<ColoredVampireClothingItem> VAMPIRE_CLOAK_WHITE_BLACK = register("vampire_cloak_white_black", (prop) -> new ColoredVampireClothingItem(ArmorType.CHESTPLATE, ColoredVampireClothingItem.EnumClothingColor.WHITEBLACK, prop));
 
-    public static final DeferredItem<VampireBloodBottleItem> VAMPIRE_BLOOD_BOTTLE = register("vampire_blood_bottle", VampireBloodBottleItem::new);
+    public static final DeferredItem<Item> VAMPIRE_BLOOD_BOTTLE = register("vampire_blood_bottle", Item::new);
     public static final DeferredItem<VampireBookItem> VAMPIRE_BOOK = register("vampire_book", VampireBookItem::new);
     public static final DeferredItem<VampireFangItem> VAMPIRE_FANG = register("vampire_fang", VampireFangItem::new);
     public static final DeferredItem<VampirismItemBloodFoodItem> WEAK_HUMAN_HEART = register("weak_human_heart", (prop) -> new VampirismItemBloodFoodItem(prop.food(new FoodProperties.Builder().nutrition(3).saturationModifier(1f).build()), new BloodFoodProperties.Builder().blood(10).saturationModifier(0.9F).build()));
@@ -224,9 +225,9 @@ public class ModItems {
 
     public static final DeferredItem<OblivionItem> OBLIVION_POTION = register("oblivion_potion", OblivionItem::new);
 
-    public static final DeferredItem<RefinementItem> AMULET = register("amulet", (prop) -> new VampireRefinementItem(prop, IRefinementItem.AccessorySlotType.AMULET));
-    public static final DeferredItem<RefinementItem> RING = register("ring", (prop) -> new VampireRefinementItem(prop, IRefinementItem.AccessorySlotType.RING));
-    public static final DeferredItem<RefinementItem> OBI_BELT = register("obi_belt", (prop) -> new VampireRefinementItem(prop, IRefinementItem.AccessorySlotType.OBI_BELT));
+    public static final DeferredItem<RefinementItem> AMULET = register("amulet", (prop) -> new RefinementItem(FactionRestriction.builder(ModFactionTags.IS_VAMPIRE).apply(prop), IRefinementItem.AccessorySlotType.AMULET));
+    public static final DeferredItem<RefinementItem> RING = register("ring", (prop) -> new RefinementItem(FactionRestriction.builder(ModFactionTags.IS_VAMPIRE).apply(prop), IRefinementItem.AccessorySlotType.RING));
+    public static final DeferredItem<RefinementItem> OBI_BELT = register("obi_belt", (prop) -> new RefinementItem(FactionRestriction.builder(ModFactionTags.IS_VAMPIRE).apply(prop), IRefinementItem.AccessorySlotType.OBI_BELT));
 
     public static final DeferredItem<VampireClothingItem> VAMPIRE_CLOTHING_CROWN = register("vampire_clothing_crown", (prop) -> new VampireClothingItem(ArmorType.HELMET, ModArmorMaterials.VAMPIRE_CLOTH_CROWN, prop));
     public static final DeferredItem<VampireClothingItem> VAMPIRE_CLOTHING_LEGS = register("vampire_clothing_legs", (prop) -> new VampireClothingItem(ArmorType.LEGGINGS, ModArmorMaterials.VAMPIRE_CLOTH_LEGS, prop));

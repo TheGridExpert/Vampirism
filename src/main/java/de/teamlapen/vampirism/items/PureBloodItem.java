@@ -6,11 +6,16 @@ import de.teamlapen.vampirism.api.util.VResourceLocation;
 import de.teamlapen.vampirism.core.ModEffects;
 import de.teamlapen.vampirism.core.ModFactions;
 import de.teamlapen.vampirism.core.ModItems;
+import de.teamlapen.vampirism.core.tags.ModFactionTags;
 import de.teamlapen.vampirism.entity.player.vampire.VampireLeveling;
 import de.teamlapen.vampirism.entity.player.vampire.VampirePlayer;
 import de.teamlapen.vampirism.entity.vampire.DrinkBloodContext;
+import de.teamlapen.vampirism.items.consume.BloodConsume;
+import de.teamlapen.vampirism.items.consume.BloodFoodProperties;
+import de.teamlapen.vampirism.items.consume.FactionBasedConsumeEffect;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -21,6 +26,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.Consumables;
+import net.minecraft.world.item.consume_effects.ApplyStatusEffectsConsumeEffect;
 import net.minecraft.world.level.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -51,25 +58,19 @@ public class PureBloodItem extends Item {
     private final int level;
 
     public PureBloodItem(int level, Item.Properties properties) {
-        super(properties.stacksTo(16).overrideDescription(Util.makeDescriptionId("item", VResourceLocation.mod("pure_blood"))));
+        super(properties.stacksTo(16).overrideDescription(Util.makeDescriptionId("item", VResourceLocation.mod("pure_blood"))).component(DataComponents.CONSUMABLE, Consumables.defaultDrink()
+                .onConsume(
+                        FactionBasedConsumeEffect.builder(ModFactionTags.IS_VAMPIRE)
+                                .add(new ApplyStatusEffectsConsumeEffect(new MobEffectInstance(ModEffects.SATURATION)))
+                                .add(new BloodConsume(50, 0.4f + (0.15f * level), false))
+                                .build()
+                ).build()));
         this.level = level;
     }
 
     @Override
     public void appendHoverText(@NotNull ItemStack stack, @Nullable TooltipContext context, @NotNull List<Component> tooltip, @NotNull TooltipFlag flagIn) {
         tooltip.add(Component.translatable("item.vampirism.pure_blood.purity").append(Component.literal(": " + (level + 1 + "/" + COUNT))).withStyle(ChatFormatting.RED));
-    }
-
-    @NotNull
-    @Override
-    public ItemStack finishUsingItem(@NotNull ItemStack stack, @NotNull Level worldIn, @NotNull LivingEntity entityLiving) {
-        if (entityLiving instanceof Player player) {
-            VampirePlayer vampire = VampirePlayer.get(player);
-            vampire.drinkBlood(50, 0.4f + (0.15f * getLevel()), false, new DrinkBloodContext(stack));
-            entityLiving.addEffect(new MobEffectInstance(ModEffects.SATURATION));
-            stack.shrink(1);
-        }
-        return stack;
     }
 
     public int getLevel() {

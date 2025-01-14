@@ -1,7 +1,6 @@
 package de.teamlapen.vampirism.items.crossbow.arrow;
 
 import de.teamlapen.vampirism.api.entity.vampire.IVampireMob;
-import de.teamlapen.vampirism.api.items.IVampireFinisher;
 import de.teamlapen.vampirism.api.items.IVampirismCrossbowArrow;
 import de.teamlapen.vampirism.config.VampirismConfig;
 import de.teamlapen.vampirism.core.ModItems;
@@ -24,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class VampireKillerBehavior implements IVampirismCrossbowArrow.ICrossbowArrowBehavior, IVampireFinisher {
+public class VampireKillerBehavior implements IVampirismCrossbowArrow.ICrossbowArrowBehavior {
     @Override
     public int color() {
         return 0xFF7A0073;
@@ -54,8 +53,4 @@ public class VampireKillerBehavior implements IVampirismCrossbowArrow.ICrossbowA
         return 0.5f;
     }
 
-    @Override
-    public @NotNull Item asItem() {
-        return ModItems.CROSSBOW_ARROW_VAMPIRE_KILLER.get();
-    }
 }

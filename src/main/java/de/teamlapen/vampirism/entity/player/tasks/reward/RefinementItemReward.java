@@ -10,14 +10,16 @@ import de.teamlapen.vampirism.api.entity.player.refinement.IRefinementSet;
 import de.teamlapen.vampirism.api.entity.player.task.ITaskRewardInstance;
 import de.teamlapen.vampirism.api.entity.player.task.TaskReward;
 import de.teamlapen.vampirism.api.items.IRefinementItem;
+import de.teamlapen.vampirism.core.ModDataComponents;
 import de.teamlapen.vampirism.core.ModRegistries;
+import de.teamlapen.vampirism.core.tags.ModFactionTags;
 import de.teamlapen.vampirism.entity.player.refinements.RefinementSet;
+import de.teamlapen.vampirism.items.component.FactionRestriction;
 import de.teamlapen.vampirism.util.FactionCodec;
 import de.teamlapen.vampirism.util.RegUtil;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.util.random.WeightedEntry;
@@ -43,7 +45,7 @@ public class RefinementItemReward extends ItemReward {
                 StringRepresentable.fromEnum(IRefinementSet.Rarity::values).optionalFieldOf("rarity").forGetter(i -> Optional.ofNullable(i.rarity))
         ).apply(inst, (reward, faction, rarity) -> {
             Preconditions.checkArgument(reward.isEmpty() || reward.get() instanceof IRefinementItem, "Item must be a refinement item");
-            Preconditions.checkArgument(reward.isEmpty() || IFaction.is(faction.orElse(null), ((IRefinementItem) reward.get()).getExclusiveFaction(reward.get().getDefaultInstance())), "Faction must match item faction");
+            Preconditions.checkArgument(reward.isEmpty() || IFaction.contains(((IRefinementItem) reward.get()).getExclusiveFactions(reward.get().getDefaultInstance()), faction.orElse(null)), "Faction must match item faction");
             return new RefinementItemReward((IRefinementItem) reward.orElse(null), faction.orElse(null), rarity.orElse(null));
         });
     });
@@ -91,8 +93,14 @@ public class RefinementItemReward extends ItemReward {
         IRefinementItem baseItem = this.item.get();
         if (faction == null) {
             if (baseItem != null) {
-                TagKey<IFaction<?>> exclusiveFaction = baseItem.getExclusiveFaction(baseItem.asItem().getDefaultInstance());
-                List<Holder<IFaction<?>>> list = ModRegistries.FACTIONS.get(exclusiveFaction).stream().flatMap(HolderSet.ListBacked::stream).filter(s -> s.value() instanceof IPlayableFaction<?> faction1 && faction1.hasRefinements()).toList();
+                FactionRestriction factionRestriction = baseItem.asItem().getDefaultInstance().get(ModDataComponents.FACTION_RESTRICTION);
+                HolderSet<IFaction<?>> allowedFactions;
+                if (factionRestriction != null) {
+                    allowedFactions = factionRestriction.factions();
+                } else {
+                    allowedFactions = ModRegistries.FACTIONS.getOrThrow(ModFactionTags.ALL_FACTIONS);
+                }
+                List<Holder<IFaction<?>>> list = allowedFactions.stream().filter(s -> s.value() instanceof IPlayableFaction<?> faction1 && faction1.hasRefinements()).toList();
                 //noinspection unchecked,RedundantCast
                 faction = list.isEmpty() ? null : (Holder<? extends IPlayableFaction<?>>) (Object) list.get(random.nextInt(list.size() - 1));
             } else {
@@ -107,7 +115,7 @@ public class RefinementItemReward extends ItemReward {
         @SuppressWarnings("DataFlowIssue")
         IRefinementItem.AccessorySlotType slot = (item).getSlotType();
         List<WeightedEntry.Wrapper<IRefinementSet>> sets = RegUtil.values(ModRegistries.REFINEMENT_SETS).stream()
-                .filter(set -> IFaction.is(set.getFaction(), finalFaction))
+                .filter(set -> IFaction.is(finalFaction, set.getFaction()))
                 .filter(set -> this.rarity == null || set.getRarity().ordinal() >= this.rarity.ordinal())
                 .filter(set -> set.getSlotType().map(slot1 -> slot1 == slot).orElse(true))
                 .map(set -> ((RefinementSet) set).getWeightedRandom()).collect(Collectors.toList());

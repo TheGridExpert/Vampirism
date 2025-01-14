@@ -46,7 +46,6 @@ public class HunterIntelItem extends Item {
     }
 
     private final int level;
-    private Component tooltip;
 
     public HunterIntelItem(int level, Item.Properties properties) {
         super(ItemPropertiesExtension.descriptionWithout(properties, "_\\d"));
@@ -55,10 +54,7 @@ public class HunterIntelItem extends Item {
 
     @Override
     public void appendHoverText(@NotNull ItemStack stack, @Nullable TooltipContext context, @NotNull List<Component> tooltips, @NotNull TooltipFlag flagIn) {
-        if (this.tooltip == null) {
-            this.tooltip = Component.translatable("text.vampirism.for_up_to_level").append(Component.literal(": " + (level + 5))).withStyle(ChatFormatting.RED);
-        }
-        tooltips.add(this.tooltip);
+        tooltips.add(Component.translatable("text.vampirism.for_up_to_level").append(Component.literal(": " + (level + 5))).withStyle(ChatFormatting.RED));
     }
 
     public @NotNull Component getCustomName() {

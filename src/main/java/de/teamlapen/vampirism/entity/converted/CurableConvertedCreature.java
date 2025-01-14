@@ -6,8 +6,8 @@ import de.teamlapen.vampirism.api.VampirismAPI;
 import de.teamlapen.vampirism.api.entity.convertible.ICurableConvertedCreature;
 import de.teamlapen.vampirism.api.entity.player.vampire.IDrinkBloodContext;
 import de.teamlapen.vampirism.api.event.BloodDrinkEvent;
-import de.teamlapen.vampirism.api.items.IVampireFinisher;
 import de.teamlapen.vampirism.core.ModAttributes;
+import de.teamlapen.vampirism.core.ModDataComponents;
 import de.teamlapen.vampirism.core.ModEffects;
 import de.teamlapen.vampirism.core.ModFactions;
 import de.teamlapen.vampirism.entity.ConvertedCreature;
@@ -182,7 +182,7 @@ public interface CurableConvertedCreature<T extends PathfinderMob, Z extends Pat
             data().dropSoul = true;
         } else if (cause.getDirectEntity() instanceof Player && Helper.isHunter(cause.getDirectEntity())) {
             ItemStack weapon = ((Player) cause.getDirectEntity()).getMainHandItem();
-            if (!weapon.isEmpty() && weapon.getItem() instanceof IVampireFinisher) {
+            if (!weapon.isEmpty() && weapon.has(ModDataComponents.DROP_VAMPIRE_SOUL)) {
                 data().dropSoul = true;
             }
         } else {

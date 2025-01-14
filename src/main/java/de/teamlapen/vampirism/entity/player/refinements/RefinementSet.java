@@ -7,9 +7,11 @@ import de.teamlapen.vampirism.api.entity.player.refinement.IRefinement;
 import de.teamlapen.vampirism.api.entity.player.refinement.IRefinementSet;
 import de.teamlapen.vampirism.api.items.IRefinementItem;
 import de.teamlapen.vampirism.core.ModFactions;
+import de.teamlapen.vampirism.core.tags.ModFactionTags;
 import de.teamlapen.vampirism.util.RegUtil;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.random.WeightedEntry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -93,8 +95,8 @@ public abstract class RefinementSet implements IRefinementSet {
 
         @NotNull
         @Override
-        public Holder<? extends IFaction<?>> getFaction() {
-            return ModFactions.VAMPIRE;
+        public TagKey<IFaction<?>> getFaction() {
+            return ModFactionTags.IS_VAMPIRE;
         }
     }
 }

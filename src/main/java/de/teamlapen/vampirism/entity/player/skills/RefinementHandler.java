@@ -75,7 +75,7 @@ public class RefinementHandler<T extends IRefinementPlayer<T>> implements IRefin
     @Override
     public boolean equipRefinementItem(@NotNull ItemStack stack) {
         if (stack.getItem() instanceof IRefinementItem refinementItem) {
-            if (IFaction.is(this.faction, refinementItem.getExclusiveFaction(stack))) {
+            if (FactionRestriction.canUse(player.asEntity(), stack, false)) {
                 IRefinementItem.AccessorySlotType setSlot = refinementItem.getSlotType();
 
                 removeRefinementItem(setSlot);
@@ -139,9 +139,8 @@ public class RefinementHandler<T extends IRefinementPlayer<T>> implements IRefin
                 CompoundTag stackNbt = refinements.getCompound(i);
                 int slot = stackNbt.getInt("slot");
                 ItemStack stack = ItemStack.parseOptional(provider, stackNbt.getCompound("stack"));
-                if (stack.getItem() instanceof IRefinementItem refinementItem) {
-                    TagKey<IFaction<?>> exclusiveFaction = refinementItem.getExclusiveFaction(stack);
-                    if (IFaction.is(this.faction, exclusiveFaction)) {
+                if (stack.getItem() instanceof IRefinementItem) {
+                    if (FactionRestriction.canUse(player.asEntity(), stack, false)) {
                         applyRefinementItem(stack, slot);
                     }
                 }
@@ -157,9 +156,8 @@ public class RefinementHandler<T extends IRefinementPlayer<T>> implements IRefin
                 CompoundTag stackNbt = refinements.getCompound(i);
                 int slot = stackNbt.getInt("slot");
                 ItemStack stack = ItemStack.parseOptional(provider, stackNbt.getCompound("stack"));
-                if (stack.getItem() instanceof IRefinementItem refinementItem) {
-                    TagKey<IFaction<?>> exclusiveFaction = refinementItem.getExclusiveFaction(stack);
-                    if (IFaction.is(this.faction, exclusiveFaction)) {
+                if (stack.getItem() instanceof IRefinementItem) {
+                    if (FactionRestriction.canUse(this.player.asEntity(), stack, false)) {
                         applyRefinementItem(stack, slot);
                     }
                 }
