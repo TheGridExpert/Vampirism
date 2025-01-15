@@ -35,7 +35,7 @@ public class CryptStructurePools {
 
         context.register(END, new StructureTemplatePool(end, ImmutableList.of(Pair.of(single("crypt/corridor/end", cryptDegradation), 1)), StructureTemplatePool.Projection.RIGID));
         context.register(CORRIDOR, new StructureTemplatePool(end, ImmutableList.of(
-                Pair.of(single("crypt/corridor/straight_1", cryptDegradation), 3),
+                Pair.of(single("crypt/corridor/straight_1", cryptDegradation), 4),
                 Pair.of(single("crypt/corridor/straight_2", cryptDegradation), 4),
                 Pair.of(single("crypt/corridor/corner_1", cryptDegradation), 2),
                 Pair.of(single("crypt/corridor/cross_1", cryptDegradation), 2),

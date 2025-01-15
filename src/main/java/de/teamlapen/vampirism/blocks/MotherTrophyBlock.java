@@ -17,6 +17,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
+@SuppressWarnings("deprecation")
 public class MotherTrophyBlock extends BaseEntityBlock {
     public static final MapCodec<MotherTrophyBlock> CODEC = simpleCodec(MotherTrophyBlock::new);
     
@@ -35,6 +36,11 @@ public class MotherTrophyBlock extends BaseEntityBlock {
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
         return CODEC;
+    }
+
+    @Override
+    protected RenderShape getRenderShape(BlockState pState) {
+        return RenderShape.MODEL;
     }
 
     @Nullable

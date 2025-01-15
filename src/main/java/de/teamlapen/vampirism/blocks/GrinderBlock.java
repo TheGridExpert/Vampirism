@@ -26,6 +26,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
+@SuppressWarnings("deprecation")
 public class GrinderBlock extends VampirismBlockContainer {
     public static final MapCodec<GrinderBlock> CODEC = simpleCodec(GrinderBlock::new);
 
@@ -83,6 +84,11 @@ public class GrinderBlock extends VampirismBlockContainer {
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
         return CODEC;
+    }
+
+    @Override
+    protected RenderShape getRenderShape(BlockState pState) {
+        return RenderShape.MODEL;
     }
 
     @Override

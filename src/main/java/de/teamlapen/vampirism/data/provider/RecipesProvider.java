@@ -3,7 +3,6 @@ package de.teamlapen.vampirism.data.provider;
 import com.google.common.collect.Sets;
 import de.teamlapen.vampirism.REFERENCE;
 import de.teamlapen.vampirism.api.util.VResourceLocation;
-import de.teamlapen.vampirism.blocks.CandleHolderBlock;
 import de.teamlapen.vampirism.core.*;
 import de.teamlapen.vampirism.data.ModBlockFamilies;
 import de.teamlapen.vampirism.data.recipebuilder.*;
@@ -15,7 +14,6 @@ import de.teamlapen.vampirism.recipes.ApplicableOilRecipe;
 import de.teamlapen.vampirism.recipes.CleanOilRecipe;
 import de.teamlapen.vampirism.recipes.ConfigCondition;
 import de.teamlapen.vampirism.util.ItemDataUtils;
-import de.teamlapen.vampirism.util.RegUtil;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.AdvancementRequirements;
@@ -53,8 +51,10 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.brewing.BrewingRecipe;
+import net.neoforged.neoforge.common.conditions.ICondition;
 import net.neoforged.neoforge.common.conditions.ModLoadedCondition;
 import net.neoforged.neoforge.common.conditions.NotCondition;
+import net.neoforged.neoforge.common.conditions.WithConditions;
 import net.neoforged.neoforge.common.crafting.CompoundIngredient;
 import net.neoforged.neoforge.common.crafting.DataComponentIngredient;
 import net.neoforged.neoforge.event.brewing.RegisterBrewingRecipesEvent;
@@ -72,25 +72,25 @@ public class RecipesProvider extends RecipeProvider {
     }
 
     @Override
-    protected CompletableFuture<?> run(CachedOutput pOutput, HolderLookup.Provider pRegistries) {
+    protected @NotNull CompletableFuture<?> run(@NotNull CachedOutput output, HolderLookup.@NotNull Provider registries) {
         final Set<ResourceLocation> set = Sets.newHashSet();
         final List<CompletableFuture<?>> list = new ArrayList<>();
-        this.buildRecipes(pRegistries,
+        this.buildRecipes(registries,
                 new RecipeOutput() {
                     @Override
-                    public void accept(ResourceLocation p_312039_, Recipe<?> p_312254_, @Nullable AdvancementHolder p_311794_, net.neoforged.neoforge.common.conditions.ICondition... conditions) {
-                        if (!set.add(p_312039_)) {
-                            throw new IllegalStateException("Duplicate recipe " + p_312039_);
+                    public void accept(@NotNull ResourceLocation location, @NotNull Recipe<?> recipe, @Nullable AdvancementHolder advancement, ICondition @NotNull ... conditions) {
+                        if (!set.add(location)) {
+                            throw new IllegalStateException("Duplicate recipe " + location);
                         } else {
-                            list.add(net.minecraft.data.DataProvider.saveStable(pOutput, pRegistries, Recipe.CONDITIONAL_CODEC, Optional.of(new net.neoforged.neoforge.common.conditions.WithConditions<>(p_312254_, conditions)), RecipesProvider.this.recipePathProvider.json(p_312039_)));
-                            if (p_311794_ != null) {
+                            list.add(net.minecraft.data.DataProvider.saveStable(output, registries, Recipe.CONDITIONAL_CODEC, Optional.of(new WithConditions<>(recipe, conditions)), RecipesProvider.this.recipePathProvider.json(location)));
+                            if (advancement != null) {
                                 list.add(
                                         DataProvider.saveStable(
-                                                pOutput,
-                                                pRegistries,
+                                                output,
+                                                registries,
                                                 Advancement.CONDITIONAL_CODEC,
-                                                Optional.of(new net.neoforged.neoforge.common.conditions.WithConditions<>(p_311794_.value(), conditions)),
-                                                RecipesProvider.this.advancementPathProvider.json(p_311794_.id())
+                                                Optional.of(new WithConditions<>(advancement.value(), conditions)),
+                                                RecipesProvider.this.advancementPathProvider.json(advancement.id())
                                         )
                                 );
                             }
@@ -98,7 +98,8 @@ public class RecipesProvider extends RecipeProvider {
                     }
 
                     @Override
-                    public Advancement.Builder advancement() {
+                    @SuppressWarnings("deprecated, removal")
+                    public Advancement.@NotNull Builder advancement() {
                         return Advancement.Builder.recipeAdvancement().parent(RecipeBuilder.ROOT_RECIPE_ADVANCEMENT);
                     }
                 }
@@ -504,7 +505,6 @@ public class RecipesProvider extends RecipeProvider {
         stonecutterResultFromBase(output, RecipeCategory.DECORATIONS, ModBlocks.PURPLE_STONE_TILES_SLAB.get(), ModBlocks.PURPLE_STONE_TILES.get(), 2);
         stonecutterResultFromBase(output, RecipeCategory.DECORATIONS, ModBlocks.PURPLE_STONE_TILES_STAIRS.get(), ModBlocks.PURPLE_STONE_BRICKS.get());
         stonecutterResultFromBase(output, RecipeCategory.DECORATIONS, ModBlocks.PURPLE_STONE_TILES_STAIRS.get(), ModBlocks.PURPLE_STONE_TILES.get());
-
         ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModItems.CANDLE_STICK.get()).pattern(" I ").pattern("NNN").define('I', iron_ingot).define('N', Items.IRON_NUGGET).unlockedBy("has_iron", has(iron_ingot)).unlockedBy("has_nugget", has(Items.IRON_NUGGET)).save(output, modId("candle_stick"));
         ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModItems.CANDELABRA.get()).pattern("III").pattern("NIN").define('I', iron_ingot).define('N', Items.IRON_NUGGET).unlockedBy("has_iron", has(iron_ingot)).unlockedBy("has_nugget", has(Items.IRON_NUGGET)).save(output, modId("candelabra"));
         ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModBlocks.CHANDELIER.get()).pattern(" N ").pattern("ICI").define('C', ModItems.CANDELABRA.get()).define('I', iron_ingot).define('N', Items.IRON_NUGGET).unlockedBy("has_iron", has(iron_ingot)).unlockedBy("has_nugget", has(Items.IRON_NUGGET)).unlockedBy("has_candelabra", has(ModItems.CANDELABRA.get())).save(output, modId("chandelier"));
@@ -564,17 +564,6 @@ public class RecipesProvider extends RecipeProvider {
 
     protected void coffinFromWool(RecipeOutput consumer, ItemLike coffin, ItemLike wool, ResourceLocation path) {
         ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, coffin).pattern("XXX").pattern("YYY").pattern("XXX").define('X', ItemTags.PLANKS).define('Y', wool).unlockedBy("has_wool", has(wool)).save(consumer, path);
-    }
-
-    protected void candelabraWithCandles(CandleHolderBlock candleCandelabraBlock, RecipeOutput output) {
-        Item candle = candleCandelabraBlock.getCandle().get();
-        if (candle == null) return;
-
-        ShapelessRecipeBuilder.shapeless(RecipeCategory.DECORATIONS, candleCandelabraBlock)
-                .requires(ModItems.CANDELABRA.get())
-                .requires(candle, 3)
-                .unlockedBy("has_candelabra", has(ModItems.CANDELABRA.get()))
-                .save(output, modId(RegUtil.id(candleCandelabraBlock).getPath()));
     }
 
     private @NotNull ResourceLocation vampire(String path) {

@@ -68,5 +68,4 @@ public class MotherBlock extends Block implements EntityBlock, IRemainsBlock {
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
         return level.isClientSide() ? null : HorizontalContainerBlock.createTickerHelper(type, ModTiles.MOTHER.get(), MotherBlockEntity::serverTick);
     }
-
 }

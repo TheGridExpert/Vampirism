@@ -53,7 +53,6 @@ import java.util.stream.Collectors;
 import static de.teamlapen.vampirism.world.gen.VanillaStructureModifications.singleJigsawPieceFunction;
 
 public class ModStructures {
-
     public static final DeferredRegister<StructureType<?>> STRUCTURE_TYPES = DeferredRegister.create(Registries.STRUCTURE_TYPE, REFERENCE.MODID);
     public static final DeferredRegister<StructurePieceType> STRUCTURE_PIECES = DeferredRegister.create(Registries.STRUCTURE_PIECE, REFERENCE.MODID);
     public static final DeferredRegister<StructureProcessorType<?>> STRUCTURE_PROCESSOR_TYPES = DeferredRegister.create(Registries.STRUCTURE_PROCESSOR, REFERENCE.MODID);
@@ -135,7 +134,7 @@ public class ModStructures {
                         new ProcessorRule(new RandomBlockMatchTest(ModBlocks.DARK_STONE_BRICKS.get(), 0.3F), AlwaysTrueTest.INSTANCE, ModBlocks.CRACKED_DARK_STONE_BRICKS.get().defaultBlockState()),
                         new ProcessorRule(new RandomBlockMatchTest(ModBlocks.DARK_STONE_TILES.get(), 0.3F), AlwaysTrueTest.INSTANCE, ModBlocks.CRACKED_DARK_STONE_TILES.get().defaultBlockState())
                 )),
-                new RandomCandleLitProcessor(0.55f)
+                new RandomCandleLitProcessor(0.7f)
         )));
     }
 

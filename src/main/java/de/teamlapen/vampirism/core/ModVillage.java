@@ -18,7 +18,6 @@ import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.entity.schedule.Schedule;
 import net.minecraft.world.entity.schedule.ScheduleBuilder;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.saveddata.maps.MapDecorationTypes;
@@ -75,25 +74,46 @@ public class ModVillage {
                                     new VampirismTrades.ItemsForHeart(new VampirismTrades.Price(10, 15), ModItems.PURE_BLOOD_0.get(), new VampirismTrades.Price(1, 1), 2, 2),
                                     // When buying, the player only gets one bottle and not the amount set in the offer for some reason
                                     //new VampirismTrades.BloodBottleForHeart(new VampirismTrades.Price(3, 12), new VampirismTrades.Price(1, 15), 9, 4, 1),
-                                    new VillagerTrades.EmeraldForItems(ModBlocks.VAMPIRE_ORCHID.get(), 8, 8, 2),
+                                    new VillagerTrades.EmeraldForItems(ModBlocks.VAMPIRE_ORCHID.get(), 9, 8, 2),
                                     new VampirismTrades.VampireForestMapTrade(5, MapUtil.getModTranslation("vampire_forest"), MapDecorationTypes.TARGET_POINT, 12, 2)
                             },
                             2,
                             new VillagerTrades.ItemListing[]{
                                     new VampirismTrades.ItemsForHeart(new VampirismTrades.Price(25, 30), ModItems.PURE_BLOOD_1.get(), new VampirismTrades.Price(1, 1), 2, 5),
-                                    new VampirismTrades.ItemsForHeart(new VampirismTrades.Price(3, 10), ModBlocks.COFFIN_RED.get(), new VampirismTrades.Price(1, 1), 4, 5),
                                     new VampirismTrades.ItemsForHeart(new VampirismTrades.Price(10, 25), ModItems.BLOOD_INFUSED_IRON_INGOT.get(), new VampirismTrades.Price(1, 3), 8, 5),
                                     new VampirismTrades.ItemsForHeart(new VampirismTrades.Price(10, 30), new ItemStack[]{
                                             new ItemStack(ModItems.VAMPIRE_CLOAK_BLACK_BLUE.get()),
                                             new ItemStack(ModItems.VAMPIRE_CLOAK_BLACK_RED.get()),
                                             new ItemStack(ModItems.VAMPIRE_CLOAK_BLACK_WHITE.get()),
                                             new ItemStack(ModItems.VAMPIRE_CLOAK_RED_BLACK.get()),
-                                            new ItemStack(ModItems.VAMPIRE_CLOAK_WHITE_BLACK.get())}, new VampirismTrades.Price(1, 1), 4, 10)
+                                            new ItemStack(ModItems.VAMPIRE_CLOAK_WHITE_BLACK.get())}, new VampirismTrades.Price(1, 1), 4, 5),
+                                    new VampirismTrades.ItemsForHeart(new VampirismTrades.Price(3, 10), new ItemStack[]{
+                                            new ItemStack(ModBlocks.COFFIN_WHITE.get()),
+                                            new ItemStack(ModBlocks.COFFIN_ORANGE.get()),
+                                            new ItemStack(ModBlocks.COFFIN_MAGENTA.get()),
+                                            new ItemStack(ModBlocks.COFFIN_LIGHT_BLUE.get()),
+                                            new ItemStack(ModBlocks.COFFIN_YELLOW.get()),
+                                            new ItemStack(ModBlocks.COFFIN_LIME.get()),
+                                            new ItemStack(ModBlocks.COFFIN_PINK.get()),
+                                            new ItemStack(ModBlocks.COFFIN_GRAY.get()),
+                                            new ItemStack(ModBlocks.COFFIN_LIGHT_GRAY.get()),
+                                            new ItemStack(ModBlocks.COFFIN_CYAN.get()),
+                                            new ItemStack(ModBlocks.COFFIN_PURPLE.get()),
+                                            new ItemStack(ModBlocks.COFFIN_BLUE.get()),
+                                            new ItemStack(ModBlocks.COFFIN_BROWN.get()),
+                                            new ItemStack(ModBlocks.COFFIN_GREEN.get()),
+                                            new ItemStack(ModBlocks.COFFIN_RED.get()),
+                                            new ItemStack(ModBlocks.COFFIN_BLACK.get())
+                                    }, new VampirismTrades.Price(1, 1), 4, 5)
                             },
                             3,
                             new VillagerTrades.ItemListing[]{
                                     new VampirismTrades.ItemsForHeart(new VampirismTrades.Price(30, 40), ModItems.PURE_BLOOD_2.get(), new VampirismTrades.Price(1, 1), 2, 10),
                                     new VampirismTrades.ItemsForHeart(new VampirismTrades.Price(15, 30), ModItems.BLOOD_INFUSED_ENHANCED_IRON_INGOT.get(), new VampirismTrades.Price(1, 2), 12, 10),
+                                    new VampirismTrades.MultipleItemsForCurrency(new VampirismTrades.ItemsForCurrency[]{
+                                            new VampirismTrades.ItemsForHeart(new VampirismTrades.Price(42, 64), ModItems.HEART_SEEKER_ENHANCED.get(), new VampirismTrades.Price(1, 1), 1, 10),
+                                            new VampirismTrades.ItemsForHeart(new VampirismTrades.Price(42, 64), ModItems.HEART_STRIKER_ENHANCED.get(), new VampirismTrades.Price(1, 1), 1, 10)
+                                    }),
                                     new VampirismTrades.ItemsForHeart(new VampirismTrades.Price(10, 30), new ItemStack[]{
                                             new ItemStack(ModItems.VAMPIRE_CLOAK_BLACK_BLUE.get()),
                                             new ItemStack(ModItems.VAMPIRE_CLOAK_BLACK_RED.get()),
@@ -103,14 +123,14 @@ public class ModVillage {
                             },
                             4,
                             new VillagerTrades.ItemListing[]{
-                                    new VampirismTrades.ItemsForHeart(new VampirismTrades.Price(20, 30), ModItems.PURE_BLOOD_3.get(), new VampirismTrades.Price(1, 1), 2, 10),
+                                    new VampirismTrades.ItemsForHeart(new VampirismTrades.Price(20, 30), ModItems.PURE_BLOOD_3.get(), new VampirismTrades.Price(1, 1), 2, 15),
                                     new VampirismTrades.TreasureMapForEmeralds(14, ModTags.Structures.ON_CRYPT_MAPS, MapUtil.getModTranslation("crypt"), ModMapDecorations.CRYPT, 12, 15)
                             },
                             5,
                             new VillagerTrades.ItemListing[]{
                                     new VampirismTrades.ItemsForHeart(new VampirismTrades.Price(30, 40), ModItems.PURE_BLOOD_4.get(), new VampirismTrades.Price(1, 1), 2, 30),
-                                    new VillagerTrades.ItemsForEmeralds(ModItems.HEART_SEEKER_ULTIMATE.get(), 40, 1, 30),
-                                    new VillagerTrades.ItemsForEmeralds(ModItems.HEART_STRIKER_ULTIMATE.get(), 40, 1, 30),
+                                    new VampirismTrades.ItemsForHeart(new VampirismTrades.Price(80, 96), ModItems.HEART_SEEKER_ULTIMATE.get(), new VampirismTrades.Price(1, 1), 1, 30),
+                                    new VampirismTrades.ItemsForHeart(new VampirismTrades.Price(80, 96), ModItems.HEART_STRIKER_ULTIMATE.get(), new VampirismTrades.Price(1, 1), 1, 30)
                             }
                     ))
             );
@@ -118,49 +138,69 @@ public class ModVillage {
                     HUNTER_EXPERT.get(), new Int2ObjectOpenHashMap<>(ImmutableMap.of(
                             1,
                             new VillagerTrades.ItemListing[]{
-                                    new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(10, 20), ModBlocks.GARLIC.get(), new VampirismTrades.Price(2, 5)),
-                                    new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(30, 40), ModItems.ARMOR_OF_SWIFTNESS_CHEST_NORMAL.get(), new VampirismTrades.Price(1, 1), 8, 1),
-                                    new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(25, 35), ModItems.ARMOR_OF_SWIFTNESS_LEGS_NORMAL.get(), new VampirismTrades.Price(1, 1), 7, 1),
-                                    new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(10, 15), ModItems.ARMOR_OF_SWIFTNESS_FEET_NORMAL.get(), new VampirismTrades.Price(1, 1), 5, 1),
-                                    new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(20, 30), ModItems.ARMOR_OF_SWIFTNESS_HEAD_NORMAL.get(), new VampirismTrades.Price(1, 1), 6, 1),
-                                    new VampirismTrades.VampireForestMapTrade(5, MapUtil.getModTranslation("vampire_forest"), MapDecorationTypes.TARGET_POINT, 12, 2)
+                                    new VillagerTrades.EmeraldForItems(ModBlocks.GARLIC.asItem(), 18, 16, 2),
+                                    new VampirismTrades.BiomeMapForEmeralds(5, MapUtil.getModTranslation("vampire_forest"), MapDecorationTypes.TARGET_POINT, 12, 1)
                             },
                             2,
                             new VillagerTrades.ItemListing[]{
-                                    new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(25, 45), Items.DIAMOND, new VampirismTrades.Price(1, 1), 2, 5),
-                                    new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(10, 20), ModItems.CROSSBOW_ARROW_NORMAL.get(), new VampirismTrades.Price(5, 15)),
-                                    new VillagerTrades.ItemsForEmeralds(ModItems.SOUL_ORB_VAMPIRE.get(), 10, 10, 4),
-                                    new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(30, 40), ModItems.HUNTER_COAT_CHEST_NORMAL.get(), new VampirismTrades.Price(1, 1), 8, 1),
-                                    new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(25, 35), ModItems.HUNTER_COAT_LEGS_NORMAL.get(), new VampirismTrades.Price(1, 1), 7, 1),
-                                    new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(10, 15), ModItems.HUNTER_COAT_FEET_NORMAL.get(), new VampirismTrades.Price(1, 1), 5, 1),
-                                    new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(20, 30), ModItems.HUNTER_COAT_HEAD_NORMAL.get(), new VampirismTrades.Price(1, 1), 6, 1),
-                                    new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(30, 40), ModItems.ARMOR_OF_SWIFTNESS_CHEST_ENHANCED.get(), new VampirismTrades.Price(1, 1), 8, 1),
-                                    new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(25, 35), ModItems.ARMOR_OF_SWIFTNESS_LEGS_ENHANCED.get(), new VampirismTrades.Price(1, 1), 7, 1),
-                                    new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(10, 15), ModItems.ARMOR_OF_SWIFTNESS_FEET_ENHANCED.get(), new VampirismTrades.Price(1, 1), 5, 1),
-                                    new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(20, 30), ModItems.ARMOR_OF_SWIFTNESS_HEAD_ENHANCED.get(), new VampirismTrades.Price(1, 1), 6, 1)
+                                    new VillagerTrades.EmeraldForItems(ModItems.VAMPIRE_FANG.get(), 9, 16, 10),
+                                    new VampirismTrades.MultipleItemsForCurrency(new VampirismTrades.ItemsForCurrency[]{
+                                            new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(10, 20), ModItems.CROSSBOW_ARROW_NORMAL.get(), new VampirismTrades.Price(8, 16), 12, 5),
+                                            new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(15, 30), ModItems.CROSSBOW_ARROW_VAMPIRE_KILLER.get(), new VampirismTrades.Price(8, 16), 12, 5),
+                                            new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(20, 35), ModItems.CROSSBOW_ARROW_SPITFIRE.get(), new VampirismTrades.Price(8, 16), 12, 5),
+                                            new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(25, 40), ModItems.CROSSBOW_ARROW_TELEPORT.get(), new VampirismTrades.Price(8, 16), 12, 5)
+                                    }),
+                                    new VampirismTrades.MultipleItemsForCurrency(new VampirismTrades.ItemsForCurrency[]{
+                                            new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(30, 40), ModItems.ARMOR_OF_SWIFTNESS_CHEST_NORMAL.get(), new VampirismTrades.Price(1, 1), 8, 5),
+                                            new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(25, 35), ModItems.ARMOR_OF_SWIFTNESS_LEGS_NORMAL.get(), new VampirismTrades.Price(1, 1), 7, 5),
+                                            new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(10, 15), ModItems.ARMOR_OF_SWIFTNESS_FEET_NORMAL.get(), new VampirismTrades.Price(1, 1), 5, 5),
+                                            new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(20, 30), ModItems.ARMOR_OF_SWIFTNESS_HEAD_NORMAL.get(), new VampirismTrades.Price(1, 1), 6, 5)
+                                    })
                             },
                             3,
                             new VillagerTrades.ItemListing[]{
-                                    new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(40, 64), ModItems.VAMPIRE_BOOK.get(), new VampirismTrades.Price(1, 1), 10, 1),
-                                    new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(30, 40), ModItems.HUNTER_COAT_CHEST_ENHANCED.get(), new VampirismTrades.Price(1, 1), 8, 1),
-                                    new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(25, 35), ModItems.HUNTER_COAT_LEGS_ENHANCED.get(), new VampirismTrades.Price(1, 1), 7, 1),
-                                    new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(10, 15), ModItems.HUNTER_COAT_FEET_ENHANCED.get(), new VampirismTrades.Price(1, 1), 5, 1),
-                                    new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(20, 30), ModItems.HUNTER_COAT_HEAD_ENHANCED.get(), new VampirismTrades.Price(1, 1), 6, 1),
-                                    new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(30, 45), ModItems.ARMOR_OF_SWIFTNESS_CHEST_ULTIMATE.get(), new VampirismTrades.Price(1, 1), 8, 1),
-                                    new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(25, 45), ModItems.ARMOR_OF_SWIFTNESS_LEGS_ULTIMATE.get(), new VampirismTrades.Price(1, 1), 7, 1),
-                                    new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(15, 30), ModItems.ARMOR_OF_SWIFTNESS_FEET_ULTIMATE.get(), new VampirismTrades.Price(1, 1), 5, 1),
-                                    new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(20, 30), ModItems.ARMOR_OF_SWIFTNESS_HEAD_ULTIMATE.get(), new VampirismTrades.Price(1, 1), 6, 1)
+                                    new VillagerTrades.EmeraldForItems(ModItems.VAMPIRE_BLOOD_BOTTLE.get(), 5, 16, 20),
+                                    new VampirismTrades.MultipleItemsForCurrency(new VampirismTrades.ItemsForCurrency[]{
+                                            new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(30, 40), ModItems.HUNTER_COAT_CHEST_NORMAL.get(), new VampirismTrades.Price(1, 1), 8, 10),
+                                            new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(25, 35), ModItems.HUNTER_COAT_LEGS_NORMAL.get(), new VampirismTrades.Price(1, 1), 7, 10),
+                                            new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(10, 15), ModItems.HUNTER_COAT_FEET_NORMAL.get(), new VampirismTrades.Price(1, 1), 5, 10),
+                                            new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(20, 30), ModItems.HUNTER_COAT_HEAD_NORMAL.get(), new VampirismTrades.Price(1, 1), 6, 10)
+                                    }),
+                                    new VampirismTrades.MultipleItemsForCurrency(new VampirismTrades.ItemsForCurrency[]{
+                                            new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(30, 40), ModItems.ARMOR_OF_SWIFTNESS_CHEST_ENHANCED.get(), new VampirismTrades.Price(1, 1), 8, 10),
+                                            new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(25, 35), ModItems.ARMOR_OF_SWIFTNESS_LEGS_ENHANCED.get(), new VampirismTrades.Price(1, 1), 7, 10),
+                                            new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(10, 15), ModItems.ARMOR_OF_SWIFTNESS_FEET_ENHANCED.get(), new VampirismTrades.Price(1, 1), 5, 10),
+                                            new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(20, 30), ModItems.ARMOR_OF_SWIFTNESS_HEAD_ENHANCED.get(), new VampirismTrades.Price(1, 1), 6, 10)
+                                    })
                             },
                             4,
                             new VillagerTrades.ItemListing[]{
-                                    new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(20, 32), Items.DIAMOND, new VampirismTrades.Price(1, 2)),
+                                    new VampirismTrades.MultipleItemsForCurrency(new VampirismTrades.ItemsForCurrency[]{
+                                            new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(30, 40), ModItems.HUNTER_COAT_CHEST_ENHANCED.get(), new VampirismTrades.Price(1, 1), 8, 15),
+                                            new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(25, 35), ModItems.HUNTER_COAT_LEGS_ENHANCED.get(), new VampirismTrades.Price(1, 1), 7, 15),
+                                            new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(10, 15), ModItems.HUNTER_COAT_FEET_ENHANCED.get(), new VampirismTrades.Price(1, 1), 5, 15),
+                                            new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(20, 30), ModItems.HUNTER_COAT_HEAD_ENHANCED.get(), new VampirismTrades.Price(1, 1), 6, 15)
+                                    }),
+                                    new VampirismTrades.MultipleItemsForCurrency(new VampirismTrades.ItemsForCurrency[]{
+                                            new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(30, 45), ModItems.ARMOR_OF_SWIFTNESS_CHEST_ULTIMATE.get(), new VampirismTrades.Price(1, 1), 8, 15),
+                                            new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(25, 45), ModItems.ARMOR_OF_SWIFTNESS_LEGS_ULTIMATE.get(), new VampirismTrades.Price(1, 1), 7, 15),
+                                            new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(15, 30), ModItems.ARMOR_OF_SWIFTNESS_FEET_ULTIMATE.get(), new VampirismTrades.Price(1, 1), 5, 15),
+                                            new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(20, 30), ModItems.ARMOR_OF_SWIFTNESS_HEAD_ULTIMATE.get(), new VampirismTrades.Price(1, 1), 6, 15)
+                                    })
                             },
                             5,
                             new VillagerTrades.ItemListing[]{
-                                    new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(30, 55), ModItems.HUNTER_COAT_CHEST_ULTIMATE.get(), new VampirismTrades.Price(1, 1), 8, 1),
-                                    new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(25, 55), ModItems.HUNTER_COAT_LEGS_ULTIMATE.get(), new VampirismTrades.Price(1, 1), 7, 1),
-                                    new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(20, 35), ModItems.HUNTER_COAT_FEET_ULTIMATE.get(), new VampirismTrades.Price(1, 1), 5, 1),
-                                    new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(20, 35), ModItems.HUNTER_COAT_HEAD_ULTIMATE.get(), new VampirismTrades.Price(1, 1), 6, 1)
+                                    new VampirismTrades.MultipleItemsForCurrency(new VampirismTrades.ItemsForCurrency[]{
+                                            new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(30, 55), ModItems.HUNTER_COAT_CHEST_ULTIMATE.get(), new VampirismTrades.Price(1, 1), 8, 30),
+                                            new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(25, 55), ModItems.HUNTER_COAT_LEGS_ULTIMATE.get(), new VampirismTrades.Price(1, 1), 7, 30),
+                                            new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(20, 35), ModItems.HUNTER_COAT_FEET_ULTIMATE.get(), new VampirismTrades.Price(1, 1), 5, 30),
+                                            new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(20, 35), ModItems.HUNTER_COAT_HEAD_ULTIMATE.get(), new VampirismTrades.Price(1, 1), 6, 30)
+                                    }),
+                                    new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(80, 96), ModItems.HUNTER_AXE_ULTIMATE.get(), new VampirismTrades.Price(1, 1), 1, 30),
+                                    new VampirismTrades.MultipleItemsForCurrency(new VampirismTrades.ItemsForCurrency[]{
+                                            new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(25, 50), ModItems.ENHANCED_CROSSBOW.get(), new VampirismTrades.Price(1, 1), 1, 30),
+                                            new VampirismTrades.ItemsForSouls(new VampirismTrades.Price(30, 55), ModItems.ENHANCED_DOUBLE_CROSSBOW.get(), new VampirismTrades.Price(1, 1), 1, 30)
+                                    }),
                             }
                     ))
             );
