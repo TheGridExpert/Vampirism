@@ -3,7 +3,7 @@
     "scaling": {
       "type": "tile",
       "width": 16,
-      "height": 10
+      "height": 8
     }
   }
 }

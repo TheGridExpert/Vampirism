@@ -262,9 +262,9 @@ public class VampirismHUDOverlay {
     private void renderBloodFangs(@NotNull GuiGraphics graphics, int width, int height, float perc, int color) {
         int left = width / 2 - 8;
         int top = height / 2 - 4;
-        graphics.blitSprite(RenderType::guiTextured, FANG_SPRITE, left, top, 16, 10);
-        int percHeight = (int) (10 * (1-perc));
-        GuiRenderer.blitTiledOffset(graphics, FANG_SPRITE, left, top, 16, 10, 0, percHeight, color);
+        graphics.blitSprite(RenderType::guiTextured, FANG_SPRITE, left, top, 16, 8);
+        int percHeight = (int) (10f * (1f-perc));
+        GuiRenderer.blitTiledOffset(graphics, FANG_SPRITE, left, top, 16, 8, 0, percHeight, color);
     }
 
     private void renderStakeInstantKill(@NotNull GuiGraphics graphics, int width, int height) {
