@@ -1,5 +1,5 @@
 {
-  "background": "vampirism:block/dark_spruce_planks",
+  "background": "minecraft:block/spruce_planks",
   "display": {
     "count": 1,
     "id": "vampirism:vampire_book"

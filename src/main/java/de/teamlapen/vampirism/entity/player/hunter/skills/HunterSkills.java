@@ -171,8 +171,8 @@ public class HunterSkills {
 
         public static void createSkillTrees(BootstrapContext<ISkillTree> context) {
             HolderGetter<ISkillNode> lookup = context.lookup(VampirismRegistries.Keys.SKILL_NODE);
-            context.register(LEVEL, new SkillTree(ModFactions.HUNTER, EntityPredicate.Builder.entity().subPredicate(PlayerFactionSubPredicate.faction(ModFactions.HUNTER)).build(), new ItemStack(ModItems.VAMPIRE_BOOK.get()), Component.translatable("text.vampirism.skills.level"), Optional.of(VResourceLocation.mod("block/dark_spruce_planks"))));
-            context.register(LORD, new SkillTree(ModFactions.HUNTER, EntityPredicate.Builder.entity().subPredicate(PlayerFactionSubPredicate.lord(ModFactions.HUNTER)).build(), new ItemStack(ModItems.HUNTER_MINION_EQUIPMENT.get()), Component.translatable("text.vampirism.skills.lord"), Optional.of(VResourceLocation.mod("block/dark_spruce_planks"))));
+            context.register(LEVEL, new SkillTree(ModFactions.HUNTER, EntityPredicate.Builder.entity().subPredicate(PlayerFactionSubPredicate.faction(ModFactions.HUNTER)).build(), new ItemStack(ModItems.VAMPIRE_BOOK.get()), Component.translatable("text.vampirism.skills.level"), Optional.of(VResourceLocation.mc("block/spruce_planks"))));
+            context.register(LORD, new SkillTree(ModFactions.HUNTER, EntityPredicate.Builder.entity().subPredicate(PlayerFactionSubPredicate.lord(ModFactions.HUNTER)).build(), new ItemStack(ModItems.HUNTER_MINION_EQUIPMENT.get()), Component.translatable("text.vampirism.skills.lord"), Optional.of(VResourceLocation.mc("block/spruce_planks"))));
         }
 
     }
