@@ -300,6 +300,7 @@ public class VampirismMod {
         event.enqueueWork(ModStats::registerFormatter);
         event.enqueueWork(CodecModifications::changeMobEffectCodec);
         event.enqueueWork(ModVillage::villagerTradeSetup);
+        event.enqueueWork(ModVillage::addVillagerWantedItems);
         event.enqueueWork(ModItems::registerDispenserBehaviourUnsafe);
         TelemetryCollector.execute();
     }

@@ -357,10 +357,14 @@ public class VampirismCreativeTab {
             event.accept(VAMPIRE_SPAWN_EGG);
             event.accept(ADVANCED_VAMPIRE_SPAWN_EGG);
             event.accept(VAMPIRE_BARON_SPAWN_EGG);
+            event.accept(TASK_MASTER_VAMPIRE_SPAWN_EGG);
 
             event.accept(VAMPIRE_HUNTER_SPAWN_EGG);
             event.accept(ADVANCED_VAMPIRE_HUNTER_SPAWN_EGG);
             event.accept(HUNTER_TRAINER_SPAWN_EGG);
+            event.accept(TASK_MASTER_HUNTER_SPAWN_EGG);
+
+            event.accept(GHOST_SPAWN_EGG);
         }
     }
 }

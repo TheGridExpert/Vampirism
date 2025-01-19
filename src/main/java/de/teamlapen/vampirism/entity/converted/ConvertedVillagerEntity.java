@@ -8,10 +8,7 @@ import de.teamlapen.vampirism.api.entity.player.vampire.IBloodStats;
 import de.teamlapen.vampirism.api.entity.player.vampire.IDrinkBloodContext;
 import de.teamlapen.vampirism.api.event.BloodDrinkEvent;
 import de.teamlapen.vampirism.blockentity.TotemBlockEntity;
-import de.teamlapen.vampirism.core.ModAdvancements;
-import de.teamlapen.vampirism.core.ModAi;
-import de.teamlapen.vampirism.core.ModAttributes;
-import de.teamlapen.vampirism.core.ModVillage;
+import de.teamlapen.vampirism.core.*;
 import de.teamlapen.vampirism.entity.VampirismVillagerEntity;
 import de.teamlapen.vampirism.entity.player.vampire.VampirePlayer;
 import de.teamlapen.vampirism.entity.vampire.DrinkBloodContext;
@@ -46,6 +43,7 @@ import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.ai.village.ReputationEventType;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import org.jetbrains.annotations.NotNull;
@@ -263,6 +261,11 @@ public class ConvertedVillagerEntity extends VampirismVillagerEntity implements 
         if (!this.getOffers().isEmpty() && this.getVillagerData().getProfession() != ModVillage.VAMPIRE_EXPERT.get()  && this.getRandom().nextInt(3) == 0) {
             this.addOffersFromItemListings(this.getOffers(), VampirismTrades.getConvertedTrades(), 1);
         }
+    }
+
+    @Override
+    public boolean wantsToPickUp(@NotNull ItemStack itemStack) {
+        return super.wantsToPickUp(itemStack) && itemStack.is(ModTags.Items.GARLIC);
     }
 
     @Override

@@ -12,9 +12,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.ItemLike;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.SoundType;
@@ -73,9 +71,8 @@ public class GarlicBlock extends CropBlock {
     }
 
     public static class GarlicItem extends BlockItem {
-
-        public GarlicItem(Block pBlock, Properties pProperties) {
-            super(pBlock, pProperties);
+        public GarlicItem(Block block, Properties properties) {
+            super(block, properties);
         }
 
         @Override

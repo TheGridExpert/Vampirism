@@ -33,7 +33,6 @@ import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
 import java.util.Optional;
 
 public class VampirismTrades {
@@ -41,7 +40,7 @@ public class VampirismTrades {
         return new VillagerTrades.ItemListing[]{
                 new VillagerTrades.EmeraldForItems(ModItems.HUMAN_HEART.get(), 9, 2, 2),
                 new VillagerTrades.ItemsForEmeralds(ModItems.HUMAN_HEART.get(), 3, 9, 2),
-                new VampirismTrades.BloodBottleForEmeralds(1, 1, 20, 2)
+                new VampirismTrades.BloodBottleForEmeralds(1, 1, 16, 2)
         };
     }
 
@@ -53,8 +52,16 @@ public class VampirismTrades {
         private final int maxUses;
         private final int xp;
 
+        public ItemsForCurrency(Price priceIn, Item currency, @NotNull ItemLike sellingItemIn, int numberOfItems, int maxUsesIn, int xpIn) {
+            this(priceIn, currency, new ItemStack[]{new ItemStack(sellingItemIn.asItem())}, new VampirismTrades.Price(numberOfItems, numberOfItems), maxUsesIn, xpIn);
+        }
+
         public ItemsForCurrency(Price priceIn, Item currency, @NotNull ItemLike sellingItemIn, Price sellingIn, int maxUsesIn, int xpIn) {
             this(priceIn, currency, new ItemStack[]{new ItemStack(sellingItemIn.asItem())}, sellingIn, maxUsesIn, xpIn);
+        }
+
+        public ItemsForCurrency(Price priceIn, Item currency, ItemStack[] sellingItemIn, int numberOfItems, int maxUsesIn, int xpIn) {
+            this(priceIn, currency, sellingItemIn, new VampirismTrades.Price(numberOfItems, numberOfItems), maxUsesIn, xpIn);
         }
 
         public ItemsForCurrency(Price priceIn, Item currency, ItemStack[] sellingItemIn, Price sellingIn, int maxUsesIn, int xpIn) {
@@ -88,9 +95,35 @@ public class VampirismTrades {
         }
     }
 
+    public static class ItemsForEmeraldPrice extends ItemsForCurrency {
+        public ItemsForEmeraldPrice(Price priceIn, @NotNull ItemLike sellingItemIn, int numberOfItems, int maxUsesIn, int xpIn) {
+            super(priceIn, Items.EMERALD, sellingItemIn, numberOfItems, maxUsesIn, xpIn);
+        }
+
+        public ItemsForEmeraldPrice(Price priceIn, @NotNull ItemLike sellingItemIn, Price sellingIn, int maxUsesIn, int xpIn) {
+            super(priceIn, Items.EMERALD, sellingItemIn, sellingIn, maxUsesIn, xpIn);
+        }
+
+        public ItemsForEmeraldPrice(Price priceIn, ItemStack[] sellingItemIn, int numberOfItems, int maxUsesIn, int xpIn) {
+            super(priceIn, Items.EMERALD, sellingItemIn, numberOfItems, maxUsesIn, xpIn);
+        }
+
+        public ItemsForEmeraldPrice(Price priceIn, ItemStack[] sellingItemIn, Price sellingIn, int maxUsesIn, int xpIn) {
+            super(priceIn, Items.EMERALD, sellingItemIn, sellingIn, maxUsesIn, xpIn);
+        }
+    }
+
     public static class ItemsForHeart extends ItemsForCurrency {
+        public ItemsForHeart(Price priceIn, @NotNull ItemLike sellingItemIn, int numberOfItems, int maxUsesIn, int xpIn) {
+            super(priceIn, ModItems.HUMAN_HEART.get(), sellingItemIn, numberOfItems, maxUsesIn, xpIn);
+        }
+
         public ItemsForHeart(Price priceIn, @NotNull ItemLike sellingItemIn, Price sellingIn, int maxUsesIn, int xpIn) {
             super(priceIn, ModItems.HUMAN_HEART.get(), sellingItemIn, sellingIn, maxUsesIn, xpIn);
+        }
+
+        public ItemsForHeart(Price priceIn, ItemStack[] sellingItemIn, int numberOfItems, int maxUsesIn, int xpIn) {
+            super(priceIn, ModItems.HUMAN_HEART.get(), sellingItemIn, numberOfItems, maxUsesIn, xpIn);
         }
 
         public ItemsForHeart(Price priceIn, ItemStack[] sellingItemIn, Price sellingIn, int maxUsesIn, int xpIn) {
@@ -99,8 +132,16 @@ public class VampirismTrades {
     }
 
     public static class ItemsForSouls extends ItemsForCurrency {
+        public ItemsForSouls(Price priceIn, @NotNull ItemLike sellingItemIn, int numberOfItems, int maxUsesIn, int xpIn) {
+            super(priceIn, ModItems.SOUL_ORB_VAMPIRE.get(), sellingItemIn, numberOfItems, maxUsesIn, xpIn);
+        }
+
         public ItemsForSouls(Price priceIn, @NotNull ItemLike sellingItemIn, Price sellingIn, int maxUsesIn, int xpIn) {
             super(priceIn, ModItems.SOUL_ORB_VAMPIRE.get(), sellingItemIn, sellingIn, maxUsesIn, xpIn);
+        }
+
+        public ItemsForSouls(Price priceIn, ItemStack[] sellingItemIn, int numberOfItems, int maxUsesIn, int xpIn) {
+            super(priceIn, ModItems.SOUL_ORB_VAMPIRE.get(), sellingItemIn, numberOfItems, maxUsesIn, xpIn);
         }
 
         public ItemsForSouls(Price priceIn, ItemStack[] sellingItemIn, Price sellingIn, int maxUsesIn, int xpIn) {

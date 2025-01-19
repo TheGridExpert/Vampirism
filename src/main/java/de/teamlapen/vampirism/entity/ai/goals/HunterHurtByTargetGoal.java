@@ -22,7 +22,7 @@ public class HunterHurtByTargetGoal extends HurtByTargetGoal {
      */
     @Override
     protected void alertOthers() {
-        double radius = Math.max(getFollowDistance(), 14);
+        double radius = Math.max(getFollowDistance(), 10);
         AABB aabb = AABB.unitCubeFromLowerCorner(mob.position()).inflate(radius, radius, radius);
         List<? extends Mob> list = mob.level().getEntitiesOfClass(Mob.class, aabb, EntitySelector.NO_SPECTATORS);
 

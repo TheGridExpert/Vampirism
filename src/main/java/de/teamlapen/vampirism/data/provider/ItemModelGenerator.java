@@ -15,15 +15,13 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class ItemModelGenerator extends BaseItemModelGenerator {
 
@@ -237,12 +235,18 @@ public class ItemModelGenerator extends BaseItemModelGenerator {
         item(ModItems.ARMOR_OF_SWIFTNESS_LEGS_ENHANCED.get(), modLoc("item/armor_of_swiftness_legs_enhanced"), modLoc("item/armor_of_swiftness_legs_enhanced_overlay"));
         item(ModItems.ARMOR_OF_SWIFTNESS_LEGS_ULTIMATE.get(), modLoc("item/armor_of_swiftness_legs_ultimate"), modLoc("item/armor_of_swiftness_legs_ultimate_overlay"));
 
-        withExistingParent(ModItems.ADVANCED_VAMPIRE_HUNTER_SPAWN_EGG.get(), mcLoc("item/template_spawn_egg"));
-        withExistingParent(ModItems.ADVANCED_VAMPIRE_SPAWN_EGG.get(), mcLoc("item/template_spawn_egg"));
-        withExistingParent(ModItems.HUNTER_TRAINER_SPAWN_EGG.get(), mcLoc("item/template_spawn_egg"));
-        withExistingParent(ModItems.VAMPIRE_BARON_SPAWN_EGG.get(), mcLoc("item/template_spawn_egg"));
-        withExistingParent(ModItems.VAMPIRE_SPAWN_EGG.get(), mcLoc("item/template_spawn_egg"));
-        withExistingParent(ModItems.VAMPIRE_HUNTER_SPAWN_EGG.get(), mcLoc("item/template_spawn_egg"));
+        SpawnEggItem[] spawnEggs = new SpawnEggItem[] {
+                ModItems.VAMPIRE_SPAWN_EGG.get(),
+                ModItems.ADVANCED_VAMPIRE_SPAWN_EGG.get(),
+                ModItems.VAMPIRE_BARON_SPAWN_EGG.get(),
+                ModItems.TASK_MASTER_VAMPIRE_SPAWN_EGG.get(),
+                ModItems.VAMPIRE_HUNTER_SPAWN_EGG.get(),
+                ModItems.ADVANCED_VAMPIRE_HUNTER_SPAWN_EGG.get(),
+                ModItems.HUNTER_TRAINER_SPAWN_EGG.get(),
+                ModItems.TASK_MASTER_HUNTER_SPAWN_EGG.get(),
+                ModItems.GHOST_SPAWN_EGG.get()
+        };
+        for (SpawnEggItem spawnEggItem : spawnEggs) withExistingParent(spawnEggItem, mcLoc("item/template_spawn_egg"));
 
         withExistingParent(ModItems.BASIC_CROSSBOW.get(), modLoc("item/crossbow")).texture("texture", "item/crossbow").texture("string", "item/crossbow_part_string").texture("arrow", "item/crossbow_part_arrow").override().predicate(modLoc("charged"), 0.01f).model(withExistingParent("basic_crossbow_unloaded", modLoc("item/crossbow_unloaded")).texture("texture", "item/crossbow").texture("string", "item/crossbow_part_string_unloaded"));
         withExistingParent(ModItems.BASIC_DOUBLE_CROSSBOW.get(), modLoc("item/double_crossbow")).texture("texture", "item/crossbow_double").texture("string", "item/crossbow_part_double_string").texture("arrows", "item/crossbow_part_arrows").override().predicate(modLoc("charged"), 0.01f).model(withExistingParent("basic_double_crossbow_unloaded", modLoc("item/double_crossbow_unloaded")).texture("texture", "item/crossbow_double").texture("string", "item/crossbow_part_double_string_unloaded"));

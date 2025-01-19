@@ -319,6 +319,7 @@ public class TagProvider {
             tag(ItemTags.DURABILITY_ENCHANTABLE).add(ModItems.AMULET.get(), ModItems.RING.get(), ModItems.OBI_BELT.get());
             tag(ItemTags.BOOKSHELF_BOOKS).add(ModItems.VAMPIRE_BOOK.get()).addOptional(ResourceLocation.fromNamespaceAndPath("guideapi_vp", "vampirism-guidebook"));
 
+            tag(ItemTags.VILLAGER_PLANTABLE_SEEDS).add(ModBlocks.GARLIC.asItem());
             tag(Tags.Items.CROPS).addTag(ModTags.Items.Compatibility.CROPS_GARLIC);
             tag(Tags.Items.FOODS_VEGETABLE).add(ModBlocks.GARLIC.asItem());
             tag(ModTags.Items.Compatibility.FOODS_GARLIC).add(ModBlocks.GARLIC.asItem());
