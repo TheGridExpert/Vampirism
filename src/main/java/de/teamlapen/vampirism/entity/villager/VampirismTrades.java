@@ -34,12 +34,13 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
+import java.util.function.Predicate;
 
 public class VampirismTrades {
     public static VillagerTrades.ItemListing[] getConvertedTrades() {
         return new VillagerTrades.ItemListing[]{
-                new VillagerTrades.EmeraldForItems(ModItems.HUMAN_HEART.get(), 9, 2, 2),
-                new VillagerTrades.ItemsForEmeralds(ModItems.HUMAN_HEART.get(), 3, 9, 2),
+                new VillagerTrades.EmeraldForItems(ModItems.HUMAN_HEART.get(), 8, 2, 2),
+                new VillagerTrades.ItemsForEmeralds(ModItems.HUMAN_HEART.get(), 3, 8, 2),
                 new VampirismTrades.BloodBottleForEmeralds(1, 1, 16, 2)
         };
     }
@@ -95,21 +96,25 @@ public class VampirismTrades {
         }
     }
 
+    public static class ConditionalTrade implements VillagerTrades.ItemListing {
+        private final VillagerTrades.ItemListing offer;
+        private final Predicate<Entity> condition;
+
+        public ConditionalTrade(VillagerTrades.ItemListing offer, Predicate<Entity> condition) {
+            this.offer = offer;
+            this.condition = condition;
+        }
+
+        @Nullable
+        @Override
+        public MerchantOffer getOffer(@NotNull Entity trader, @NotNull RandomSource random) {
+            return condition.test(trader) ? offer.getOffer(trader, random) : null;
+        }
+    }
+
     public static class ItemsForEmeraldPrice extends ItemsForCurrency {
         public ItemsForEmeraldPrice(Price priceIn, @NotNull ItemLike sellingItemIn, int numberOfItems, int maxUsesIn, int xpIn) {
             super(priceIn, Items.EMERALD, sellingItemIn, numberOfItems, maxUsesIn, xpIn);
-        }
-
-        public ItemsForEmeraldPrice(Price priceIn, @NotNull ItemLike sellingItemIn, Price sellingIn, int maxUsesIn, int xpIn) {
-            super(priceIn, Items.EMERALD, sellingItemIn, sellingIn, maxUsesIn, xpIn);
-        }
-
-        public ItemsForEmeraldPrice(Price priceIn, ItemStack[] sellingItemIn, int numberOfItems, int maxUsesIn, int xpIn) {
-            super(priceIn, Items.EMERALD, sellingItemIn, numberOfItems, maxUsesIn, xpIn);
-        }
-
-        public ItemsForEmeraldPrice(Price priceIn, ItemStack[] sellingItemIn, Price sellingIn, int maxUsesIn, int xpIn) {
-            super(priceIn, Items.EMERALD, sellingItemIn, sellingIn, maxUsesIn, xpIn);
         }
     }
 

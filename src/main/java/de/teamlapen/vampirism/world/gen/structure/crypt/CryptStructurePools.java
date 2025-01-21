@@ -35,8 +35,8 @@ public class CryptStructurePools {
 
         context.register(END, new StructureTemplatePool(end, ImmutableList.of(Pair.of(single("crypt/corridor/end", cryptDegradation), 1)), StructureTemplatePool.Projection.RIGID));
         context.register(CORRIDOR, new StructureTemplatePool(end, ImmutableList.of(
-                Pair.of(single("crypt/corridor/straight_1", cryptDegradation), 4),
-                Pair.of(single("crypt/corridor/straight_2", cryptDegradation), 4),
+                Pair.of(single("crypt/corridor/straight_1", cryptDegradation), 3),
+                Pair.of(single("crypt/corridor/straight_2", cryptDegradation), 3),
                 Pair.of(single("crypt/corridor/corner_1", cryptDegradation), 2),
                 Pair.of(single("crypt/corridor/cross_1", cryptDegradation), 2),
                 Pair.of(single("crypt/corridor/cross_2", cryptDegradation), 1),
@@ -44,7 +44,7 @@ public class CryptStructurePools {
                 Pair.of(single("crypt/corridor/room_2", cryptDegradation), 3),
                 Pair.of(single("crypt/corridor/room_3", cryptDegradation), 3),
                 Pair.of(single("crypt/corridor/room_4", cryptDegradation), 3),
-                Pair.of(single("crypt/corridor/stairs_1", cryptDegradation), 2)
+                Pair.of(single("crypt/corridor/stairs_1", cryptDegradation), 3)
         ), StructureTemplatePool.Projection.RIGID));
         context.register(STAIRS_1, new StructureTemplatePool(empty, ImmutableList.of(Pair.of(single("crypt/stairs1", cryptDegradation), 1)), StructureTemplatePool.Projection.RIGID));
         context.register(STAIRS_2, new StructureTemplatePool(empty, ImmutableList.of(Pair.of(single("crypt/stairs2", cryptDegradation), 1)), StructureTemplatePool.Projection.RIGID));
