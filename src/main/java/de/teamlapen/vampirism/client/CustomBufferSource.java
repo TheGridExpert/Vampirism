@@ -35,6 +35,10 @@ public class CustomBufferSource extends MultiBufferSource.BufferSource {
         this.teamA = alpha;
     }
 
+    public void normalize(float percentage) {
+        this.teamA = (int) ( this.teamA - (this.teamA * percentage));
+    }
+
     public record OutlineGenerator(VertexConsumer consumer, int color) implements VertexConsumer {
 
 

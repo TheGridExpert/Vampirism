@@ -91,7 +91,7 @@ public class BloodVisionRenderer {
                 float partalTicks = deltaTracker.getGameTimeDeltaPartialTick(true);
                 PostChain blur = this.mc.getShaderManager().getPostChain(BLUR_SHADER, LevelTargetBundle.MAIN_TARGETS);
                 //noinspection DataFlowIssue
-                blur.setUniform("Radius", 9 * getBloodVisionProgress(partalTicks));
+                blur.setUniform("Radius", 12 * getBloodVisionProgress(partalTicks));
                 //noinspection deprecation
                 blur.process(Minecraft.getInstance().getMainRenderTarget(), Minecraft.getInstance().gameRenderer.resourcePool);
 
@@ -158,6 +158,8 @@ public class BloodVisionRenderer {
                 this.bloodVisionBuffer.setColor(0,255,0, (int)(trans * progress));
             }
         }
+        this.bloodVisionBuffer.normalize(Math.max(0, Math.min(1, 1f - (float)(dist - 4 * 4) / (10 * 10 - 4 * 4))));
+//        this.bloodVisionBuffer.normalize((float) (1f - (dist - 4f*4f) / (10f*10f - 4f*4f)));
     }
 
     public boolean shouldRenderBloodVision() {
