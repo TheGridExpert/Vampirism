@@ -1,9 +1,7 @@
 package de.teamlapen.vampirism.entity.ai.goals;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
@@ -43,26 +41,6 @@ public abstract class GateInteractGoal extends Goal {
     }
 
     /**
-     * Copied from FenceGateBlock#useWithoutItem.
-     */
-    public static void setGateOpen(Entity entity, Level level, BlockState blockState, BlockPos pos, boolean open) {
-        if (blockState.getBlock() instanceof FenceGateBlock gateBlock && blockState.getValue(FenceGateBlock.OPEN) != open) {
-            boolean isCurrentlyOpened = blockState.getValue(FenceGateBlock.OPEN);
-
-            Direction direction = entity.getDirection();
-            if (!isCurrentlyOpened && blockState.getValue(FenceGateBlock.FACING) == direction.getOpposite()) {
-                blockState = blockState.setValue(FenceGateBlock.FACING, direction);
-            }
-            blockState.setValue(FenceGateBlock.OPEN, open);
-
-            level.setBlock(pos, blockState, 10);
-
-            level.playSound(entity, pos, isCurrentlyOpened ? gateBlock.openSound : gateBlock.closeSound, SoundSource.BLOCKS, 1.0F, level.getRandom().nextFloat() * 0.1F + 0.9F);
-            level.gameEvent(entity, isCurrentlyOpened ? GameEvent.BLOCK_OPEN : GameEvent.BLOCK_CLOSE, pos);
-        }
-    }
-
-    /**
      * Vanilla fence gates can only be wooden, so there's no alternative of DoorBlock#isWoodenDoor. It might work improperly in case another mod adds metal gates.
      */
     @Override
@@ -75,8 +53,7 @@ public abstract class GateInteractGoal extends Goal {
             if (path != null && !path.isDone() && groundpathnavigation.canOpenDoors()) {
                 for (int i = 0; i < Math.min(path.getNextNodeIndex() + 2, path.getNodeCount()); i++) {
                     Node node = path.getNode(i);
-                    // This line is changed because of the different shape of the gate compared to a door, so the mob may sometimes not see the hit box of the gate.
-                    gatePos = new BlockPos(node.x + mob.getRandom().nextInt(4) - 2, node.y, node.z + mob.getRandom().nextInt(4) - 2);
+                    gatePos = new BlockPos(node.x + mob.getRandom().nextInt(2) - 1, node.y, node.z + mob.getRandom().nextInt(2) - 1);
                     if (!(mob.distanceToSqr(gatePos.getX(), mob.getY(), gatePos.getZ()) > 2.25)) {
                         hasGate = mob.level().getBlockState(gatePos).getBlock() instanceof FenceGateBlock;
                         return hasGate;

@@ -26,7 +26,7 @@ public class HolyWaterBottleItem extends Item implements IItemWithTier, IFaction
     }
 
     protected HolyWaterBottleItem(TIER tier, @NotNull Properties props) {
-        super(props);
+        super(props.stacksTo(16));
         this.tier = tier;
     }
 

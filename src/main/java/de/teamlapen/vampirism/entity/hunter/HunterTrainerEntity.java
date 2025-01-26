@@ -2,11 +2,11 @@ package de.teamlapen.vampirism.entity.hunter;
 
 import de.teamlapen.vampirism.api.VampirismAPI;
 import de.teamlapen.vampirism.api.entity.ICaptureIgnore;
-import de.teamlapen.vampirism.api.entity.hunter.IHunterMob;
 import de.teamlapen.vampirism.entity.VampirismEntity;
 import de.teamlapen.vampirism.entity.ai.goals.ForceLookEntityGoal;
 import de.teamlapen.vampirism.entity.ai.goals.HunterHurtByTargetGoal;
 import de.teamlapen.vampirism.entity.ai.goals.OpenGateGoal;
+import de.teamlapen.vampirism.entity.ai.navigation.HunterPathNavigation;
 import de.teamlapen.vampirism.entity.player.VampirismPlayerAttributes;
 import de.teamlapen.vampirism.entity.player.hunter.HunterLeveling;
 import de.teamlapen.vampirism.entity.vampire.VampireBaseEntity;
@@ -23,9 +23,8 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.*;
-import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
-import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
+import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SpawnEggItem;
@@ -59,7 +58,7 @@ public class HunterTrainerEntity extends HunterBaseEntity implements ForceLookEn
         super(type, world, false);
         saveHome = true;
         hasArms = true;
-        ((GroundPathNavigation) this.getNavigation()).setCanOpenDoors(true);
+        ((HunterPathNavigation) this.getNavigation()).setCanOpenDoors(true);
         this.peaceful = true;
         this.setDontDropEquipment();
     }
@@ -158,6 +157,11 @@ public class HunterTrainerEntity extends HunterBaseEntity implements ForceLookEn
     }
 
     @Override
+    protected @NotNull PathNavigation createNavigation(@NotNull Level level) {
+        return new HunterPathNavigation(this, level);
+    }
+
+    @Override
     protected void registerGoals() {
         super.registerGoals();
         this.goalSelector.addGoal(1, new OpenDoorGoal(this, true));
@@ -174,6 +178,4 @@ public class HunterTrainerEntity extends HunterBaseEntity implements ForceLookEn
         this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, 5, true, false, VampirismAPI.factionRegistry().getPredicate(getFaction(), true, false, false, false, null)));
         this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, PathfinderMob.class, 5, true, false, VampirismAPI.factionRegistry().getPredicate(getFaction(), false, true, false, false, null)));
     }
-
-
 }

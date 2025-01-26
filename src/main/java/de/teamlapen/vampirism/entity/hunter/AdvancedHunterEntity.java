@@ -20,6 +20,7 @@ import de.teamlapen.vampirism.core.ModItems;
 import de.teamlapen.vampirism.entity.VampirismEntity;
 import de.teamlapen.vampirism.entity.action.ActionHandlerEntity;
 import de.teamlapen.vampirism.entity.ai.goals.*;
+import de.teamlapen.vampirism.entity.ai.navigation.HunterPathNavigation;
 import de.teamlapen.vampirism.entity.vampire.VampireBaseEntity;
 import de.teamlapen.vampirism.util.IPlayerOverlay;
 import de.teamlapen.vampirism.util.PlayerModelType;
@@ -42,7 +43,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
-import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
+import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.monster.PatrollingMonster;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.player.Player;
@@ -105,7 +106,7 @@ public class AdvancedHunterEntity extends HunterBaseEntity implements IAdvancedH
     public AdvancedHunterEntity(EntityType<? extends AdvancedHunterEntity> type, Level world) {
         super(type, world, true);
         saveHome = true;
-        ((GroundPathNavigation) this.getNavigation()).setCanOpenDoors(true);
+        ((HunterPathNavigation) this.getNavigation()).setCanOpenDoors(true);
 
 
         this.setDontDropEquipment();
@@ -401,6 +402,11 @@ public class AdvancedHunterEntity extends HunterBaseEntity implements IAdvancedH
             return net.neoforged.neoforge.common.CommonHooks.getProjectile(this, stack, ModItems.CROSSBOW_ARROW_NORMAL.get().getDefaultInstance());
         }
         return super.getProjectile(stack);
+    }
+
+    @Override
+    protected @NotNull PathNavigation createNavigation(@NotNull Level level) {
+        return new HunterPathNavigation(this, level);
     }
 
     @Override

@@ -235,7 +235,7 @@ public class ModItems {
     public static final DeferredItem<BoatItem> DARK_SPRUCE_CHEST_BOAT = register(ModRegistryItems.DARK_SPRUCE_CHEST_BOAT.getId().getPath(), () -> new BoatItem(true, VEnums.DARK_SPRUCE_BOAT_TYPE.getValue(), props().stacksTo(1)));
     public static final DeferredItem<BoatItem> CURSED_SPRUCE_CHEST_BOAT = register(ModRegistryItems.CURSED_SPRUCE_CHEST_BOAT.getId().getPath(), () -> new BoatItem(true, VEnums.CURSED_SPRUCE_BOAT_TYPE.getValue(), props().stacksTo(1)));
 
-    public static final DeferredItem<OilBottleItem> OIL_BOTTLE = register("oil_bottle", () -> new OilBottleItem(props().stacksTo(1)));
+    public static final DeferredItem<OilBottleItem> OIL_BOTTLE = register("oil_bottle", () -> new OilBottleItem(props().stacksTo(16)));
     public static final DeferredItem<HangingSignItem> DARK_SPRUCE_HANGING_SIGN = register("dark_spruce_hanging_sign", () -> new HangingSignItem(ModBlocks.DARK_SPRUCE_HANGING_SIGN.get(), ModBlocks.DARK_SPRUCE_WALL_HANGING_SIGN.get(), new Item.Properties().stacksTo(16)));
     public static final DeferredItem<HangingSignItem> CURSED_SPRUCE_HANGING_SIGN = register("cursed_spruce_hanging_sign", () -> new HangingSignItem(ModBlocks.CURSED_SPRUCE_HANGING_SIGN.get(), ModBlocks.CURSED_SPRUCE_WALL_HANGING_SIGN.get(), new Item.Properties().stacksTo(16)));
 

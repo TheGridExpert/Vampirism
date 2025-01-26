@@ -1,7 +1,6 @@
 package de.teamlapen.vampirism.items;
 
 import com.google.common.base.Suppliers;
-import de.teamlapen.vampirism.api.VReference;
 import de.teamlapen.vampirism.api.items.IItemWithTier;
 import de.teamlapen.vampirism.api.util.VResourceLocation;
 import de.teamlapen.vampirism.mixin.accessor.ArmorItemAccessor;
@@ -40,7 +39,7 @@ public class ArmorOfSwiftnessItem extends HunterArmorItem implements IItemWithTi
     }
 
     public ArmorOfSwiftnessItem(@NotNull Holder<net.minecraft.world.item.ArmorMaterial> material, @NotNull ArmorItem.Type type, @NotNull TIER tier) {
-        super(material, type, new Item.Properties());
+        super(material, type, new Item.Properties().stacksTo(1));
         this.tier = tier;
         Supplier<ItemAttributeModifiers> defaultModifiers = ((ArmorItemAccessor) this).getDefaultModifiers();
         defaultModifiers = Suppliers.compose( (ItemAttributeModifiers modifiers) -> modifiers.withModifierAdded(Attributes.MOVEMENT_SPEED, new AttributeModifier(VResourceLocation.mod("armor_modifier_" + type.getSerializedName()), getSpeedReduction(tier), AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL),  EquipmentSlotGroup.bySlot(type.getSlot())), defaultModifiers::get);
@@ -100,5 +99,4 @@ public class ArmorOfSwiftnessItem extends HunterArmorItem implements IItemWithTi
     private String getTextureLocationLeather(EquipmentSlot slot) {
         return String.format("minecraft:textures/models/armor/leather_layer_%d.png", slot == EquipmentSlot.LEGS ? 2 : 1);
     }
-
 }

@@ -21,7 +21,7 @@ public class HunterHatItem extends HunterArmorItem {
     private final HatType type;
 
     public HunterHatItem(HatType type, Holder<ArmorMaterial> armorMaterial) {
-        super(armorMaterial, Type.HELMET, new Properties());
+        super(armorMaterial, Type.HELMET, new Properties().stacksTo(1));
         this.type = type;
     }
 

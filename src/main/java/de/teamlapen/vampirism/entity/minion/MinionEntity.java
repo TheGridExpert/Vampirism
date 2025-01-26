@@ -574,7 +574,8 @@ public abstract class MinionEntity<T extends MinionData> extends VampirismEntity
         this.goalSelector.addGoal(0, new FloatGoal(this));
         this.goalSelector.addGoal(1, new ForceLookEntityGoal<>(this));
         this.goalSelector.addGoal(2, new OpenDoorGoal(this, true));
-        this.goalSelector.addGoal(2, new OpenGateGoal(this, true));
+        // Currently they just don't realise that they can go through the gate, navigation has to be changed for this to work
+        //this.goalSelector.addGoal(2, new OpenGateGoal(this, true));
 
         this.goalSelector.addGoal(4, new FollowLordGoal(this, 1.1));
 

@@ -37,6 +37,7 @@ import java.util.Optional;
 import java.util.function.Predicate;
 
 public class VampirismTrades {
+    // TODO: Maybe just move this to specific professions like a butcher?
     public static VillagerTrades.ItemListing[] getConvertedTrades() {
         return new VillagerTrades.ItemListing[]{
                 new VillagerTrades.EmeraldForItems(ModItems.HUMAN_HEART.get(), 8, 2, 2),

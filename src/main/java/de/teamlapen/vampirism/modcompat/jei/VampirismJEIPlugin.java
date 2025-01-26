@@ -2,14 +2,12 @@ package de.teamlapen.vampirism.modcompat.jei;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import de.teamlapen.vampirism.REFERENCE;
 import de.teamlapen.vampirism.api.VReference;
 import de.teamlapen.vampirism.api.VampirismAPI;
 import de.teamlapen.vampirism.api.entity.player.task.Task;
 import de.teamlapen.vampirism.api.items.IFactionExclusiveItem;
 import de.teamlapen.vampirism.api.items.IWeaponTableRecipe;
 import de.teamlapen.vampirism.api.items.oil.IApplicableOil;
-import de.teamlapen.vampirism.api.items.oil.IOil;
 import de.teamlapen.vampirism.api.util.VResourceLocation;
 import de.teamlapen.vampirism.client.gui.screens.AlchemicalCauldronScreen;
 import de.teamlapen.vampirism.client.gui.screens.AlchemyTableScreen;
@@ -43,7 +41,6 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
@@ -105,6 +102,15 @@ public class VampirismJEIPlugin implements IModPlugin {
         registration.addRecipeTransferHandler(AlchemicalCauldronMenu.class, ModMenus.ALCHEMICAL_CAULDRON.get(), ALCHEMICAL_CAULDRON, 0, 2, 4, 36);
         registration.addRecipeTransferHandler(AlchemicalCauldronMenu.class, ModMenus.ALCHEMICAL_CAULDRON.get(), RecipeTypes.FUELING, 3, 1, 4, 36);
         registration.addRecipeTransferHandler(WeaponTableMenu.class, ModMenus.WEAPON_TABLE.get(), WEAPON_TABLE, 1, 16, 17, 36);
+    }
+
+    @Override
+    public void registerRecipeCatalysts(@NotNull IRecipeCatalystRegistration registration) {
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.ALCHEMICAL_CAULDRON.get()), ALCHEMICAL_CAULDRON);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.WEAPON_TABLE.get()), WEAPON_TABLE);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.POTION_TABLE.get()), POTION);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.ALCHEMY_TABLE.get()), ALCHEMY_TABLE);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.ALTAR_CLEANSING.get()), BLESSING);
     }
 
     @Override

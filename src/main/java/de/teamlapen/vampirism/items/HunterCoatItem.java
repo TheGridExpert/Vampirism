@@ -37,7 +37,7 @@ public class HunterCoatItem extends HunterArmorItem implements IItemWithTier {
     private final @NotNull TIER tier;
 
     public HunterCoatItem(@NotNull Holder<net.minecraft.world.item.ArmorMaterial> material, @NotNull ArmorItem.Type type, @NotNull TIER tier) {
-        super(material, type, new Properties());
+        super(material, type, new Properties().stacksTo(1));
         this.tier = tier;
     }
 

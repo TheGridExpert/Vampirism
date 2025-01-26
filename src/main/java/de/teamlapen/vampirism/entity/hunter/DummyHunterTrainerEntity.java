@@ -4,6 +4,7 @@ import de.teamlapen.vampirism.api.entity.ICaptureIgnore;
 import de.teamlapen.vampirism.entity.VampirismEntity;
 import de.teamlapen.vampirism.entity.ai.goals.HunterHurtByTargetGoal;
 import de.teamlapen.vampirism.entity.ai.goals.OpenGateGoal;
+import de.teamlapen.vampirism.entity.ai.navigation.HunterPathNavigation;
 import de.teamlapen.vampirism.entity.vampire.VampireBaseEntity;
 import de.teamlapen.vampirism.util.Helper;
 import net.minecraft.network.chat.Component;
@@ -11,7 +12,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.goal.*;
-import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
+import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SpawnEggItem;
@@ -29,7 +30,7 @@ public class DummyHunterTrainerEntity extends VampirismEntity implements ICaptur
         super(type, world);
         saveHome = true;
         hasArms = true;
-        ((GroundPathNavigation) this.getNavigation()).setCanOpenDoors(true);
+        ((HunterPathNavigation) this.getNavigation()).setCanOpenDoors(true);
 
         this.setDontDropEquipment();
         this.peaceful = true;
@@ -70,6 +71,11 @@ public class DummyHunterTrainerEntity extends VampirismEntity implements ICaptur
 
 
         return super.mobInteract(player, hand);
+    }
+
+    @Override
+    protected @NotNull PathNavigation createNavigation(@NotNull Level level) {
+        return new HunterPathNavigation(this, level);
     }
 
 
