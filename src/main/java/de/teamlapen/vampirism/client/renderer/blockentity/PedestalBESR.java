@@ -2,6 +2,7 @@ package de.teamlapen.vampirism.client.renderer.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import de.teamlapen.vampirism.api.VEnums;
 import de.teamlapen.vampirism.blockentity.PedestalBlockEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -23,7 +24,7 @@ public class PedestalBESR extends VampirismBESR<PedestalBlockEntity> {
             matrixStack.translate(0.5, 0.8, 0.5);
             float rotation = (te.getTickForRender() % 512 + partialTicks) / 512f;
             matrixStack.mulPose(Axis.YP.rotationDegrees(rotation * 360));
-            Minecraft.getInstance().getItemRenderer().renderStatic(stack, ItemDisplayContext.GROUND, i, i1, matrixStack, iRenderTypeBuffer, te.getLevel(), 0);
+            Minecraft.getInstance().getItemRenderer().renderStatic(stack, VEnums.PEDESTAL.getValue(), i, i1, matrixStack, iRenderTypeBuffer, te.getLevel(), 0);
             matrixStack.popPose();
         }
 

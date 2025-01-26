@@ -44,6 +44,15 @@
         "class": "de/teamlapen/vampirism/client/ModClientEnums",
         "field": "DOUBLE_CROSSBOW_HOLD"
       }
+    },
+    {
+      "enum": "net/minecraft/world/item/ItemDisplayContext",
+      "name": "VAMPIRISM_PEDESTAL",
+      "constructor": "(ILjava/lang/String;Ljava/lang/String;)V",
+      "parameters": {
+        "class": "de/teamlapen/vampirism/api/VEnums",
+        "field": "PEDESTAL"
+      }
     }
   ]
 }
