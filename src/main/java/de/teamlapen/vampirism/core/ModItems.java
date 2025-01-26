@@ -95,8 +95,12 @@ public class ModItems {
 
     public static final DeferredItem<BloodBottleItem> BLOOD_BOTTLE = ITEMS.registerItem("blood_bottle", (prop) -> new BloodBottleItem(prop.stacksTo(1).component(DataComponents.CONSUMABLE, Consumables.defaultDrink().build())));
     public static final DeferredItem<BucketItem> BLOOD_BUCKET = register("blood_bucket", CreativeModeTabs.TOOLS_AND_UTILITIES, (prop) -> new BucketItem(ModFluids.BLOOD.get(), prop.craftRemainder(Items.BUCKET).stacksTo(1)));
-    public static final DeferredItem<Item> BLOOD_INFUSED_IRON_INGOT = register("blood_infused_iron_ingot", Item::new);
-    public static final DeferredItem<Item> BLOOD_INFUSED_ENHANCED_IRON_INGOT = register("blood_infused_enhanced_iron_ingot", Item::new);
+    public static final DeferredItem<PureLevelItem> BLOOD_INFUSED_RAW_IRON = register("blood_infused_raw_iron", PureLevelItem::new);
+    public static final DeferredItem<PureLevelItem> BLOOD_INFUSED_RAW_GOLD = register("blood_infused_raw_gold", PureLevelItem::new);
+    public static final DeferredItem<PureLevelItem> BLOOD_INFUSED_IRON_INGOT = register("blood_infused_iron_ingot", PureLevelItem::new);
+    public static final DeferredItem<PureLevelItem> BLOOD_INFUSED_GOLD_INGOT = register("blood_infused_gold_ingot", PureLevelItem::new);
+    public static final DeferredItem<PureLevelItem> BLOOD_INFUSED_DIAMOND = register("blood_infused_diamond", PureLevelItem::new);
+    public static final DeferredItem<PureLevelItem> BLOOD_INFUSED_NETHERITE_INGOT = register("blood_infused_netherite_ingot", PureLevelItem::new);
 
     public static final DeferredItem<CrossbowArrowItem> CROSSBOW_ARROW_NORMAL = register("crossbow_arrow_normal", (prop) -> new CrossbowArrowItem(new NormalBehavior(), prop));
     public static final DeferredItem<CrossbowArrowItem> CROSSBOW_ARROW_SPITFIRE = register("crossbow_arrow_spitfire", (prop) -> new CrossbowArrowItem(new SpitfireBehavior(), prop));
@@ -112,13 +116,13 @@ public class ModItems {
     public static final DeferredItem<Item> GARLIC_DIFFUSER_CORE = register("garlic_diffuser_core", Item::new);
     public static final DeferredItem<Item> GARLIC_DIFFUSER_CORE_IMPROVED = register("garlic_diffuser_core_improved", Item::new);
 
-    public static final DeferredItem<HeartSeekerItem> HEART_SEEKER_NORMAL = register("heart_seeker_normal", (prop) -> new HeartSeekerItem(HeartSeekerItem.NORMAL, IItemWithTier.TIER.NORMAL, 1.3f, prop));
-    public static final DeferredItem<HeartSeekerItem> HEART_SEEKER_ENHANCED = register("heart_seeker_enhanced", (prop) -> new HeartSeekerItem(HeartSeekerItem.ENHANCED, IItemWithTier.TIER.ENHANCED, 1.4f, prop));
-    public static final DeferredItem<HeartSeekerItem> HEART_SEEKER_ULTIMATE = register("heart_seeker_ultimate", (prop) -> new HeartSeekerItem(HeartSeekerItem.ULTIMATE, IItemWithTier.TIER.ULTIMATE, 1.5f, prop));
+    public static final DeferredItem<HeartSeekerItem> HEART_SEEKER_NORMAL = register("iron_heart_seeker", (prop) -> new HeartSeekerItem(HeartSeekerItem.IRON, IItemWithTier.TIER.NORMAL, 1.3f, prop));
+    public static final DeferredItem<HeartSeekerItem> HEART_SEEKER_ENHANCED = register("diamond_heart_seeker", (prop) -> new HeartSeekerItem(HeartSeekerItem.DIAMOND, IItemWithTier.TIER.ENHANCED, 1.4f, prop));
+    public static final DeferredItem<HeartSeekerItem> HEART_SEEKER_ULTIMATE = register("netherite_heart_seeker", (prop) -> new HeartSeekerItem(HeartSeekerItem.NETHERITE, IItemWithTier.TIER.ULTIMATE, 1.5f, prop));
 
-    public static final DeferredItem<HeartStrikerItem> HEART_STRIKER_NORMAL = register("heart_striker_normal", (prop) -> new HeartStrikerItem(HeartStrikerItem.NORMAL, IItemWithTier.TIER.NORMAL,1.25f, prop));
-    public static final DeferredItem<HeartStrikerItem> HEART_STRIKER_ENHANCED = register("heart_striker_enhanced", (prop) -> new HeartStrikerItem(HeartStrikerItem.ENHANCED, IItemWithTier.TIER.ENHANCED, 1.3f, prop));
-    public static final DeferredItem<HeartStrikerItem> HEART_STRIKER_ULTIMATE = register("heart_striker_ultimate", (prop) -> new HeartStrikerItem(HeartStrikerItem.ULTIMATE, IItemWithTier.TIER.ULTIMATE, 1.35f, prop));
+    public static final DeferredItem<HeartStrikerItem> HEART_STRIKER_NORMAL = register("iron_heart_striker", (prop) -> new HeartStrikerItem(HeartStrikerItem.IRON, IItemWithTier.TIER.NORMAL,1.25f, prop));
+    public static final DeferredItem<HeartStrikerItem> HEART_STRIKER_ENHANCED = register("diamond_heart_striker", (prop) -> new HeartStrikerItem(HeartStrikerItem.DIAMOND, IItemWithTier.TIER.ENHANCED, 1.3f, prop));
+    public static final DeferredItem<HeartStrikerItem> HEART_STRIKER_ULTIMATE = register("netherite_heart_striker", (prop) -> new HeartStrikerItem(HeartStrikerItem.NETHERITE, IItemWithTier.TIER.ULTIMATE, 1.35f, prop));
 
     public static final DeferredItem<HolyWaterBottleItem> HOLY_WATER_BOTTLE_NORMAL = register("holy_water_bottle_normal", (prop) -> new HolyWaterBottleItem(IItemWithTier.TIER.NORMAL, prop));
     public static final DeferredItem<HolyWaterBottleItem> HOLY_WATER_BOTTLE_ENHANCED = register("holy_water_bottle_enhanced", (prop) -> new HolyWaterBottleItem(IItemWithTier.TIER.ENHANCED, prop));

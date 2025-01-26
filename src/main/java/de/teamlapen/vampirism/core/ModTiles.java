@@ -41,6 +41,7 @@ public class ModTiles {
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MotherTrophyBlockEntity>> MOTHER_TROPHY = BLOCK_ENTITY_TYPES.register("mother_trophy", () -> create(MotherTrophyBlockEntity::new, ModBlocks.MOTHER_TROPHY.get()));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<de.teamlapen.vampirism.blockentity.diffuser.FogDiffuserBlockEntity>> FOG_DIFFUSER = BLOCK_ENTITY_TYPES.register("fog_diffuser", () -> create(de.teamlapen.vampirism.blockentity.diffuser.FogDiffuserBlockEntity::new, ModBlocks.FOG_DIFFUSER.get()));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<VampireBeaconBlockEntity>> VAMPIRE_BEACON = BLOCK_ENTITY_TYPES.register("vampire_beacon", () -> create(VampireBeaconBlockEntity::new, ModBlocks.VAMPIRE_BEACON.get()));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<InfuserBlockEntity>> INFUSER = BLOCK_ENTITY_TYPES.register("infuser", () -> create(InfuserBlockEntity::new, ModBlocks.INFUSER.get()));
 
     static void register(IEventBus bus) {
         BLOCK_ENTITY_TYPES.register(bus);

@@ -68,7 +68,7 @@
               "function": "vampirism:set_item_blood_charge"
             }
           ],
-          "name": "vampirism:heart_seeker_enhanced",
+          "name": "vampirism:diamond_heart_seeker",
           "weight": 21
         },
         {
@@ -92,7 +92,7 @@
               "function": "vampirism:set_item_blood_charge"
             }
           ],
-          "name": "vampirism:heart_seeker_ultimate",
+          "name": "vampirism:netherite_heart_seeker",
           "weight": 9
         },
         {
@@ -116,7 +116,7 @@
               "function": "vampirism:set_item_blood_charge"
             }
           ],
-          "name": "vampirism:heart_striker_enhanced",
+          "name": "vampirism:diamond_heart_striker",
           "weight": 21
         },
         {
@@ -140,7 +140,7 @@
               "function": "vampirism:set_item_blood_charge"
             }
           ],
-          "name": "vampirism:heart_striker_ultimate",
+          "name": "vampirism:netherite_heart_striker",
           "weight": 9
         },
         {

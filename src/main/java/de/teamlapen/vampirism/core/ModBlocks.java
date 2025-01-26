@@ -2,7 +2,6 @@ package de.teamlapen.vampirism.core;
 
 import de.teamlapen.lib.lib.util.UtilLib;
 import de.teamlapen.vampirism.REFERENCE;
-import de.teamlapen.vampirism.api.ItemPropertiesExtension;
 import de.teamlapen.vampirism.api.ModRegistryItems;
 import de.teamlapen.vampirism.api.util.VResourceLocation;
 import de.teamlapen.vampirism.blocks.BushBlock;
@@ -12,6 +11,8 @@ import de.teamlapen.vampirism.blocks.diffuser.GarlicDiffuserBlock;
 import de.teamlapen.vampirism.blocks.mother.ActiveVulnerableRemainsBlock;
 import de.teamlapen.vampirism.blocks.mother.MotherBlock;
 import de.teamlapen.vampirism.blocks.mother.RemainsBlock;
+import de.teamlapen.vampirism.items.PureLevelBlockItem;
+import de.teamlapen.vampirism.items.component.PureLevel;
 import de.teamlapen.vampirism.util.BlockVoxelshapes;
 import de.teamlapen.vampirism.world.gen.ModTreeGrower;
 import net.minecraft.core.Holder;
@@ -34,7 +35,6 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -198,8 +198,8 @@ public class ModBlocks {
     public static final DeferredBlock<FogDiffuserBlock> FOG_DIFFUSER = registerWithItem("fog_diffuser", (prop) -> new FogDiffuserBlock(prop.noOcclusion().mapColor(MapColor.STONE).strength(40.0F, 1200.0F).sound(SoundType.STONE)));
     public static final DeferredBlock<FlowerPotBlock> POTTED_DARK_SPRUCE_SAPLING = BLOCKS.registerBlock("potted_dark_spruce_sapling", (prop) -> potted(new FlowerPotBlock(() -> (FlowerPotBlock) Blocks.FLOWER_POT, DARK_SPRUCE_SAPLING, prop.noCollission().isViewBlocking(UtilLib::never).pushReaction(PushReaction.DESTROY).instabreak()), DARK_SPRUCE_SAPLING.getId()));
     public static final DeferredBlock<FlowerPotBlock> POTTED_CURSED_SPRUCE_SAPLING = BLOCKS.registerBlock("potted_cursed_spruce_sapling", (prop) -> potted(new FlowerPotBlock(() -> (FlowerPotBlock) Blocks.FLOWER_POT, CURSED_SPRUCE_SAPLING, prop.noCollission().isViewBlocking(UtilLib::never).pushReaction(PushReaction.DESTROY).instabreak()), CURSED_SPRUCE_SAPLING.getId()));
-    public static final DeferredBlock<Block> BLOOD_INFUSED_IRON_BLOCK = registerWithItem("blood_infused_iron_block", (prop) -> new Block(prop.mapColor(MapColor.METAL).requiresCorrectToolForDrops().strength(6.0F, 7.0F).sound(SoundType.METAL)));
-    public static final DeferredBlock<Block> BLOOD_INFUSED_ENHANCED_IRON_BLOCK = registerWithItem("blood_infused_enhanced_iron_block", (prop) -> new Block(prop.mapColor(MapColor.METAL).requiresCorrectToolForDrops().strength(6.5F, 8.0F).sound(SoundType.METAL)));
+    public static final DeferredBlock<Block> BLOOD_INFUSED_IRON_BLOCK = registerWithItem("blood_infused_iron_block", (prop) -> new PureBloodBlock(prop.mapColor(MapColor.METAL).requiresCorrectToolForDrops().strength(6.0F, 7.0F).sound(SoundType.METAL)), (block, prop) -> new PureLevelBlockItem(block, prop.component(ModDataComponents.PURE_LEVEL, PureLevel.LOW)));
+    public static final DeferredBlock<Block> BLOOD_INFUSED_ENHANCED_IRON_BLOCK = registerWithItem("blood_infused_enhanced_iron_block", (prop) -> new PureBloodBlock(prop.mapColor(MapColor.METAL).requiresCorrectToolForDrops().strength(6.5F, 8.0F).sound(SoundType.METAL)), (block, prop) -> new PureLevelBlockItem(block, prop.component(ModDataComponents.PURE_LEVEL, new PureLevel(4))));
     public static final DeferredBlock<VampireBeaconBlock> VAMPIRE_BEACON = registerWithItem("vampire_beacon", (prop) -> new VampireBeaconBlock(prop.mapColor(MapColor.DIAMOND).instrument(NoteBlockInstrument.HAT).strength(3.0F).lightLevel((p_50828_) -> 15).noOcclusion().isRedstoneConductor(UtilLib::never)), x -> x.rarity(Rarity.RARE));
     public static final DeferredBlock<Block> PURPLE_STONE_BRICKS = registerWithItem("purple_stone_bricks", (prop) -> new Block(prop.mapColor(MapColor.COLOR_PURPLE).requiresCorrectToolForDrops().strength(2f, 10f).sound(SoundType.STONE)));
     public static final DeferredBlock<StairBlock> PURPLE_STONE_BRICK_STAIRS = registerWithItem("purple_stone_brick_stairs", (prop) -> new StairBlock(PURPLE_STONE_BRICKS.get().defaultBlockState(), prop), () -> BlockBehaviour.Properties.ofFullCopy(PURPLE_STONE_BRICKS.get()));
@@ -256,6 +256,7 @@ public class ModBlocks {
                     .noOcclusion()
                     .pushReaction(PushReaction.DESTROY)
     ));
+    public static final DeferredBlock<BloodInfuserBlock> INFUSER = registerWithItem("blood_infuser", BloodInfuserBlock::new);
 
     /**
      * TUTORIAL:
@@ -279,6 +280,12 @@ public class ModBlocks {
     private static <T extends Block> DeferredBlock<T> registerWithItem(String name, Function<BlockBehaviour.Properties, T> supplier, Function<Item.@NotNull Properties, Item.Properties> properties) {
         DeferredBlock<T> block = BLOCKS.registerBlock(name, supplier);
         createItem(name, block, BlockItem::new, properties);
+        return block;
+    }
+
+    private static <T extends Block, R extends Item> DeferredBlock<T> registerWithItem(String name, Function<BlockBehaviour.Properties, T> supplier, @NotNull BiFunction<T, Item.Properties, R> itemCreator) {
+        DeferredBlock<T> block = BLOCKS.registerBlock(name, supplier);
+        createItem(name, block, itemCreator, prop -> prop);
         return block;
     }
 

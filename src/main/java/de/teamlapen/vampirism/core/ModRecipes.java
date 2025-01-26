@@ -3,8 +3,10 @@ package de.teamlapen.vampirism.core;
 import com.mojang.serialization.MapCodec;
 import de.teamlapen.vampirism.REFERENCE;
 import de.teamlapen.vampirism.api.items.IWeaponTableRecipe;
+import de.teamlapen.vampirism.api.util.VResourceLocation;
 import de.teamlapen.vampirism.recipes.*;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.crafting.*;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.common.conditions.ICondition;
@@ -23,6 +25,8 @@ public class ModRecipes {
     private static final DeferredRegister<MapCodec<? extends ICondition>> CONDITION_CODECS = DeferredRegister.create(NeoForgeRegistries.Keys.CONDITION_CODECS, REFERENCE.MODID);
     private static final DeferredRegister<RecipeBookCategory> RECIPE_BOOK_CATEGORIES = DeferredRegister.create(Registries.RECIPE_BOOK_CATEGORY, REFERENCE.MODID);
 
+    public static final ResourceKey<RecipePropertySet> INFUSER_SET = ResourceKey.create(RecipePropertySet.TYPE_KEY, VResourceLocation.mod("infuser"));
+
     public static final DeferredHolder<RecipeType<?>, RecipeType<IWeaponTableRecipe>> WEAPONTABLE_CRAFTING_TYPE = RECIPE_TYPES.register("weapon_table", () -> new RecipeType<>() {
         public @NotNull String toString() {
             return "weapon_table";
@@ -38,10 +42,16 @@ public class ModRecipes {
             return "alchemical_table";
         }
     });
+    public static final DeferredHolder<RecipeType<?>, RecipeType<InfuserRecipe>> INFUSER_TYPE = RECIPE_TYPES.register("infuser", () -> new RecipeType<>() {
+        public @NotNull String toString() {
+            return "infuser";
+        }
+    });
 
     public static final DeferredHolder<RecipeBookCategory, RecipeBookCategory> WEAPON_TABLE_CATEGORY = RECIPE_BOOK_CATEGORIES.register("weapontable", RecipeBookCategory::new);
     public static final DeferredHolder<RecipeBookCategory, RecipeBookCategory> ALCHEMICAL_TABLE_CATEGORY = RECIPE_BOOK_CATEGORIES.register("alchemical_table", RecipeBookCategory::new);
     public static final DeferredHolder<RecipeBookCategory, RecipeBookCategory> ALCHEMICAL_CAULDRON_CATEGORY = RECIPE_BOOK_CATEGORIES.register("alchemical_cauldron", RecipeBookCategory::new);
+    public static final DeferredHolder<RecipeBookCategory, RecipeBookCategory> INFUSER_CATEGORY = RECIPE_BOOK_CATEGORIES.register("infuser", RecipeBookCategory::new);
 
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<ShapedWeaponTableRecipe>> SHAPED_CRAFTING_WEAPONTABLE = RECIPE_SERIALIZERS.register("shaped_crafting_weapontable", ShapedWeaponTableRecipe.Serializer::new);
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<ShapelessWeaponTableRecipe>> SHAPELESS_CRAFTING_WEAPONTABLE = RECIPE_SERIALIZERS.register("shapeless_crafting_weapontable", ShapelessWeaponTableRecipe.Serializer::new);
@@ -50,6 +60,7 @@ public class ModRecipes {
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<AlchemyTableRecipe>> ALCHEMICAL_TABLE = RECIPE_SERIALIZERS.register("alchemical_table", AlchemyTableRecipe.Serializer::new);
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<ApplicableOilRecipe>> APPLICABLE_OIL = RECIPE_SERIALIZERS.register("applicable_oil", () -> new CustomRecipe.Serializer<>(ApplicableOilRecipe::new));
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<CleanOilRecipe>> CLEAN_OIL = RECIPE_SERIALIZERS.register("clean_oil", () -> new CustomRecipe.Serializer<>(CleanOilRecipe::new));
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<InfuserRecipe>> INFUSER = RECIPE_SERIALIZERS.register("infuser", InfuserRecipe.Serializer::new);
 
     public static final DeferredHolder<MapCodec<? extends ICondition>, MapCodec<ConfigCondition>> CONFIG_CONDITION = CONDITION_CODECS.register("config", () -> ConfigCondition.CODEC);
 

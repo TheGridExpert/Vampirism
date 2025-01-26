@@ -34,6 +34,7 @@ public class ModScreens {
         event.register(ModMenus.REVERT_BACK.get(), InjectionChairRevertBackScreen::new);
         event.register(ModMenus.GARLIC_DIFFUSER.get(), GarlicDiffuserScreen::new);
         event.register(ModMenus.FOG_DIFFUSER.get(), FogDiffuserScreen::new);
+        event.register(ModMenus.INFUSER_MENU.get(), InfuserScreen::new);
     }
 
     static void registerScreenOverlays(@NotNull RegisterGuiLayersEvent event) {

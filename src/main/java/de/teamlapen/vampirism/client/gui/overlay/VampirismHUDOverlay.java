@@ -264,7 +264,7 @@ public class VampirismHUDOverlay {
         int top = height / 2 - 4;
         graphics.blitSprite(RenderType::guiTextured, FANG_SPRITE, left, top, 16, 8);
         int percHeight = (int) (10f * (1f-perc));
-        GuiRenderer.blitTiledOffset(graphics, FANG_SPRITE, left, top, 16, 8, 0, percHeight, color);
+        GuiRenderer.blitSpriteTiledOffset(graphics, FANG_SPRITE, left, top, 16, 8, 0, percHeight, color);
     }
 
     private void renderStakeInstantKill(@NotNull GuiGraphics graphics, int width, int height) {

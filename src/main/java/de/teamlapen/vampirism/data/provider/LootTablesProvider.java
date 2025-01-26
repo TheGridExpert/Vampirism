@@ -259,7 +259,7 @@ public class LootTablesProvider {
                     .withPool(LootPool.lootPool().setRolls(UniformGenerator.between(1, 12))
                             .add(LootItem.lootTableItem(ModItems.OBLIVION_POTION.get()).setWeight(5))
                             .add(LootItem.lootTableItem(ModItems.BLOOD_INFUSED_IRON_INGOT.get()).setWeight(25))
-                            .add(LootItem.lootTableItem(ModItems.BLOOD_INFUSED_ENHANCED_IRON_INGOT.get()).setWeight(15))
+                            .add(LootItem.lootTableItem(ModItems.BLOOD_INFUSED_IRON_INGOT.get()).setWeight(15))
                             .add(LootItem.lootTableItem(ModItems.VAMPIRE_FANG.get()).setWeight(40))
                             .add(LootItem.lootTableItem(ModBlocks.VAMPIRE_ORCHID.get()).setWeight(30))
                             .add(LootItem.lootTableItem(ModItems.BLOOD_BOTTLE.get()).setWeight(20).apply(SetItemDamageFunction.setDamage(UniformGenerator.between(0, 1f)))))
@@ -589,6 +589,7 @@ public class LootTablesProvider {
             this.dropMountedCandle(ModBlocks.CANDLE_STICK_RED.get());
             this.dropMountedCandle(ModBlocks.CANDLE_STICK_BLACK.get());
             this.dropSelf(ModBlocks.VAMPIRE_SOUL_LANTERN.get());
+            this.dropSelf(ModBlocks.INFUSER.get());
         }
 
         @NotNull

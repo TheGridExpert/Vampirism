@@ -70,7 +70,7 @@ public class HunterTableScreen extends ItemCombinerScreen<HunterTableMenu> {
                 optional = Optional.of(Component.translatable("text.vampirism.hunter_table.ritual_missing_items", missing, switch (this.hoveredSlot.index) {
                     case 0 -> Items.BOOK.getDefaultInstance().getHoverName();
                     case 1 -> ModItems.VAMPIRE_FANG.get().getDefaultInstance().getHoverName();
-                    case 2 -> req.map(HunterLeveling.HunterTableRequirement::pureBloodLevel).map(PureBloodItem::getBloodItemForLevel).map(PureBloodItem::getCustomName).orElseGet(Component::empty);
+                    case 2 -> req.map(HunterLeveling.HunterTableRequirement::pureBloodLevel).map(PureBloodItem::getBloodItemForLevel).map(x -> x.getCustomName(x.getDefaultInstance())).orElseGet(Component::empty);
                     case 3 -> ModItems.VAMPIRE_BOOK.get().getDefaultInstance().getHoverName();
                     default -> throw new IllegalStateException("Unexpected value: " + this.hoveredSlot.index);
                 }));

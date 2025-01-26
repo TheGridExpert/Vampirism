@@ -62,6 +62,7 @@ public class BlockModelGenerators extends de.teamlapen.lib.lib.data.BlockModelGe
         createPlants();
         createWood();
         createCursedEarthPath();
+        createInfuser();
 
 
         createLantern(ModBlocks.VAMPIRE_SOUL_LANTERN.get());
@@ -437,6 +438,13 @@ public class BlockModelGenerators extends de.teamlapen.lib.lib.data.BlockModelGe
                 with(VariantProperties.MODEL, ModelTemplates.CUBE_BOTTOM_TOP.createWithSuffix(ModBlocks.CURSED_GRASS.get(), "_snowy", snowTextureMapping, this.modelOutput));
         this.createGrassLikeBlock(ModBlocks.CURSED_GRASS.get(), model, variant);
         this.registerSimpleTintedItemModel(ModBlocks.CURSED_GRASS.get(), ModelLocationUtils.getModelLocation(ModBlocks.CURSED_GRASS.get()), new GrassColorSource());
+    }
+
+    protected void createInfuser() {
+        this.blockStateOutput.accept(MultiPartGenerator.multiPart(ModBlocks.INFUSER.get())
+                .with(Variant.variant().with(VariantProperties.MODEL, VResourceLocation.mod("block/blood_infuser/infuser")))
+                .with(Condition.condition().term(BloodInfuserBlock.IS_ACTIVE, true), Variant.variant().with(VariantProperties.MODEL, VResourceLocation.mod("block/blood_infuser/infuser_blood"))));
+        this.createDefaultBlockItem(ModBlocks.INFUSER.get(), VResourceLocation.mod("block/blood_infuser/infuser"));
     }
 
 }

@@ -12,6 +12,7 @@ import net.minecraft.client.gui.screens.inventory.ItemCombinerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
@@ -61,7 +62,7 @@ public class AltarInfusionScreen extends ItemCombinerScreen<AltarInfusionMenu> {
             }).orElse(0);
             if (missing > 0) {
                 optional = Optional.of(Component.translatable("text.vampirism.altar_infusion.ritual_missing_items", missing, (switch (this.hoveredSlot.index) {
-                    case 0 -> req.map(VampireLeveling.AltarInfusionRequirements::pureBloodLevel).map(PureBloodItem::getBloodItemForLevel).map(PureBloodItem::getCustomName).orElseGet(Component::empty);
+                    case 0 -> req.map(VampireLeveling.AltarInfusionRequirements::pureBloodLevel).map(PureBloodItem::getBloodItemForLevel).map(s -> s.getCustomName(s.getDefaultInstance())).orElseGet(Component::empty);
                     case 1 -> ModItems.HUMAN_HEART.get().getDefaultInstance().getHoverName();
                     case 2 -> ModItems.VAMPIRE_BOOK.get().getDefaultInstance().getHoverName();
                     default -> null;

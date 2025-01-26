@@ -15,6 +15,7 @@ import de.teamlapen.vampirism.entity.player.vampire.VampirePlayer;
 import de.teamlapen.vampirism.entity.player.vampire.skills.VampireSkills;
 import de.teamlapen.vampirism.items.component.BloodCharged;
 import de.teamlapen.vampirism.items.component.FactionRestriction;
+import de.teamlapen.vampirism.items.component.PureLevel;
 import de.teamlapen.vampirism.items.component.SwordTraining;
 import de.teamlapen.vampirism.particle.FlyingBloodParticleOptions;
 import de.teamlapen.vampirism.particle.GenericParticleOptions;
@@ -50,12 +51,13 @@ public abstract class VampireSwordItem extends VampirismSwordItem implements IBl
     private final float trainedAttackSpeedIncrease;
 
     public VampireSwordItem(@NotNull ToolMaterial material, int attackDamage, float trainSpeedIncrease, @NotNull Properties prop) {
-        super(material, attackDamage, material.speed(), FactionRestriction.apply(ModFactions.VAMPIRE, prop));
+        super(material, attackDamage, material.speed(), FactionRestriction.apply(ModFactions.VAMPIRE, prop).component(ModDataComponents.BLOOD_CHARGED, new BloodCharged(0)));
         this.trainedAttackSpeedIncrease = trainSpeedIncrease;
     }
 
     @Override
     public void appendHoverText(@NotNull ItemStack stack, @Nullable TooltipContext context, @NotNull List<Component> tooltip, @NotNull TooltipFlag flagIn) {
+        tooltip.add(Component.translatable("text.vampirism.purity", stack.getOrDefault(ModDataComponents.PURE_LEVEL, PureLevel.LOW).level() + 1).withStyle(ChatFormatting.DARK_RED));
         float charged = getChargePercentage(stack);
         float trained = getTrained(stack, VampirismMod.proxy.getClientPlayer());
         tooltip.add(Component.translatable("text.vampirism.sword_charged").append(Component.literal(" " + ((int) Math.ceil(charged * 100f)) + "%")).withStyle(ChatFormatting.DARK_AQUA));
@@ -134,7 +136,7 @@ public abstract class VampireSwordItem extends VampirismSwordItem implements IBl
         }
         //Consume blood
         float charged = getChargePercentage(stack);
-        charged -= getChargeUsage();
+        charged -= getChargeUsage(stack);
         setCharged(stack, charged);
         attacker.setItemInHand(InteractionHand.MAIN_HAND, stack);
 
@@ -247,7 +249,21 @@ public abstract class VampireSwordItem extends VampirismSwordItem implements IBl
     /**
      * @return The amount of charge consumed per hit
      */
-    protected abstract float getChargeUsage();
+    protected abstract float getChargeUsage(ItemStack stack);
+
+    protected float getPurityArmorToughnessModifier(@NotNull ItemStack stack) {
+        return switch (stack.getOrDefault(ModDataComponents.PURE_LEVEL, PureLevel.LOW).level()) {
+            case 0 -> 0;
+            case 1 -> 0.035f;
+            case 2 -> 0.06f;
+            case 3 -> 0.1f;
+            default -> 0.15f;
+        };
+    }
+
+    protected float getPurityInteractionRangeModifier(@NotNull ItemStack stack) {
+        return Math.clamp((stack.getOrDefault(ModDataComponents.PURE_LEVEL, PureLevel.LOW).level()/4f) * 0.5f,0f,0.5f);
+    }
 
     /**
      * Gets the charged value from the tag compound
@@ -297,6 +313,28 @@ public abstract class VampireSwordItem extends VampirismSwordItem implements IBl
         pos = pos.add((player.getRandom().nextFloat() - 0.5f) * 0.1f, (player.getRandom().nextFloat() - 0.3f) * 0.9f, (player.getRandom().nextFloat() - 0.5f) * 0.1f);
         Vec3 playerPos = new Vec3((player).getX(), (player).getY() + player.getEyeHeight() - 0.2f, (player).getZ());
         ModParticles.spawnParticleClient(player.getCommandSenderWorld(), new FlyingBloodParticleOptions((int) (4.0F / (player.getRandom().nextFloat() * 0.6F + 0.1F)), true, pos.x, pos.y, pos.z), playerPos.x, playerPos.y, playerPos.z);
+    }
+
+    protected float getPurityChargeUsageModifier(ItemStack stack) {
+        var purity = stack.getOrDefault(ModDataComponents.PURE_LEVEL, PureLevel.LOW).level();
+        return switch (purity) {
+            case 0 -> 1f;
+            case 1 -> 0.9f;
+            case 2 -> 0.8f;
+            case 3 -> 0.6f;
+            default -> 0.4f;
+        };
+    }
+
+    protected float getPurityChargeSpeedModifier(ItemStack stack) {
+        var purity = stack.getOrDefault(ModDataComponents.PURE_LEVEL, PureLevel.LOW).level();
+        return switch (purity) {
+            case 0 -> 1f;
+            case 1 -> 1.2f;
+            case 2 -> 1.4f;
+            case 3 -> 1.6f;
+            default -> 2f;
+        };
     }
 
 }

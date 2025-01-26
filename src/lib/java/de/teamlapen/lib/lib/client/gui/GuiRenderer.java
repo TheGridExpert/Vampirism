@@ -28,11 +28,11 @@ public class GuiRenderer {
         graphics.blit(RenderType::guiTextured, texture, x, y, xOffset, yOffset, width, height, imageWidth, imageHeight);
     }
 
-    public static void blitTiled(GuiGraphics graphics, ResourceLocation texture, int x, int y, int width, int height, int color) {
+    public static void blitSpriteTiled(GuiGraphics graphics, ResourceLocation texture, int x, int y, int width, int height, int color) {
         graphics.blitSprite(RenderType::guiTextured, texture, x, y, width, height, color);
     }
 
-    public static void blitTiledOffset(GuiGraphics graphics, ResourceLocation texture, int x, int y, int width, int height, int xOffset, int yOffset, int color) {
+    public static void blitSpriteTiledOffset(GuiGraphics graphics, ResourceLocation texture, int x, int y, int width, int height, int xOffset, int yOffset, int color) {
         x += xOffset;
         y += yOffset;
         width -= xOffset;

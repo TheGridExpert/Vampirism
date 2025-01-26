@@ -56,6 +56,7 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.ICapabilityProvider;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.common.NeoForgeMod;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
@@ -116,6 +117,7 @@ public class VampirismMod {
         this.registryManager.setupRegistries();
         this.registryManager.registerModEventHandler();
         this.registryManager.registerForgeEventHandler();
+        NeoForgeMod.enableMergedAttributeTooltips();
     }
 
     public void onAddReloadListenerEvent(@NotNull AddReloadListenerEvent event) {

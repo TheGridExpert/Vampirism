@@ -331,7 +331,7 @@ public class AltarInfusionBlockEntity extends InventoryBlockEntity {
         ItemStack missing = VampireLeveling.getInfusionRequirement(newLevel).map(req -> InventoryHelper.checkItems(this, new Item[] {
                         PureBloodItem.getBloodItemForLevel(req.pureBloodLevel()), ModItems.HUMAN_HEART.get(), ModItems.VAMPIRE_BOOK.get()},
                 new int[] {req.pureBloodQuantity(), req.humanHeartQuantity(), req.vampireBookQuantity()},
-                (supplied, required) -> supplied.equals(required) || (supplied instanceof PureBloodItem suppliedBlood && required instanceof PureBloodItem requiredBlood && suppliedBlood.getLevel() >= requiredBlood.getLevel()))).orElse(ItemStack.EMPTY);
+                (supplied, required) -> supplied.equals(required) || (supplied instanceof PureBloodItem suppliedBlood && required instanceof PureBloodItem requiredBlood && suppliedBlood.getLevel(suppliedBlood.getDefaultInstance()) >= requiredBlood.getLevel(requiredBlood.getDefaultInstance())))).orElse(ItemStack.EMPTY);
         return missing.isEmpty();
 
     }

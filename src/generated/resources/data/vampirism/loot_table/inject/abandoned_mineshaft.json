@@ -167,7 +167,7 @@
               "function": "minecraft:set_damage"
             }
           ],
-          "name": "vampirism:heart_seeker_enhanced",
+          "name": "vampirism:diamond_heart_seeker",
           "weight": 20
         },
         {
@@ -183,7 +183,7 @@
               "function": "minecraft:set_damage"
             }
           ],
-          "name": "vampirism:heart_striker_enhanced",
+          "name": "vampirism:diamond_heart_striker",
           "weight": 20
         },
         {

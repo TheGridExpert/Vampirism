@@ -43,8 +43,12 @@ public class VampirismCreativeTab {
             addArmor();
 
             addItemGen(BLOOD_BOTTLE);
-            addItem(BLOOD_INFUSED_IRON_INGOT);
-            addItem(BLOOD_INFUSED_ENHANCED_IRON_INGOT);
+            addItemGen(BLOOD_INFUSED_RAW_IRON);
+            addItemGen(BLOOD_INFUSED_RAW_GOLD);
+            addItemGen(BLOOD_INFUSED_IRON_INGOT);
+            addItemGen(BLOOD_INFUSED_GOLD_INGOT);
+            addItemGen(BLOOD_INFUSED_DIAMOND);
+            addItemGen(BLOOD_INFUSED_NETHERITE_INGOT);
 
             addItem(GARLIC_DIFFUSER_CORE);
             addItem(GARLIC_DIFFUSER_CORE_IMPROVED);
@@ -312,12 +316,12 @@ public class VampirismCreativeTab {
         }
 
         private void addWeapons() {
-            addItem(HEART_SEEKER_NORMAL);
-            addItem(HEART_SEEKER_ENHANCED);
-            addItem(HEART_SEEKER_ULTIMATE);
-            addItem(HEART_STRIKER_NORMAL);
-            addItem(HEART_STRIKER_ENHANCED);
-            addItem(HEART_STRIKER_ULTIMATE);
+            addItemGen(HEART_SEEKER_NORMAL);
+            addItemGen(HEART_SEEKER_ENHANCED);
+            addItemGen(HEART_SEEKER_ULTIMATE);
+            addItemGen(HEART_STRIKER_NORMAL);
+            addItemGen(HEART_STRIKER_ENHANCED);
+            addItemGen(HEART_STRIKER_ULTIMATE);
 
             addItemGen(HUNTER_AXE_NORMAL);
             addItemGen(HUNTER_AXE_ENHANCED);

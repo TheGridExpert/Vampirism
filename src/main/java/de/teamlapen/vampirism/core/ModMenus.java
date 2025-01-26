@@ -33,6 +33,7 @@ public class ModMenus {
     public static final DeferredHolder<MenuType<?>, MenuType<RevertBackMenu>> REVERT_BACK = MENUS.register("revert_back", () -> create(RevertBackMenu::new));
     public static final DeferredHolder<MenuType<?>, MenuType<GarlicDiffuserMenu>> GARLIC_DIFFUSER = MENUS.register("garlic_diffuser", () -> create(new GarlicDiffuserMenu.Factory()));
     public static final DeferredHolder<MenuType<?>, MenuType<FogDiffuserMenu>> FOG_DIFFUSER = MENUS.register("fog_diffuser", () -> create(new FogDiffuserMenu.Factory()));
+    public static final DeferredHolder<MenuType<?>, MenuType<InfuserMenu>> INFUSER_MENU = MENUS.register("infuser", () -> create(new InfuserMenu.Factory()));
 
     private static <T extends AbstractContainerMenu> MenuType<T> create(MenuType.MenuSupplier<T> supplier) {
         return new MenuType<>(supplier, FeatureFlags.DEFAULT_FLAGS);
