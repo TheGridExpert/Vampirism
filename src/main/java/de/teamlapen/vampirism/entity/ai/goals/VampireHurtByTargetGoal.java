@@ -1,6 +1,7 @@
 package de.teamlapen.vampirism.entity.ai.goals;
 
 import de.teamlapen.vampirism.core.ModTags;
+import de.teamlapen.vampirism.util.Helper;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -27,7 +28,7 @@ public class VampireHurtByTargetGoal extends HurtByTargetGoal {
 
         for (Mob possibleDefender : list) {
             LivingEntity attacker = mob.getLastHurtByMob();
-            if (possibleDefender != mob && possibleDefender.getType().is(ModTags.Entities.COMPARE_DEFENDING_VAMPIRES) && attacker != null && attacker.getType().is(ModTags.Entities.VAMPIRE) && possibleDefender.getTarget() == null && !possibleDefender.isAlliedTo(attacker)) {
+            if (possibleDefender != mob && possibleDefender.getType().is(ModTags.Entities.COMPARE_DEFENDING_VAMPIRES) && attacker != null && !Helper.isVampire(attacker) && possibleDefender.getTarget() == null && !possibleDefender.isAlliedTo(attacker)) {
                 this.alertOther(possibleDefender, attacker);
             }
         }
