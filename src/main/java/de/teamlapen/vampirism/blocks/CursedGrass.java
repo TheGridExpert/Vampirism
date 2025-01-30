@@ -1,7 +1,6 @@
 package de.teamlapen.vampirism.blocks;
 
 import com.mojang.serialization.MapCodec;
-import de.teamlapen.vampirism.api.VReference;
 import de.teamlapen.vampirism.api.blocks.HolyWaterEffectConsumer;
 import de.teamlapen.vampirism.api.items.IItemWithTier;
 import de.teamlapen.vampirism.core.ModBiomes;
@@ -10,6 +9,7 @@ import de.teamlapen.vampirism.core.ModItems;
 import de.teamlapen.vampirism.items.HolyWaterBottleItem;
 import de.teamlapen.vampirism.items.HolyWaterSplashBottleItem;
 import de.teamlapen.vampirism.mixin.accessor.SpreadingSnowyDirtBlockAccessor;
+import de.teamlapen.vampirism.world.gen.VampirismFeatures;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -84,7 +84,6 @@ public class CursedGrass extends SpreadingSnowyDirtBlock implements Bonemealable
         return super.canSustainPlant(state, level, soilPosition, facing, plant);
     }
 
-
     @Override
     public boolean isValidBonemealTarget(@NotNull LevelReader level, @NotNull BlockPos pPos, @NotNull BlockState pState) {
         return true;
@@ -128,6 +127,7 @@ public class CursedGrass extends SpreadingSnowyDirtBlock implements Bonemealable
                 if (random.nextInt(8) == 0) {
                     BlockPos finalBlockpos = blockpos1;
                     List<ConfiguredFeature<?, ?>> list = level.registryAccess().lookup(Registries.BIOME).flatMap(x -> x.get(ModBiomes.VAMPIRE_FOREST).map(Holder.Reference::value)).orElseGet(() -> level.getBiome(finalBlockpos).value()).getGenerationSettings().getFlowerFeatures();
+                    list = list.stream().filter(feature -> level.registryAccess().lookupOrThrow(Registries.CONFIGURED_FEATURE).getResourceKey(feature).map(resourceKey -> !resourceKey.equals(VampirismFeatures.VAMPIRE_FLOWER)).orElse(true)).toList();
                     if (list.isEmpty()) {
                         continue;
                     }
