@@ -1,6 +1,7 @@
 package de.teamlapen.vampirism.core.tags;
 
 import de.teamlapen.vampirism.api.util.VResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
@@ -66,5 +67,15 @@ public class ModItemTags {
 
     private static @NotNull TagKey<Item> common(@NotNull String name) {
         return ItemTags.create(VResourceLocation.common(name));
+    }
+
+    public static class Compatibility {
+        public static final String SERENE_SEASONS = "sereneseasons";
+        public static final TagKey<Item> SERENE_SEASONS_AUTUMN_CROPS = compatTag(SERENE_SEASONS, "autumn_crops");
+        public static final TagKey<Item> SERENE_SEASONS_SUMMER_CROPS = compatTag(SERENE_SEASONS, "summer_crops");
+
+        private static @NotNull TagKey<Item> compatTag(@NotNull String namespace, @NotNull String name) {
+            return ItemTags.create(ResourceLocation.fromNamespaceAndPath(namespace, name));
+        }
     }
 }

@@ -125,6 +125,5 @@ public class HunterTaskMasterEntity extends HunterBaseEntity implements IDefault
         this.goalSelector.addGoal(8, new RandomLookAroundGoal(this));
 
         this.targetSelector.addGoal(1, new HurtByTargetGoal(this));
-
     }
 }

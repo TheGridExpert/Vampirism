@@ -1,6 +1,7 @@
 package de.teamlapen.vampirism.core.tags;
 
 import de.teamlapen.vampirism.api.util.VResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
@@ -38,5 +39,18 @@ public class ModBlockTags {
 
     private static @NotNull TagKey<Block> common(@NotNull String name) {
         return BlockTags.create(VResourceLocation.common(name));
+    }
+
+    public static class Compatibility {
+        public static final String SERENE_SEASONS = "sereneseasons";
+        public static final TagKey<Block> SERENE_SEASONS_AUTUMN_CROPS = compatTag(SERENE_SEASONS, "autumn_crops");
+        public static final TagKey<Block> SERENE_SEASONS_SUMMER_CROPS = compatTag(SERENE_SEASONS, "summer_crops");
+
+        public static final String FARMERS_DELIGHT = "farmersdelight";
+        public static final TagKey<Block> TRAY_HEAT_SOURCES = compatTag(FARMERS_DELIGHT, "tray_heat_sources");
+
+        private static @NotNull TagKey<Block> compatTag(@NotNull String namespace, @NotNull String name) {
+            return BlockTags.create(ResourceLocation.fromNamespaceAndPath(namespace, name));
+        }
     }
 }
