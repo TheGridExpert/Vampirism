@@ -12,5 +12,4 @@ public class ModEnchantmentTags {
     private static @NotNull TagKey<Enchantment> tag(@NotNull String name) {
         return TagKey.create(Registries.ENCHANTMENT, VResourceLocation.mod(name));
     }
-
 }
