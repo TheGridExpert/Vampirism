@@ -19,6 +19,7 @@
     "MixinMobEffectInstance",
     "MixinPlayerEntity",
     "MixinPotionBrewing",
+    "MixinPowderSnowBlock",
     "NearestAttackableTargetGoalMixin",
     "NoiseGeneratorSettingsMixin",
     "SpawnStateMixin",

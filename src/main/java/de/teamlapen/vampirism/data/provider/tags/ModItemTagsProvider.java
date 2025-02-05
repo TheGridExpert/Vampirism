@@ -31,7 +31,7 @@ public class ModItemTagsProvider extends ItemTagsProvider {
     @SuppressWarnings("unchecked")
     @Override
     protected void addTags(HolderLookup.@NotNull Provider holderProvider) {
-        copy(ModBlockTags.CURSED_EARTH, ModItemTags.CURSEDEARTH);
+        copy(ModBlockTags.CURSED_EARTH, ModItemTags.CURSED_EARTH);
         copy(ModBlockTags.DARK_SPRUCE_LOG, ModItemTags.DARK_SPRUCE_LOG);
         copy(ModBlockTags.CURSED_SPRUCE_LOG, ModItemTags.CURSED_SPRUCE_LOG);
         copy(ModBlockTags.DARK_STONE, ModItemTags.DARK_STONE);
@@ -101,6 +101,7 @@ public class ModItemTagsProvider extends ItemTagsProvider {
         tag(ItemTags.CHEST_ARMOR).add(ModItems.HUNTER_COAT_CHEST_NORMAL.get(), ModItems.HUNTER_COAT_CHEST_ENHANCED.get(), ModItems.HUNTER_COAT_CHEST_ULTIMATE.get(), ModItems.ARMOR_OF_SWIFTNESS_CHEST_NORMAL.get(), ModItems.ARMOR_OF_SWIFTNESS_CHEST_ENHANCED.get(), ModItems.ARMOR_OF_SWIFTNESS_CHEST_ULTIMATE.get()).addTag(ModItemTags.VAMPIRE_CLOAK);
         tag(ItemTags.LEG_ARMOR).add(ModItems.HUNTER_COAT_LEGS_NORMAL.get(), ModItems.HUNTER_COAT_LEGS_ENHANCED.get(), ModItems.HUNTER_COAT_LEGS_ULTIMATE.get(), ModItems.ARMOR_OF_SWIFTNESS_LEGS_NORMAL.get(), ModItems.ARMOR_OF_SWIFTNESS_LEGS_ENHANCED.get(), ModItems.ARMOR_OF_SWIFTNESS_LEGS_ULTIMATE.get(), ModItems.VAMPIRE_CLOTHING_LEGS.get());
         tag(ItemTags.FOOT_ARMOR).add(ModItems.HUNTER_COAT_FEET_NORMAL.get(), ModItems.HUNTER_COAT_FEET_ENHANCED.get(), ModItems.HUNTER_COAT_FEET_ULTIMATE.get(), ModItems.ARMOR_OF_SWIFTNESS_FEET_NORMAL.get(), ModItems.ARMOR_OF_SWIFTNESS_FEET_ENHANCED.get(), ModItems.ARMOR_OF_SWIFTNESS_FEET_ULTIMATE.get(), ModItems.VAMPIRE_CLOTHING_BOOTS.get());
+        tag(ModItemTags.POWDER_SNOW_WALKABLE_BOOTS).addTags(ModItemTags.HUNTER_COAT, ModItemTags.ARMOR_OF_SWIFTNESS);
         tag(ModItemTags.VAMPIRE_CLOTHING).addTag(ModItemTags.VAMPIRE_CLOAK);
         tag(ModItemTags.HUNTER_ARMOR).addTags(ModItemTags.ARMOR_OF_SWIFTNESS, ModItemTags.HUNTER_COAT);
         tag(ModItemTags.ADVANCED_HUNTER_CROSSBOW_ARROWS).add(ModItems.CROSSBOW_ARROW_NORMAL.get(), ModItems.CROSSBOW_ARROW_GARLIC.get(), ModItems.CROSSBOW_ARROW_BLEEDING.get(), ModItems.CROSSBOW_ARROW_VAMPIRE_KILLER.get(), ModItems.CROSSBOW_ARROW_SPITFIRE.get());

@@ -15,6 +15,7 @@ import de.teamlapen.vampirism.config.BalanceMobProps;
 import de.teamlapen.vampirism.core.ModFactions;
 import de.teamlapen.vampirism.core.ModItems;
 import de.teamlapen.vampirism.entity.VampirismEntity;
+import de.teamlapen.vampirism.entity.ai.goals.OpenGateGoal;
 import de.teamlapen.vampirism.entity.ai.goals.RangedHunterCrossbowAttackGoal;
 import de.teamlapen.vampirism.entity.hunter.BasicHunterEntity;
 import de.teamlapen.vampirism.entity.minion.management.MinionData;
@@ -168,6 +169,7 @@ public class HunterMinionEntity extends MinionEntity<HunterMinionEntity.HunterMi
     @Override
     protected void registerGoals() {
         super.registerGoals();
+        this.goalSelector.addGoal(1, new OpenGateGoal(this, true));
         this.goalSelector.addGoal(1, new RangedHunterCrossbowAttackGoal<>(this, 0.8, 60));
         this.goalSelector.addGoal(2, new MeleeAttackGoal(this, 1.0D, false));
     }
