@@ -96,7 +96,6 @@ public class AltarPillarBlock extends VampirismBlock {
     public enum EnumPillarType implements StringRepresentable {
         NONE(0, "none", 0, Blocks.AIR), STONE(1, "stone", 1, Blocks.STONE_BRICKS), IRON(2, "iron", 2, Blocks.IRON_BLOCK), GOLD(3, "gold", 3, Blocks.GOLD_BLOCK), BONE(4, "bone", 1.5F, Blocks.BONE_BLOCK);
 
-
         public final String name;
         public final Block fillerBlock;
         public final int meta;
@@ -131,6 +130,4 @@ public class AltarPillarBlock extends VampirismBlock {
             return getName();
         }
     }
-
-
 }

@@ -10,16 +10,14 @@ import de.teamlapen.vampirism.core.tags.ModItemTags;
 import de.teamlapen.vampirism.data.ModBlockFamilies;
 import de.teamlapen.vampirism.entity.player.hunter.skills.HunterSkills;
 import de.teamlapen.vampirism.items.PureBloodItem;
+import de.teamlapen.vampirism.items.component.BottleBlood;
 import de.teamlapen.vampirism.items.component.OilContent;
 import de.teamlapen.vampirism.items.component.PureLevel;
 import de.teamlapen.vampirism.recipes.ApplicableOilRecipe;
 import de.teamlapen.vampirism.recipes.CleanOilRecipe;
 import de.teamlapen.vampirism.recipes.ConfigCondition;
 import de.teamlapen.vampirism.util.ItemDataUtils;
-import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.component.DataComponentMap;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
@@ -32,8 +30,6 @@ import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.alchemy.Potion;
-import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -50,7 +46,6 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 
-import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -122,7 +117,7 @@ public class RecipesProvider extends de.teamlapen.vampirism.data.provider.parent
         TagKey<Item> holy_water = ModItemTags.HOLY_WATER;
         TagKey<Item> heart = ModItemTags.HEART;
         TagKey<Item> beds = ItemTags.BEDS;
-
+        Ingredient full_blood_bottle = DataComponentIngredient.of(false, ModDataComponents.BOTTLE_BLOOD.get(), new BottleBlood(9), ModItems.BLOOD_BOTTLE.get());
 
         shaped(RecipeCategory.DECORATIONS, ModBlocks.BLOOD_GRINDER.get()).define('Z', hopper).define('Y', planks).define('D', diamond).define('X', iron_ingot).pattern(" Z ").pattern("YDY").pattern("YXY").unlockedBy("has_hopper", has(hopper)).save(output, general("blood_grinder"));
         shaped(RecipeCategory.DECORATIONS, ModBlocks.BLOOD_SIEVE.get()).define('X', iron_ingot).define('Q', Blocks.QUARTZ_BRICKS).define('Y', planks).define('Z', cauldron).pattern("XQX").pattern("YZY").pattern("YXY").unlockedBy("has_cauldron", has(cauldron)).save(output, general("blood_sieve"));
@@ -201,6 +196,9 @@ public class RecipesProvider extends de.teamlapen.vampirism.data.provider.parent
         generateRecipes(ModBlockFamilies.COBBLED_DARK_STONE, FeatureFlagSet.of(FeatureFlags.VANILLA));
         generateRecipes(ModBlockFamilies.DARK_STONE_TILES, FeatureFlagSet.of(FeatureFlags.VANILLA));
         generateRecipes(ModBlockFamilies.PURPLE_STONE_TILES, FeatureFlagSet.of(FeatureFlags.VANILLA));
+
+        shaped(RecipeCategory.BUILDING_BLOCKS, ModBlocks.DARK_STONE_BRICKS.get(), 4).define('#', ModBlocks.DARK_STONE).pattern("##").pattern("##").unlockedBy("has_dark_stone", has(ModBlocks.DARK_STONE)).save(output);
+        shapeless(RecipeCategory.BUILDING_BLOCKS, ModBlocks.PURPLE_STONE_BRICKS.get(), 8).requires(ModBlocks.DARK_STONE_BRICKS.get(), 8).requires(ModBlocks.VAMPIRE_ORCHID.get()).unlockedBy("has_dark_stone_bricks", has(ModBlocks.DARK_STONE_BRICKS.get())).save(output);
 
         planksFromLog(ModBlocks.DARK_SPRUCE_PLANKS.get(), ModItemTags.DARK_SPRUCE_LOG, 4);
         planksFromLog(ModBlocks.CURSED_SPRUCE_PLANKS.get(), ModItemTags.CURSED_SPRUCE_LOG, 4);
