@@ -31,10 +31,10 @@ public class DarkStoneBlock extends VampirismBlock {
     }
 
     @Override
-    public void animateTick(@NotNull BlockState state, @NotNull Level world, @NotNull BlockPos pos, @NotNull RandomSource rand) {
+    public void animateTick(BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull RandomSource random) {
         if (state.is(ModBlocks.BLOODY_DARK_STONE_BRICKS)) {
-            if (rand.nextInt(180) == 0) {
-                world.playLocalSound(pos.getX(), pos.getY(), pos.getZ(), ModSounds.AMBIENT_BLOOD_DRIPPING.get(), SoundSource.AMBIENT, 0.8F, 1.0F, false);
+            if (random.nextInt(180) == 0) {
+                level.playLocalSound(pos.getX(), pos.getY(), pos.getZ(), ModSounds.BLOOD_DRIP.get(), SoundSource.AMBIENT, 0.7F, random.nextInt(70, 100) / 100f, false);
             }
         }
     }
