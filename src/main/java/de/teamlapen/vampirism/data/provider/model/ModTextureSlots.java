@@ -2,7 +2,7 @@ package de.teamlapen.vampirism.data.provider.model;
 
 import net.minecraft.client.data.models.model.TextureSlot;
 
-public class TextureSlots {
+public class ModTextureSlots {
 
     public static final TextureSlot GARLIC = TextureSlot.create("garlic");
     public static final TextureSlot FILLER = TextureSlot.create("filler");

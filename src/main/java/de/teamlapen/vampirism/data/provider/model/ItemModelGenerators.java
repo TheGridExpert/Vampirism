@@ -34,7 +34,7 @@ public class ItemModelGenerators extends net.minecraft.client.data.models.ItemMo
 
     @Override
     public void run() {
-        getFlatItems().forEach(item -> generateFlatItem(item, ModelTemplates.FLAT_ITEM));
+        getFlatItems().forEach(item -> generateFlatItem(item, ModModelTemplates.FLAT_ITEM));
         getFlatItemWithTexture().forEach(this::generateFlatItemWithTexture);
         generateArrows();
         generateSpawnEggs();
@@ -51,7 +51,7 @@ public class ItemModelGenerators extends net.minecraft.client.data.models.ItemMo
     }
 
     protected void generateNonTemplateItems() {
-        this.itemModelOutput.accept(ModItems.GARLIC_DIFFUSER_CORE_IMPROVED.asItem(), ItemModelUtils.plainModel(ModelTemplates.GARLIC_DIFFUSER_CORE.create(ModItems.GARLIC_DIFFUSER_CORE_IMPROVED.get(), new TextureMapping().put(TextureSlot.TEXTURE, VResourceLocation.mod("block/garlic_diffuser_inside_improved")), this.modelOutput)));
+        this.itemModelOutput.accept(ModItems.GARLIC_DIFFUSER_CORE_IMPROVED.asItem(), ItemModelUtils.plainModel(ModModelTemplates.GARLIC_DIFFUSER_CORE.create(ModItems.GARLIC_DIFFUSER_CORE_IMPROVED.get(), new TextureMapping().put(TextureSlot.TEXTURE, VResourceLocation.mod("block/garlic_diffuser_inside_improved")), this.modelOutput)));
     }
 
     protected void createDefaultModels() {
@@ -71,11 +71,11 @@ public class ItemModelGenerators extends net.minecraft.client.data.models.ItemMo
     }
 
     protected ResourceLocation createFlatItemWithTexture(Item item, ResourceLocation texture) {
-        return ModelTemplates.FLAT_ITEM.create(ModelLocationUtils.getModelLocation(item), TextureMapping.layer0(texture), this.modelOutput);
+        return ModModelTemplates.FLAT_ITEM.create(ModelLocationUtils.getModelLocation(item), TextureMapping.layer0(texture), this.modelOutput);
     }
 
     protected ResourceLocation createFlatItemWithTexture(ResourceLocation item, ResourceLocation texture) {
-        return ModelTemplates.FLAT_ITEM.create(ModelLocationUtils.decorateItemModelLocation(item.toString()), TextureMapping.layer0(texture), this.modelOutput);
+        return ModModelTemplates.FLAT_ITEM.create(ModelLocationUtils.decorateItemModelLocation(item.toString()), TextureMapping.layer0(texture), this.modelOutput);
     }
 
     protected void generateCrucifix() {
@@ -85,18 +85,18 @@ public class ItemModelGenerators extends net.minecraft.client.data.models.ItemMo
     }
 
     protected void generateCrucifix(Item item, ResourceLocation texture) {
-        this.itemModelOutput.accept(item, ItemModelUtils.plainModel(ModelTemplates.CRUCIFIX.create(ModelLocationUtils.getModelLocation(item), TextureMapping.defaultTexture(texture).put(TextureSlot.PARTICLE, texture), this.modelOutput)));
+        this.itemModelOutput.accept(item, ItemModelUtils.plainModel(ModModelTemplates.CRUCIFIX.create(ModelLocationUtils.getModelLocation(item), TextureMapping.defaultTexture(texture).put(TextureSlot.PARTICLE, texture), this.modelOutput)));
     }
 
     protected void generateArrows() {
         Stream.of(ModItems.CROSSBOW_ARROW_NORMAL, ModItems.CROSSBOW_ARROW_SPITFIRE, ModItems.CROSSBOW_ARROW_VAMPIRE_KILLER, ModItems.CROSSBOW_ARROW_TELEPORT, ModItems.CROSSBOW_ARROW_BLEEDING, ModItems.CROSSBOW_ARROW_GARLIC).map(DeferredHolder::get).forEach(item -> {
-            var model = ModelTemplates.TWO_LAYERED_ITEM.create(item, TextureMapping.layered(VResourceLocation.mod("item/crossbow_arrow"), VResourceLocation.mod("item/crossbow_arrow_tip")), this.modelOutput);
+            var model = ModModelTemplates.TWO_LAYERED_ITEM.create(item, TextureMapping.layered(VResourceLocation.mod("item/crossbow_arrow"), VResourceLocation.mod("item/crossbow_arrow_tip")), this.modelOutput);
             this.itemModelOutput.accept(item, ItemModelUtils.tintedModel(model, BLANK_LAYER, new CrossbowArrowTint()));
         });
     }
 
     protected void generateOilBottle() {
-        var bloodBottle = ModelTemplates.TWO_LAYERED_ITEM.create(ModItems.OIL_BOTTLE.asItem(), TextureMapping.layered(mod("item/oil_bottle"), mod("item/oil_bottle_overlay")), this.modelOutput);
+        var bloodBottle = ModModelTemplates.TWO_LAYERED_ITEM.create(ModItems.OIL_BOTTLE.asItem(), TextureMapping.layered(mod("item/oil_bottle"), mod("item/oil_bottle_overlay")), this.modelOutput);
         this.itemModelOutput.accept(ModItems.OIL_BOTTLE.asItem(), ItemModelUtils.tintedModel(bloodBottle, BLANK_LAYER, new OilBottleTint()));
     }
 
@@ -110,44 +110,44 @@ public class ItemModelGenerators extends net.minecraft.client.data.models.ItemMo
     }
 
     protected void generateCrossbows() {
-        ResourceLocation basicModel = ModelTemplates.CROSSBOW.create(ModItems.BASIC_CROSSBOW.asItem(), new TextureMapping().put(TextureSlot.TEXTURE, mod("item/crossbow")).put(TextureSlots.STRING, mod("item/crossbow_part_string")).put(TextureSlots.ARROW, mod("item/crossbow_part_arrow")), this.modelOutput);
-        ResourceLocation basicModelUnloaded = ModelTemplates.CROSSBOW_UNLOADED.create(ModItems.BASIC_CROSSBOW.getId().withSuffix("_unloaded"), new TextureMapping().put(TextureSlot.TEXTURE, mod("item/crossbow")).put(TextureSlots.STRING, mod("item/crossbow_part_string")), this.modelOutput);
+        ResourceLocation basicModel = ModModelTemplates.CROSSBOW.create(ModItems.BASIC_CROSSBOW.asItem(), new TextureMapping().put(TextureSlot.TEXTURE, mod("item/crossbow")).put(ModTextureSlots.STRING, mod("item/crossbow_part_string")).put(ModTextureSlots.ARROW, mod("item/crossbow_part_arrow")), this.modelOutput);
+        ResourceLocation basicModelUnloaded = ModModelTemplates.CROSSBOW_UNLOADED.create(ModItems.BASIC_CROSSBOW.getId().withSuffix("_unloaded"), new TextureMapping().put(TextureSlot.TEXTURE, mod("item/crossbow")).put(ModTextureSlots.STRING, mod("item/crossbow_part_string")), this.modelOutput);
         this.itemModelOutput.accept(ModItems.BASIC_CROSSBOW.asItem(), ItemModelUtils.rangeSelect(new CrossbowPull(), ItemModelUtils.plainModel(basicModel), ItemModelUtils.override(ItemModelUtils.plainModel(basicModelUnloaded), 0.99f)));
 
-        ResourceLocation enhancedModel = ModelTemplates.CROSSBOW.create(ModelLocationUtils.getModelLocation(ModItems.ENHANCED_CROSSBOW.get()), new TextureMapping().put(TextureSlot.TEXTURE, mod("item/crossbow_enhanced")).put(TextureSlots.STRING, mod("item/crossbow_part_string")).put(TextureSlots.ARROW, mod("item/crossbow_part_arrow")), this.modelOutput);
-        ResourceLocation enhancedModelUnloaded = ModelTemplates.CROSSBOW_UNLOADED.create(ModelLocationUtils.getModelLocation(ModItems.ENHANCED_CROSSBOW.get()).withSuffix("_unloaded"), new TextureMapping().put(TextureSlot.TEXTURE, mod("item/crossbow_enhanced")).put(TextureSlots.STRING, mod("item/crossbow_part_string")), this.modelOutput);
+        ResourceLocation enhancedModel = ModModelTemplates.CROSSBOW.create(ModelLocationUtils.getModelLocation(ModItems.ENHANCED_CROSSBOW.get()), new TextureMapping().put(TextureSlot.TEXTURE, mod("item/crossbow_enhanced")).put(ModTextureSlots.STRING, mod("item/crossbow_part_string")).put(ModTextureSlots.ARROW, mod("item/crossbow_part_arrow")), this.modelOutput);
+        ResourceLocation enhancedModelUnloaded = ModModelTemplates.CROSSBOW_UNLOADED.create(ModelLocationUtils.getModelLocation(ModItems.ENHANCED_CROSSBOW.get()).withSuffix("_unloaded"), new TextureMapping().put(TextureSlot.TEXTURE, mod("item/crossbow_enhanced")).put(ModTextureSlots.STRING, mod("item/crossbow_part_string")), this.modelOutput);
         this.itemModelOutput.accept(ModItems.ENHANCED_CROSSBOW.asItem(), ItemModelUtils.rangeSelect(new CrossbowPull(), ItemModelUtils.plainModel(enhancedModel), ItemModelUtils.override(ItemModelUtils.plainModel(enhancedModelUnloaded), 0.99f)));
 
-        ResourceLocation doubleModel = ModelTemplates.DOUBLE_CROSSBOW.create(ModelLocationUtils.getModelLocation(ModItems.BASIC_DOUBLE_CROSSBOW.asItem()), new TextureMapping().put(TextureSlot.TEXTURE, mod("item/crossbow_double")).put(TextureSlots.STRING, mod("item/crossbow_part_double_string")).put(TextureSlots.ARROW, mod("item/crossbow_part_arrow")), this.modelOutput);
-        ResourceLocation doubleModelUnloaded = ModelTemplates.DOUBLE_CROSSBOW_UNLOADED.create(ModelLocationUtils.getModelLocation(ModItems.BASIC_DOUBLE_CROSSBOW.get()).withSuffix("_unloaded"), new TextureMapping().put(TextureSlot.TEXTURE, mod("item/crossbow_double")).put(TextureSlots.STRING, mod("item/crossbow_part_double_string")), this.modelOutput);
+        ResourceLocation doubleModel = ModModelTemplates.DOUBLE_CROSSBOW.create(ModelLocationUtils.getModelLocation(ModItems.BASIC_DOUBLE_CROSSBOW.asItem()), new TextureMapping().put(TextureSlot.TEXTURE, mod("item/crossbow_double")).put(ModTextureSlots.STRING, mod("item/crossbow_part_double_string")).put(ModTextureSlots.ARROW, mod("item/crossbow_part_arrow")), this.modelOutput);
+        ResourceLocation doubleModelUnloaded = ModModelTemplates.DOUBLE_CROSSBOW_UNLOADED.create(ModelLocationUtils.getModelLocation(ModItems.BASIC_DOUBLE_CROSSBOW.get()).withSuffix("_unloaded"), new TextureMapping().put(TextureSlot.TEXTURE, mod("item/crossbow_double")).put(ModTextureSlots.STRING, mod("item/crossbow_part_double_string")), this.modelOutput);
         this.itemModelOutput.accept(ModItems.BASIC_DOUBLE_CROSSBOW.asItem(), ItemModelUtils.rangeSelect(new CrossbowPull(), ItemModelUtils.plainModel(doubleModel), ItemModelUtils.override(ItemModelUtils.plainModel(doubleModelUnloaded), 0.99f)));
 
-        ResourceLocation enhancedDoubleModel = ModelTemplates.DOUBLE_CROSSBOW.create(ModelLocationUtils.getModelLocation(ModItems.ENHANCED_DOUBLE_CROSSBOW.asItem()), new TextureMapping().put(TextureSlot.TEXTURE, mod("item/crossbow_double_enhanced")).put(TextureSlots.STRING, mod("item/crossbow_part_double_string")).put(TextureSlots.ARROW, mod("item/crossbow_part_arrow")), this.modelOutput);
-        ResourceLocation enhancedDoubleModelUnloaded = ModelTemplates.DOUBLE_CROSSBOW_UNLOADED.create(ModelLocationUtils.getModelLocation(ModItems.ENHANCED_DOUBLE_CROSSBOW.get()).withSuffix("_unloaded"), new TextureMapping().put(TextureSlot.TEXTURE, mod("item/crossbow_double_enhanced")).put(TextureSlots.STRING, mod("item/crossbow_part_double_string")), this.modelOutput);
+        ResourceLocation enhancedDoubleModel = ModModelTemplates.DOUBLE_CROSSBOW.create(ModelLocationUtils.getModelLocation(ModItems.ENHANCED_DOUBLE_CROSSBOW.asItem()), new TextureMapping().put(TextureSlot.TEXTURE, mod("item/crossbow_double_enhanced")).put(ModTextureSlots.STRING, mod("item/crossbow_part_double_string")).put(ModTextureSlots.ARROW, mod("item/crossbow_part_arrow")), this.modelOutput);
+        ResourceLocation enhancedDoubleModelUnloaded = ModModelTemplates.DOUBLE_CROSSBOW_UNLOADED.create(ModelLocationUtils.getModelLocation(ModItems.ENHANCED_DOUBLE_CROSSBOW.get()).withSuffix("_unloaded"), new TextureMapping().put(TextureSlot.TEXTURE, mod("item/crossbow_double_enhanced")).put(ModTextureSlots.STRING, mod("item/crossbow_part_double_string")), this.modelOutput);
         this.itemModelOutput.accept(ModItems.ENHANCED_DOUBLE_CROSSBOW.asItem(), ItemModelUtils.rangeSelect(new CrossbowPull(), ItemModelUtils.plainModel(enhancedDoubleModel), ItemModelUtils.override(ItemModelUtils.plainModel(enhancedDoubleModelUnloaded), 0.99f)));
 
-        ResourceLocation techModel = ModelTemplates.TECH_CROSSBOW.create(ModelLocationUtils.getModelLocation(ModItems.BASIC_TECH_CROSSBOW.asItem()), new TextureMapping().put(TextureSlot.TEXTURE, mod("item/tech_crossbow")).put(TextureSlots.STRING, mod("item/crossbow_part_tech_string")), this.modelOutput);
-        ResourceLocation techModelUnloaded = ModelTemplates.TECH_CROSSBOW_UNLOADED.create(ModelLocationUtils.getModelLocation(ModItems.BASIC_TECH_CROSSBOW.get()).withSuffix("_unloaded"), new TextureMapping().put(TextureSlot.TEXTURE, mod("item/tech_crossbow")).put(TextureSlots.STRING, mod("item/crossbow_part_tech_string_unloaded")), this.modelOutput);
+        ResourceLocation techModel = ModModelTemplates.TECH_CROSSBOW.create(ModelLocationUtils.getModelLocation(ModItems.BASIC_TECH_CROSSBOW.asItem()), new TextureMapping().put(TextureSlot.TEXTURE, mod("item/tech_crossbow")).put(ModTextureSlots.STRING, mod("item/crossbow_part_tech_string")), this.modelOutput);
+        ResourceLocation techModelUnloaded = ModModelTemplates.TECH_CROSSBOW_UNLOADED.create(ModelLocationUtils.getModelLocation(ModItems.BASIC_TECH_CROSSBOW.get()).withSuffix("_unloaded"), new TextureMapping().put(TextureSlot.TEXTURE, mod("item/tech_crossbow")).put(ModTextureSlots.STRING, mod("item/crossbow_part_tech_string_unloaded")), this.modelOutput);
         this.itemModelOutput.accept(ModItems.BASIC_TECH_CROSSBOW.asItem(), ItemModelUtils.rangeSelect(new CrossbowPull(), ItemModelUtils.plainModel(techModel), ItemModelUtils.override(ItemModelUtils.plainModel(techModelUnloaded), 0.99f)));
 
-        ResourceLocation enhancedTechModel = ModelTemplates.TECH_CROSSBOW.create(ModelLocationUtils.getModelLocation(ModItems.ENHANCED_TECH_CROSSBOW.asItem()), new TextureMapping().put(TextureSlot.TEXTURE, mod("item/tech_crossbow_enhanced")).put(TextureSlots.STRING, mod("item/crossbow_part_tech_string")), this.modelOutput);
-        ResourceLocation enhancedTechModelUnloaded = ModelTemplates.TECH_CROSSBOW_UNLOADED.create(ModelLocationUtils.getModelLocation(ModItems.ENHANCED_TECH_CROSSBOW.get()).withSuffix("_unloaded"), new TextureMapping().put(TextureSlot.TEXTURE, mod("item/tech_crossbow_enhanced")).put(TextureSlots.STRING, mod("item/crossbow_part_tech_string_unloaded")), this.modelOutput);
+        ResourceLocation enhancedTechModel = ModModelTemplates.TECH_CROSSBOW.create(ModelLocationUtils.getModelLocation(ModItems.ENHANCED_TECH_CROSSBOW.asItem()), new TextureMapping().put(TextureSlot.TEXTURE, mod("item/tech_crossbow_enhanced")).put(ModTextureSlots.STRING, mod("item/crossbow_part_tech_string")), this.modelOutput);
+        ResourceLocation enhancedTechModelUnloaded = ModModelTemplates.TECH_CROSSBOW_UNLOADED.create(ModelLocationUtils.getModelLocation(ModItems.ENHANCED_TECH_CROSSBOW.get()).withSuffix("_unloaded"), new TextureMapping().put(TextureSlot.TEXTURE, mod("item/tech_crossbow_enhanced")).put(ModTextureSlots.STRING, mod("item/crossbow_part_tech_string_unloaded")), this.modelOutput);
         this.itemModelOutput.accept(ModItems.ENHANCED_TECH_CROSSBOW.asItem(), ItemModelUtils.rangeSelect(new CrossbowPull(), ItemModelUtils.plainModel(enhancedTechModel), ItemModelUtils.override(ItemModelUtils.plainModel(enhancedTechModelUnloaded), 0.99f)));
     }
 
     protected void generateBloodBottle() {
         this.itemModelOutput.accept(ModItems.BLOOD_BOTTLE.asItem(),
                 ItemModelUtils.rangeSelect(new BloodFilled(),
-                        ItemModelUtils.plainModel(createFlatItemModel(ModItems.BLOOD_BOTTLE.get(), "_0", ModelTemplates.FLAT_ITEM)),
-                        ItemModelUtils.override(ItemModelUtils.plainModel(createFlatItemModel(ModItems.BLOOD_BOTTLE.get(), "_1", ModelTemplates.FLAT_ITEM)), 0.11f),
-                        ItemModelUtils.override(ItemModelUtils.plainModel(createFlatItemModel(ModItems.BLOOD_BOTTLE.get(), "_2", ModelTemplates.FLAT_ITEM)), 0.22f),
-                        ItemModelUtils.override(ItemModelUtils.plainModel(createFlatItemModel(ModItems.BLOOD_BOTTLE.get(), "_3", ModelTemplates.FLAT_ITEM)), 0.33f),
-                        ItemModelUtils.override(ItemModelUtils.plainModel(createFlatItemModel(ModItems.BLOOD_BOTTLE.get(), "_4", ModelTemplates.FLAT_ITEM)), 0.44f),
-                        ItemModelUtils.override(ItemModelUtils.plainModel(createFlatItemModel(ModItems.BLOOD_BOTTLE.get(), "_5", ModelTemplates.FLAT_ITEM)), 0.55f),
-                        ItemModelUtils.override(ItemModelUtils.plainModel(createFlatItemModel(ModItems.BLOOD_BOTTLE.get(), "_6", ModelTemplates.FLAT_ITEM)), 0.66f),
-                        ItemModelUtils.override(ItemModelUtils.plainModel(createFlatItemModel(ModItems.BLOOD_BOTTLE.get(), "_7", ModelTemplates.FLAT_ITEM)), 0.77f),
-                        ItemModelUtils.override(ItemModelUtils.plainModel(createFlatItemModel(ModItems.BLOOD_BOTTLE.get(), "_8", ModelTemplates.FLAT_ITEM)), 0.88f),
-                        ItemModelUtils.override(ItemModelUtils.plainModel(createFlatItemModel(ModItems.BLOOD_BOTTLE.get(), "_9", ModelTemplates.FLAT_ITEM)), 0.99f)
+                        ItemModelUtils.plainModel(createFlatItemModel(ModItems.BLOOD_BOTTLE.get(), "_0", ModModelTemplates.FLAT_ITEM)),
+                        ItemModelUtils.override(ItemModelUtils.plainModel(createFlatItemModel(ModItems.BLOOD_BOTTLE.get(), "_1", ModModelTemplates.FLAT_ITEM)), 0.11f),
+                        ItemModelUtils.override(ItemModelUtils.plainModel(createFlatItemModel(ModItems.BLOOD_BOTTLE.get(), "_2", ModModelTemplates.FLAT_ITEM)), 0.22f),
+                        ItemModelUtils.override(ItemModelUtils.plainModel(createFlatItemModel(ModItems.BLOOD_BOTTLE.get(), "_3", ModModelTemplates.FLAT_ITEM)), 0.33f),
+                        ItemModelUtils.override(ItemModelUtils.plainModel(createFlatItemModel(ModItems.BLOOD_BOTTLE.get(), "_4", ModModelTemplates.FLAT_ITEM)), 0.44f),
+                        ItemModelUtils.override(ItemModelUtils.plainModel(createFlatItemModel(ModItems.BLOOD_BOTTLE.get(), "_5", ModModelTemplates.FLAT_ITEM)), 0.55f),
+                        ItemModelUtils.override(ItemModelUtils.plainModel(createFlatItemModel(ModItems.BLOOD_BOTTLE.get(), "_6", ModModelTemplates.FLAT_ITEM)), 0.66f),
+                        ItemModelUtils.override(ItemModelUtils.plainModel(createFlatItemModel(ModItems.BLOOD_BOTTLE.get(), "_7", ModModelTemplates.FLAT_ITEM)), 0.77f),
+                        ItemModelUtils.override(ItemModelUtils.plainModel(createFlatItemModel(ModItems.BLOOD_BOTTLE.get(), "_8", ModModelTemplates.FLAT_ITEM)), 0.88f),
+                        ItemModelUtils.override(ItemModelUtils.plainModel(createFlatItemModel(ModItems.BLOOD_BOTTLE.get(), "_9", ModModelTemplates.FLAT_ITEM)), 0.99f)
                 ));
     }
 
@@ -163,28 +163,28 @@ public class ItemModelGenerators extends net.minecraft.client.data.models.ItemMo
 
     protected void generateHunterIntel() {
         Stream.of(ModItems.HUNTER_INTEL_0, ModItems.HUNTER_INTEL_1, ModItems.HUNTER_INTEL_2, ModItems.HUNTER_INTEL_3, ModItems.HUNTER_INTEL_4, ModItems.HUNTER_INTEL_5, ModItems.HUNTER_INTEL_6, ModItems.HUNTER_INTEL_7, ModItems.HUNTER_INTEL_8, ModItems.HUNTER_INTEL_9).map(DeferredItem::asItem).forEach(item -> {
-            this.itemModelOutput.accept(item, ItemModelUtils.plainModel(createFlatItemModel(item, ModelTemplates.HUNTER_INTEL)));
+            this.itemModelOutput.accept(item, ItemModelUtils.plainModel(createFlatItemModel(item, ModModelTemplates.HUNTER_INTEL)));
         });
     }
 
     protected void generateAccessories() {
-        this.itemModelOutput.accept(ModItems.RING.asItem(), ItemModelUtils.plainModel(ModelTemplates.TWO_LAYERED_ITEM.create(ModItems.RING.asItem(), TextureMapping.layered(VResourceLocation.mod("item/vampire_ring_layer0"), VResourceLocation.mod("item/vampire_ring_layer1")), this.modelOutput)));
-        this.itemModelOutput.accept(ModItems.AMULET.asItem(), ItemModelUtils.plainModel(ModelTemplates.TWO_LAYERED_ITEM.create(ModItems.AMULET.asItem(), TextureMapping.layered(VResourceLocation.mod("item/vampire_amulet_layer0"), VResourceLocation.mod("item/vampire_amulet_layer1")), this.modelOutput)));
-        this.itemModelOutput.accept(ModItems.OBI_BELT.asItem(), ItemModelUtils.plainModel(ModelTemplates.TWO_LAYERED_ITEM.create(ModItems.OBI_BELT.asItem(), TextureMapping.layered(VResourceLocation.mod("item/vampire_obi_belt_layer0"), VResourceLocation.mod("item/vampire_obi_belt_layer1")), this.modelOutput)));
+        this.itemModelOutput.accept(ModItems.RING.asItem(), ItemModelUtils.plainModel(ModModelTemplates.TWO_LAYERED_ITEM.create(ModItems.RING.asItem(), TextureMapping.layered(VResourceLocation.mod("item/vampire_ring_layer0"), VResourceLocation.mod("item/vampire_ring_layer1")), this.modelOutput)));
+        this.itemModelOutput.accept(ModItems.AMULET.asItem(), ItemModelUtils.plainModel(ModModelTemplates.TWO_LAYERED_ITEM.create(ModItems.AMULET.asItem(), TextureMapping.layered(VResourceLocation.mod("item/vampire_amulet_layer0"), VResourceLocation.mod("item/vampire_amulet_layer1")), this.modelOutput)));
+        this.itemModelOutput.accept(ModItems.OBI_BELT.asItem(), ItemModelUtils.plainModel(ModModelTemplates.TWO_LAYERED_ITEM.create(ModItems.OBI_BELT.asItem(), TextureMapping.layered(VResourceLocation.mod("item/vampire_obi_belt_layer0"), VResourceLocation.mod("item/vampire_obi_belt_layer1")), this.modelOutput)));
     }
 
     protected void generateWeapons() {
-        this.itemModelOutput.accept(ModItems.HEART_SEEKER_NORMAL.asItem(), ItemModelUtils.plainModel(ModelTemplates.HEART_SEEKER.create(ModItems.HEART_SEEKER_NORMAL.asItem(), new TextureMapping().put(TextureSlots.TEXTURE_3, VResourceLocation.mod("item/heart_seeker_normal")), this.modelOutput)));
-        this.itemModelOutput.accept(ModItems.HEART_SEEKER_ENHANCED.asItem(), ItemModelUtils.plainModel(ModelTemplates.HEART_SEEKER.create(ModItems.HEART_SEEKER_ENHANCED.asItem(), new TextureMapping().put(TextureSlots.TEXTURE_3, VResourceLocation.mod("item/heart_seeker_enhanced")), this.modelOutput)));
-        this.itemModelOutput.accept(ModItems.HEART_SEEKER_ULTIMATE.asItem(), ItemModelUtils.plainModel(ModelTemplates.HEART_SEEKER.create(ModItems.HEART_SEEKER_ULTIMATE.asItem(), new TextureMapping().put(TextureSlots.TEXTURE_3, VResourceLocation.mod("item/heart_seeker_ultimate")), this.modelOutput)));
+        this.itemModelOutput.accept(ModItems.HEART_SEEKER_NORMAL.asItem(), ItemModelUtils.plainModel(ModModelTemplates.HEART_SEEKER.create(ModItems.HEART_SEEKER_NORMAL.asItem(), new TextureMapping().put(ModTextureSlots.TEXTURE_3, VResourceLocation.mod("item/heart_seeker_normal")), this.modelOutput)));
+        this.itemModelOutput.accept(ModItems.HEART_SEEKER_ENHANCED.asItem(), ItemModelUtils.plainModel(ModModelTemplates.HEART_SEEKER.create(ModItems.HEART_SEEKER_ENHANCED.asItem(), new TextureMapping().put(ModTextureSlots.TEXTURE_3, VResourceLocation.mod("item/heart_seeker_enhanced")), this.modelOutput)));
+        this.itemModelOutput.accept(ModItems.HEART_SEEKER_ULTIMATE.asItem(), ItemModelUtils.plainModel(ModModelTemplates.HEART_SEEKER.create(ModItems.HEART_SEEKER_ULTIMATE.asItem(), new TextureMapping().put(ModTextureSlots.TEXTURE_3, VResourceLocation.mod("item/heart_seeker_ultimate")), this.modelOutput)));
 
-        this.itemModelOutput.accept(ModItems.HEART_STRIKER_NORMAL.asItem(), ItemModelUtils.plainModel(ModelTemplates.HEART_STRIKER.create(ModItems.HEART_STRIKER_NORMAL.asItem(), new TextureMapping().put(TextureSlots.TEXTURE_2, VResourceLocation.mod("item/heart_striker_normal")), this.modelOutput)));
-        this.itemModelOutput.accept(ModItems.HEART_STRIKER_ENHANCED.asItem(), ItemModelUtils.plainModel(ModelTemplates.HEART_STRIKER.create(ModItems.HEART_STRIKER_ENHANCED.asItem(), new TextureMapping().put(TextureSlots.TEXTURE_2, VResourceLocation.mod("item/heart_striker_enhanced")), this.modelOutput)));
-        this.itemModelOutput.accept(ModItems.HEART_STRIKER_ULTIMATE.asItem(), ItemModelUtils.plainModel(ModelTemplates.HEART_STRIKER.create(ModItems.HEART_STRIKER_ULTIMATE.asItem(), new TextureMapping().put(TextureSlots.TEXTURE_2, VResourceLocation.mod("item/heart_striker_ultimate")), this.modelOutput)));
+        this.itemModelOutput.accept(ModItems.HEART_STRIKER_NORMAL.asItem(), ItemModelUtils.plainModel(ModModelTemplates.HEART_STRIKER.create(ModItems.HEART_STRIKER_NORMAL.asItem(), new TextureMapping().put(ModTextureSlots.TEXTURE_2, VResourceLocation.mod("item/heart_striker_normal")), this.modelOutput)));
+        this.itemModelOutput.accept(ModItems.HEART_STRIKER_ENHANCED.asItem(), ItemModelUtils.plainModel(ModModelTemplates.HEART_STRIKER.create(ModItems.HEART_STRIKER_ENHANCED.asItem(), new TextureMapping().put(ModTextureSlots.TEXTURE_2, VResourceLocation.mod("item/heart_striker_enhanced")), this.modelOutput)));
+        this.itemModelOutput.accept(ModItems.HEART_STRIKER_ULTIMATE.asItem(), ItemModelUtils.plainModel(ModModelTemplates.HEART_STRIKER.create(ModItems.HEART_STRIKER_ULTIMATE.asItem(), new TextureMapping().put(ModTextureSlots.TEXTURE_2, VResourceLocation.mod("item/heart_striker_ultimate")), this.modelOutput)));
 
-        this.itemModelOutput.accept(ModItems.HUNTER_AXE_NORMAL.asItem(), ItemModelUtils.plainModel(ModelTemplates.HUNTER_AXE.create(ModItems.HUNTER_AXE_NORMAL.asItem(), TextureMapping.defaultTexture(VResourceLocation.mod("item/hunter_axe_normal")), this.modelOutput)));
-        this.itemModelOutput.accept(ModItems.HUNTER_AXE_ENHANCED.asItem(), ItemModelUtils.plainModel(ModelTemplates.HUNTER_AXE.create(ModItems.HUNTER_AXE_ENHANCED.asItem(), TextureMapping.defaultTexture(VResourceLocation.mod("item/hunter_axe_enhanced")), this.modelOutput)));
-        this.itemModelOutput.accept(ModItems.HUNTER_AXE_ULTIMATE.asItem(), ItemModelUtils.plainModel(ModelTemplates.HUNTER_AXE.create(ModItems.HUNTER_AXE_ULTIMATE.asItem(), TextureMapping.defaultTexture(VResourceLocation.mod("item/hunter_axe_ultimate")), this.modelOutput)));
+        this.itemModelOutput.accept(ModItems.HUNTER_AXE_NORMAL.asItem(), ItemModelUtils.plainModel(ModModelTemplates.HUNTER_AXE.create(ModItems.HUNTER_AXE_NORMAL.asItem(), TextureMapping.defaultTexture(VResourceLocation.mod("item/hunter_axe_normal")), this.modelOutput)));
+        this.itemModelOutput.accept(ModItems.HUNTER_AXE_ENHANCED.asItem(), ItemModelUtils.plainModel(ModModelTemplates.HUNTER_AXE.create(ModItems.HUNTER_AXE_ENHANCED.asItem(), TextureMapping.defaultTexture(VResourceLocation.mod("item/hunter_axe_enhanced")), this.modelOutput)));
+        this.itemModelOutput.accept(ModItems.HUNTER_AXE_ULTIMATE.asItem(), ItemModelUtils.plainModel(ModModelTemplates.HUNTER_AXE.create(ModItems.HUNTER_AXE_ULTIMATE.asItem(), TextureMapping.defaultTexture(VResourceLocation.mod("item/hunter_axe_ultimate")), this.modelOutput)));
     }
 
     protected Stream<Item> getFlatItems() {

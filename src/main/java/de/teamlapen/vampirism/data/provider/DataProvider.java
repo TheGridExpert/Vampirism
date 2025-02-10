@@ -3,7 +3,7 @@ package de.teamlapen.vampirism.data.provider;
 import de.teamlapen.vampirism.REFERENCE;
 import de.teamlapen.vampirism.core.ModRegistries;
 import de.teamlapen.vampirism.data.ModBlockFamilies;
-import de.teamlapen.vampirism.data.provider.model.ModelProvider;
+import de.teamlapen.vampirism.data.provider.model.ModModelProvider;
 import de.teamlapen.vampirism.data.provider.tags.TagProvider;
 import net.minecraft.DetectedVersion;
 import net.minecraft.core.HolderLookup;
@@ -42,7 +42,7 @@ public class DataProvider {
         generator.addProvider(true, LootTablesProvider.getProvider(packOutput, lookupProviderFuture));
         generator.addProvider(true, new AdvancementProvider(packOutput, lookupProviderFuture, existingFileHelper));
         generator.addProvider(true, new RecipesProvider.Runner(packOutput, lookupProviderFuture));
-        generator.addProvider(true, new ModelProvider(packOutput));
+        generator.addProvider(true, new ModModelProvider(packOutput));
         generator.addProvider(true, new SingleJigsawPiecesProvider(packOutput, REFERENCE.MODID));
         generator.addProvider(true, new SundamageProvider(packOutput, REFERENCE.MODID));
         generator.addProvider(true, new SkillTreeProvider(packOutput, lookupProviderFuture));

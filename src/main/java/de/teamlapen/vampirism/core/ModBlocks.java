@@ -6,6 +6,8 @@ import de.teamlapen.vampirism.api.ModRegistryItems;
 import de.teamlapen.vampirism.api.util.VResourceLocation;
 import de.teamlapen.vampirism.blocks.BushBlock;
 import de.teamlapen.vampirism.blocks.*;
+import de.teamlapen.vampirism.blocks.candle.StandingCandleStickBlock;
+import de.teamlapen.vampirism.blocks.candle.WallCandleStickBlock;
 import de.teamlapen.vampirism.blocks.diffuser.FogDiffuserBlock;
 import de.teamlapen.vampirism.blocks.diffuser.GarlicDiffuserBlock;
 import de.teamlapen.vampirism.blocks.mother.ActiveVulnerableRemainsBlock;
@@ -16,6 +18,7 @@ import de.teamlapen.vampirism.items.component.PureLevel;
 import de.teamlapen.vampirism.util.BlockVoxelshapes;
 import de.teamlapen.vampirism.world.gen.ModTreeGrower;
 import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -209,54 +212,46 @@ public class ModBlocks {
     public static final DeferredBlock<StairBlock> PURPLE_STONE_TILES_STAIRS = registerWithItem("purple_stone_tiles_stairs", (prop) -> new StairBlock(PURPLE_STONE_TILES.get().defaultBlockState(), prop), () -> BlockBehaviour.Properties.ofFullCopy(PURPLE_STONE_TILES.get()));
     public static final DeferredBlock<SlabBlock> PURPLE_STONE_TILES_SLAB = registerWithItem("purple_stone_tiles_slab", SlabBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(PURPLE_STONE_TILES.get()));
     public static final DeferredBlock<WallBlock> PURPLE_STONE_TILES_WALL = registerWithItem("purple_stone_tiles_wall", (prop) -> new WallBlock(prop.forceSolidOn()), () -> BlockBehaviour.Properties.ofFullCopy(PURPLE_STONE_TILES.get()));
+    public static final DeferredBlock<LanternBlock> VAMPIRE_SOUL_LANTERN = registerWithItem("vampire_soul_lantern", (prop) -> new LanternBlock(prop.mapColor(MapColor.METAL).forceSolidOn().requiresCorrectToolForDrops().strength(3.5F).sound(SoundType.LANTERN).lightLevel(p_187431_ -> 12).noOcclusion().pushReaction(PushReaction.DESTROY)));
+    public static final DeferredBlock<BloodInfuserBlock> INFUSER = registerWithItem("blood_infuser", BloodInfuserBlock::new);
+
     public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK = BLOCKS.registerBlock("candle_stick", (prop) -> new StandingCandleStickBlock(null, () -> null, prop.mapColor(MapColor.METAL).noOcclusion().strength(0.5f).sound(SoundType.METAL).pushReaction(PushReaction.DESTROY)));
     public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK = registerBlock("wall_candle_stick", (prop) -> new WallCandleStickBlock(null, () -> null, prop.overrideLootTable(CANDLE_STICK.get().getLootTable())), () -> BlockBehaviour.Properties.ofFullCopy(CANDLE_STICK.get()));
-    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_NORMAL = registerBlock("candle_stick_normal", (prop) -> mountedCandle(new StandingCandleStickBlock(CANDLE_STICK, () -> Items.CANDLE, prop.lightLevel(CandleStickBlock.LIGHT_EMISSION)), VResourceLocation.mc("candle")), () -> BlockBehaviour.Properties.ofFullCopy(CANDLE_STICK.get()));
-    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_NORMAL = registerBlock("wall_candle_stick_normal", (prop) -> wallMountedCandle(new WallCandleStickBlock(WALL_CANDLE_STICK, () -> Items.CANDLE, prop.overrideLootTable(CANDLE_STICK_NORMAL.get().getLootTable())), VResourceLocation.mc("candle")), () -> BlockBehaviour.Properties.ofFullCopy(CANDLE_STICK_NORMAL.get()));
-    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_WHITE = registerBlock("candle_stick_white", (prop) -> mountedCandle(new StandingCandleStickBlock(CANDLE_STICK, () -> Items.WHITE_CANDLE, prop.lightLevel(CandleStickBlock.LIGHT_EMISSION)), VResourceLocation.mc("white_candle")), () -> BlockBehaviour.Properties.ofFullCopy(CANDLE_STICK.get()));
-    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_WHITE = registerBlock("wall_candle_stick_white", (prop) -> wallMountedCandle(new WallCandleStickBlock(WALL_CANDLE_STICK, () -> Items.WHITE_CANDLE, prop.overrideLootTable(CANDLE_STICK_WHITE.get().getLootTable())), VResourceLocation.mc("white_candle")), () -> BlockBehaviour.Properties.ofFullCopy(CANDLE_STICK_WHITE.get()));
-    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_ORANGE = registerBlock("candle_stick_orange", (prop) -> mountedCandle(new StandingCandleStickBlock(CANDLE_STICK, () -> Items.ORANGE_CANDLE, prop.lightLevel(CandleStickBlock.LIGHT_EMISSION)), VResourceLocation.mc("orange_candle")), () -> BlockBehaviour.Properties.ofFullCopy(CANDLE_STICK.get()));
-    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_ORANGE = registerBlock("wall_candle_stick_orange", (prop) -> wallMountedCandle(new WallCandleStickBlock(WALL_CANDLE_STICK, () -> Items.ORANGE_CANDLE, prop.overrideLootTable(CANDLE_STICK_ORANGE.get().getLootTable())), VResourceLocation.mc("orange_candle")), () -> BlockBehaviour.Properties.ofFullCopy(CANDLE_STICK_ORANGE.get()));
-    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_MAGENTA = registerBlock("candle_stick_magenta", (prop) -> mountedCandle(new StandingCandleStickBlock(CANDLE_STICK, () -> Items.MAGENTA_CANDLE, prop.lightLevel(CandleStickBlock.LIGHT_EMISSION)), VResourceLocation.mc("magenta_candle")), () -> BlockBehaviour.Properties.ofFullCopy(CANDLE_STICK.get()));
-    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_MAGENTA = registerBlock("wall_candle_stick_magenta", (prop) -> wallMountedCandle(new WallCandleStickBlock(WALL_CANDLE_STICK, () -> Items.MAGENTA_CANDLE, prop.overrideLootTable(CANDLE_STICK_MAGENTA.get().getLootTable())), VResourceLocation.mc("magenta_candle")),() ->  BlockBehaviour.Properties.ofFullCopy(CANDLE_STICK_MAGENTA.get()));
-    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_LIGHT_BLUE = registerBlock("candle_stick_light_blue", (prop) -> mountedCandle(new StandingCandleStickBlock(CANDLE_STICK, () -> Items.LIGHT_BLUE_CANDLE, prop.lightLevel(CandleStickBlock.LIGHT_EMISSION)), VResourceLocation.mc("light_blue_candle")), () -> BlockBehaviour.Properties.ofFullCopy(CANDLE_STICK.get()));
-    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_LIGHT_BLUE = registerBlock("wall_candle_stick_light_blue", (prop) -> wallMountedCandle(new WallCandleStickBlock(WALL_CANDLE_STICK, () -> Items.LIGHT_BLUE_CANDLE, prop.overrideLootTable(CANDLE_STICK_LIGHT_BLUE.get().getLootTable())), VResourceLocation.mc("light_blue_candle")),() ->  BlockBehaviour.Properties.ofFullCopy(CANDLE_STICK_LIGHT_BLUE.get()));
-    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_YELLOW = registerBlock("candle_stick_yellow", (prop) -> mountedCandle(new StandingCandleStickBlock(CANDLE_STICK, () -> Items.YELLOW_CANDLE, prop.lightLevel(CandleStickBlock.LIGHT_EMISSION)), VResourceLocation.mc("yellow_candle")), () -> BlockBehaviour.Properties.ofFullCopy(CANDLE_STICK.get()));
-    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_YELLOW = registerBlock("wall_candle_stick_yellow", (prop) -> wallMountedCandle(new WallCandleStickBlock(WALL_CANDLE_STICK, () -> Items.YELLOW_CANDLE, prop.overrideLootTable(CANDLE_STICK_YELLOW.get().getLootTable())), VResourceLocation.mc("yellow_candle")),() ->  BlockBehaviour.Properties.ofFullCopy(CANDLE_STICK_YELLOW.get()));
-    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_LIME = registerBlock("candle_stick_lime", (prop) -> mountedCandle(new StandingCandleStickBlock(CANDLE_STICK, () -> Items.LIME_CANDLE, prop.lightLevel(CandleStickBlock.LIGHT_EMISSION)), VResourceLocation.mc("lime_candle")), () -> BlockBehaviour.Properties.ofFullCopy(CANDLE_STICK.get()));
-    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_LIME = registerBlock("wall_candle_stick_lime", (prop) -> wallMountedCandle(new WallCandleStickBlock(WALL_CANDLE_STICK, () -> Items.LIME_CANDLE, prop.overrideLootTable(CANDLE_STICK_LIME.get().getLootTable())), VResourceLocation.mc("lime_candle")), () -> BlockBehaviour.Properties.ofFullCopy(CANDLE_STICK_LIME.get()));
-    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_PINK = registerBlock("candle_stick_pink", (prop) -> mountedCandle(new StandingCandleStickBlock(CANDLE_STICK, () -> Items.PINK_CANDLE, prop.lightLevel(CandleStickBlock.LIGHT_EMISSION)), VResourceLocation.mc("pink_candle")),() ->  BlockBehaviour.Properties.ofFullCopy(CANDLE_STICK.get()));
-    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_PINK = registerBlock("wall_candle_stick_pink", (prop) -> wallMountedCandle(new WallCandleStickBlock(WALL_CANDLE_STICK, () -> Items.PINK_CANDLE, prop.overrideLootTable(CANDLE_STICK_PINK.get().getLootTable())), VResourceLocation.mc("pink_candle")),() ->  BlockBehaviour.Properties.ofFullCopy(CANDLE_STICK_PINK.get()));
-    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_GRAY = registerBlock("candle_stick_gray", (prop) -> mountedCandle(new StandingCandleStickBlock(CANDLE_STICK, () -> Items.GRAY_CANDLE, prop.lightLevel(CandleStickBlock.LIGHT_EMISSION)), VResourceLocation.mc("gray_candle")),() ->  BlockBehaviour.Properties.ofFullCopy(CANDLE_STICK.get()));
-    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_GRAY = registerBlock("wall_candle_stick_gray", (prop) -> wallMountedCandle(new WallCandleStickBlock(WALL_CANDLE_STICK, () -> Items.GRAY_CANDLE, prop.overrideLootTable(CANDLE_STICK_GRAY.get().getLootTable())), VResourceLocation.mc("gray_candle")),() ->  BlockBehaviour.Properties.ofFullCopy(CANDLE_STICK_GRAY.get()));
-    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_LIGHT_GRAY = registerBlock("candle_stick_light_gray", (prop) -> mountedCandle(new StandingCandleStickBlock(CANDLE_STICK, () -> Items.LIGHT_GRAY_CANDLE, prop.lightLevel(CandleStickBlock.LIGHT_EMISSION)), VResourceLocation.mc("light_gray_candle")),() ->  BlockBehaviour.Properties.ofFullCopy(CANDLE_STICK.get()));
-    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_LIGHT_GRAY = registerBlock("wall_candle_stick_light_gray", (prop) -> wallMountedCandle(new WallCandleStickBlock(WALL_CANDLE_STICK, () -> Items.LIGHT_GRAY_CANDLE, prop.overrideLootTable(CANDLE_STICK_LIGHT_GRAY.get().getLootTable())), VResourceLocation.mc("light_gray_candle")),() ->  BlockBehaviour.Properties.ofFullCopy(CANDLE_STICK_LIGHT_GRAY.get()));
-    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_CYAN = registerBlock("candle_stick_cyan", (prop) -> mountedCandle(new StandingCandleStickBlock(CANDLE_STICK, () -> Items.CYAN_CANDLE, prop.lightLevel(CandleStickBlock.LIGHT_EMISSION)), VResourceLocation.mc("cyan_candle")), () -> BlockBehaviour.Properties.ofFullCopy(CANDLE_STICK.get()));
-    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_CYAN = registerBlock("wall_candle_stick_cyan", (prop) -> wallMountedCandle(new WallCandleStickBlock(WALL_CANDLE_STICK, () -> Items.CYAN_CANDLE, prop.overrideLootTable(CANDLE_STICK_CYAN.get().getLootTable())), VResourceLocation.mc("cyan_candle")), () -> BlockBehaviour.Properties.ofFullCopy(CANDLE_STICK_CYAN.get()));
-    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_PURPLE = registerBlock("candle_stick_purple", (prop) -> mountedCandle(new StandingCandleStickBlock(CANDLE_STICK, () -> Items.PURPLE_CANDLE, prop.lightLevel(CandleStickBlock.LIGHT_EMISSION)), VResourceLocation.mc("purple_candle")), () -> BlockBehaviour.Properties.ofFullCopy(CANDLE_STICK.get()));
-    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_PURPLE = registerBlock("wall_candle_stick_purple", (prop) -> wallMountedCandle(new WallCandleStickBlock(WALL_CANDLE_STICK, () -> Items.PURPLE_CANDLE, prop.overrideLootTable(CANDLE_STICK_PURPLE.get().getLootTable())), VResourceLocation.mc("purple_candle")), () -> BlockBehaviour.Properties.ofFullCopy(CANDLE_STICK_PURPLE.get()));
-    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_BLUE = registerBlock("candle_stick_blue", (prop) -> mountedCandle(new StandingCandleStickBlock(CANDLE_STICK, () -> Items.BLUE_CANDLE, prop.lightLevel(CandleStickBlock.LIGHT_EMISSION)), VResourceLocation.mc("blue_candle")), () -> BlockBehaviour.Properties.ofFullCopy(CANDLE_STICK.get()));
-    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_BLUE = registerBlock("wall_candle_stick_blue", (prop) -> wallMountedCandle(new WallCandleStickBlock(WALL_CANDLE_STICK, () -> Items.BLUE_CANDLE, prop.overrideLootTable(CANDLE_STICK_BLUE.get().getLootTable())), VResourceLocation.mc("blue_candle")),() ->  BlockBehaviour.Properties.ofFullCopy(CANDLE_STICK_BLUE.get()));
-    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_BROWN = registerBlock("candle_stick_brown", (prop) -> mountedCandle(new StandingCandleStickBlock(CANDLE_STICK, () -> Items.BROWN_CANDLE, prop.lightLevel(CandleStickBlock.LIGHT_EMISSION)), VResourceLocation.mc("brown_candle")), () -> BlockBehaviour.Properties.ofFullCopy(CANDLE_STICK.get()));
-    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_BROWN = registerBlock("wall_candle_stick_brown", (prop) -> wallMountedCandle(new WallCandleStickBlock(WALL_CANDLE_STICK, () -> Items.BROWN_CANDLE, prop.overrideLootTable(CANDLE_STICK_BROWN.get().getLootTable())), VResourceLocation.mc("brown_candle")), () -> BlockBehaviour.Properties.ofFullCopy(CANDLE_STICK_BROWN.get()));
-    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_GREEN = registerBlock("candle_stick_green", (prop) -> mountedCandle(new StandingCandleStickBlock(CANDLE_STICK, () -> Items.GREEN_CANDLE, prop.lightLevel(CandleStickBlock.LIGHT_EMISSION)), VResourceLocation.mc("green_candle")),() ->  BlockBehaviour.Properties.ofFullCopy(CANDLE_STICK.get()));
-    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_GREEN = registerBlock("wall_candle_stick_green", (prop) -> wallMountedCandle(new WallCandleStickBlock(WALL_CANDLE_STICK, () -> Items.GREEN_CANDLE, prop.overrideLootTable(CANDLE_STICK_GREEN.get().getLootTable())), VResourceLocation.mc("green_candle")),() ->  BlockBehaviour.Properties.ofFullCopy(CANDLE_STICK_GREEN.get()));
-    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_RED = registerBlock("candle_stick_red", (prop) -> mountedCandle(new StandingCandleStickBlock(CANDLE_STICK, () -> Items.RED_CANDLE, prop.lightLevel(CandleStickBlock.LIGHT_EMISSION)), VResourceLocation.mc("red_candle")), () -> BlockBehaviour.Properties.ofFullCopy(CANDLE_STICK.get()));
-    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_RED = registerBlock("wall_candle_stick_red", (prop) -> wallMountedCandle(new WallCandleStickBlock(WALL_CANDLE_STICK, () -> Items.RED_CANDLE, prop.overrideLootTable(CANDLE_STICK_RED.get().getLootTable())), VResourceLocation.mc("red_candle")), () -> BlockBehaviour.Properties.ofFullCopy(CANDLE_STICK_RED.get()));
-    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_BLACK = registerBlock("candle_stick_black", (prop) -> mountedCandle(new StandingCandleStickBlock(CANDLE_STICK, () -> Items.BLACK_CANDLE, prop.lightLevel(CandleStickBlock.LIGHT_EMISSION)), VResourceLocation.mc("black_candle")), () -> BlockBehaviour.Properties.ofFullCopy(CANDLE_STICK.get()));
-    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_BLACK = registerBlock("wall_candle_stick_black", (prop) -> wallMountedCandle(new WallCandleStickBlock(WALL_CANDLE_STICK, () -> Items.BLACK_CANDLE, prop.overrideLootTable(CANDLE_STICK_BLACK.get().getLootTable())), VResourceLocation.mc("black_candle")), () -> BlockBehaviour.Properties.ofFullCopy(CANDLE_STICK_BLACK.get()));
-    public static final DeferredBlock<LanternBlock> VAMPIRE_SOUL_LANTERN = registerWithItem("vampire_soul_lantern", (prop) -> new LanternBlock(
-            prop
-                    .mapColor(MapColor.METAL)
-                    .forceSolidOn()
-                    .requiresCorrectToolForDrops()
-                    .strength(3.5F)
-                    .sound(SoundType.LANTERN)
-                    .lightLevel(p_187431_ -> 12)
-                    .noOcclusion()
-                    .pushReaction(PushReaction.DESTROY)
-    ));
-    public static final DeferredBlock<BloodInfuserBlock> INFUSER = registerWithItem("blood_infuser", BloodInfuserBlock::new);
+    
+    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_NORMAL = registerCandleStick("candle_stick_normal", Items.CANDLE);
+    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_NORMAL = registerWallCandleStick("wall_candle_stick_normal", Items.CANDLE, CANDLE_STICK_NORMAL);
+    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_WHITE = registerCandleStick("candle_stick_white", Items.WHITE_CANDLE);
+    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_WHITE = registerWallCandleStick("wall_candle_stick_white", Items.WHITE_CANDLE, CANDLE_STICK_WHITE);
+    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_ORANGE = registerCandleStick("candle_stick_orange", Items.ORANGE_CANDLE);
+    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_ORANGE = registerWallCandleStick("wall_candle_stick_orange", Items.ORANGE_CANDLE, CANDLE_STICK_ORANGE);
+    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_MAGENTA = registerCandleStick("candle_stick_magenta", Items.MAGENTA_CANDLE);
+    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_MAGENTA = registerWallCandleStick("wall_candle_stick_magenta", Items.MAGENTA_CANDLE, CANDLE_STICK_MAGENTA);
+    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_LIGHT_BLUE = registerCandleStick("candle_stick_light_blue", Items.LIGHT_BLUE_CANDLE);
+    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_LIGHT_BLUE = registerWallCandleStick("wall_candle_stick_light_blue", Items.LIGHT_BLUE_CANDLE, CANDLE_STICK_LIGHT_BLUE);
+    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_YELLOW = registerCandleStick("candle_stick_yellow", Items.YELLOW_CANDLE);
+    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_YELLOW = registerWallCandleStick("wall_candle_stick_yellow", Items.YELLOW_CANDLE, CANDLE_STICK_YELLOW);
+    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_LIME = registerCandleStick("candle_stick_lime", Items.LIME_CANDLE);
+    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_LIME = registerWallCandleStick("wall_candle_stick_lime", Items.LIME_CANDLE, CANDLE_STICK_LIME);
+    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_PINK = registerCandleStick("candle_stick_pink", Items.PINK_CANDLE);
+    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_PINK = registerWallCandleStick("wall_candle_stick_pink", Items.PINK_CANDLE, CANDLE_STICK_PINK);
+    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_GRAY = registerCandleStick("candle_stick_gray", Items.GRAY_CANDLE);
+    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_GRAY = registerWallCandleStick("wall_candle_stick_gray", Items.GRAY_CANDLE, CANDLE_STICK_GRAY);
+    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_LIGHT_GRAY = registerCandleStick("candle_stick_light_gray", Items.LIGHT_GRAY_CANDLE);
+    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_LIGHT_GRAY = registerWallCandleStick("wall_candle_stick_light_gray", Items.LIGHT_GRAY_CANDLE, CANDLE_STICK_LIGHT_GRAY);
+    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_CYAN = registerCandleStick("candle_stick_cyan", Items.CYAN_CANDLE);
+    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_CYAN = registerWallCandleStick("wall_candle_stick_cyan", Items.CYAN_CANDLE, CANDLE_STICK_CYAN);
+    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_PURPLE = registerCandleStick("candle_stick_purple", Items.PURPLE_CANDLE);
+    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_PURPLE = registerWallCandleStick("wall_candle_stick_purple", Items.PURPLE_CANDLE, CANDLE_STICK_PURPLE);
+    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_BLUE = registerCandleStick("candle_stick_blue", Items.BLUE_CANDLE);
+    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_BLUE = registerWallCandleStick("wall_candle_stick_blue", Items.BLUE_CANDLE, CANDLE_STICK_BLUE);
+    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_BROWN = registerCandleStick("candle_stick_brown", Items.BROWN_CANDLE);
+    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_BROWN = registerWallCandleStick("wall_candle_stick_brown", Items.BROWN_CANDLE, CANDLE_STICK_BROWN);
+    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_GREEN = registerCandleStick("candle_stick_green", Items.GREEN_CANDLE);
+    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_GREEN = registerWallCandleStick("wall_candle_stick_green", Items.GREEN_CANDLE, CANDLE_STICK_GREEN);
+    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_RED = registerCandleStick("candle_stick_red", Items.RED_CANDLE);
+    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_RED = registerWallCandleStick("wall_candle_stick_red", Items.RED_CANDLE, CANDLE_STICK_RED);
+    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_BLACK = registerCandleStick("candle_stick_black", Items.BLACK_CANDLE);
+    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_BLACK = registerWallCandleStick("wall_candle_stick_black", Items.BLACK_CANDLE, CANDLE_STICK_BLACK);
 
     /**
      * TUTORIAL:
@@ -311,6 +306,26 @@ public class ModBlocks {
         return BLOCKS.registerBlock(item, prop -> supplier.apply(blockProperties.get().setId(ResourceKey.create(Registries.BLOCK, VResourceLocation.mod(item)))));
     }
 
+    private static DeferredBlock<StandingCandleStickBlock> registerCandleStick(String name, Item candle) {
+        return registerBlock(name, (prop) -> {
+            StandingCandleStickBlock block = new StandingCandleStickBlock(CANDLE_STICK, () -> candle, prop);
+            CANDLE_STICK.get().addCandle(BuiltInRegistries.ITEM.getKey(candle), () -> block);
+            return block;
+        }, () -> BlockBehaviour.Properties.ofFullCopy(CANDLE_STICK.get()));
+    }
+
+    private static DeferredBlock<WallCandleStickBlock> registerWallCandleStick(String name, Item candle, DeferredBlock<StandingCandleStickBlock> standingBlock) {
+        return registerBlock(name, (prop) -> {
+            WallCandleStickBlock block = new WallCandleStickBlock(WALL_CANDLE_STICK, () -> candle, prop.overrideLootTable(standingBlock.get().getLootTable()));
+            WALL_CANDLE_STICK.get().addCandle(BuiltInRegistries.ITEM.getKey(candle), () -> block);
+            return block;
+        }, () -> BlockBehaviour.Properties.ofFullCopy(standingBlock.get()));
+    }
+
+    private static ToIntFunction<BlockState> litBlockEmission(int lightValue) {
+        return state -> state.getValue(BlockStateProperties.LIT) ? lightValue : 0;
+    }
+
     public static @NotNull Set<Block> getAllBlocks() {
         return BLOCKS.getEntries().stream().map(DeferredHolder::get).collect(Collectors.toUnmodifiableSet());
     }
@@ -318,20 +333,6 @@ public class ModBlocks {
     @SuppressWarnings("unchecked")
     public static @NotNull Stream<Holder<Block>> listElements() {
         return ((Collection<Holder<Block>>)(Object)BLOCKS.getEntries()).stream();
-    }
-
-    private static <T extends StandingCandleStickBlock> T mountedCandle(T block, ResourceLocation candle) {
-        CANDLE_STICK.get().addCandle(candle, () -> block);
-        return block;
-    }
-
-    private static <T extends WallCandleStickBlock> T wallMountedCandle(T block, ResourceLocation candle) {
-        WALL_CANDLE_STICK.get().addCandle(candle, () -> block);
-        return block;
-    }
-
-    private static ToIntFunction<BlockState> litBlockEmission(int pLightValue) {
-        return state -> state.getValue(BlockStateProperties.LIT) ? pLightValue : 0;
     }
 
     static void register(IEventBus bus) {

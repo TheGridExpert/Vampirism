@@ -17,6 +17,7 @@ import de.teamlapen.vampirism.items.crossbow.SingleCrossbowItem;
 import de.teamlapen.vampirism.items.crossbow.TechCrossbowItem;
 import de.teamlapen.vampirism.items.crossbow.arrow.*;
 import de.teamlapen.vampirism.misc.VampirismCreativeTab;
+import de.teamlapen.vampirism.util.Helper;
 import de.teamlapen.vampirism.util.ItemDataUtils;
 import net.minecraft.Util;
 import net.minecraft.core.Direction;
@@ -258,7 +259,25 @@ public class ModItems {
     public static final DeferredItem<HangingSignItem> CURSED_SPRUCE_HANGING_SIGN = register("cursed_spruce_hanging_sign", (prop) -> new HangingSignItem(ModBlocks.CURSED_SPRUCE_HANGING_SIGN.get(), ModBlocks.CURSED_SPRUCE_WALL_HANGING_SIGN.get(), prop.useBlockDescriptionPrefix().stacksTo(16)));
 
     public static final DeferredItem<Item> MOTHER_CORE = register("mother_core", (prop) -> new Item(prop.rarity(Rarity.UNCOMMON)));
-    public static final DeferredItem<StandingAndWallBlockItem> CANDLE_STICK = register("candle_stick", (prop) -> new StandingAndWallBlockItem(ModBlocks.CANDLE_STICK.get(), ModBlocks.WALL_CANDLE_STICK.get(), Direction.DOWN, prop.useBlockDescriptionPrefix()));
+
+    public static final DeferredItem<PairCandleHolderItem> CANDLE_STICK = register("candle_stick", (prop) -> new PairCandleHolderItem(ModBlocks.CANDLE_STICK.get(), ModBlocks.WALL_CANDLE_STICK.get(), prop, Helper.STANDING_AND_WALL_CANDLE_STICKS));
+    public static final DeferredItem<PairCandleHolderItem> CANDLE_STICK_NORMAL = register("candle_stick_normal", null, (prop) -> new PairCandleHolderItem(ModBlocks.CANDLE_STICK_NORMAL.get(), ModBlocks.WALL_CANDLE_STICK_NORMAL.get(), prop));
+    public static final DeferredItem<PairCandleHolderItem> CANDLE_STICK_WHITE = register("candle_stick_white", null, (prop) -> new PairCandleHolderItem(ModBlocks.CANDLE_STICK_WHITE.get(), ModBlocks.WALL_CANDLE_STICK_WHITE.get(), prop));
+    public static final DeferredItem<PairCandleHolderItem> CANDLE_STICK_ORANGE = register("candle_stick_orange", null, (prop) -> new PairCandleHolderItem(ModBlocks.CANDLE_STICK_ORANGE.get(), ModBlocks.WALL_CANDLE_STICK_ORANGE.get(), prop));
+    public static final DeferredItem<PairCandleHolderItem> CANDLE_STICK_MAGENTA = register("candle_stick_magenta", null, (prop) -> new PairCandleHolderItem(ModBlocks.CANDLE_STICK_MAGENTA.get(), ModBlocks.WALL_CANDLE_STICK_MAGENTA.get(), prop));
+    public static final DeferredItem<PairCandleHolderItem> CANDLE_STICK_LIGHT_BLUE = register("candle_stick_light_blue", null, (prop) -> new PairCandleHolderItem(ModBlocks.CANDLE_STICK_LIGHT_BLUE.get(), ModBlocks.WALL_CANDLE_STICK_LIGHT_BLUE.get(), prop));
+    public static final DeferredItem<PairCandleHolderItem> CANDLE_STICK_YELLOW = register("candle_stick_yellow", null, (prop) -> new PairCandleHolderItem(ModBlocks.CANDLE_STICK_YELLOW.get(), ModBlocks.WALL_CANDLE_STICK_YELLOW.get(), prop));
+    public static final DeferredItem<PairCandleHolderItem> CANDLE_STICK_LIME = register("candle_stick_lime", null, (prop) -> new PairCandleHolderItem(ModBlocks.CANDLE_STICK_LIME.get(), ModBlocks.WALL_CANDLE_STICK_LIME.get(), prop));
+    public static final DeferredItem<PairCandleHolderItem> CANDLE_STICK_PINK = register("candle_stick_pink", null, (prop) -> new PairCandleHolderItem(ModBlocks.CANDLE_STICK_PINK.get(), ModBlocks.WALL_CANDLE_STICK_PINK.get(), prop));
+    public static final DeferredItem<PairCandleHolderItem> CANDLE_STICK_GRAY = register("candle_stick_gray", null, (prop) -> new PairCandleHolderItem(ModBlocks.CANDLE_STICK_GRAY.get(), ModBlocks.WALL_CANDLE_STICK_GRAY.get(), prop));
+    public static final DeferredItem<PairCandleHolderItem> CANDLE_STICK_LIGHT_GRAY = register("candle_stick_light_gray", null, (prop) -> new PairCandleHolderItem(ModBlocks.CANDLE_STICK_LIGHT_GRAY.get(), ModBlocks.WALL_CANDLE_STICK_LIGHT_GRAY.get(), prop));
+    public static final DeferredItem<PairCandleHolderItem> CANDLE_STICK_CYAN = register("candle_stick_cyan", null, (prop) -> new PairCandleHolderItem(ModBlocks.CANDLE_STICK_CYAN.get(), ModBlocks.WALL_CANDLE_STICK_CYAN.get(), prop));
+    public static final DeferredItem<PairCandleHolderItem> CANDLE_STICK_PURPLE = register("candle_stick_purple", null, (prop) -> new PairCandleHolderItem(ModBlocks.CANDLE_STICK_PURPLE.get(), ModBlocks.WALL_CANDLE_STICK_PURPLE.get(), prop));
+    public static final DeferredItem<PairCandleHolderItem> CANDLE_STICK_BLUE = register("candle_stick_blue", null, (prop) -> new PairCandleHolderItem(ModBlocks.CANDLE_STICK_BLUE.get(), ModBlocks.WALL_CANDLE_STICK_BLUE.get(), prop));
+    public static final DeferredItem<PairCandleHolderItem> CANDLE_STICK_BROWN = register("candle_stick_brown", null, (prop) -> new PairCandleHolderItem(ModBlocks.CANDLE_STICK_BROWN.get(), ModBlocks.WALL_CANDLE_STICK_BROWN.get(), prop));
+    public static final DeferredItem<PairCandleHolderItem> CANDLE_STICK_GREEN = register("candle_stick_green", null, (prop) -> new PairCandleHolderItem(ModBlocks.CANDLE_STICK_GREEN.get(), ModBlocks.WALL_CANDLE_STICK_GREEN.get(), prop));
+    public static final DeferredItem<PairCandleHolderItem> CANDLE_STICK_RED = register("candle_stick_red", null, (prop) -> new PairCandleHolderItem(ModBlocks.CANDLE_STICK_RED.get(), ModBlocks.WALL_CANDLE_STICK_RED.get(), prop));
+    public static final DeferredItem<PairCandleHolderItem> CANDLE_STICK_BLACK = register("candle_stick_black", null, (prop) -> new PairCandleHolderItem(ModBlocks.CANDLE_STICK_BLACK.get(), ModBlocks.WALL_CANDLE_STICK_BLACK.get(), prop));
 
     static void registerCraftingRecipes(RegisterBrewingRecipesEvent event) {
         PotionBrewing.Builder builder = event.getBuilder();

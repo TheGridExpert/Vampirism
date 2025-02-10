@@ -3,6 +3,7 @@ package de.teamlapen.vampirism.data.provider;
 import de.teamlapen.vampirism.blocks.*;
 import de.teamlapen.vampirism.core.*;
 import de.teamlapen.vampirism.mixin.accessor.VanillaBlockLootAccessor;
+import de.teamlapen.vampirism.util.Helper;
 import de.teamlapen.vampirism.world.loot.conditions.AdjustableLevelCondition;
 import de.teamlapen.vampirism.world.loot.conditions.StakeCondition;
 import de.teamlapen.vampirism.world.loot.conditions.TentSpawnerCondition;
@@ -24,7 +25,6 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantments;
-import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.storage.loot.LootContext;
@@ -45,7 +45,6 @@ import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -570,45 +569,16 @@ public class LootTablesProvider {
             this.dropSelf(ModBlocks.PURPLE_STONE_TILES_STAIRS.get());
             this.dropSelf(ModBlocks.PURPLE_STONE_TILES_SLAB.get());
             this.dropSelf(ModBlocks.PURPLE_STONE_TILES_WALL.get());
-            this.dropMountedCandle(ModBlocks.CANDLE_STICK.get());
-            this.dropMountedCandle(ModBlocks.CANDLE_STICK_NORMAL.get());
-            this.dropMountedCandle(ModBlocks.CANDLE_STICK_WHITE.get());
-            this.dropMountedCandle(ModBlocks.CANDLE_STICK_ORANGE.get());
-            this.dropMountedCandle(ModBlocks.CANDLE_STICK_MAGENTA.get());
-            this.dropMountedCandle(ModBlocks.CANDLE_STICK_LIGHT_BLUE.get());
-            this.dropMountedCandle(ModBlocks.CANDLE_STICK_YELLOW.get());
-            this.dropMountedCandle(ModBlocks.CANDLE_STICK_LIME.get());
-            this.dropMountedCandle(ModBlocks.CANDLE_STICK_PINK.get());
-            this.dropMountedCandle(ModBlocks.CANDLE_STICK_GRAY.get());
-            this.dropMountedCandle(ModBlocks.CANDLE_STICK_LIGHT_GRAY.get());
-            this.dropMountedCandle(ModBlocks.CANDLE_STICK_CYAN.get());
-            this.dropMountedCandle(ModBlocks.CANDLE_STICK_PURPLE.get());
-            this.dropMountedCandle(ModBlocks.CANDLE_STICK_BLUE.get());
-            this.dropMountedCandle(ModBlocks.CANDLE_STICK_BROWN.get());
-            this.dropMountedCandle(ModBlocks.CANDLE_STICK_GREEN.get());
-            this.dropMountedCandle(ModBlocks.CANDLE_STICK_RED.get());
-            this.dropMountedCandle(ModBlocks.CANDLE_STICK_BLACK.get());
             this.dropSelf(ModBlocks.VAMPIRE_SOUL_LANTERN.get());
             this.dropSelf(ModBlocks.INFUSER.get());
+
+            Helper.STANDING_AND_WALL_CANDLE_STICKS.forEach(pair -> this.dropSelf(pair.getFirst()));
         }
 
         @NotNull
         @Override
         protected Iterable<Block> getKnownBlocks() {
             return ModBlocks.getAllBlocks();
-        }
-
-        private void dropMountedCandle(CandleStickBlock block) {
-            this.add(block, (block1) -> this.createHolderCandleItemTable(block.getCandle().get()));
-        }
-
-        protected LootTable.Builder createHolderCandleItemTable(@Nullable ItemLike pItem) {
-            var table = LootTable.lootTable()
-                    .withPool(this.applyExplosionCondition(ModBlocks.CANDLE_STICK.get(), LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F)).add(LootItem.lootTableItem(ModBlocks.CANDLE_STICK.get()))));
-            if (pItem != null) {
-                table = table.withPool(this.applyExplosionCondition(pItem, LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F)).add(LootItem.lootTableItem(pItem))));
-            }
-            return table;
         }
     }
 

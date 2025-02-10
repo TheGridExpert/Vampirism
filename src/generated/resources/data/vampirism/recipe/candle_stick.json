@@ -2,12 +2,12 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "X": "#c:ingots/iron",
-    "Y": "minecraft:iron_nugget"
+    "I": "#c:ingots/iron",
+    "N": "minecraft:iron_nugget"
   },
   "pattern": [
-    " X ",
-    "YYY"
+    " I ",
+    "NNN"
   ],
   "result": {
     "count": 1,

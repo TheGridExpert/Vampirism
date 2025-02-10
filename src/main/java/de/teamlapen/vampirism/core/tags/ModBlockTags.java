@@ -18,6 +18,10 @@ public class ModBlockTags {
 
     public static final TagKey<Block> COFFIN = tag("coffin");
 
+    public static final TagKey<Block> CANDLE_STICK = tag("candle_stick");
+    public static final TagKey<Block> STANDING_CANDLE_STICK = tag("standing_candle_stick");
+    public static final TagKey<Block> WALL_CANDLE_STICK = tag("wall_candle_stick");
+
     public static final TagKey<Block> DARK_STONE = tag("dark_stone");
     public static final TagKey<Block> DARK_STONE_BRICKS = tag("dark_stone_bricks");
     public static final TagKey<Block> POLISHED_DARK_STONE = tag("polished_dark_brick");

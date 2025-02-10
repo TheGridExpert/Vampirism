@@ -1,19 +1,23 @@
 package de.teamlapen.vampirism.data.provider.model;
 
+import com.mojang.datafixers.util.Pair;
 import de.teamlapen.vampirism.api.util.VResourceLocation;
 import de.teamlapen.vampirism.blocks.*;
+import de.teamlapen.vampirism.blocks.candle.CandleHolderBlock;
 import de.teamlapen.vampirism.client.renderer.item.BloodContainerSpecialRenderer;
 import de.teamlapen.vampirism.client.renderer.item.MotherTrophyItemRenderer;
 import de.teamlapen.vampirism.core.ModBlocks;
 import de.teamlapen.vampirism.data.ModBlockFamilies;
+import de.teamlapen.vampirism.util.Helper;
 import net.minecraft.client.color.item.GrassColorSource;
 import net.minecraft.client.data.models.ItemModelOutput;
 import net.minecraft.client.data.models.blockstates.*;
 import net.minecraft.client.data.models.model.*;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.AbstractCandleBlock;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import org.jetbrains.annotations.Nullable;
@@ -42,7 +46,7 @@ public class BlockModelGenerators extends de.teamlapen.lib.lib.data.BlockModelGe
         createFamilies(ModBlockFamilies.getFamilies());
 
         createGarlicDiffuser();
-        createCandles();
+        createCandleHolders();
         createCursedBark();
         createHunterTable();
         createCoffin();
@@ -68,13 +72,13 @@ public class BlockModelGenerators extends de.teamlapen.lib.lib.data.BlockModelGe
         createLantern(ModBlocks.VAMPIRE_SOUL_LANTERN.get());
         createCropBlock(ModBlocks.GARLIC.get(), BlockStateProperties.AGE_7, 0,0,1,1,2,2,2,3);
         createTintedLeaves(ModBlocks.DARK_SPRUCE_LEAVES.get(), TexturedModel.LEAVES, -1);
-        ResourceLocation sunscreenModel = ModelTemplates.BEACON_MODEL.create(ModBlocks.SUNSCREEN_BEACON.get(), new TextureMapping().put(TextureSlots.BEACON, mod("block/cursed_earth")), this.modelOutput);
+        ResourceLocation sunscreenModel = ModModelTemplates.BEACON_MODEL.create(ModBlocks.SUNSCREEN_BEACON.get(), new TextureMapping().put(ModTextureSlots.BEACON, mod("block/cursed_earth")), this.modelOutput);
         this.blockStateOutput.accept(createSimpleBlock(ModBlocks.SUNSCREEN_BEACON.get(), sunscreenModel));
         createDefaultBlockItem(ModBlocks.SUNSCREEN_BEACON.get(), sunscreenModel);
-        ResourceLocation vampireBeaconModel = ModelTemplates.BEACON_MODEL.create(ModBlocks.VAMPIRE_BEACON.get(), new TextureMapping().put(TextureSlots.BEACON, mod("block/vampire_beacon")), this.modelOutput);
+        ResourceLocation vampireBeaconModel = ModModelTemplates.BEACON_MODEL.create(ModBlocks.VAMPIRE_BEACON.get(), new TextureMapping().put(ModTextureSlots.BEACON, mod("block/vampire_beacon")), this.modelOutput);
         this.blockStateOutput.accept(createSimpleBlock(ModBlocks.VAMPIRE_BEACON.get(), vampireBeaconModel));
         createDefaultBlockItem(ModBlocks.VAMPIRE_BEACON.get(), vampireBeaconModel);
-        ResourceLocation infestedDarkStoneModel = ModelTemplates.CUBE_ALL.create(ModBlocks.INFESTED_DARK_STONE.get(), new TextureMapping().put(TextureSlot.ALL, mod("block/dark_stone")), this.modelOutput);
+        ResourceLocation infestedDarkStoneModel = ModModelTemplates.CUBE_ALL.create(ModBlocks.INFESTED_DARK_STONE.get(), new TextureMapping().put(TextureSlot.ALL, mod("block/dark_stone")), this.modelOutput);
         this.blockStateOutput.accept(createSimpleBlock(ModBlocks.INFESTED_DARK_STONE.get(), infestedDarkStoneModel));
         createDefaultBlockItem(ModBlocks.INFESTED_DARK_STONE.get(), VResourceLocation.mod("block/infested_dark_stone"));
         ResourceLocation batCageModel = mod("block/bat_cage/block");
@@ -89,7 +93,7 @@ public class BlockModelGenerators extends de.teamlapen.lib.lib.data.BlockModelGe
     }
 
     protected void createCursedEarthPath() {
-        ResourceLocation pathModel = ModelTemplates.DIRT_PATH.create(ModBlocks.CURSED_EARTH_PATH.get(), new TextureMapping().put(TextureSlot.PARTICLE, mod("block/cursed_earth")).put(TextureSlot.DOWN, mod("block/cursed_earth")).put(TextureSlot.SIDE, mod("block/cursed_earth_path_side")).put(TextureSlot.UP, mod("block/cursed_earth_path_top")), this.modelOutput);
+        ResourceLocation pathModel = ModModelTemplates.DIRT_PATH.create(ModBlocks.CURSED_EARTH_PATH.get(), new TextureMapping().put(TextureSlot.PARTICLE, mod("block/cursed_earth")).put(TextureSlot.DOWN, mod("block/cursed_earth")).put(TextureSlot.SIDE, mod("block/cursed_earth_path_side")).put(TextureSlot.UP, mod("block/cursed_earth_path_top")), this.modelOutput);
         this.blockStateOutput.accept(createRotatedVariant(ModBlocks.CURSED_EARTH_PATH.get(), pathModel));
         createDefaultBlockItem(ModBlocks.CURSED_EARTH_PATH.get(), pathModel);
     }
@@ -125,13 +129,13 @@ public class BlockModelGenerators extends de.teamlapen.lib.lib.data.BlockModelGe
     }
 
     protected void createGarlicDiffuser() {
-        ResourceLocation normalModel = ModelTemplates.GARLIC_DIFFUSER.create(ModBlocks.GARLIC_DIFFUSER_NORMAL.get(), new TextureMapping().put(TextureSlots.GARLIC, mod("block/garlic_diffuser_inside")), this.modelOutput);
+        ResourceLocation normalModel = ModModelTemplates.GARLIC_DIFFUSER.create(ModBlocks.GARLIC_DIFFUSER_NORMAL.get(), new TextureMapping().put(ModTextureSlots.GARLIC, mod("block/garlic_diffuser_inside")), this.modelOutput);
         this.blockStateOutput.accept(createSimpleBlock(ModBlocks.GARLIC_DIFFUSER_NORMAL.get(), normalModel));
         createDefaultBlockItem(ModBlocks.GARLIC_DIFFUSER_NORMAL.get(), normalModel);
-        ResourceLocation weakModel = ModelTemplates.GARLIC_DIFFUSER.create(ModBlocks.GARLIC_DIFFUSER_WEAK.get(), new TextureMapping().put(TextureSlots.GARLIC, mod("block/garlic_diffuser_inside")), this.modelOutput);
+        ResourceLocation weakModel = ModModelTemplates.GARLIC_DIFFUSER.create(ModBlocks.GARLIC_DIFFUSER_WEAK.get(), new TextureMapping().put(ModTextureSlots.GARLIC, mod("block/garlic_diffuser_inside")), this.modelOutput);
         this.blockStateOutput.accept(createSimpleBlock(ModBlocks.GARLIC_DIFFUSER_WEAK.get(), weakModel));
         createDefaultBlockItem(ModBlocks.GARLIC_DIFFUSER_WEAK.get(), weakModel);
-        ResourceLocation improvedModel = ModelTemplates.GARLIC_DIFFUSER.create(ModBlocks.GARLIC_DIFFUSER_IMPROVED.get(), new TextureMapping().put(TextureSlots.GARLIC, mod("block/garlic_diffuser_inside_improved")), this.modelOutput);
+        ResourceLocation improvedModel = ModModelTemplates.GARLIC_DIFFUSER.create(ModBlocks.GARLIC_DIFFUSER_IMPROVED.get(), new TextureMapping().put(ModTextureSlots.GARLIC, mod("block/garlic_diffuser_inside_improved")), this.modelOutput);
         this.blockStateOutput.accept(createSimpleBlock(ModBlocks.GARLIC_DIFFUSER_IMPROVED.get(), improvedModel));
         createDefaultBlockItem(ModBlocks.GARLIC_DIFFUSER_IMPROVED.get(), improvedModel);
     }
@@ -141,10 +145,10 @@ public class BlockModelGenerators extends de.teamlapen.lib.lib.data.BlockModelGe
         this.blockStateOutput.accept(MultiVariantGenerator.multiVariant(ModBlocks.ALTAR_PILLAR.get())
                 .with(PropertyDispatch.property(AltarPillarBlock.TYPE_PROPERTY)
                         .select(AltarPillarBlock.EnumPillarType.NONE, Variant.variant().with(VariantProperties.MODEL, model))
-                        .select(AltarPillarBlock.EnumPillarType.STONE, Variant.variant().with(VariantProperties.MODEL, ModelTemplates.ALTAR_PILLAR_FILLED.createWithSuffix(ModBlocks.ALTAR_PILLAR.get(), "_stone", new TextureMapping().put(TextureSlots.FILLER, VResourceLocation.mc("block/stone_bricks")), this.modelOutput)))
-                        .select(AltarPillarBlock.EnumPillarType.IRON, Variant.variant().with(VariantProperties.MODEL, ModelTemplates.ALTAR_PILLAR_FILLED.createWithSuffix(ModBlocks.ALTAR_PILLAR.get(), "_iron", new TextureMapping().put(TextureSlots.FILLER, VResourceLocation.mc("block/iron_block")), this.modelOutput)))
-                        .select(AltarPillarBlock.EnumPillarType.GOLD, Variant.variant().with(VariantProperties.MODEL, ModelTemplates.ALTAR_PILLAR_FILLED.createWithSuffix(ModBlocks.ALTAR_PILLAR.get(), "_gold", new TextureMapping().put(TextureSlots.FILLER, VResourceLocation.mc("block/gold_block")), this.modelOutput)))
-                        .select(AltarPillarBlock.EnumPillarType.BONE, Variant.variant().with(VariantProperties.MODEL, ModelTemplates.ALTAR_PILLAR_FILLED.createWithSuffix(ModBlocks.ALTAR_PILLAR.get(), "_bone", new TextureMapping().put(TextureSlots.FILLER, VResourceLocation.mc("block/bone_block_side")), this.modelOutput)))
+                        .select(AltarPillarBlock.EnumPillarType.STONE, Variant.variant().with(VariantProperties.MODEL, ModModelTemplates.ALTAR_PILLAR_FILLED.createWithSuffix(ModBlocks.ALTAR_PILLAR.get(), "_stone", new TextureMapping().put(ModTextureSlots.FILLER, VResourceLocation.mc("block/stone_bricks")), this.modelOutput)))
+                        .select(AltarPillarBlock.EnumPillarType.IRON, Variant.variant().with(VariantProperties.MODEL, ModModelTemplates.ALTAR_PILLAR_FILLED.createWithSuffix(ModBlocks.ALTAR_PILLAR.get(), "_iron", new TextureMapping().put(ModTextureSlots.FILLER, VResourceLocation.mc("block/iron_block")), this.modelOutput)))
+                        .select(AltarPillarBlock.EnumPillarType.GOLD, Variant.variant().with(VariantProperties.MODEL, ModModelTemplates.ALTAR_PILLAR_FILLED.createWithSuffix(ModBlocks.ALTAR_PILLAR.get(), "_gold", new TextureMapping().put(ModTextureSlots.FILLER, VResourceLocation.mc("block/gold_block")), this.modelOutput)))
+                        .select(AltarPillarBlock.EnumPillarType.BONE, Variant.variant().with(VariantProperties.MODEL, ModModelTemplates.ALTAR_PILLAR_FILLED.createWithSuffix(ModBlocks.ALTAR_PILLAR.get(), "_bone", new TextureMapping().put(ModTextureSlots.FILLER, VResourceLocation.mc("block/bone_block_side")), this.modelOutput)))
                 ))
         ;
         createDefaultBlockItem(ModBlocks.ALTAR_PILLAR.get(), model);
@@ -153,7 +157,7 @@ public class BlockModelGenerators extends de.teamlapen.lib.lib.data.BlockModelGe
     protected void createAlchemicalCauldron() {
         var cauldron = mod("block/alchemy_cauldron");
         var normal = VResourceLocation.mod("block/alchemy_cauldron_liquid");
-        var boiling = ModelTemplates.ALCHEMICAL_CAULDRON.createWithSuffix(ModBlocks.ALCHEMICAL_CAULDRON.get(), "_boiling", new TextureMapping().put(TextureSlots.LIQUID, mod("block/blank_liquid_boiling")), this.modelOutput);
+        var boiling = ModModelTemplates.ALCHEMICAL_CAULDRON.createWithSuffix(ModBlocks.ALCHEMICAL_CAULDRON.get(), "_boiling", new TextureMapping().put(ModTextureSlots.LIQUID, mod("block/blank_liquid_boiling")), this.modelOutput);
         this.blockStateOutput.accept(MultiPartGenerator.multiPart(ModBlocks.ALCHEMICAL_CAULDRON.get())
                 .with(Variant.variant().with(VariantProperties.MODEL, cauldron))
                 .with(Condition.condition().term(AlchemicalCauldronBlock.LIT, true), Variant.variant().with(VariantProperties.MODEL, VResourceLocation.mod("block/alchemy_cauldron_fire")))
@@ -165,40 +169,57 @@ public class BlockModelGenerators extends de.teamlapen.lib.lib.data.BlockModelGe
     protected void createTotem() {
         createNonTemplateModelBlock(ModBlocks.TOTEM_BASE.get());
         createDefaultBlockItem(ModBlocks.TOTEM_BASE.get());
-        this.blockStateOutput.accept(createSimpleBlock(ModBlocks.TOTEM_TOP.get(), ModelTemplates.TOTEM.getDefaultModelLocation(ModBlocks.TOTEM_TOP.get())));
-        createDefaultBlockItem(ModBlocks.TOTEM_TOP.get(), ModelTemplates.TOTEM.getDefaultModelLocation(ModBlocks.TOTEM_TOP.get()));
-        this.blockStateOutput.accept(createSimpleBlock(ModBlocks.TOTEM_TOP_VAMPIRISM_HUNTER.get(), ModelTemplates.TOTEM.create(ModBlocks.TOTEM_TOP_VAMPIRISM_HUNTER.get(), new TextureMapping().put(TextureSlots.OUTER, VResourceLocation.mc("block/glowstone")), this.modelOutput)));
-        this.blockStateOutput.accept(createSimpleBlock(ModBlocks.TOTEM_TOP_VAMPIRISM_VAMPIRE.get(), ModelTemplates.TOTEM.create(ModBlocks.TOTEM_TOP_VAMPIRISM_VAMPIRE.get(), new TextureMapping().put(TextureSlots.OUTER, VResourceLocation.mc("block/glowstone")), this.modelOutput)));
-        ResourceLocation totemCraftedModel = ModelTemplates.TOTEM.create(ModBlocks.TOTEM_TOP_CRAFTED.get(), new TextureMapping().put(TextureSlots.OUTER, VResourceLocation.mc("block/obsidian")), this.modelOutput);
+        this.blockStateOutput.accept(createSimpleBlock(ModBlocks.TOTEM_TOP.get(), ModModelTemplates.TOTEM.getDefaultModelLocation(ModBlocks.TOTEM_TOP.get())));
+        createDefaultBlockItem(ModBlocks.TOTEM_TOP.get(), ModModelTemplates.TOTEM.getDefaultModelLocation(ModBlocks.TOTEM_TOP.get()));
+        this.blockStateOutput.accept(createSimpleBlock(ModBlocks.TOTEM_TOP_VAMPIRISM_HUNTER.get(), ModModelTemplates.TOTEM.create(ModBlocks.TOTEM_TOP_VAMPIRISM_HUNTER.get(), new TextureMapping().put(ModTextureSlots.OUTER, VResourceLocation.mc("block/glowstone")), this.modelOutput)));
+        this.blockStateOutput.accept(createSimpleBlock(ModBlocks.TOTEM_TOP_VAMPIRISM_VAMPIRE.get(), ModModelTemplates.TOTEM.create(ModBlocks.TOTEM_TOP_VAMPIRISM_VAMPIRE.get(), new TextureMapping().put(ModTextureSlots.OUTER, VResourceLocation.mc("block/glowstone")), this.modelOutput)));
+        ResourceLocation totemCraftedModel = ModModelTemplates.TOTEM.create(ModBlocks.TOTEM_TOP_CRAFTED.get(), new TextureMapping().put(ModTextureSlots.OUTER, VResourceLocation.mc("block/obsidian")), this.modelOutput);
         this.blockStateOutput.accept(createSimpleBlock(ModBlocks.TOTEM_TOP_CRAFTED.get(), totemCraftedModel));
         createDefaultBlockItem(ModBlocks.TOTEM_TOP_CRAFTED.get(), totemCraftedModel);
-        this.blockStateOutput.accept(createSimpleBlock(ModBlocks.TOTEM_TOP_VAMPIRISM_HUNTER_CRAFTED.get(), ModelTemplates.TOTEM.create(ModBlocks.TOTEM_TOP_VAMPIRISM_HUNTER_CRAFTED.get(), new TextureMapping().put(TextureSlots.OUTER, VResourceLocation.mc("block/obsidian")), this.modelOutput)));
-        this.blockStateOutput.accept(createSimpleBlock(ModBlocks.TOTEM_TOP_VAMPIRISM_VAMPIRE_CRAFTED.get(), ModelTemplates.TOTEM.create(ModBlocks.TOTEM_TOP_VAMPIRISM_VAMPIRE_CRAFTED.get(), new TextureMapping().put(TextureSlots.OUTER, VResourceLocation.mc("block/obsidian")), this.modelOutput)));
+        this.blockStateOutput.accept(createSimpleBlock(ModBlocks.TOTEM_TOP_VAMPIRISM_HUNTER_CRAFTED.get(), ModModelTemplates.TOTEM.create(ModBlocks.TOTEM_TOP_VAMPIRISM_HUNTER_CRAFTED.get(), new TextureMapping().put(ModTextureSlots.OUTER, VResourceLocation.mc("block/obsidian")), this.modelOutput)));
+        this.blockStateOutput.accept(createSimpleBlock(ModBlocks.TOTEM_TOP_VAMPIRISM_VAMPIRE_CRAFTED.get(), ModModelTemplates.TOTEM.create(ModBlocks.TOTEM_TOP_VAMPIRISM_VAMPIRE_CRAFTED.get(), new TextureMapping().put(ModTextureSlots.OUTER, VResourceLocation.mc("block/obsidian")), this.modelOutput)));
     }
 
-    protected void createCandles() {
-        ResourceLocation candleModel = ModelLocationUtils.getModelLocation(ModBlocks.CANDLE_STICK.get());
-        createCandleRotation(ModBlocks.CANDLE_STICK.get(), candleModel, candleModel, false);
-        ResourceLocation wallCandleModel = ModelLocationUtils.getModelLocation(ModBlocks.WALL_CANDLE_STICK.get());
-        createCandleRotation(ModBlocks.WALL_CANDLE_STICK.get(), wallCandleModel, wallCandleModel, true);
+    protected void createCandleHolders() {
+        createCandleHolder(ModBlocks.CANDLE_STICK.get());
         createDefaultBlockItem(ModBlocks.CANDLE_STICK.get());
-        createCandleHolder(ModBlocks.CANDLE_STICK_NORMAL.get(), ModBlocks.WALL_CANDLE_STICK_NORMAL.get(), Blocks.CANDLE);
-        createCandleHolder(ModBlocks.CANDLE_STICK_WHITE.get(), ModBlocks.WALL_CANDLE_STICK_WHITE.get(), Blocks.WHITE_CANDLE);
-        createCandleHolder(ModBlocks.CANDLE_STICK_ORANGE.get(), ModBlocks.WALL_CANDLE_STICK_ORANGE.get(), Blocks.ORANGE_CANDLE);
-        createCandleHolder(ModBlocks.CANDLE_STICK_MAGENTA.get(), ModBlocks.WALL_CANDLE_STICK_MAGENTA.get(), Blocks.MAGENTA_CANDLE);
-        createCandleHolder(ModBlocks.CANDLE_STICK_LIGHT_BLUE.get(), ModBlocks.WALL_CANDLE_STICK_LIGHT_BLUE.get(), Blocks.LIGHT_BLUE_CANDLE);
-        createCandleHolder(ModBlocks.CANDLE_STICK_YELLOW.get(), ModBlocks.WALL_CANDLE_STICK_YELLOW.get(), Blocks.YELLOW_CANDLE);
-        createCandleHolder(ModBlocks.CANDLE_STICK_LIME.get(), ModBlocks.WALL_CANDLE_STICK_LIME.get(), Blocks.LIME_CANDLE);
-        createCandleHolder(ModBlocks.CANDLE_STICK_PINK.get(), ModBlocks.WALL_CANDLE_STICK_PINK.get(), Blocks.PINK_CANDLE);
-        createCandleHolder(ModBlocks.CANDLE_STICK_GRAY.get(), ModBlocks.WALL_CANDLE_STICK_GRAY.get(), Blocks.GRAY_CANDLE);
-        createCandleHolder(ModBlocks.CANDLE_STICK_LIGHT_GRAY.get(), ModBlocks.WALL_CANDLE_STICK_LIGHT_GRAY.get(), Blocks.LIGHT_GRAY_CANDLE);
-        createCandleHolder(ModBlocks.CANDLE_STICK_CYAN.get(), ModBlocks.WALL_CANDLE_STICK_CYAN.get(), Blocks.CYAN_CANDLE);
-        createCandleHolder(ModBlocks.CANDLE_STICK_PURPLE.get(), ModBlocks.WALL_CANDLE_STICK_PURPLE.get(), Blocks.PURPLE_CANDLE);
-        createCandleHolder(ModBlocks.CANDLE_STICK_BLUE.get(), ModBlocks.WALL_CANDLE_STICK_BLUE.get(), Blocks.BLUE_CANDLE);
-        createCandleHolder(ModBlocks.CANDLE_STICK_BROWN.get(), ModBlocks.WALL_CANDLE_STICK_BROWN.get(), Blocks.BROWN_CANDLE);
-        createCandleHolder(ModBlocks.CANDLE_STICK_GREEN.get(), ModBlocks.WALL_CANDLE_STICK_GREEN.get(), Blocks.GREEN_CANDLE);
-        createCandleHolder(ModBlocks.CANDLE_STICK_RED.get(), ModBlocks.WALL_CANDLE_STICK_RED.get(), Blocks.RED_CANDLE);
-        createCandleHolder(ModBlocks.CANDLE_STICK_BLACK.get(), ModBlocks.WALL_CANDLE_STICK_BLACK.get(), Blocks.BLACK_CANDLE);
+        createCandleHolder(ModBlocks.WALL_CANDLE_STICK.get());
+
+        for (int i = 1; i < Helper.STANDING_AND_WALL_CANDLE_STICKS.size(); i++) {
+            Pair<CandleHolderBlock, CandleHolderBlock> pair = Helper.STANDING_AND_WALL_CANDLE_STICKS.get(i);
+            createCandleStick(pair.getFirst(), pair.getSecond(), pair.getFirst().getCandle().get());
+            createDefaultBlockItem(pair.getFirst());
+        }
+    }
+
+    private void createCandleStick(CandleHolderBlock standingBlock, CandleHolderBlock wallBlock, Item candle) {
+        createFilledCandleHolder(standingBlock, candle, ModModelTemplates.CANDLE_STICK_FILLED);
+        createFilledCandleHolder(wallBlock, candle, ModModelTemplates.WALL_CANDLE_STICK_FILLED);
+    }
+
+    protected void createCandleHolder(CandleHolderBlock block) {
+        this.blockStateOutput.accept(MultiVariantGenerator.multiVariant(block).with(PropertyDispatch.property(BlockStateProperties.HORIZONTAL_FACING).generate(facing -> Variant.variant().with(VariantProperties.MODEL, ModelLocationUtils.getModelLocation(block)).with(VariantProperties.Y_ROT, directionToRotation(facing)))));
+    }
+
+    protected void createFilledCandleHolder(CandleHolderBlock block, Item candle, ModelTemplate modelTemplate) {
+        ResourceLocation candleTexture = BuiltInRegistries.ITEM.getKey(candle).withPrefix("block/");
+        ResourceLocation model = modelTemplate.create(block, new TextureMapping().put(ModTextureSlots.CANDLE, candleTexture), this.modelOutput);
+        ResourceLocation litModel = modelTemplate.createWithSuffix(block, "_lit", new TextureMapping().put(ModTextureSlots.CANDLE, candleTexture.withSuffix("_lit")), this.modelOutput);
+        createCandleHolderPiece(block, model, litModel);
+    }
+
+    protected void createCandleHolderPiece(CandleHolderBlock block, ResourceLocation model, ResourceLocation litModel) {
+        this.blockStateOutput.accept(MultiVariantGenerator.multiVariant(block).with(PropertyDispatch.properties(AbstractCandleBlock.LIT, BlockStateProperties.HORIZONTAL_FACING).generate((lit, facing) -> Variant.variant().with(VariantProperties.MODEL, lit ? litModel : model).with(VariantProperties.Y_ROT, directionToRotation(facing)))));
+    }
+
+    public static VariantProperties.Rotation directionToRotation(Direction direction) {
+        return switch (direction) {
+            case NORTH -> VariantProperties.Rotation.R0;
+            case EAST -> VariantProperties.Rotation.R90;
+            case SOUTH -> VariantProperties.Rotation.R180;
+            case WEST -> VariantProperties.Rotation.R270;
+            default -> throw new IllegalStateException("Unexpected value: " + direction);
+        };
     }
 
     protected void createMotherTrophy() {
@@ -280,8 +301,8 @@ public class BlockModelGenerators extends de.teamlapen.lib.lib.data.BlockModelGe
     }
 
     protected void createBloodSieve() {
-        ResourceLocation bloodSieve = ModelTemplates.BLOOD_SIEVE.getDefaultModelLocation(ModBlocks.BLOOD_SIEVE.get());
-        ResourceLocation active = ModelTemplates.BLOOD_SIEVE.createWithSuffix(ModBlocks.BLOOD_SIEVE.get(), "_active", new TextureMapping().put(TextureSlots.FILTER, mod("block/blood_sieve_filter_active")), this.modelOutput);
+        ResourceLocation bloodSieve = ModModelTemplates.BLOOD_SIEVE.getDefaultModelLocation(ModBlocks.BLOOD_SIEVE.get());
+        ResourceLocation active = ModModelTemplates.BLOOD_SIEVE.createWithSuffix(ModBlocks.BLOOD_SIEVE.get(), "_active", new TextureMapping().put(ModTextureSlots.FILTER, mod("block/blood_sieve_filter_active")), this.modelOutput);
 
         this.blockStateOutput.accept(MultiVariantGenerator.multiVariant(ModBlocks.BLOOD_SIEVE.get())
                 .with(PropertyDispatch.property(SieveBlock.PROPERTY_ACTIVE)
@@ -329,33 +350,11 @@ public class BlockModelGenerators extends de.teamlapen.lib.lib.data.BlockModelGe
                 );
     }
 
-    protected void createCandleHolder(StandingCandleStickBlock standingBlock, WallCandleStickBlock wallBlock, Block candle) {
-        var standingOut = ModelTemplates.CANDLE_MODEL.create(standingBlock, new TextureMapping().put(TextureSlots.CANDLE, ModelLocationUtils.getModelLocation(candle)), this.modelOutput);
-        var standingLit = ModelTemplates.CANDLE_MODEL.createWithSuffix(standingBlock,"_lit", new TextureMapping().put(TextureSlots.CANDLE, ModelLocationUtils.getModelLocation(candle).withSuffix("_lit")), this.modelOutput);
-        var wallOut = ModelTemplates.WALL_CANDLE_MODEL.create(wallBlock, new TextureMapping().put(TextureSlots.CANDLE, ModelLocationUtils.getModelLocation(candle)), this.modelOutput);
-        var wallLit = ModelTemplates.WALL_CANDLE_MODEL.createWithSuffix(wallBlock,"_lit", new TextureMapping().put(TextureSlots.CANDLE, ModelLocationUtils.getModelLocation(candle).withSuffix("_lit")), this.modelOutput);
-
-        createCandleRotation(standingBlock, standingOut, standingLit, false);
-        createCandleRotation(wallBlock, wallOut, wallLit, true);
-    }
-
-    protected void createCandleRotation(Block block, ResourceLocation normalModel, ResourceLocation litModel, boolean rotated) {
-        this.blockStateOutput.accept(MultiVariantGenerator.multiVariant(block).with(PropertyDispatch.properties(WallCandleStickBlock.LIT, WallCandleStickBlock.FACING).generate((lit, facing) -> {
-            return Variant.variant().with(VariantProperties.MODEL, lit ? litModel : normalModel).with(VariantProperties.Y_ROT, switch (facing) {
-                case NORTH -> rotated ? VariantProperties.Rotation.R0 : VariantProperties.Rotation.R180;
-                case EAST -> rotated ? VariantProperties.Rotation.R90 : VariantProperties.Rotation.R270;
-                case SOUTH -> rotated ? VariantProperties.Rotation.R180 : VariantProperties.Rotation.R0;
-                case WEST -> rotated ? VariantProperties.Rotation.R270 : VariantProperties.Rotation.R90;
-                default -> throw new IllegalStateException("Unexpected value: " + facing);
-            });
-        })));
-    }
-
     protected void createCoffin() {
         Stream.of(ModBlocks.COFFIN_WHITE, ModBlocks.COFFIN_ORANGE, ModBlocks.COFFIN_MAGENTA, ModBlocks.COFFIN_LIGHT_BLUE, ModBlocks.COFFIN_YELLOW, ModBlocks.COFFIN_LIME, ModBlocks.COFFIN_PINK, ModBlocks.COFFIN_GRAY, ModBlocks.COFFIN_LIGHT_GRAY, ModBlocks.COFFIN_CYAN, ModBlocks.COFFIN_PURPLE, ModBlocks.COFFIN_BLUE, ModBlocks.COFFIN_BROWN, ModBlocks.COFFIN_GREEN, ModBlocks.COFFIN_RED, ModBlocks.COFFIN_BLACK).map(DeferredHolder::get).forEach(block -> {
-            ModelTemplates.COFFIN.create(VResourceLocation.mod("block/coffin/coffin_" + block.getColor().getName()), new TextureMapping().put(TextureSlots.TEXTURE0, mod("block/coffin/coffin_" + block.getColor().getName())), this.modelOutput);
-            var coffin = ModelTemplates.COFFIN_BOTTOM.create(VResourceLocation.mod("block/coffin/coffin_bottom_" + block.getColor().getName()), new TextureMapping().put(TextureSlots.TEXTURE0, mod("block/coffin/coffin_" + block.getColor().getName())), this.modelOutput);
-            ModelTemplates.COFFIN_TOP.create(VResourceLocation.mod("block/coffin/coffin_top_" + block.getColor().getName()), new TextureMapping().put(TextureSlots.TEXTURE0, mod("block/coffin/coffin_" + block.getColor().getName())), this.modelOutput);
+            ModModelTemplates.COFFIN.create(VResourceLocation.mod("block/coffin/coffin_" + block.getColor().getName()), new TextureMapping().put(ModTextureSlots.TEXTURE0, mod("block/coffin/coffin_" + block.getColor().getName())), this.modelOutput);
+            var coffin = ModModelTemplates.COFFIN_BOTTOM.create(VResourceLocation.mod("block/coffin/coffin_bottom_" + block.getColor().getName()), new TextureMapping().put(ModTextureSlots.TEXTURE0, mod("block/coffin/coffin_" + block.getColor().getName())), this.modelOutput);
+            ModModelTemplates.COFFIN_TOP.create(VResourceLocation.mod("block/coffin/coffin_top_" + block.getColor().getName()), new TextureMapping().put(ModTextureSlots.TEXTURE0, mod("block/coffin/coffin_" + block.getColor().getName())), this.modelOutput);
             ResourceLocation model = ModelLocationUtils.decorateBlockModelLocation(modString("coffin_empty"));
             this.blockStateOutput.accept(MultiVariantGenerator.multiVariant(block, Variant.variant().with(VariantProperties.MODEL, model)));
             this.itemModelOutput.accept(block.asItem(), ItemModelUtils.plainModel(coffin));
@@ -390,10 +389,10 @@ public class BlockModelGenerators extends de.teamlapen.lib.lib.data.BlockModelGe
 
     protected void createTent() {
 
-        ResourceLocation tr = ModelTemplates.TENT.create(mod("block/tent_tr"), new TextureMapping().put(TextureSlots.FLOOR, mod("block/tent/floor_tr")), this.modelOutput);
-        ResourceLocation tl = ModelTemplates.TENT.create(mod("block/tent_tl"), new TextureMapping().put(TextureSlots.FLOOR, mod("block/tent/floor_tl")), this.modelOutput);
-        ResourceLocation bl = ModelTemplates.TENT.create(mod("block/tent_bl"), new TextureMapping().put(TextureSlots.FLOOR, mod("block/tent/floor_bl")), this.modelOutput);
-        ResourceLocation br = ModelTemplates.TENT.create(mod("block/tent_br"), new TextureMapping().put(TextureSlots.FLOOR, mod("block/tent/floor_br")), this.modelOutput);
+        ResourceLocation tr = ModModelTemplates.TENT.create(mod("block/tent_tr"), new TextureMapping().put(ModTextureSlots.FLOOR, mod("block/tent/floor_tr")), this.modelOutput);
+        ResourceLocation tl = ModModelTemplates.TENT.create(mod("block/tent_tl"), new TextureMapping().put(ModTextureSlots.FLOOR, mod("block/tent/floor_tl")), this.modelOutput);
+        ResourceLocation bl = ModModelTemplates.TENT.create(mod("block/tent_bl"), new TextureMapping().put(ModTextureSlots.FLOOR, mod("block/tent/floor_bl")), this.modelOutput);
+        ResourceLocation br = ModModelTemplates.TENT.create(mod("block/tent_br"), new TextureMapping().put(ModTextureSlots.FLOOR, mod("block/tent/floor_br")), this.modelOutput);
 
         Stream.of(ModBlocks.TENT, ModBlocks.TENT_MAIN).map(DeferredHolder::get).forEach(block -> {
             MultiPartGenerator generator = MultiPartGenerator.multiPart(block);
@@ -428,14 +427,14 @@ public class BlockModelGenerators extends de.teamlapen.lib.lib.data.BlockModelGe
                 .copyForced(TextureSlot.BOTTOM, TextureSlot.PARTICLE)
                 .put(TextureSlot.TOP, TextureMapping.getBlockTexture(ModBlocks.CURSED_GRASS.get(), "_top"))
                 .put(TextureSlot.SIDE, TextureMapping.getBlockTexture(ModBlocks.CURSED_GRASS.get(), "_side"));
-        var model = ModelTemplates.CUBE_BOTTOM_TOP.create(ModBlocks.CURSED_GRASS.get(), textureMapping ,this.modelOutput);
+        var model = ModModelTemplates.CUBE_BOTTOM_TOP.create(ModBlocks.CURSED_GRASS.get(), textureMapping ,this.modelOutput);
         TextureMapping snowTextureMapping = new TextureMapping()
                 .put(TextureSlot.BOTTOM, resourceLocation)
                 .copyForced(TextureSlot.BOTTOM, TextureSlot.PARTICLE)
                 .put(TextureSlot.TOP, TextureMapping.getBlockTexture(ModBlocks.CURSED_GRASS.get(), "_top"))
                 .put(TextureSlot.SIDE, TextureMapping.getBlockTexture(ModBlocks.CURSED_GRASS.get(), "_side_snowy"));
         Variant variant = Variant.variant().
-                with(VariantProperties.MODEL, ModelTemplates.CUBE_BOTTOM_TOP.createWithSuffix(ModBlocks.CURSED_GRASS.get(), "_snowy", snowTextureMapping, this.modelOutput));
+                with(VariantProperties.MODEL, ModModelTemplates.CUBE_BOTTOM_TOP.createWithSuffix(ModBlocks.CURSED_GRASS.get(), "_snowy", snowTextureMapping, this.modelOutput));
         this.createGrassLikeBlock(ModBlocks.CURSED_GRASS.get(), model, variant);
         this.registerSimpleTintedItemModel(ModBlocks.CURSED_GRASS.get(), ModelLocationUtils.getModelLocation(ModBlocks.CURSED_GRASS.get()), new GrassColorSource());
     }

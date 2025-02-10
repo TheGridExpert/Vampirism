@@ -239,6 +239,9 @@ public class VampirismCreativeTab {
 
         private void addDecorativeBlocks() {
             addBlock(FIRE_PLACE);
+            addItemGen(ModItems.CANDLE_STICK);
+            //addItemGen(ModItems.CANDELABRA);
+            //addItemGen(ModItems.CHANDELIER);
             addBlock(CHANDELIER);
             addBlock(CROSS);
             addBlock(TOMBSTONE1);
