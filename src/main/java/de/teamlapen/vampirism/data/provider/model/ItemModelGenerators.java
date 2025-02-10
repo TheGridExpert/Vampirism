@@ -28,10 +28,6 @@ public class ItemModelGenerators extends net.minecraft.client.data.models.ItemMo
         super(generator.itemModelOutput, generator.modelOutput);
     }
 
-    public ItemModelGenerators(ItemModelOutput itemModelOutput, BiConsumer<ResourceLocation, ModelInstance> modelOutput) {
-        super(itemModelOutput, modelOutput);
-    }
-
     @Override
     public void run() {
         getFlatItems().forEach(item -> generateFlatItem(item, ModModelTemplates.FLAT_ITEM));
@@ -110,8 +106,8 @@ public class ItemModelGenerators extends net.minecraft.client.data.models.ItemMo
     }
 
     protected void generateCrossbows() {
-        ResourceLocation basicModel = ModModelTemplates.CROSSBOW.create(ModItems.BASIC_CROSSBOW.asItem(), new TextureMapping().put(TextureSlot.TEXTURE, mod("item/crossbow")).put(ModTextureSlots.STRING, mod("item/crossbow_part_string")).put(ModTextureSlots.ARROW, mod("item/crossbow_part_arrow")), this.modelOutput);
-        ResourceLocation basicModelUnloaded = ModModelTemplates.CROSSBOW_UNLOADED.create(ModItems.BASIC_CROSSBOW.getId().withSuffix("_unloaded"), new TextureMapping().put(TextureSlot.TEXTURE, mod("item/crossbow")).put(ModTextureSlots.STRING, mod("item/crossbow_part_string")), this.modelOutput);
+        ResourceLocation basicModel = ModModelTemplates.CROSSBOW.create(ModelLocationUtils.getModelLocation(ModItems.BASIC_CROSSBOW.get()), new TextureMapping().put(TextureSlot.TEXTURE, mod("item/crossbow")).put(ModTextureSlots.STRING, mod("item/crossbow_part_string")).put(ModTextureSlots.ARROW, mod("item/crossbow_part_arrow")), this.modelOutput);
+        ResourceLocation basicModelUnloaded = ModModelTemplates.CROSSBOW_UNLOADED.create(ModelLocationUtils.getModelLocation(ModItems.BASIC_CROSSBOW.get()).withSuffix("_unloaded"), new TextureMapping().put(TextureSlot.TEXTURE, mod("item/crossbow")).put(ModTextureSlots.STRING, mod("item/crossbow_part_string")), this.modelOutput);
         this.itemModelOutput.accept(ModItems.BASIC_CROSSBOW.asItem(), ItemModelUtils.rangeSelect(new CrossbowPull(), ItemModelUtils.plainModel(basicModel), ItemModelUtils.override(ItemModelUtils.plainModel(basicModelUnloaded), 0.99f)));
 
         ResourceLocation enhancedModel = ModModelTemplates.CROSSBOW.create(ModelLocationUtils.getModelLocation(ModItems.ENHANCED_CROSSBOW.get()), new TextureMapping().put(TextureSlot.TEXTURE, mod("item/crossbow_enhanced")).put(ModTextureSlots.STRING, mod("item/crossbow_part_string")).put(ModTextureSlots.ARROW, mod("item/crossbow_part_arrow")), this.modelOutput);
