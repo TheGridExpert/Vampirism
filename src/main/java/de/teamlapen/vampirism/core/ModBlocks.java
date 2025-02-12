@@ -6,8 +6,7 @@ import de.teamlapen.vampirism.api.ModRegistryItems;
 import de.teamlapen.vampirism.api.util.VResourceLocation;
 import de.teamlapen.vampirism.blocks.BushBlock;
 import de.teamlapen.vampirism.blocks.*;
-import de.teamlapen.vampirism.blocks.candle.StandingCandleStickBlock;
-import de.teamlapen.vampirism.blocks.candle.WallCandleStickBlock;
+import de.teamlapen.vampirism.blocks.candle.*;
 import de.teamlapen.vampirism.blocks.diffuser.FogDiffuserBlock;
 import de.teamlapen.vampirism.blocks.diffuser.GarlicDiffuserBlock;
 import de.teamlapen.vampirism.blocks.mother.ActiveVulnerableRemainsBlock;
@@ -21,7 +20,6 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -90,9 +88,6 @@ public class ModBlocks {
     public static final DeferredBlock<WeaponTableBlock> WEAPON_TABLE = registerWithItem("weapon_table", WeaponTableBlock::new);
     public static final DeferredBlock<PotionTableBlock> POTION_TABLE = registerWithItem("potion_table", (prop) -> new PotionTableBlock(prop.mapColor(MapColor.METAL).strength(1f).noOcclusion()));
     public static final DeferredBlock<DarkSpruceLeavesBlock> DARK_SPRUCE_LEAVES = registerWithItem("dark_spruce_leaves", DarkSpruceLeavesBlock::new);
-    public static final DeferredBlock<VampirismBlock> CHANDELIER = registerWithItem("chandelier", ChandelierBlock::new);
-    public static final DeferredBlock<VampirismBlock> CANDELABRA = BLOCKS.registerBlock("candelabra", CandelabraBlock::new);
-    public static final DeferredBlock<VampirismBlock> CANDELABRA_WALL = BLOCKS.registerBlock("candelabra_wall", CandelabraWallBlock::new);
     public static final DeferredBlock<VampirismBlock> CROSS = registerWithItem("cross", (prop) -> new VampirismSplitBlock(prop.pushReaction(PushReaction.DESTROY).mapColor(MapColor.WOOD).ignitedByLava().strength(2, 3), BlockVoxelshapes.crossBottom, BlockVoxelshapes.crossTop, true).markDecorativeBlock());
     public static final DeferredBlock<VampirismBlock> TOMBSTONE1 = registerWithItem("tombstone1", (prop) -> new VampirismHorizontalBlock(prop.mapColor(MapColor.STONE).strength(2, 6), BlockVoxelshapes.tomb1).markDecorativeBlock());
     public static final DeferredBlock<VampirismBlock> TOMBSTONE2 = registerWithItem("tombstone2", (prop) -> new VampirismHorizontalBlock(prop.mapColor(MapColor.STONE).strength(2, 6), BlockVoxelshapes.tomb2).markDecorativeBlock());
@@ -218,40 +213,98 @@ public class ModBlocks {
     public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK = BLOCKS.registerBlock("candle_stick", (prop) -> new StandingCandleStickBlock(null, () -> null, prop.mapColor(MapColor.METAL).noOcclusion().strength(0.5f).sound(SoundType.METAL).pushReaction(PushReaction.DESTROY)));
     public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK = registerBlock("wall_candle_stick", (prop) -> new WallCandleStickBlock(null, () -> null, prop.overrideLootTable(CANDLE_STICK.get().getLootTable())), () -> BlockBehaviour.Properties.ofFullCopy(CANDLE_STICK.get()));
     
-    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_NORMAL = registerCandleStick("candle_stick_normal", Items.CANDLE);
-    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_NORMAL = registerWallCandleStick("wall_candle_stick_normal", Items.CANDLE, CANDLE_STICK_NORMAL);
-    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_WHITE = registerCandleStick("candle_stick_white", Items.WHITE_CANDLE);
-    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_WHITE = registerWallCandleStick("wall_candle_stick_white", Items.WHITE_CANDLE, CANDLE_STICK_WHITE);
-    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_ORANGE = registerCandleStick("candle_stick_orange", Items.ORANGE_CANDLE);
-    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_ORANGE = registerWallCandleStick("wall_candle_stick_orange", Items.ORANGE_CANDLE, CANDLE_STICK_ORANGE);
-    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_MAGENTA = registerCandleStick("candle_stick_magenta", Items.MAGENTA_CANDLE);
-    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_MAGENTA = registerWallCandleStick("wall_candle_stick_magenta", Items.MAGENTA_CANDLE, CANDLE_STICK_MAGENTA);
-    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_LIGHT_BLUE = registerCandleStick("candle_stick_light_blue", Items.LIGHT_BLUE_CANDLE);
-    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_LIGHT_BLUE = registerWallCandleStick("wall_candle_stick_light_blue", Items.LIGHT_BLUE_CANDLE, CANDLE_STICK_LIGHT_BLUE);
-    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_YELLOW = registerCandleStick("candle_stick_yellow", Items.YELLOW_CANDLE);
-    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_YELLOW = registerWallCandleStick("wall_candle_stick_yellow", Items.YELLOW_CANDLE, CANDLE_STICK_YELLOW);
-    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_LIME = registerCandleStick("candle_stick_lime", Items.LIME_CANDLE);
-    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_LIME = registerWallCandleStick("wall_candle_stick_lime", Items.LIME_CANDLE, CANDLE_STICK_LIME);
-    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_PINK = registerCandleStick("candle_stick_pink", Items.PINK_CANDLE);
-    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_PINK = registerWallCandleStick("wall_candle_stick_pink", Items.PINK_CANDLE, CANDLE_STICK_PINK);
-    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_GRAY = registerCandleStick("candle_stick_gray", Items.GRAY_CANDLE);
-    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_GRAY = registerWallCandleStick("wall_candle_stick_gray", Items.GRAY_CANDLE, CANDLE_STICK_GRAY);
-    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_LIGHT_GRAY = registerCandleStick("candle_stick_light_gray", Items.LIGHT_GRAY_CANDLE);
-    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_LIGHT_GRAY = registerWallCandleStick("wall_candle_stick_light_gray", Items.LIGHT_GRAY_CANDLE, CANDLE_STICK_LIGHT_GRAY);
-    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_CYAN = registerCandleStick("candle_stick_cyan", Items.CYAN_CANDLE);
-    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_CYAN = registerWallCandleStick("wall_candle_stick_cyan", Items.CYAN_CANDLE, CANDLE_STICK_CYAN);
-    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_PURPLE = registerCandleStick("candle_stick_purple", Items.PURPLE_CANDLE);
-    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_PURPLE = registerWallCandleStick("wall_candle_stick_purple", Items.PURPLE_CANDLE, CANDLE_STICK_PURPLE);
-    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_BLUE = registerCandleStick("candle_stick_blue", Items.BLUE_CANDLE);
-    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_BLUE = registerWallCandleStick("wall_candle_stick_blue", Items.BLUE_CANDLE, CANDLE_STICK_BLUE);
-    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_BROWN = registerCandleStick("candle_stick_brown", Items.BROWN_CANDLE);
-    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_BROWN = registerWallCandleStick("wall_candle_stick_brown", Items.BROWN_CANDLE, CANDLE_STICK_BROWN);
-    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_GREEN = registerCandleStick("candle_stick_green", Items.GREEN_CANDLE);
-    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_GREEN = registerWallCandleStick("wall_candle_stick_green", Items.GREEN_CANDLE, CANDLE_STICK_GREEN);
-    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_RED = registerCandleStick("candle_stick_red", Items.RED_CANDLE);
-    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_RED = registerWallCandleStick("wall_candle_stick_red", Items.RED_CANDLE, CANDLE_STICK_RED);
-    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_BLACK = registerCandleStick("candle_stick_black", Items.BLACK_CANDLE);
-    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_BLACK = registerWallCandleStick("wall_candle_stick_black", Items.BLACK_CANDLE, CANDLE_STICK_BLACK);
+    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_NORMAL = registerCandleStick("normal", Items.CANDLE);
+    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_NORMAL = registerWallCandleStick("normal", Items.CANDLE, CANDLE_STICK_NORMAL);
+    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_WHITE = registerCandleStick("white", Items.WHITE_CANDLE);
+    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_WHITE = registerWallCandleStick("white", Items.WHITE_CANDLE, CANDLE_STICK_WHITE);
+    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_ORANGE = registerCandleStick("orange", Items.ORANGE_CANDLE);
+    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_ORANGE = registerWallCandleStick("orange", Items.ORANGE_CANDLE, CANDLE_STICK_ORANGE);
+    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_MAGENTA = registerCandleStick("magenta", Items.MAGENTA_CANDLE);
+    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_MAGENTA = registerWallCandleStick("magenta", Items.MAGENTA_CANDLE, CANDLE_STICK_MAGENTA);
+    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_LIGHT_BLUE = registerCandleStick("light_blue", Items.LIGHT_BLUE_CANDLE);
+    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_LIGHT_BLUE = registerWallCandleStick("light_blue", Items.LIGHT_BLUE_CANDLE, CANDLE_STICK_LIGHT_BLUE);
+    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_YELLOW = registerCandleStick("yellow", Items.YELLOW_CANDLE);
+    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_YELLOW = registerWallCandleStick("yellow", Items.YELLOW_CANDLE, CANDLE_STICK_YELLOW);
+    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_LIME = registerCandleStick("lime", Items.LIME_CANDLE);
+    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_LIME = registerWallCandleStick("lime", Items.LIME_CANDLE, CANDLE_STICK_LIME);
+    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_PINK = registerCandleStick("pink", Items.PINK_CANDLE);
+    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_PINK = registerWallCandleStick("pink", Items.PINK_CANDLE, CANDLE_STICK_PINK);
+    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_GRAY = registerCandleStick("gray", Items.GRAY_CANDLE);
+    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_GRAY = registerWallCandleStick("gray", Items.GRAY_CANDLE, CANDLE_STICK_GRAY);
+    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_LIGHT_GRAY = registerCandleStick("light_gray", Items.LIGHT_GRAY_CANDLE);
+    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_LIGHT_GRAY = registerWallCandleStick("light_gray", Items.LIGHT_GRAY_CANDLE, CANDLE_STICK_LIGHT_GRAY);
+    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_CYAN = registerCandleStick("cyan", Items.CYAN_CANDLE);
+    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_CYAN = registerWallCandleStick("cyan", Items.CYAN_CANDLE, CANDLE_STICK_CYAN);
+    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_PURPLE = registerCandleStick("purple", Items.PURPLE_CANDLE);
+    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_PURPLE = registerWallCandleStick("purple", Items.PURPLE_CANDLE, CANDLE_STICK_PURPLE);
+    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_BLUE = registerCandleStick("blue", Items.BLUE_CANDLE);
+    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_BLUE = registerWallCandleStick("blue", Items.BLUE_CANDLE, CANDLE_STICK_BLUE);
+    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_BROWN = registerCandleStick("brown", Items.BROWN_CANDLE);
+    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_BROWN = registerWallCandleStick("brown", Items.BROWN_CANDLE, CANDLE_STICK_BROWN);
+    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_GREEN = registerCandleStick("green", Items.GREEN_CANDLE);
+    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_GREEN = registerWallCandleStick("green", Items.GREEN_CANDLE, CANDLE_STICK_GREEN);
+    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_RED = registerCandleStick("red", Items.RED_CANDLE);
+    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_RED = registerWallCandleStick("red", Items.RED_CANDLE, CANDLE_STICK_RED);
+    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_BLACK = registerCandleStick("black", Items.BLACK_CANDLE);
+    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_BLACK = registerWallCandleStick("black", Items.BLACK_CANDLE, CANDLE_STICK_BLACK);
+
+    public static final DeferredBlock<StandingCandelabraBlock> CANDELABRA = BLOCKS.registerBlock("candelabra", (prop) -> new StandingCandelabraBlock(null, () -> null, prop.mapColor(MapColor.METAL).noOcclusion().strength(1.0f).sound(SoundType.METAL).pushReaction(PushReaction.DESTROY)));
+    public static final DeferredBlock<WallCandelabraBlock> WALL_CANDELABRA = registerBlock("wall_candelabra", (prop) -> new WallCandelabraBlock(null, () -> null, prop.strength(3.5f).overrideLootTable(CANDELABRA.get().getLootTable())), () -> BlockBehaviour.Properties.ofFullCopy(CANDELABRA.get()));
+
+    public static final DeferredBlock<StandingCandelabraBlock> CANDELABRA_NORMAL = registerCandelabra("normal", Items.CANDLE);
+    public static final DeferredBlock<WallCandelabraBlock> WALL_CANDELABRA_NORMAL = registerWallCandelabra("normal", Items.CANDLE, CANDELABRA_NORMAL);
+    public static final DeferredBlock<StandingCandelabraBlock> CANDELABRA_WHITE = registerCandelabra("white", Items.WHITE_CANDLE);
+    public static final DeferredBlock<WallCandelabraBlock> WALL_CANDELABRA_WHITE = registerWallCandelabra("white", Items.WHITE_CANDLE, CANDELABRA_WHITE);
+    public static final DeferredBlock<StandingCandelabraBlock> CANDELABRA_ORANGE = registerCandelabra("orange", Items.ORANGE_CANDLE);
+    public static final DeferredBlock<WallCandelabraBlock> WALL_CANDELABRA_ORANGE = registerWallCandelabra("orange", Items.ORANGE_CANDLE, CANDELABRA_ORANGE);
+    public static final DeferredBlock<StandingCandelabraBlock> CANDELABRA_MAGENTA = registerCandelabra("magenta", Items.MAGENTA_CANDLE);
+    public static final DeferredBlock<WallCandelabraBlock> WALL_CANDELABRA_MAGENTA = registerWallCandelabra("magenta", Items.MAGENTA_CANDLE, CANDELABRA_MAGENTA);
+    public static final DeferredBlock<StandingCandelabraBlock> CANDELABRA_LIGHT_BLUE = registerCandelabra("light_blue", Items.LIGHT_BLUE_CANDLE);
+    public static final DeferredBlock<WallCandelabraBlock> WALL_CANDELABRA_LIGHT_BLUE = registerWallCandelabra("light_blue", Items.LIGHT_BLUE_CANDLE, CANDELABRA_LIGHT_BLUE);
+    public static final DeferredBlock<StandingCandelabraBlock> CANDELABRA_YELLOW = registerCandelabra("yellow", Items.YELLOW_CANDLE);
+    public static final DeferredBlock<WallCandelabraBlock> WALL_CANDELABRA_YELLOW = registerWallCandelabra("yellow", Items.YELLOW_CANDLE, CANDELABRA_YELLOW);
+    public static final DeferredBlock<StandingCandelabraBlock> CANDELABRA_LIME = registerCandelabra("lime", Items.LIME_CANDLE);
+    public static final DeferredBlock<WallCandelabraBlock> WALL_CANDELABRA_LIME = registerWallCandelabra("lime", Items.LIME_CANDLE, CANDELABRA_LIME);
+    public static final DeferredBlock<StandingCandelabraBlock> CANDELABRA_PINK = registerCandelabra("pink", Items.PINK_CANDLE);
+    public static final DeferredBlock<WallCandelabraBlock> WALL_CANDELABRA_PINK = registerWallCandelabra("pink", Items.PINK_CANDLE, CANDELABRA_PINK);
+    public static final DeferredBlock<StandingCandelabraBlock> CANDELABRA_GRAY = registerCandelabra("gray", Items.GRAY_CANDLE);
+    public static final DeferredBlock<WallCandelabraBlock> WALL_CANDELABRA_GRAY = registerWallCandelabra("gray", Items.GRAY_CANDLE, CANDELABRA_GRAY);
+    public static final DeferredBlock<StandingCandelabraBlock> CANDELABRA_LIGHT_GRAY = registerCandelabra("light_gray", Items.LIGHT_GRAY_CANDLE);
+    public static final DeferredBlock<WallCandelabraBlock> WALL_CANDELABRA_LIGHT_GRAY = registerWallCandelabra("light_gray", Items.LIGHT_GRAY_CANDLE, CANDELABRA_LIGHT_GRAY);
+    public static final DeferredBlock<StandingCandelabraBlock> CANDELABRA_CYAN = registerCandelabra("cyan", Items.CYAN_CANDLE);
+    public static final DeferredBlock<WallCandelabraBlock> WALL_CANDELABRA_CYAN = registerWallCandelabra("cyan", Items.CYAN_CANDLE, CANDELABRA_CYAN);
+    public static final DeferredBlock<StandingCandelabraBlock> CANDELABRA_PURPLE = registerCandelabra("purple", Items.PURPLE_CANDLE);
+    public static final DeferredBlock<WallCandelabraBlock> WALL_CANDELABRA_PURPLE = registerWallCandelabra("purple", Items.PURPLE_CANDLE, CANDELABRA_PURPLE);
+    public static final DeferredBlock<StandingCandelabraBlock> CANDELABRA_BLUE = registerCandelabra("blue", Items.BLUE_CANDLE);
+    public static final DeferredBlock<WallCandelabraBlock> WALL_CANDELABRA_BLUE = registerWallCandelabra("blue", Items.BLUE_CANDLE, CANDELABRA_BLUE);
+    public static final DeferredBlock<StandingCandelabraBlock> CANDELABRA_BROWN = registerCandelabra("brown", Items.BROWN_CANDLE);
+    public static final DeferredBlock<WallCandelabraBlock> WALL_CANDELABRA_BROWN = registerWallCandelabra("brown", Items.BROWN_CANDLE, CANDELABRA_BROWN);
+    public static final DeferredBlock<StandingCandelabraBlock> CANDELABRA_GREEN = registerCandelabra("green", Items.GREEN_CANDLE);
+    public static final DeferredBlock<WallCandelabraBlock> WALL_CANDELABRA_GREEN = registerWallCandelabra("green", Items.GREEN_CANDLE, CANDELABRA_GREEN);
+    public static final DeferredBlock<StandingCandelabraBlock> CANDELABRA_RED = registerCandelabra("red", Items.RED_CANDLE);
+    public static final DeferredBlock<WallCandelabraBlock> WALL_CANDELABRA_RED = registerWallCandelabra("red", Items.RED_CANDLE, CANDELABRA_RED);
+    public static final DeferredBlock<StandingCandelabraBlock> CANDELABRA_BLACK = registerCandelabra("black", Items.BLACK_CANDLE);
+    public static final DeferredBlock<WallCandelabraBlock> WALL_CANDELABRA_BLACK = registerWallCandelabra("black", Items.BLACK_CANDLE, CANDELABRA_BLACK);
+
+    public static final DeferredBlock<ChandelierBlock> CHANDELIER = BLOCKS.registerBlock("chandelier", (prop) -> new ChandelierBlock(null, () -> null, prop.mapColor(MapColor.METAL).noOcclusion().strength(4.5f, 5.5f).sound(SoundType.METAL).pushReaction(PushReaction.DESTROY)));
+
+    public static final DeferredBlock<ChandelierBlock> CHANDELIER_NORMAL = registerChandelier("normal", Items.CANDLE);
+    public static final DeferredBlock<ChandelierBlock> CHANDELIER_WHITE = registerChandelier("white", Items.WHITE_CANDLE);
+    public static final DeferredBlock<ChandelierBlock> CHANDELIER_ORANGE = registerChandelier("orange", Items.ORANGE_CANDLE);
+    public static final DeferredBlock<ChandelierBlock> CHANDELIER_MAGENTA = registerChandelier("magenta", Items.MAGENTA_CANDLE);
+    public static final DeferredBlock<ChandelierBlock> CHANDELIER_LIGHT_BLUE = registerChandelier("light_blue", Items.LIGHT_BLUE_CANDLE);
+    public static final DeferredBlock<ChandelierBlock> CHANDELIER_YELLOW = registerChandelier("yellow", Items.YELLOW_CANDLE);
+    public static final DeferredBlock<ChandelierBlock> CHANDELIER_LIME = registerChandelier("lime", Items.LIME_CANDLE);
+    public static final DeferredBlock<ChandelierBlock> CHANDELIER_PINK = registerChandelier("pink", Items.PINK_CANDLE);
+    public static final DeferredBlock<ChandelierBlock> CHANDELIER_GRAY = registerChandelier("gray", Items.GRAY_CANDLE);
+    public static final DeferredBlock<ChandelierBlock> CHANDELIER_LIGHT_GRAY = registerChandelier("light_gray", Items.LIGHT_GRAY_CANDLE);
+    public static final DeferredBlock<ChandelierBlock> CHANDELIER_CYAN = registerChandelier("cyan", Items.CYAN_CANDLE);
+    public static final DeferredBlock<ChandelierBlock> CHANDELIER_PURPLE = registerChandelier("purple", Items.PURPLE_CANDLE);
+    public static final DeferredBlock<ChandelierBlock> CHANDELIER_BLUE = registerChandelier("blue", Items.BLUE_CANDLE);
+    public static final DeferredBlock<ChandelierBlock> CHANDELIER_BROWN = registerChandelier("brown", Items.BROWN_CANDLE);
+    public static final DeferredBlock<ChandelierBlock> CHANDELIER_GREEN = registerChandelier("green", Items.GREEN_CANDLE);
+    public static final DeferredBlock<ChandelierBlock> CHANDELIER_RED = registerChandelier("red", Items.RED_CANDLE);
+    public static final DeferredBlock<ChandelierBlock> CHANDELIER_BLACK = registerChandelier("black", Items.BLACK_CANDLE);
 
     /**
      * TUTORIAL:
@@ -306,20 +359,44 @@ public class ModBlocks {
         return BLOCKS.registerBlock(item, prop -> supplier.apply(blockProperties.get().setId(ResourceKey.create(Registries.BLOCK, VResourceLocation.mod(item)))));
     }
 
-    private static DeferredBlock<StandingCandleStickBlock> registerCandleStick(String name, Item candle) {
-        return registerBlock(name, (prop) -> {
+    private static DeferredBlock<StandingCandleStickBlock> registerCandleStick(String suffix, Item candle) {
+        return registerBlock("candle_stick_" + suffix, (prop) -> {
             StandingCandleStickBlock block = new StandingCandleStickBlock(CANDLE_STICK, () -> candle, prop);
             CANDLE_STICK.get().addCandle(BuiltInRegistries.ITEM.getKey(candle), () -> block);
             return block;
         }, () -> BlockBehaviour.Properties.ofFullCopy(CANDLE_STICK.get()));
     }
 
-    private static DeferredBlock<WallCandleStickBlock> registerWallCandleStick(String name, Item candle, DeferredBlock<StandingCandleStickBlock> standingBlock) {
-        return registerBlock(name, (prop) -> {
+    private static DeferredBlock<WallCandleStickBlock> registerWallCandleStick(String suffix, Item candle, DeferredBlock<StandingCandleStickBlock> standingBlock) {
+        return registerBlock("wall_candle_stick_" + suffix, (prop) -> {
             WallCandleStickBlock block = new WallCandleStickBlock(WALL_CANDLE_STICK, () -> candle, prop.overrideLootTable(standingBlock.get().getLootTable()));
             WALL_CANDLE_STICK.get().addCandle(BuiltInRegistries.ITEM.getKey(candle), () -> block);
             return block;
         }, () -> BlockBehaviour.Properties.ofFullCopy(standingBlock.get()));
+    }
+
+    private static DeferredBlock<StandingCandelabraBlock> registerCandelabra(String suffix, Item candle) {
+        return registerBlock("candelabra_" + suffix, (prop) -> {
+            StandingCandelabraBlock block = new StandingCandelabraBlock(CANDELABRA, () -> candle, prop);
+            CANDELABRA.get().addCandle(BuiltInRegistries.ITEM.getKey(candle), () -> block);
+            return block;
+        }, () -> BlockBehaviour.Properties.ofFullCopy(CANDELABRA.get()));
+    }
+
+    private static DeferredBlock<WallCandelabraBlock> registerWallCandelabra(String suffix, Item candle, DeferredBlock<StandingCandelabraBlock> standingBlock) {
+        return registerBlock("wall_candelabra_" + suffix, (prop) -> {
+            WallCandelabraBlock block = new WallCandelabraBlock(WALL_CANDELABRA, () -> candle, prop.strength(3.5f).overrideLootTable(standingBlock.get().getLootTable()));
+            WALL_CANDELABRA.get().addCandle(BuiltInRegistries.ITEM.getKey(candle), () -> block);
+            return block;
+        }, () -> BlockBehaviour.Properties.ofFullCopy(standingBlock.get()));
+    }
+
+    private static DeferredBlock<ChandelierBlock> registerChandelier(String suffix, Item candle) {
+        return registerBlock("chandelier_" + suffix, (prop) -> {
+            ChandelierBlock block = new ChandelierBlock(CHANDELIER, () -> candle, prop);
+            CHANDELIER.get().addCandle(BuiltInRegistries.ITEM.getKey(candle), () -> block);
+            return block;
+        }, () -> BlockBehaviour.Properties.ofFullCopy(CHANDELIER.get()));
     }
 
     private static ToIntFunction<BlockState> litBlockEmission(int lightValue) {

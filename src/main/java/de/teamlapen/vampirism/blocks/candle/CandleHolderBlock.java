@@ -49,9 +49,9 @@ public abstract class CandleHolderBlock extends AbstractCandleBlock implements S
 
     private final Map<ResourceLocation, Supplier<Block>> fullHolderByContent = Maps.newHashMap();
     protected final @Nullable Supplier<? extends Block> emptyBlock;
-    protected final @NotNull Supplier<Item> candle;
+    protected final Supplier<Item> candle;
 
-    protected CandleHolderBlock(@Nullable Supplier<? extends Block> emptyBlock, @NotNull Supplier<Item> candle, Properties properties) {
+    protected CandleHolderBlock(@Nullable Supplier<? extends Block> emptyBlock, Supplier<Item> candle, Properties properties) {
         super(properties);
         this.emptyBlock = emptyBlock;
         this.candle = candle;
@@ -59,14 +59,11 @@ public abstract class CandleHolderBlock extends AbstractCandleBlock implements S
     }
 
     public void addCandle(ResourceLocation candle, Supplier<Block> holder) {
-        if (candle == null) {
-            throw new IllegalArgumentException("Cannot add plant to non-empty candle mount");
-        }
         this.fullHolderByContent.put(candle, holder);
     }
 
     @Override
-    public @NotNull InteractionResult useWithoutItem(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, Player player, @NotNull BlockHitResult hit) {
+    public InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
         ItemStack stack = player.getItemInHand(InteractionHand.MAIN_HAND);
         Item item = stack.getItem();
         if (isEmpty()) {
@@ -106,7 +103,7 @@ public abstract class CandleHolderBlock extends AbstractCandleBlock implements S
     }
 
     @Override
-    public int getLightEmission(BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos) {
+    public int getLightEmission(BlockState state, BlockGetter level, BlockPos pos) {
         return state.getValue(LIT) ? getLitLightLevel() : 0;
     }
 
@@ -115,21 +112,21 @@ public abstract class CandleHolderBlock extends AbstractCandleBlock implements S
     }
 
     @Override
-    public BlockState getStateForPlacement(BlockPlaceContext pContext) {
-        FluidState fluidstate = pContext.getLevel().getFluidState(pContext.getClickedPos());
-        return this.defaultBlockState().setValue(FACING, pContext.getHorizontalDirection().getOpposite()).setValue(WATERLOGGED, fluidstate.getType() == Fluids.WATER);
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
+        FluidState fluidstate = context.getLevel().getFluidState(context.getClickedPos());
+        return this.defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite()).setValue(WATERLOGGED, fluidstate.getType() == Fluids.WATER);
     }
 
     /**
      * Used in child methods for wall candle holders.
      */
     @Nullable
-    public BlockState getStateForWallPlacement(BlockPlaceContext pContext) {
+    public BlockState getStateForWallPlacement(BlockPlaceContext context) {
         BlockState blockstate = this.defaultBlockState();
-        FluidState fluidstate = pContext.getLevel().getFluidState(pContext.getClickedPos());
-        LevelReader levelreader = pContext.getLevel();
-        BlockPos blockpos = pContext.getClickedPos();
-        Direction[] adirection = pContext.getNearestLookingDirections();
+        FluidState fluidstate = context.getLevel().getFluidState(context.getClickedPos());
+        LevelReader levelreader = context.getLevel();
+        BlockPos blockpos = context.getClickedPos();
+        Direction[] adirection = context.getNearestLookingDirections();
 
         for (Direction direction : adirection) {
             if (direction.getAxis().isHorizontal()) {
@@ -153,7 +150,7 @@ public abstract class CandleHolderBlock extends AbstractCandleBlock implements S
     }
 
     @Override
-    public @NotNull BlockState updateShape(@NotNull BlockState state, @NotNull LevelReader level, @NotNull ScheduledTickAccess tickAccess, @NotNull BlockPos pos, @NotNull Direction direction, @NotNull BlockPos neighborPos, @NotNull BlockState neighborState, @NotNull RandomSource randomSource) {
+    public BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess tickAccess, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, RandomSource randomSource) {
         if (state.getValue(WATERLOGGED)) {
             tickAccess.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
         }
@@ -162,7 +159,7 @@ public abstract class CandleHolderBlock extends AbstractCandleBlock implements S
     }
 
     @Override
-    public @NotNull FluidState getFluidState(BlockState state) {
+    public FluidState getFluidState(BlockState state) {
         return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
     }
 
@@ -172,7 +169,7 @@ public abstract class CandleHolderBlock extends AbstractCandleBlock implements S
     }
 
     @Override
-    public boolean placeLiquid(@NotNull LevelAccessor level, @NotNull BlockPos pos, BlockState state, @NotNull FluidState fluidState) {
+    public boolean placeLiquid(LevelAccessor level, BlockPos pos, BlockState state, FluidState fluidState) {
         if (!state.getValue(WATERLOGGED) && fluidState.getType() == Fluids.WATER) {
             BlockState blockstate = state.setValue(WATERLOGGED, Boolean.TRUE);
             if (state.getValue(LIT)) {
@@ -194,22 +191,22 @@ public abstract class CandleHolderBlock extends AbstractCandleBlock implements S
     }
 
     @Override
-    public boolean canSurvive(@NotNull BlockState state, @NotNull LevelReader level, BlockPos pPos) {
-        return Block.canSupportCenter(level, pPos.below(), Direction.UP);
+    public boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
+        return Block.canSupportCenter(level, pos.below(), Direction.UP);
     }
 
     @Override
-    public @NotNull BlockState rotate(BlockState state, Rotation rotation) {
+    public BlockState rotate(BlockState state, Rotation rotation) {
         return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
     }
 
     @Override
-    public @NotNull BlockState mirror(BlockState state, Mirror mirror) {
+    public BlockState mirror(BlockState state, Mirror mirror) {
         return state.setValue(FACING, mirror.mirror(state.getValue(FACING)));
     }
 
     @Override
-    protected boolean isPathfindable(@NotNull BlockState state, @NotNull PathComputationType pathComputationType) {
+    protected boolean isPathfindable(BlockState state, PathComputationType pathComputationType) {
         return false;
     }
 

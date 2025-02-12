@@ -1,6 +1,9 @@
 package de.teamlapen.vampirism.data.provider;
 
+import de.teamlapen.lib.lib.util.LogUtil;
+import de.teamlapen.vampirism.VampirismMod;
 import de.teamlapen.vampirism.blocks.*;
+import de.teamlapen.vampirism.blocks.candle.ChandelierBlock;
 import de.teamlapen.vampirism.core.*;
 import de.teamlapen.vampirism.mixin.accessor.VanillaBlockLootAccessor;
 import de.teamlapen.vampirism.util.Helper;
@@ -44,6 +47,7 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceWit
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
+import net.neoforged.neoforge.registries.DeferredBlock;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -478,9 +482,6 @@ public class LootTablesProvider {
             this.dropSelf(ModBlocks.DARK_SPRUCE_SAPLING.get());
             this.dropSelf(ModBlocks.CURSED_SPRUCE_SAPLING.get());
             this.add(ModBlocks.DARK_SPRUCE_LEAVES.get(), (block) -> createLeavesDrops(block, ModBlocks.DARK_SPRUCE_SAPLING.get(), DEFAULT_SAPLING_DROP_RATES));
-            this.dropSelf(ModBlocks.CHANDELIER.get());
-            this.add(ModBlocks.CANDELABRA_WALL.get(), createSingleItemTable(ModItems.ITEM_CANDELABRA.get()));
-            this.add(ModBlocks.CANDELABRA.get(), createSingleItemTable(ModItems.ITEM_CANDELABRA.get()));
             this.add(ModBlocks.CROSS.get(), (p_218567_0_) -> createSinglePropConditionTable(p_218567_0_, VampirismSplitBlock.PART, VampirismSplitBlock.Part.MAIN));
             this.dropSelf(ModBlocks.TOMBSTONE1.get());
             this.dropSelf(ModBlocks.TOMBSTONE2.get());
@@ -573,6 +574,8 @@ public class LootTablesProvider {
             this.dropSelf(ModBlocks.INFUSER.get());
 
             Helper.STANDING_AND_WALL_CANDLE_STICKS.forEach(pair -> this.dropSelf(pair.getFirst()));
+            Helper.STANDING_AND_WALL_CANDELABRAS.forEach(pair -> this.dropSelf(pair.getFirst()));
+            Helper.HANGING_CHANDELIERS.forEach(this::dropSelf);
         }
 
         @NotNull

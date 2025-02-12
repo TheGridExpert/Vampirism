@@ -240,9 +240,8 @@ public class VampirismCreativeTab {
         private void addDecorativeBlocks() {
             addBlock(FIRE_PLACE);
             addItemGen(ModItems.CANDLE_STICK);
-            //addItemGen(ModItems.CANDELABRA);
-            //addItemGen(ModItems.CHANDELIER);
-            addBlock(CHANDELIER);
+            addItemGen(ModItems.CANDELABRA);
+            addItemGen(ModItems.CHANDELIER);
             addBlock(CROSS);
             addBlock(TOMBSTONE1);
             addBlock(TOMBSTONE2);
@@ -250,7 +249,6 @@ public class VampirismCreativeTab {
             addBlock(GRAVE_CAGE);
             addBlock(VAMPIRE_RACK);
             addBlock(THRONE);
-            addItem(ITEM_CANDELABRA);
             addBlock(BAT_CAGE);
             addBlock(MOTHER_TROPHY);
 

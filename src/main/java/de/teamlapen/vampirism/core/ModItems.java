@@ -19,8 +19,6 @@ import de.teamlapen.vampirism.items.crossbow.arrow.*;
 import de.teamlapen.vampirism.misc.VampirismCreativeTab;
 import de.teamlapen.vampirism.util.Helper;
 import de.teamlapen.vampirism.util.ItemDataUtils;
-import net.minecraft.Util;
-import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.component.DataComponents;
@@ -241,7 +239,6 @@ public class ModItems {
 
     public static final DeferredItem<Item> GARLIC_FINDER = register("garlic_finder", (prop) -> new Item(prop.rarity(Rarity.RARE)));
 
-    public static final DeferredItem<StandingAndWallBlockItem> ITEM_CANDELABRA = register("item_candelabra", (prop) -> new StandingAndWallBlockItem(ModBlocks.CANDELABRA.get(), ModBlocks.CANDELABRA_WALL.get(), Direction.DOWN, prop.overrideDescription(Util.makeDescriptionId("block", ModBlocks.CANDELABRA.getKey().location()))));
     public static final DeferredItem<SignItem> DARK_SPRUCE_SIGN = register("dark_spruce_sign", (prop) -> new SignItem(ModBlocks.DARK_SPRUCE_SIGN.get(), ModBlocks.DARK_SPRUCE_WALL_SIGN.get(), prop.useBlockDescriptionPrefix().stacksTo(16)));
     public static final DeferredItem<SignItem> CURSED_SPRUCE_SIGN = register("cursed_spruce_sign", (prop) -> new SignItem(ModBlocks.CURSED_SPRUCE_SIGN.get(), ModBlocks.CURSED_SPRUCE_WALL_SIGN.get(), prop.useBlockDescriptionPrefix().stacksTo(16)));
 
@@ -278,6 +275,44 @@ public class ModItems {
     public static final DeferredItem<PairCandleHolderItem> CANDLE_STICK_GREEN = register("candle_stick_green", null, (prop) -> new PairCandleHolderItem(ModBlocks.CANDLE_STICK_GREEN.get(), ModBlocks.WALL_CANDLE_STICK_GREEN.get(), prop));
     public static final DeferredItem<PairCandleHolderItem> CANDLE_STICK_RED = register("candle_stick_red", null, (prop) -> new PairCandleHolderItem(ModBlocks.CANDLE_STICK_RED.get(), ModBlocks.WALL_CANDLE_STICK_RED.get(), prop));
     public static final DeferredItem<PairCandleHolderItem> CANDLE_STICK_BLACK = register("candle_stick_black", null, (prop) -> new PairCandleHolderItem(ModBlocks.CANDLE_STICK_BLACK.get(), ModBlocks.WALL_CANDLE_STICK_BLACK.get(), prop));
+
+    public static final DeferredItem<PairCandleHolderItem> CANDELABRA = register("candelabra", (prop) -> new PairCandleHolderItem(ModBlocks.CANDELABRA.get(), ModBlocks.WALL_CANDELABRA.get(), prop, Helper.STANDING_AND_WALL_CANDELABRAS));
+    public static final DeferredItem<PairCandleHolderItem> CANDELABRA_NORMAL = register("candelabra_normal", null, (prop) -> new PairCandleHolderItem(ModBlocks.CANDELABRA_NORMAL.get(), ModBlocks.WALL_CANDELABRA_NORMAL.get(), prop));
+    public static final DeferredItem<PairCandleHolderItem> CANDELABRA_WHITE = register("candelabra_white", null, (prop) -> new PairCandleHolderItem(ModBlocks.CANDELABRA_WHITE.get(), ModBlocks.WALL_CANDELABRA_WHITE.get(), prop));
+    public static final DeferredItem<PairCandleHolderItem> CANDELABRA_ORANGE = register("candelabra_orange", null, (prop) -> new PairCandleHolderItem(ModBlocks.CANDELABRA_ORANGE.get(), ModBlocks.WALL_CANDELABRA_ORANGE.get(), prop));
+    public static final DeferredItem<PairCandleHolderItem> CANDELABRA_MAGENTA = register("candelabra_magenta", null, (prop) -> new PairCandleHolderItem(ModBlocks.CANDELABRA_MAGENTA.get(), ModBlocks.WALL_CANDELABRA_MAGENTA.get(), prop));
+    public static final DeferredItem<PairCandleHolderItem> CANDELABRA_LIGHT_BLUE = register("candelabra_light_blue", null, (prop) -> new PairCandleHolderItem(ModBlocks.CANDELABRA_LIGHT_BLUE.get(), ModBlocks.WALL_CANDELABRA_LIGHT_BLUE.get(), prop));
+    public static final DeferredItem<PairCandleHolderItem> CANDELABRA_YELLOW = register("candelabra_yellow", null, (prop) -> new PairCandleHolderItem(ModBlocks.CANDELABRA_YELLOW.get(), ModBlocks.WALL_CANDELABRA_YELLOW.get(), prop));
+    public static final DeferredItem<PairCandleHolderItem> CANDELABRA_LIME = register("candelabra_lime", null, (prop) -> new PairCandleHolderItem(ModBlocks.CANDELABRA_LIME.get(), ModBlocks.WALL_CANDELABRA_LIME.get(), prop));
+    public static final DeferredItem<PairCandleHolderItem> CANDELABRA_PINK = register("candelabra_pink", null, (prop) -> new PairCandleHolderItem(ModBlocks.CANDELABRA_PINK.get(), ModBlocks.WALL_CANDELABRA_PINK.get(), prop));
+    public static final DeferredItem<PairCandleHolderItem> CANDELABRA_GRAY = register("candelabra_gray", null, (prop) -> new PairCandleHolderItem(ModBlocks.CANDELABRA_GRAY.get(), ModBlocks.WALL_CANDELABRA_GRAY.get(), prop));
+    public static final DeferredItem<PairCandleHolderItem> CANDELABRA_LIGHT_GRAY = register("candelabra_light_gray", null, (prop) -> new PairCandleHolderItem(ModBlocks.CANDELABRA_LIGHT_GRAY.get(), ModBlocks.WALL_CANDELABRA_LIGHT_GRAY.get(), prop));
+    public static final DeferredItem<PairCandleHolderItem> CANDELABRA_CYAN = register("candelabra_cyan", null, (prop) -> new PairCandleHolderItem(ModBlocks.CANDELABRA_CYAN.get(), ModBlocks.WALL_CANDELABRA_CYAN.get(), prop));
+    public static final DeferredItem<PairCandleHolderItem> CANDELABRA_PURPLE = register("candelabra_purple", null, (prop) -> new PairCandleHolderItem(ModBlocks.CANDELABRA_PURPLE.get(), ModBlocks.WALL_CANDELABRA_PURPLE.get(), prop));
+    public static final DeferredItem<PairCandleHolderItem> CANDELABRA_BLUE = register("candelabra_blue", null, (prop) -> new PairCandleHolderItem(ModBlocks.CANDELABRA_BLUE.get(), ModBlocks.WALL_CANDELABRA_BLUE.get(), prop));
+    public static final DeferredItem<PairCandleHolderItem> CANDELABRA_BROWN = register("candelabra_brown", null, (prop) -> new PairCandleHolderItem(ModBlocks.CANDELABRA_BROWN.get(), ModBlocks.WALL_CANDELABRA_BROWN.get(), prop));
+    public static final DeferredItem<PairCandleHolderItem> CANDELABRA_GREEN = register("candelabra_green", null, (prop) -> new PairCandleHolderItem(ModBlocks.CANDELABRA_GREEN.get(), ModBlocks.WALL_CANDELABRA_GREEN.get(), prop));
+    public static final DeferredItem<PairCandleHolderItem> CANDELABRA_RED = register("candelabra_red", null, (prop) -> new PairCandleHolderItem(ModBlocks.CANDELABRA_RED.get(), ModBlocks.WALL_CANDELABRA_RED.get(), prop));
+    public static final DeferredItem<PairCandleHolderItem> CANDELABRA_BLACK = register("candelabra_black", null, (prop) -> new PairCandleHolderItem(ModBlocks.CANDELABRA_BLACK.get(), ModBlocks.WALL_CANDELABRA_BLACK.get(), prop));
+
+    public static final DeferredItem<CandleHolderItem> CHANDELIER = register("chandelier", (prop) -> new CandleHolderItem(ModBlocks.CHANDELIER.get(), prop, Helper.HANGING_CHANDELIERS));
+    public static final DeferredItem<CandleHolderItem> CHANDELIER_NORMAL = register("chandelier_normal", null, (prop) -> new CandleHolderItem(ModBlocks.CHANDELIER_NORMAL.get(), prop));
+    public static final DeferredItem<CandleHolderItem> CHANDELIER_WHITE = register("chandelier_white", null, (prop) -> new CandleHolderItem(ModBlocks.CHANDELIER_WHITE.get(), prop));
+    public static final DeferredItem<CandleHolderItem> CHANDELIER_ORANGE = register("chandelier_orange", null, (prop) -> new CandleHolderItem(ModBlocks.CHANDELIER_ORANGE.get(), prop));
+    public static final DeferredItem<CandleHolderItem> CHANDELIER_MAGENTA = register("chandelier_magenta", null, (prop) -> new CandleHolderItem(ModBlocks.CHANDELIER_MAGENTA.get(), prop));
+    public static final DeferredItem<CandleHolderItem> CHANDELIER_LIGHT_BLUE = register("chandelier_light_blue", null, (prop) -> new CandleHolderItem(ModBlocks.CHANDELIER_LIGHT_BLUE.get(), prop));
+    public static final DeferredItem<CandleHolderItem> CHANDELIER_YELLOW = register("chandelier_yellow", null, (prop) -> new CandleHolderItem(ModBlocks.CHANDELIER_YELLOW.get(), prop));
+    public static final DeferredItem<CandleHolderItem> CHANDELIER_LIME = register("chandelier_lime", null, (prop) -> new CandleHolderItem(ModBlocks.CHANDELIER_LIME.get(), prop));
+    public static final DeferredItem<CandleHolderItem> CHANDELIER_PINK = register("chandelier_pink", null, (prop) -> new CandleHolderItem(ModBlocks.CHANDELIER_PINK.get(), prop));
+    public static final DeferredItem<CandleHolderItem> CHANDELIER_GRAY = register("chandelier_gray", null, (prop) -> new CandleHolderItem(ModBlocks.CHANDELIER_GRAY.get(), prop));
+    public static final DeferredItem<CandleHolderItem> CHANDELIER_LIGHT_GRAY = register("chandelier_light_gray", null, (prop) -> new CandleHolderItem(ModBlocks.CHANDELIER_LIGHT_GRAY.get(), prop));
+    public static final DeferredItem<CandleHolderItem> CHANDELIER_CYAN = register("chandelier_cyan", null, (prop) -> new CandleHolderItem(ModBlocks.CHANDELIER_CYAN.get(), prop));
+    public static final DeferredItem<CandleHolderItem> CHANDELIER_PURPLE = register("chandelier_purple", null, (prop) -> new CandleHolderItem(ModBlocks.CHANDELIER_PURPLE.get(), prop));
+    public static final DeferredItem<CandleHolderItem> CHANDELIER_BLUE = register("chandelier_blue", null, (prop) -> new CandleHolderItem(ModBlocks.CHANDELIER_BLUE.get(), prop));
+    public static final DeferredItem<CandleHolderItem> CHANDELIER_BROWN = register("chandelier_brown", null, (prop) -> new CandleHolderItem(ModBlocks.CHANDELIER_BROWN.get(), prop));
+    public static final DeferredItem<CandleHolderItem> CHANDELIER_GREEN = register("chandelier_green", null, (prop) -> new CandleHolderItem(ModBlocks.CHANDELIER_GREEN.get(), prop));
+    public static final DeferredItem<CandleHolderItem> CHANDELIER_RED = register("chandelier_red", null, (prop) -> new CandleHolderItem(ModBlocks.CHANDELIER_RED.get(), prop));
+    public static final DeferredItem<CandleHolderItem> CHANDELIER_BLACK = register("chandelier_black", null, (prop) -> new CandleHolderItem(ModBlocks.CHANDELIER_BLACK.get(), prop));
 
     static void registerCraftingRecipes(RegisterBrewingRecipesEvent event) {
         PotionBrewing.Builder builder = event.getBuilder();

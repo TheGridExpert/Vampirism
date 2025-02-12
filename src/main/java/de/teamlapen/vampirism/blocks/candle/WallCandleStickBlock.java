@@ -19,7 +19,6 @@ import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.EnumMap;
@@ -27,7 +26,6 @@ import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-@SuppressWarnings("deprecation")
 public class WallCandleStickBlock extends CandleHolderBlock {
     public static final MapCodec<WallCandleStickBlock> CODEC = RecordCodecBuilder.mapCodec(inst ->
             candleStickParts(inst).apply(inst, WallCandleStickBlock::new)
@@ -55,8 +53,8 @@ public class WallCandleStickBlock extends CandleHolderBlock {
     }
 
     @Override
-    public boolean canSurvive(@NotNull BlockState state, @NotNull LevelReader level, BlockPos pos) {
-        return level.getBlockState(pos.relative(state.getValue(FACING).getOpposite())).isSolid();
+    public boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
+        return canSupportCenter(level, pos.relative(state.getValue(FACING).getOpposite()), state.getValue(FACING));
     }
 
     @Override
@@ -65,22 +63,22 @@ public class WallCandleStickBlock extends CandleHolderBlock {
     }
 
     @Override
-    public @NotNull BlockState updateShape(@NotNull BlockState state, @NotNull LevelReader level, @NotNull ScheduledTickAccess tickAccess, @NotNull BlockPos pos, @NotNull Direction direction, @NotNull BlockPos pNeighborPos, @NotNull BlockState pNeighborState, @NotNull RandomSource randomSource) {
-        return direction.getOpposite() == state.getValue(FACING) && !state.canSurvive(level, pos) ? Blocks.AIR.defaultBlockState() : super.updateShape(state, level, tickAccess, pos, direction, pNeighborPos, pNeighborState, randomSource);
+    public BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess tickAccess, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, RandomSource randomSource) {
+        return direction.getOpposite() == state.getValue(FACING) && !state.canSurvive(level, pos) ? Blocks.AIR.defaultBlockState() : super.updateShape(state, level, tickAccess, pos, direction, neighborPos, neighborState, randomSource);
     }
 
     @Override
-    public @NotNull VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context) {
+    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return isEmpty() ? SHAPES.get(state.getValue(FACING)) : SHAPES_WITH_CANDLE.get(state.getValue(FACING));
     }
 
     @Override
-    protected @NotNull MapCodec<? extends AbstractCandleBlock> codec() {
+    protected MapCodec<? extends AbstractCandleBlock> codec() {
         return CODEC;
     }
 
     @Override
-    protected @NotNull Iterable<Vec3> getParticleOffsets(BlockState state) {
+    protected Iterable<Vec3> getParticleOffsets(BlockState state) {
         return PARTICLE_OFFSET.get(state.getValue(FACING));
     }
 }

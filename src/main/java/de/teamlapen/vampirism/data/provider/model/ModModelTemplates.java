@@ -13,6 +13,9 @@ public class ModModelTemplates extends net.minecraft.client.data.models.model.Mo
     public static final ModelTemplate ALTAR_PILLAR_FILLED = create(mod("altar_pillar_filled"), ModTextureSlots.FILLER);
     public static final ModelTemplate CANDLE_STICK_FILLED = create(mod("candle_stick_filled"), ModTextureSlots.CANDLE);
     public static final ModelTemplate WALL_CANDLE_STICK_FILLED = create(mod("wall_candle_stick_filled"), ModTextureSlots.CANDLE);
+    public static final ModelTemplate CANDELABRA_FILLED = create(mod("candelabra_filled"), ModTextureSlots.CANDLE);
+    public static final ModelTemplate WALL_CANDELABRA_FILLED = create(mod("wall_candelabra_filled"), ModTextureSlots.CANDLE);
+    public static final ModelTemplate CHANDELIER_FILLED = create(mod("chandelier_filled"), ModTextureSlots.CANDLE);
     public static final ModelTemplate COFFIN = create(mod("coffin"), ModTextureSlots.TEXTURE0);
     public static final ModelTemplate COFFIN_BOTTOM = create(mod("coffin_bottom"), ModTextureSlots.TEXTURE0);
     public static final ModelTemplate COFFIN_TOP = create(mod("coffin_top"), ModTextureSlots.TEXTURE0);

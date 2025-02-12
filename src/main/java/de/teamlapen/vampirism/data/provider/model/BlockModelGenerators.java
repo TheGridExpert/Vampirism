@@ -181,14 +181,33 @@ public class BlockModelGenerators extends de.teamlapen.lib.lib.data.BlockModelGe
     }
 
     protected void createCandleHolders() {
-        createCandleHolder(ModBlocks.CANDLE_STICK.get());
+        createEmptyCandleHolder(ModBlocks.CANDLE_STICK.get());
         createDefaultBlockItem(ModBlocks.CANDLE_STICK.get());
-        createCandleHolder(ModBlocks.WALL_CANDLE_STICK.get());
+        createEmptyCandleHolder(ModBlocks.WALL_CANDLE_STICK.get());
 
         for (int i = 1; i < Helper.STANDING_AND_WALL_CANDLE_STICKS.size(); i++) {
             Pair<CandleHolderBlock, CandleHolderBlock> pair = Helper.STANDING_AND_WALL_CANDLE_STICKS.get(i);
             createCandleStick(pair.getFirst(), pair.getSecond(), pair.getFirst().getCandle().get());
             createDefaultBlockItem(pair.getFirst());
+        }
+
+        createEmptyCandleHolder(ModBlocks.CANDELABRA.get());
+        createDefaultBlockItem(ModBlocks.CANDELABRA.get());
+        createEmptyCandleHolder(ModBlocks.WALL_CANDELABRA.get());
+
+        for (int i = 1; i < Helper.STANDING_AND_WALL_CANDELABRAS.size(); i++) {
+            Pair<CandleHolderBlock, CandleHolderBlock> pair = Helper.STANDING_AND_WALL_CANDELABRAS.get(i);
+            createCandelabra(pair.getFirst(), pair.getSecond(), pair.getFirst().getCandle().get());
+            createDefaultBlockItem(pair.getFirst());
+        }
+
+        createNonTemplateModelBlock(ModBlocks.CHANDELIER.get());
+        createDefaultBlockItem(ModBlocks.CHANDELIER.get());
+
+        for (int i = 1; i < Helper.HANGING_CHANDELIERS.size(); i++) {
+            CandleHolderBlock block = Helper.HANGING_CHANDELIERS.get(i);
+            createChandelier(block, block.getCandle().get());
+            createDefaultBlockItem(block);
         }
     }
 
@@ -197,7 +216,12 @@ public class BlockModelGenerators extends de.teamlapen.lib.lib.data.BlockModelGe
         createFilledCandleHolder(wallBlock, candle, ModModelTemplates.WALL_CANDLE_STICK_FILLED);
     }
 
-    protected void createCandleHolder(CandleHolderBlock block) {
+    private void createCandelabra(CandleHolderBlock standingBlock, CandleHolderBlock wallBlock, Item candle) {
+        createFilledCandleHolder(standingBlock, candle, ModModelTemplates.CANDELABRA_FILLED);
+        createFilledCandleHolder(wallBlock, candle, ModModelTemplates.WALL_CANDELABRA_FILLED);
+    }
+
+    protected void createEmptyCandleHolder(CandleHolderBlock block) {
         this.blockStateOutput.accept(MultiVariantGenerator.multiVariant(block).with(PropertyDispatch.property(BlockStateProperties.HORIZONTAL_FACING).generate(facing -> Variant.variant().with(VariantProperties.MODEL, ModelLocationUtils.getModelLocation(block)).with(VariantProperties.Y_ROT, directionToRotation(facing)))));
     }
 
@@ -205,11 +229,14 @@ public class BlockModelGenerators extends de.teamlapen.lib.lib.data.BlockModelGe
         ResourceLocation candleTexture = BuiltInRegistries.ITEM.getKey(candle).withPrefix("block/");
         ResourceLocation model = modelTemplate.create(block, new TextureMapping().put(ModTextureSlots.CANDLE, candleTexture), this.modelOutput);
         ResourceLocation litModel = modelTemplate.createWithSuffix(block, "_lit", new TextureMapping().put(ModTextureSlots.CANDLE, candleTexture.withSuffix("_lit")), this.modelOutput);
-        createCandleHolderPiece(block, model, litModel);
+        this.blockStateOutput.accept(MultiVariantGenerator.multiVariant(block).with(PropertyDispatch.properties(AbstractCandleBlock.LIT, BlockStateProperties.HORIZONTAL_FACING).generate((lit, facing) -> Variant.variant().with(VariantProperties.MODEL, lit ? litModel : model).with(VariantProperties.Y_ROT, directionToRotation(facing)))));
     }
 
-    protected void createCandleHolderPiece(CandleHolderBlock block, ResourceLocation model, ResourceLocation litModel) {
-        this.blockStateOutput.accept(MultiVariantGenerator.multiVariant(block).with(PropertyDispatch.properties(AbstractCandleBlock.LIT, BlockStateProperties.HORIZONTAL_FACING).generate((lit, facing) -> Variant.variant().with(VariantProperties.MODEL, lit ? litModel : model).with(VariantProperties.Y_ROT, directionToRotation(facing)))));
+    private void createChandelier(CandleHolderBlock block, Item candle) {
+        ResourceLocation candleTexture = BuiltInRegistries.ITEM.getKey(candle).withPrefix("block/");
+        ResourceLocation model = ModModelTemplates.CHANDELIER_FILLED.create(block, new TextureMapping().put(ModTextureSlots.CANDLE, candleTexture), this.modelOutput);
+        ResourceLocation litModel = ModModelTemplates.CHANDELIER_FILLED.createWithSuffix(block, "_lit", new TextureMapping().put(ModTextureSlots.CANDLE, candleTexture.withSuffix("_lit")), this.modelOutput);
+        this.blockStateOutput.accept(MultiVariantGenerator.multiVariant(block).with(PropertyDispatch.property(AbstractCandleBlock.LIT).generate(lit -> Variant.variant().with(VariantProperties.MODEL, lit ? litModel : model))));
     }
 
     public static VariantProperties.Rotation directionToRotation(Direction direction) {
@@ -237,9 +264,6 @@ public class BlockModelGenerators extends de.teamlapen.lib.lib.data.BlockModelGe
                 ModBlocks.BLOOD_PEDESTAL,
                 ModBlocks.POTION_TABLE,
                 ModBlocks.FIRE_PLACE,
-                ModBlocks.CHANDELIER,
-                ModBlocks.CANDELABRA,
-                ModBlocks.CANDELABRA_WALL,
                 ModBlocks.CROSS,
                 ModBlocks.TOMBSTONE1,
                 ModBlocks.TOMBSTONE2,

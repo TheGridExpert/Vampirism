@@ -17,13 +17,11 @@ import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-@SuppressWarnings("deprecation")
 public class StandingCandleStickBlock extends CandleHolderBlock {
     public static final MapCodec<StandingCandleStickBlock> CODEC = RecordCodecBuilder.mapCodec(inst ->
             candleStickParts(inst).apply(inst, StandingCandleStickBlock::new)
@@ -45,27 +43,22 @@ public class StandingCandleStickBlock extends CandleHolderBlock {
     }
 
     @Override
-    public boolean canSurvive(@NotNull BlockState state, @NotNull LevelReader level, BlockPos pos) {
-        return level.getBlockState(pos.below()).isSolid();
-    }
-
-    @Override
-    public @NotNull BlockState updateShape(@NotNull BlockState state, @NotNull LevelReader level, @NotNull ScheduledTickAccess tickAccess, @NotNull BlockPos pos, @NotNull Direction pDirection, @NotNull BlockPos pNeighborPos, @NotNull BlockState pNeighborState, @NotNull RandomSource randomSource) {
+    public BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess tickAccess, BlockPos pos, Direction pDirection, BlockPos pNeighborPos, BlockState pNeighborState, RandomSource randomSource) {
         return pDirection == Direction.DOWN && !this.canSurvive(state, level, pos) ? Blocks.AIR.defaultBlockState() : super.updateShape(state, level, tickAccess, pos, pDirection, pNeighborPos, pNeighborState, randomSource);
     }
 
     @Override
-    public @NotNull VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context) {
+    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return isEmpty() ? SHAPE : SHAPE_WITH_CANDLE;
     }
 
     @Override
-    protected @NotNull MapCodec<? extends AbstractCandleBlock> codec() {
+    protected MapCodec<? extends AbstractCandleBlock> codec() {
         return CODEC;
     }
 
     @Override
-    protected @NotNull Iterable<Vec3> getParticleOffsets(@NotNull BlockState state) {
+    protected Iterable<Vec3> getParticleOffsets(BlockState state) {
         return PARTICLE_OFFSET;
     }
 }
