@@ -99,7 +99,7 @@ public class BlockModelGenerators extends de.teamlapen.lib.lib.data.BlockModelGe
     }
 
     protected void createPlants() {
-        createPlantWithDefaultItem(ModBlocks.VAMPIRE_ORCHID.get(),ModBlocks.POTTED_VAMPIRE_ORCHID.get(), PlantType.NOT_TINTED);
+        createPlantWithDefaultItem(ModBlocks.VAMPIRE_ORCHID.get(), ModBlocks.POTTED_VAMPIRE_ORCHID.get(), PlantType.NOT_TINTED);
         createPlantWithDefaultItem(ModBlocks.CURSED_SPRUCE_SAPLING.get(), ModBlocks.POTTED_CURSED_SPRUCE_SAPLING.get(), PlantType.NOT_TINTED);
         createPlantWithDefaultItem(ModBlocks.DARK_SPRUCE_SAPLING.get(), ModBlocks.POTTED_DARK_SPRUCE_SAPLING.get(),PlantType.NOT_TINTED);
         createPlantWithDefaultItem(ModBlocks.CURSED_ROOTS.get(), ModBlocks.POTTED_CURSED_ROOTS.get(), PlantType.NOT_TINTED);
@@ -469,5 +469,4 @@ public class BlockModelGenerators extends de.teamlapen.lib.lib.data.BlockModelGe
                 .with(Condition.condition().term(BloodInfuserBlock.IS_ACTIVE, true), Variant.variant().with(VariantProperties.MODEL, VResourceLocation.mod("block/blood_infuser/infuser_blood"))));
         this.createDefaultBlockItem(ModBlocks.INFUSER.get(), VResourceLocation.mod("block/blood_infuser/infuser"));
     }
-
 }

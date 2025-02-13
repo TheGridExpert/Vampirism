@@ -45,7 +45,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static de.teamlapen.lib.lib.util.RegisterHelper.flammable;
-import static de.teamlapen.lib.lib.util.RegisterHelper.potted;
 
 /**
  * Handles all block registrations and reference.
@@ -84,7 +83,7 @@ public class ModBlocks {
     public static final DeferredBlock<TotemTopBlock> TOTEM_TOP_VAMPIRISM_VAMPIRE_CRAFTED = BLOCKS.registerBlock("totem_top_vampirism_vampire_crafted", (prop) -> new TotemTopBlock(prop, true, ModFactions.VAMPIRE));
     public static final DeferredBlock<TotemTopBlock> TOTEM_TOP_VAMPIRISM_HUNTER_CRAFTED = BLOCKS.registerBlock("totem_top_vampirism_hunter_crafted", (prop) -> new TotemTopBlock(prop, true, ModFactions.HUNTER));
     public static final DeferredBlock<VampirismFlowerBlock> VAMPIRE_ORCHID = registerWithItem("vampire_orchid", (prop) -> new VampirismFlowerBlock(prop, VampirismFlowerBlock.TYPE.ORCHID));
-    public static final DeferredBlock<FlowerPotBlock> POTTED_VAMPIRE_ORCHID = BLOCKS.registerBlock("potted_vampire_orchid", (prop) -> potted(new FlowerPotBlock(() -> (FlowerPotBlock) Blocks.FLOWER_POT, VAMPIRE_ORCHID, prop.noCollission().isViewBlocking(UtilLib::never).pushReaction(PushReaction.DESTROY).instabreak()), VAMPIRE_ORCHID.getId()));
+    public static final DeferredBlock<FlowerPotBlock> POTTED_VAMPIRE_ORCHID = registerPottedPlant("potted_vampire_orchid", VAMPIRE_ORCHID);
     public static final DeferredBlock<WeaponTableBlock> WEAPON_TABLE = registerWithItem("weapon_table", WeaponTableBlock::new);
     public static final DeferredBlock<PotionTableBlock> POTION_TABLE = registerWithItem("potion_table", (prop) -> new PotionTableBlock(prop.mapColor(MapColor.METAL).strength(1f).noOcclusion()));
     public static final DeferredBlock<DarkSpruceLeavesBlock> DARK_SPRUCE_LEAVES = registerWithItem("dark_spruce_leaves", DarkSpruceLeavesBlock::new);
@@ -95,7 +94,7 @@ public class ModBlocks {
     public static final DeferredBlock<VampirismBlock> GRAVE_CAGE = registerWithItem("grave_cage", (prop) -> new VampirismHorizontalBlock(prop.mapColor(MapColor.METAL).strength(6, 8).requiresCorrectToolForDrops().sound(SoundType.METAL), BlockVoxelshapes.grave_cage).markDecorativeBlock());
     public static final DeferredBlock<CursedGrass> CURSED_GRASS = registerWithItem("cursed_grass", (prop) -> new CursedGrass(prop.mapColor(MapColor.COLOR_BLACK).randomTicks().strength(0.6F).sound(SoundType.GRASS)));
     public static final DeferredBlock<BushBlock> CURSED_ROOTS = registerWithItem("cursed_roots", (prop) -> flammable(new BushBlock(prop.mapColor(MapColor.COLOR_RED).isViewBlocking(UtilLib::never).pushReaction(PushReaction.DESTROY).ignitedByLava().replaceable().noCollission().instabreak().sound(SoundType.GRASS)), 60, 100));
-    public static final DeferredBlock<Block> POTTED_CURSED_ROOTS = BLOCKS.registerBlock("potted_cursed_roots", (prop) -> potted(new FlowerPotBlock(() -> (FlowerPotBlock) Blocks.FLOWER_POT, CURSED_ROOTS, prop.noCollission().isViewBlocking(UtilLib::never).pushReaction(PushReaction.DESTROY).ignitedByLava().replaceable().instabreak().noOcclusion()), CURSED_ROOTS.getId()));
+    public static final DeferredBlock<FlowerPotBlock> POTTED_CURSED_ROOTS = registerPottedPlant("potted_cursed_roots", CURSED_ROOTS);
     public static final DeferredBlock<Block> DARK_SPRUCE_PLANKS = registerWithItem(ModRegistryItems.DARK_SPRUCE_PLANKS.getId().getPath(), (prop) -> new Block(prop.mapColor(MapColor.COLOR_GRAY).ignitedByLava().mapColor(MapColor.COLOR_GRAY).strength(2.0F, 3.0F).sound(SoundType.WOOD)));
     public static final DeferredBlock<Block> CURSED_SPRUCE_PLANKS = registerWithItem(ModRegistryItems.CURSED_SPRUCE_PLANKS.getId().getPath(), (prop) -> new Block(prop.ignitedByLava().mapColor(MapColor.CRIMSON_HYPHAE).strength(2.0F, 3.0F).sound(SoundType.WOOD)));
     public static final DeferredBlock<LogBlock> STRIPPED_DARK_SPRUCE_LOG = registerWithItem("stripped_dark_spruce_log", (prop) -> new LogBlock(prop, MapColor.COLOR_BLACK, MapColor.COLOR_GRAY));
@@ -158,29 +157,29 @@ public class ModBlocks {
     public static final DeferredBlock<CursedEarthPathBlock> CURSED_EARTH_PATH = registerWithItem("cursed_earth_path", (prop) -> new CursedEarthPathBlock(prop.mapColor(MapColor.DIRT).strength(0.65F).sound(SoundType.GRASS).isViewBlocking(UtilLib::always).isSuffocating(UtilLib::always)));
     public static final DeferredBlock<DarkStoneBlock> DARK_STONE = registerWithItem("dark_stone", (prop) -> new DarkStoneBlock(prop.mapColor(MapColor.DEEPSLATE).requiresCorrectToolForDrops().strength(2f, 10f).sound(SoundType.STONE)));
     public static final DeferredBlock<DarkStoneStairsBlock> DARK_STONE_STAIRS = registerWithItem("dark_stone_stairs", (prop) -> new DarkStoneStairsBlock(DARK_STONE, prop), () -> BlockBehaviour.Properties.ofFullCopy(DARK_STONE.get()));
-    public static final DeferredBlock<DarkStoneSlabBlock> DARK_STONE_SLAB = registerWithItem("dark_stone_slab", (prop) -> new DarkStoneSlabBlock(prop), () -> BlockBehaviour.Properties.ofFullCopy(DARK_STONE.get()));
+    public static final DeferredBlock<DarkStoneSlabBlock> DARK_STONE_SLAB = registerWithItem("dark_stone_slab", DarkStoneSlabBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(DARK_STONE.get()));
     public static final DeferredBlock<WallBlock> DARK_STONE_WALL = registerWithItem("dark_stone_wall", (prop) -> new WallBlock(prop.forceSolidOn()), () -> BlockBehaviour.Properties.ofFullCopy(DARK_STONE.get()));
     public static final DeferredBlock<DarkStoneBlock> DARK_STONE_BRICKS = registerWithItem("dark_stone_bricks", (prop) -> new DarkStoneBlock(prop.mapColor(MapColor.DEEPSLATE).requiresCorrectToolForDrops().strength(2f, 10f).sound(SoundType.STONE)));
     public static final DeferredBlock<DarkStoneStairsBlock> DARK_STONE_BRICK_STAIRS = registerWithItem("dark_stone_brick_stairs", (prop) -> new DarkStoneStairsBlock(DARK_STONE_BRICKS, prop), () -> BlockBehaviour.Properties.ofFullCopy(DARK_STONE_BRICKS.get()));
-    public static final DeferredBlock<DarkStoneSlabBlock> DARK_STONE_BRICK_SLAB = registerWithItem("dark_stone_brick_slab", (prop) -> new DarkStoneSlabBlock(prop), () -> BlockBehaviour.Properties.ofFullCopy(DARK_STONE_BRICKS.get()));
+    public static final DeferredBlock<DarkStoneSlabBlock> DARK_STONE_BRICK_SLAB = registerWithItem("dark_stone_brick_slab", DarkStoneSlabBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(DARK_STONE_BRICKS.get()));
     public static final DeferredBlock<WallBlock> DARK_STONE_BRICK_WALL = registerWithItem("dark_stone_brick_wall", (prop) -> new WallBlock(prop.forceSolidOn()), () -> BlockBehaviour.Properties.ofFullCopy(DARK_STONE_BRICKS.get()));
-    public static final DeferredBlock<Block> CRACKED_DARK_STONE_BRICKS = registerWithItem("cracked_dark_stone_bricks", (prop) -> new DarkStoneBlock(prop), () -> BlockBehaviour.Properties.ofFullCopy(DARK_STONE_BRICKS.get()));
+    public static final DeferredBlock<Block> CRACKED_DARK_STONE_BRICKS = registerWithItem("cracked_dark_stone_bricks", DarkStoneBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(DARK_STONE_BRICKS.get()));
     public static final DeferredBlock<DarkStoneBlock> COBBLED_DARK_STONE = registerWithItem("cobbled_dark_stone", (prop) -> new DarkStoneBlock(prop.mapColor(MapColor.DEEPSLATE).strength(2.5f, 10f).requiresCorrectToolForDrops().sound(SoundType.STONE)));
     public static final DeferredBlock<DarkStoneStairsBlock> COBBLED_DARK_STONE_STAIRS = registerWithItem("cobbled_dark_stone_stairs", (prop) -> new DarkStoneStairsBlock(ModBlocks.COBBLED_DARK_STONE, prop), () -> BlockBehaviour.Properties.ofFullCopy(COBBLED_DARK_STONE.get()));
-    public static final DeferredBlock<DarkStoneSlabBlock> COBBLED_DARK_STONE_SLAB = registerWithItem("cobbled_dark_stone_slab", (prop) -> new DarkStoneSlabBlock(prop), () -> BlockBehaviour.Properties.ofFullCopy(COBBLED_DARK_STONE.get()));
+    public static final DeferredBlock<DarkStoneSlabBlock> COBBLED_DARK_STONE_SLAB = registerWithItem("cobbled_dark_stone_slab", DarkStoneSlabBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(COBBLED_DARK_STONE.get()));
     public static final DeferredBlock<WallBlock> COBBLED_DARK_STONE_WALL = registerWithItem("cobbled_dark_stone_wall", (prop) -> new WallBlock(prop.forceSolidOn()), () -> BlockBehaviour.Properties.ofFullCopy(COBBLED_DARK_STONE.get()));
-    public static final DeferredBlock<DarkStoneBlock> POLISHED_DARK_STONE = registerWithItem("polished_dark_stone", (prop) -> new DarkStoneBlock(prop), () -> BlockBehaviour.Properties.ofFullCopy(COBBLED_DARK_STONE.get()));
+    public static final DeferredBlock<DarkStoneBlock> POLISHED_DARK_STONE = registerWithItem("polished_dark_stone", DarkStoneBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(COBBLED_DARK_STONE.get()));
     public static final DeferredBlock<DarkStoneStairsBlock> POLISHED_DARK_STONE_STAIRS = registerWithItem("polished_dark_stone_stairs", (prop) -> new DarkStoneStairsBlock(POLISHED_DARK_STONE, prop), () -> BlockBehaviour.Properties.ofFullCopy(POLISHED_DARK_STONE.get()));
-    public static final DeferredBlock<DarkStoneSlabBlock> POLISHED_DARK_STONE_SLAB = registerWithItem("polished_dark_stone_slab", (prop) -> new DarkStoneSlabBlock(prop), () -> BlockBehaviour.Properties.ofFullCopy(POLISHED_DARK_STONE.get()));
+    public static final DeferredBlock<DarkStoneSlabBlock> POLISHED_DARK_STONE_SLAB = registerWithItem("polished_dark_stone_slab", DarkStoneSlabBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(POLISHED_DARK_STONE.get()));
     public static final DeferredBlock<WallBlock> POLISHED_DARK_STONE_WALL = registerWithItem("polished_dark_stone_wall", (prop) -> new WallBlock(prop.forceSolidOn()), () -> BlockBehaviour.Properties.ofFullCopy(POLISHED_DARK_STONE.get()));
-    public static final DeferredBlock<DarkStoneBlock> DARK_STONE_TILES = registerWithItem("dark_stone_tiles", (prop) -> new DarkStoneBlock(prop), () -> BlockBehaviour.Properties.ofFullCopy(COBBLED_DARK_STONE.get()));
-    public static final DeferredBlock<DarkStoneBlock> CRACKED_DARK_STONE_TILES = registerWithItem("cracked_dark_stone_tiles", (prop) -> new DarkStoneBlock(prop), () -> BlockBehaviour.Properties.ofFullCopy(DARK_STONE_TILES.get()));
+    public static final DeferredBlock<DarkStoneBlock> DARK_STONE_TILES = registerWithItem("dark_stone_tiles", DarkStoneBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(COBBLED_DARK_STONE.get()));
+    public static final DeferredBlock<DarkStoneBlock> CRACKED_DARK_STONE_TILES = registerWithItem("cracked_dark_stone_tiles", DarkStoneBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(DARK_STONE_TILES.get()));
     public static final DeferredBlock<DarkStoneStairsBlock> DARK_STONE_TILES_STAIRS = registerWithItem("dark_stone_tiles_stairs", (prop) -> new DarkStoneStairsBlock(ModBlocks.DARK_STONE_TILES, prop), () -> BlockBehaviour.Properties.ofFullCopy(DARK_STONE_TILES.get()));
-    public static final DeferredBlock<DarkStoneSlabBlock> DARK_STONE_TILES_SLAB = registerWithItem("dark_stone_tiles_slab", (prop) -> new DarkStoneSlabBlock(prop), () -> BlockBehaviour.Properties.ofFullCopy(DARK_STONE_TILES.get()));
+    public static final DeferredBlock<DarkStoneSlabBlock> DARK_STONE_TILES_SLAB = registerWithItem("dark_stone_tiles_slab", DarkStoneSlabBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(DARK_STONE_TILES.get()));
     public static final DeferredBlock<WallBlock> DARK_STONE_TILES_WALL = registerWithItem("dark_stone_tiles_wall", (prop) -> new WallBlock(prop.forceSolidOn()), () -> BlockBehaviour.Properties.ofFullCopy(DARK_STONE_TILES.get()));
-    public static final DeferredBlock<DarkStoneBlock> CHISELED_DARK_STONE_BRICKS = registerWithItem("chiseled_dark_stone_bricks", (prop) -> new DarkStoneBlock(prop), () -> BlockBehaviour.Properties.ofFullCopy(DARK_STONE_BRICKS.get()));
-    public static final DeferredBlock<DarkStoneBlock> INFESTED_DARK_STONE = registerWithItem("infested_dark_stone", (prop) -> new DarkStoneBlock(prop), () -> BlockBehaviour.Properties.ofFullCopy(DARK_STONE.get()));
-    public static final DeferredBlock<DarkStoneBlock> BLOODY_DARK_STONE_BRICKS = registerWithItem("bloody_dark_stone_bricks", (prop) -> new DarkStoneBlock(prop), () -> BlockBehaviour.Properties.ofFullCopy(DARK_STONE_BRICKS.get()));
+    public static final DeferredBlock<DarkStoneBlock> CHISELED_DARK_STONE_BRICKS = registerWithItem("chiseled_dark_stone_bricks", DarkStoneBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(DARK_STONE_BRICKS.get()));
+    public static final DeferredBlock<DarkStoneBlock> INFESTED_DARK_STONE = registerWithItem("infested_dark_stone", DarkStoneBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(DARK_STONE.get()));
+    public static final DeferredBlock<DarkStoneBlock> BLOODY_DARK_STONE_BRICKS = registerWithItem("bloody_dark_stone_bricks", DarkStoneBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(DARK_STONE_BRICKS.get()));
     public static final DeferredBlock<Block> BAT_CAGE = registerWithItem("bat_cage", (prop) -> new BatCageBlock(prop.strength(5.0F, 6.0F).sound(SoundType.METAL).noOcclusion()));
     public static final DeferredBlock<RemainsBlock> REMAINS = BLOCKS.registerBlock("remains", (prop) -> new RemainsBlock(prop.mapColor(MapColor.TERRACOTTA_BROWN).strength(-1, 3600000.0F).sound(SoundType.ROOTED_DIRT).randomTicks().noLootTable(), false, false));
     public static final DeferredBlock<RemainsBlock> VULNERABLE_REMAINS = BLOCKS.registerBlock("vulnerable_remains", (prop) -> new RemainsBlock(prop.mapColor(MapColor.TERRACOTTA_BROWN).strength(-1, 3600000.0F).sound(SoundType.ROOTED_DIRT).randomTicks().noLootTable(), true, true));
@@ -194,8 +193,8 @@ public class ModBlocks {
     public static final DeferredBlock<MotherBlock> MOTHER = BLOCKS.registerBlock("mother", MotherBlock::new);
     public static final DeferredBlock<Block> MOTHER_TROPHY = registerWithItem("mother_trophy", (prop) -> new MotherTrophyBlock(prop.mapColor(MapColor.COLOR_GRAY).strength(3, 9).lightLevel(s -> 1).noOcclusion()),prop -> prop.rarity(Rarity.EPIC).stacksTo(1));
     public static final DeferredBlock<FogDiffuserBlock> FOG_DIFFUSER = registerWithItem("fog_diffuser", (prop) -> new FogDiffuserBlock(prop.noOcclusion().mapColor(MapColor.STONE).strength(40.0F, 1200.0F).sound(SoundType.STONE)));
-    public static final DeferredBlock<FlowerPotBlock> POTTED_DARK_SPRUCE_SAPLING = BLOCKS.registerBlock("potted_dark_spruce_sapling", (prop) -> potted(new FlowerPotBlock(() -> (FlowerPotBlock) Blocks.FLOWER_POT, DARK_SPRUCE_SAPLING, prop.noCollission().isViewBlocking(UtilLib::never).pushReaction(PushReaction.DESTROY).instabreak()), DARK_SPRUCE_SAPLING.getId()));
-    public static final DeferredBlock<FlowerPotBlock> POTTED_CURSED_SPRUCE_SAPLING = BLOCKS.registerBlock("potted_cursed_spruce_sapling", (prop) -> potted(new FlowerPotBlock(() -> (FlowerPotBlock) Blocks.FLOWER_POT, CURSED_SPRUCE_SAPLING, prop.noCollission().isViewBlocking(UtilLib::never).pushReaction(PushReaction.DESTROY).instabreak()), CURSED_SPRUCE_SAPLING.getId()));
+    public static final DeferredBlock<FlowerPotBlock> POTTED_DARK_SPRUCE_SAPLING = registerPottedPlant("potted_dark_spruce_sapling", DARK_SPRUCE_SAPLING);
+    public static final DeferredBlock<FlowerPotBlock> POTTED_CURSED_SPRUCE_SAPLING = registerPottedPlant("potted_cursed_spruce_sapling", CURSED_SPRUCE_SAPLING);
     public static final DeferredBlock<Block> BLOOD_INFUSED_IRON_BLOCK = registerWithItem("blood_infused_iron_block", (prop) -> new PureBloodBlock(prop.mapColor(MapColor.METAL).requiresCorrectToolForDrops().strength(6.0F, 7.0F).sound(SoundType.METAL)), (block, prop) -> new PureLevelBlockItem(block, prop.component(ModDataComponents.PURE_LEVEL, PureLevel.LOW)));
     public static final DeferredBlock<Block> BLOOD_INFUSED_ENHANCED_IRON_BLOCK = registerWithItem("blood_infused_enhanced_iron_block", (prop) -> new PureBloodBlock(prop.mapColor(MapColor.METAL).requiresCorrectToolForDrops().strength(6.5F, 8.0F).sound(SoundType.METAL)), (block, prop) -> new PureLevelBlockItem(block, prop.component(ModDataComponents.PURE_LEVEL, new PureLevel(4))));
     public static final DeferredBlock<VampireBeaconBlock> VAMPIRE_BEACON = registerWithItem("vampire_beacon", (prop) -> new VampireBeaconBlock(prop.mapColor(MapColor.DIAMOND).instrument(NoteBlockInstrument.HAT).strength(3.0F).lightLevel((p_50828_) -> 15).noOcclusion().isRedstoneConductor(UtilLib::never)), x -> x.rarity(Rarity.RARE));
@@ -357,6 +356,14 @@ public class ModBlocks {
 
     private static <T extends Block> DeferredBlock<T> registerBlock(String item, Function<BlockBehaviour.Properties,T> supplier, Supplier<BlockBehaviour.Properties> blockProperties) {
         return BLOCKS.registerBlock(item, prop -> supplier.apply(blockProperties.get().setId(ResourceKey.create(Registries.BLOCK, VResourceLocation.mod(item)))));
+    }
+
+    private static DeferredBlock<FlowerPotBlock> registerPottedPlant(String name, DeferredBlock<?> plantBlock) {
+        return registerBlock(name, (properties) -> {
+            FlowerPotBlock block = new FlowerPotBlock(() -> (FlowerPotBlock) Blocks.FLOWER_POT, plantBlock, properties);
+            ((FlowerPotBlock) Blocks.FLOWER_POT).addPlant(plantBlock.getId(), () -> block);
+            return block;
+        }, () -> Block.Properties.ofFullCopy(Blocks.FLOWER_POT));
     }
 
     private static DeferredBlock<StandingCandleStickBlock> registerCandleStick(String suffix, Item candle) {

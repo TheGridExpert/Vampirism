@@ -84,4 +84,15 @@ public abstract class BlockModelGenerators extends net.minecraft.client.data.mod
         ResourceLocation resourcelocation = type.getCross().extend().renderType(ResourceLocation.withDefaultNamespace("cutout")).build().create(block, textureMapping, this.modelOutput);
         this.blockStateOutput.accept(createSimpleBlock(block, resourcelocation));
     }
+
+    /**
+     * The normal createPlant method doesn't add the cutout render type, but it must be here.
+     */
+    @Override
+    public void createPlant(@NotNull Block block, @NotNull Block pottedBlock, @NotNull PlantType plantType) {
+        this.createCrossBlock(block, plantType);
+        TextureMapping texturemapping = plantType.getPlantTextureMapping(block);
+        ResourceLocation resourcelocation = plantType.getCrossPot().extend().renderType(ResourceLocation.withDefaultNamespace("cutout")).build().create(pottedBlock, texturemapping, this.modelOutput);
+        this.blockStateOutput.accept(createSimpleBlock(pottedBlock, resourcelocation));
+    }
 }
