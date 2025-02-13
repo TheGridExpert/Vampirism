@@ -260,7 +260,7 @@ public class LootTablesProvider {
             );
             consumer.accept(ModLootTables.CHEST_CRYPT, LootTable.lootTable()
                     .withPool(LootPool.lootPool().setRolls(UniformGenerator.between(1, 12))
-                            .add(LootItem.lootTableItem(ModItems.OBLIVION_POTION.get()).setWeight(5))
+                            .add(LootItem.lootTableItem(ModItems.OBLIVION_POTION.get()).setWeight(4))
                             .add(LootItem.lootTableItem(ModItems.BLOOD_INFUSED_IRON_INGOT.get()).setWeight(25))
                             .add(LootItem.lootTableItem(ModItems.BLOOD_INFUSED_IRON_INGOT.get()).setWeight(15))
                             .add(LootItem.lootTableItem(ModItems.VAMPIRE_FANG.get()).setWeight(40))
@@ -277,7 +277,7 @@ public class LootTablesProvider {
                             .add(LootItem.lootTableItem(ModItems.HEART_SEEKER_NORMAL.get()).setWeight(30))
                             .add(LootItem.lootTableItem(ModItems.HEART_SEEKER_ENHANCED.get()).setWeight(20))
                             .add(LootItem.lootTableItem(ModItems.HEART_SEEKER_ULTIMATE.get()).setWeight(10))
-                            .add(EmptyLootItem.emptyItem().setWeight(200)))
+                            .add(EmptyLootItem.emptyItem().setWeight(230)))
             );
             consumer.accept(ModLootTables.CHEST_HUNTER_OUTPOST_TENT, LootTable.lootTable()
                     .withPool(LootPool.lootPool().setRolls(UniformGenerator.between(5, 20))

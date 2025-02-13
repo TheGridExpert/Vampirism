@@ -7,7 +7,7 @@
         {
           "type": "minecraft:item",
           "name": "vampirism:oblivion_potion",
-          "weight": 5
+          "weight": 4
         },
         {
           "type": "minecraft:item",
@@ -147,7 +147,7 @@
         },
         {
           "type": "minecraft:empty",
-          "weight": 200
+          "weight": 230
         }
       ],
       "rolls": 1.0

@@ -216,6 +216,6 @@ public abstract class CandleHolderBlock extends AbstractCandleBlock implements S
     }
 
     public boolean isEmpty() {
-        return this.candle.get() == null;
+        return this.candle.get() == null || this.emptyBlock != null;
     }
 }
