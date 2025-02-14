@@ -1,11 +1,9 @@
 package de.teamlapen.lib.lib.data;
 
+import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelOutput;
-import net.minecraft.client.data.models.blockstates.BlockStateGenerator;
-import net.minecraft.client.data.models.model.ItemModelUtils;
-import net.minecraft.client.data.models.model.ModelInstance;
-import net.minecraft.client.data.models.model.ModelLocationUtils;
-import net.minecraft.client.data.models.model.TextureMapping;
+import net.minecraft.client.data.models.blockstates.*;
+import net.minecraft.client.data.models.model.*;
 import net.minecraft.data.BlockFamily;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
@@ -21,13 +19,11 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-public abstract class BlockModelGenerators extends net.minecraft.client.data.models.BlockModelGenerators {
+public abstract class VBlockModelGenerators extends BlockModelGenerators {
 
-    public BlockModelGenerators(net.minecraft.client.data.models.BlockModelGenerators generators) {
-        this(generators.blockStateOutput, generators.itemModelOutput, generators.modelOutput);
-    }
+    private static final ResourceLocation CUTOUT = ResourceLocation.withDefaultNamespace("cutout");
 
-    public BlockModelGenerators(Consumer<BlockStateGenerator> blockStateGenerator, ItemModelOutput itemModelOutput, BiConsumer<ResourceLocation, ModelInstance> modelOutput) {
+    public VBlockModelGenerators(Consumer<BlockStateGenerator> blockStateGenerator, ItemModelOutput itemModelOutput, BiConsumer<ResourceLocation, ModelInstance> modelOutput) {
         super(blockStateGenerator, itemModelOutput, modelOutput);
     }
 
@@ -79,20 +75,20 @@ public abstract class BlockModelGenerators extends net.minecraft.client.data.mod
         createDefaultBlockItem(block, ModelLocationUtils.getModelLocation(model));
     }
 
+    /**
+     * The normal methods in the base class don't add the cutout render type, but it must be here so that the texture is rendered in a correct way.
+     */
     @Override
     public void createCrossBlock(@NotNull Block block, PlantType type, @NotNull TextureMapping textureMapping) {
-        ResourceLocation resourcelocation = type.getCross().extend().renderType(ResourceLocation.withDefaultNamespace("cutout")).build().create(block, textureMapping, this.modelOutput);
+        ResourceLocation resourcelocation = type.getCross().extend().renderType(CUTOUT).build().create(block, textureMapping, this.modelOutput);
         this.blockStateOutput.accept(createSimpleBlock(block, resourcelocation));
     }
 
-    /**
-     * The normal createPlant method doesn't add the cutout render type, but it must be here.
-     */
     @Override
     public void createPlant(@NotNull Block block, @NotNull Block pottedBlock, @NotNull PlantType plantType) {
         this.createCrossBlock(block, plantType);
         TextureMapping texturemapping = plantType.getPlantTextureMapping(block);
-        ResourceLocation resourcelocation = plantType.getCrossPot().extend().renderType(ResourceLocation.withDefaultNamespace("cutout")).build().create(pottedBlock, texturemapping, this.modelOutput);
+        ResourceLocation resourcelocation = plantType.getCrossPot().extend().renderType(CUTOUT).build().create(pottedBlock, texturemapping, this.modelOutput);
         this.blockStateOutput.accept(createSimpleBlock(pottedBlock, resourcelocation));
     }
 }

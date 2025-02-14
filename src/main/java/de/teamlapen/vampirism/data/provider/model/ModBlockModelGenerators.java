@@ -1,6 +1,7 @@
 package de.teamlapen.vampirism.data.provider.model;
 
 import com.mojang.datafixers.util.Pair;
+import de.teamlapen.lib.lib.data.VBlockModelGenerators;
 import de.teamlapen.vampirism.api.util.VResourceLocation;
 import de.teamlapen.vampirism.blocks.*;
 import de.teamlapen.vampirism.blocks.candle.CandleHolderBlock;
@@ -31,13 +32,13 @@ import java.util.stream.Stream;
 import static de.teamlapen.vampirism.api.util.VResourceLocation.mod;
 import static de.teamlapen.vampirism.api.util.VResourceLocation.modString;
 
-public class BlockModelGenerators extends de.teamlapen.lib.lib.data.BlockModelGenerators {
+public class ModBlockModelGenerators extends VBlockModelGenerators {
 
-    public BlockModelGenerators(net.minecraft.client.data.models.BlockModelGenerators generators) {
+    public ModBlockModelGenerators(net.minecraft.client.data.models.BlockModelGenerators generators) {
         super(generators.blockStateOutput, generators.itemModelOutput, generators.modelOutput);
     }
 
-    public BlockModelGenerators(Consumer<BlockStateGenerator> blockStateOutput, ItemModelOutput itemModelOutput, BiConsumer<ResourceLocation, ModelInstance> modelOutput) {
+    public ModBlockModelGenerators(Consumer<BlockStateGenerator> blockStateOutput, ItemModelOutput itemModelOutput, BiConsumer<ResourceLocation, ModelInstance> modelOutput) {
         super(blockStateOutput, itemModelOutput, modelOutput);
     }
 
@@ -70,7 +71,6 @@ public class BlockModelGenerators extends de.teamlapen.lib.lib.data.BlockModelGe
 
 
         createLantern(ModBlocks.VAMPIRE_SOUL_LANTERN.get());
-        createCropBlock(ModBlocks.GARLIC.get(), BlockStateProperties.AGE_7, 0,0,1,1,2,2,2,3);
         createTintedLeaves(ModBlocks.DARK_SPRUCE_LEAVES.get(), TexturedModel.LEAVES, -1);
         ResourceLocation sunscreenModel = ModModelTemplates.BEACON_MODEL.create(ModBlocks.SUNSCREEN_BEACON.get(), new TextureMapping().put(ModTextureSlots.BEACON, mod("block/cursed_earth")), this.modelOutput);
         this.blockStateOutput.accept(createSimpleBlock(ModBlocks.SUNSCREEN_BEACON.get(), sunscreenModel));
@@ -99,6 +99,7 @@ public class BlockModelGenerators extends de.teamlapen.lib.lib.data.BlockModelGe
     }
 
     protected void createPlants() {
+        createCropBlock(ModBlocks.GARLIC.get(), BlockStateProperties.AGE_7, 0, 0, 1, 1, 2, 2, 2, 3);
         createPlantWithDefaultItem(ModBlocks.VAMPIRE_ORCHID.get(), ModBlocks.POTTED_VAMPIRE_ORCHID.get(), PlantType.NOT_TINTED);
         createPlantWithDefaultItem(ModBlocks.CURSED_SPRUCE_SAPLING.get(), ModBlocks.POTTED_CURSED_SPRUCE_SAPLING.get(), PlantType.NOT_TINTED);
         createPlantWithDefaultItem(ModBlocks.DARK_SPRUCE_SAPLING.get(), ModBlocks.POTTED_DARK_SPRUCE_SAPLING.get(),PlantType.NOT_TINTED);

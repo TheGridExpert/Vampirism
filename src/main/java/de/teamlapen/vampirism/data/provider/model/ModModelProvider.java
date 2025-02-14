@@ -32,6 +32,6 @@ public class ModModelProvider extends ModelProvider {
 
     @Override
     protected void registerModels(@NotNull BlockModelGenerators blockModels, @NotNull ItemModelGenerators itemModels) {
-        super.registerModels(new de.teamlapen.vampirism.data.provider.model.BlockModelGenerators(blockModels), new de.teamlapen.vampirism.data.provider.model.ItemModelGenerators(itemModels));
+        super.registerModels(new ModBlockModelGenerators(blockModels), new ModItemModelGenerators(itemModels));
     }
 }

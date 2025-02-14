@@ -7,7 +7,6 @@ import de.teamlapen.vampirism.client.renderer.item.properties.BloodFilled;
 import de.teamlapen.vampirism.client.renderer.item.properties.ClipFilled;
 import de.teamlapen.vampirism.core.ModBlocks;
 import de.teamlapen.vampirism.core.ModItems;
-import net.minecraft.client.data.models.ItemModelOutput;
 import net.minecraft.client.data.models.model.*;
 import net.minecraft.client.renderer.item.properties.numeric.CrossbowPull;
 import net.minecraft.resources.ResourceLocation;
@@ -17,14 +16,13 @@ import net.neoforged.neoforge.registries.DeferredItem;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 
 import static de.teamlapen.vampirism.api.util.VResourceLocation.mod;
 
-public class ItemModelGenerators extends net.minecraft.client.data.models.ItemModelGenerators {
+public class ModItemModelGenerators extends net.minecraft.client.data.models.ItemModelGenerators {
 
-    public ItemModelGenerators(net.minecraft.client.data.models.ItemModelGenerators generator) {
+    public ModItemModelGenerators(net.minecraft.client.data.models.ItemModelGenerators generator) {
         super(generator.itemModelOutput, generator.modelOutput);
     }
 
