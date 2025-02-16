@@ -93,7 +93,7 @@ public class ModItems {
     public static final DeferredItem<TechCrossbowItem> BASIC_TECH_CROSSBOW = register("basic_tech_crossbow", (prop) -> new TechCrossbowItem(prop.durability(930), 1.6F, 40, ToolMaterial.DIAMOND, HunterSkills.WEAPON_TABLE));
 
     public static final DeferredItem<BloodBottleItem> BLOOD_BOTTLE = ITEMS.registerItem("blood_bottle", (prop) -> new BloodBottleItem(prop.stacksTo(1).component(DataComponents.CONSUMABLE, Consumables.defaultDrink().build())));
-    public static final DeferredItem<BucketItem> BLOOD_BUCKET = register("blood_bucket", CreativeModeTabs.TOOLS_AND_UTILITIES, (prop) -> new BucketItem(ModFluids.BLOOD.get(), prop.craftRemainder(Items.BUCKET).stacksTo(1)));
+    public static final DeferredItem<BucketItem> BLOOD_BUCKET = register("blood_bucket", null, (prop) -> new BucketItem(ModFluids.BLOOD.get(), prop.craftRemainder(Items.BUCKET).stacksTo(1)));
     public static final DeferredItem<PureLevelItem> BLOOD_INFUSED_RAW_IRON = register("blood_infused_raw_iron", PureLevelItem::new);
     public static final DeferredItem<PureLevelItem> BLOOD_INFUSED_RAW_GOLD = register("blood_infused_raw_gold", PureLevelItem::new);
     public static final DeferredItem<PureLevelItem> BLOOD_INFUSED_IRON_INGOT = register("blood_infused_iron_ingot", PureLevelItem::new);
@@ -174,7 +174,7 @@ public class ModItems {
     public static final DeferredItem<InjectionItem> INJECTION_GARLIC = register("injection_garlic", (prop) -> new InjectionItem(InjectionItem.TYPE.GARLIC, prop));
     public static final DeferredItem<InjectionItem> INJECTION_SANGUINARE = register("injection_sanguinare", (prop) -> new InjectionItem(InjectionItem.TYPE.SANGUINARE, prop));
 
-    public static final DeferredItem<BucketItem> IMPURE_BLOOD_BUCKET = register("impure_blood_bucket", CreativeModeTabs.TOOLS_AND_UTILITIES, (prop) -> new BucketItem(ModFluids.IMPURE_BLOOD.get(), prop.craftRemainder(Items.BUCKET).stacksTo(1)));
+    public static final DeferredItem<BucketItem> IMPURE_BLOOD_BUCKET = register("impure_blood_bucket", null, (prop) -> new BucketItem(ModFluids.IMPURE_BLOOD.get(), prop.craftRemainder(Items.BUCKET).stacksTo(1)));
     public static final DeferredItem<Item> GARLIC_BREAD = register("garlic_bread", props -> new Item(props.food(new FoodProperties.Builder().nutrition(6).saturationModifier(0.7F).build()).component(DataComponents.CONSUMABLE, ModConsumables.GARLIC)));
     public static final DeferredItem<AlchemicalFireItem> ITEM_ALCHEMICAL_FIRE = register("item_alchemical_fire", AlchemicalFireItem::new);
 
@@ -207,12 +207,17 @@ public class ModItems {
     public static final DeferredItem<VampireFangItem> VAMPIRE_FANG = register("vampire_fang", VampireFangItem::new);
     public static final DeferredItem<VampirismItemBloodFoodItem> WEAK_HUMAN_HEART = register("weak_human_heart", (prop) -> new VampirismItemBloodFoodItem(prop.food(new FoodProperties.Builder().nutrition(3).saturationModifier(1f).build()), new BloodFoodProperties.Builder().blood(10).saturationModifier(0.9F).build()));
 
-    public static final DeferredItem<SpawnEggItem> VAMPIRE_SPAWN_EGG = register("vampire_spawn_egg", CreativeModeTabs.SPAWN_EGGS, (prop) -> new SpawnEggItem(ModEntities.VAMPIRE.get(), prop));
-    public static final DeferredItem<SpawnEggItem> VAMPIRE_HUNTER_SPAWN_EGG = register("vampire_hunter_spawn_egg", CreativeModeTabs.SPAWN_EGGS, (prop) -> new SpawnEggItem(ModEntities.HUNTER.get(), prop));
-    public static final DeferredItem<SpawnEggItem> ADVANCED_VAMPIRE_SPAWN_EGG = register("advanced_vampire_spawn_egg", CreativeModeTabs.SPAWN_EGGS, (prop) -> new SpawnEggItem(ModEntities.ADVANCED_VAMPIRE.get(), prop));
-    public static final DeferredItem<SpawnEggItem> ADVANCED_VAMPIRE_HUNTER_SPAWN_EGG = register("advanced_vampire_hunter_spawn_egg", CreativeModeTabs.SPAWN_EGGS, (prop) -> new SpawnEggItem(ModEntities.ADVANCED_HUNTER.get(), prop));
-    public static final DeferredItem<SpawnEggItem> VAMPIRE_BARON_SPAWN_EGG = register("vampire_baron_spawn_egg", CreativeModeTabs.SPAWN_EGGS, (prop) -> new SpawnEggItem(ModEntities.VAMPIRE_BARON.get(), prop));
-    public static final DeferredItem<SpawnEggItem> HUNTER_TRAINER_SPAWN_EGG = register("hunter_trainer_spawn_egg", CreativeModeTabs.SPAWN_EGGS, (prop) -> new SpawnEggItem(ModEntities.HUNTER_TRAINER.get(), prop));
+    public static final DeferredItem<SpawnEggItem> VAMPIRE_SPAWN_EGG = register("vampire_spawn_egg", null, (prop) -> new SpawnEggItem(ModEntities.VAMPIRE.get(), prop));
+    public static final DeferredItem<SpawnEggItem> ADVANCED_VAMPIRE_SPAWN_EGG = register("advanced_vampire_spawn_egg", null, (prop) -> new SpawnEggItem(ModEntities.ADVANCED_VAMPIRE.get(), prop));
+    public static final DeferredItem<SpawnEggItem> VAMPIRE_BARON_SPAWN_EGG = register("vampire_baron_spawn_egg", null, (prop) -> new SpawnEggItem(ModEntities.VAMPIRE_BARON.get(), prop));
+    public static final DeferredItem<SpawnEggItem> TASK_MASTER_VAMPIRE_SPAWN_EGG = register("task_master_vampire_spawn_egg", null, (prop) -> new SpawnEggItem(ModEntities.TASK_MASTER_VAMPIRE.get(), prop));
+
+    public static final DeferredItem<SpawnEggItem> VAMPIRE_HUNTER_SPAWN_EGG = register("vampire_hunter_spawn_egg", null, (prop) -> new SpawnEggItem(ModEntities.HUNTER.get(), prop));
+    public static final DeferredItem<SpawnEggItem> ADVANCED_VAMPIRE_HUNTER_SPAWN_EGG = register("advanced_vampire_hunter_spawn_egg", null, (prop) -> new SpawnEggItem(ModEntities.ADVANCED_HUNTER.get(), prop));
+    public static final DeferredItem<SpawnEggItem> HUNTER_TRAINER_SPAWN_EGG = register("hunter_trainer_spawn_egg", null, (prop) -> new SpawnEggItem(ModEntities.HUNTER_TRAINER.get(), prop));
+    public static final DeferredItem<SpawnEggItem> TASK_MASTER_HUNTER_SPAWN_EGG = register("task_master_hunter_spawn_egg", null, (prop) -> new SpawnEggItem(ModEntities.TASK_MASTER_HUNTER.get(), prop));
+
+    public static final DeferredItem<SpawnEggItem> GHOST_SPAWN_EGG = register("ghost_spawn_egg", null, (prop) -> new SpawnEggItem(ModEntities.GHOST.get(), prop));
 
     public static final DeferredItem<UmbrellaItem> UMBRELLA = register("umbrella", UmbrellaItem::new);
 

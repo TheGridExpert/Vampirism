@@ -95,12 +95,17 @@ public class ModItemModelGenerators extends net.minecraft.client.data.models.Ite
     }
 
     protected void generateSpawnEggs() {
-        this.generateSpawnEgg(ModItems.VAMPIRE_SPAWN_EGG.get(), 0x8B15A3, 0xa735e3);
-        this.generateSpawnEgg(ModItems.ADVANCED_VAMPIRE_SPAWN_EGG.get(), 0x8B15A3, 0x560a7e);
-        this.generateSpawnEgg(ModItems.VAMPIRE_HUNTER_SPAWN_EGG.get(), 0x2d05f2, 0x2600e0);
-        this.generateSpawnEgg(ModItems.ADVANCED_VAMPIRE_HUNTER_SPAWN_EGG.get(), 0x2d05f2, 0x1a028c);
-        this.generateSpawnEgg(ModItems.VAMPIRE_BARON_SPAWN_EGG.get(), 0x8B15A3, 0x15acda);
-        this.generateSpawnEgg(ModItems.HUNTER_TRAINER_SPAWN_EGG.get(), 0x2d05f2, 0x1cdb49);
+        this.generateSpawnEgg(ModItems.VAMPIRE_SPAWN_EGG.get(), 0x881d99, 0x5e1975);
+        this.generateSpawnEgg(ModItems.ADVANCED_VAMPIRE_SPAWN_EGG.get(), 0x881d99, 0xedbb24);
+        this.generateSpawnEgg(ModItems.VAMPIRE_BARON_SPAWN_EGG.get(), 0x9a1b1b, 0x252525);
+        this.generateSpawnEgg(ModItems.TASK_MASTER_VAMPIRE_SPAWN_EGG.get(), 0x881d99, 0xcecdd1);
+
+        this.generateSpawnEgg(ModItems.VAMPIRE_HUNTER_SPAWN_EGG.get(), 0x173f9c, 142163);
+        this.generateSpawnEgg(ModItems.ADVANCED_VAMPIRE_HUNTER_SPAWN_EGG.get(), 0x173f9c, 0xedbb24);
+        this.generateSpawnEgg(ModItems.HUNTER_TRAINER_SPAWN_EGG.get(), 0x99989c, 0x252525);
+        this.generateSpawnEgg(ModItems.TASK_MASTER_HUNTER_SPAWN_EGG.get(), 0x173f9c, 0xcecdd1);
+
+        this.generateSpawnEgg(ModItems.GHOST_SPAWN_EGG.get(), 0xcecdd1, 0xb5b3ba);
     }
 
     protected void generateCrossbows() {

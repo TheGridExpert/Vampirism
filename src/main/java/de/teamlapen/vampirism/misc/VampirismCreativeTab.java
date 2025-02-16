@@ -1,20 +1,25 @@
 package de.teamlapen.vampirism.misc;
 
 import de.teamlapen.lib.lib.util.ModDisplayItemGenerator;
+import de.teamlapen.vampirism.REFERENCE;
 import de.teamlapen.vampirism.core.ModItems;
 import de.teamlapen.vampirism.core.ModOils;
 import de.teamlapen.vampirism.core.ModRegistries;
 import de.teamlapen.vampirism.util.ItemDataUtils;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.*;
 import net.minecraft.world.level.ItemLike;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
+import net.neoforged.neoforge.registries.DeferredItem;
 
 import java.util.Set;
 
 import static de.teamlapen.vampirism.core.ModBlocks.*;
 import static de.teamlapen.vampirism.core.ModItems.*;
 
+@EventBusSubscriber(modid = REFERENCE.MODID, bus = EventBusSubscriber.Bus.MOD)
 public class VampirismCreativeTab {
 
     public static CreativeModeTab.Builder builder(Set<ItemLike> allItems) {
@@ -350,5 +355,29 @@ public class VampirismCreativeTab {
             addItem(CRUCIFIX_ENHANCED);
             addItem(CRUCIFIX_ULTIMATE);
         }
+    }
+
+    @SubscribeEvent
+    public static void addToExistingCreativeTabs(BuildCreativeModeTabContentsEvent event) {
+        if (event.getTabKey().equals(CreativeModeTabs.SPAWN_EGGS)) {
+            event.accept(VAMPIRE_SPAWN_EGG);
+            event.accept(ADVANCED_VAMPIRE_SPAWN_EGG);
+            event.accept(VAMPIRE_BARON_SPAWN_EGG);
+            event.accept(TASK_MASTER_VAMPIRE_SPAWN_EGG);
+
+            event.accept(VAMPIRE_HUNTER_SPAWN_EGG);
+            event.accept(ADVANCED_VAMPIRE_HUNTER_SPAWN_EGG);
+            event.accept(HUNTER_TRAINER_SPAWN_EGG);
+            event.accept(TASK_MASTER_HUNTER_SPAWN_EGG);
+
+            event.accept(GHOST_SPAWN_EGG);
+        } else if (event.getTabKey().equals(CreativeModeTabs.TOOLS_AND_UTILITIES)) {
+            insertAfter(BLOOD_BUCKET, Items.MILK_BUCKET, event);
+            insertAfter(IMPURE_BLOOD_BUCKET, BLOOD_BUCKET.get(), event);
+        }
+    }
+
+    private static void insertAfter(DeferredItem<?> item, Item insertAfterItem, BuildCreativeModeTabContentsEvent event) {
+        event.insertAfter(new ItemStack(insertAfterItem), new ItemStack(item.get()), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
     }
 }
