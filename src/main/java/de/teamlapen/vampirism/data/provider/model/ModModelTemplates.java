@@ -2,12 +2,13 @@ package de.teamlapen.vampirism.data.provider.model;
 
 import de.teamlapen.vampirism.api.util.VResourceLocation;
 import net.minecraft.client.data.models.model.ModelTemplate;
+import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TextureSlot;
 import net.minecraft.resources.ResourceLocation;
 
 import static de.teamlapen.vampirism.api.util.VResourceLocation.mod;
 
-public class ModModelTemplates extends net.minecraft.client.data.models.model.ModelTemplates {
+public class ModModelTemplates extends ModelTemplates {
 
     public static final ModelTemplate GARLIC_DIFFUSER = create(mod("garlic_diffuser"), ModTextureSlots.GARLIC);
     public static final ModelTemplate ALTAR_PILLAR_FILLED = create(mod("altar_pillar_filled"), ModTextureSlots.FILLER);

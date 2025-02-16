@@ -1,5 +1,7 @@
 package de.teamlapen.lib.lib.data;
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelOutput;
 import net.minecraft.client.data.models.blockstates.*;
@@ -10,6 +12,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.Property;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -90,5 +93,26 @@ public abstract class VBlockModelGenerators extends BlockModelGenerators {
         TextureMapping texturemapping = plantType.getPlantTextureMapping(block);
         ResourceLocation resourcelocation = plantType.getCrossPot().extend().renderType(CUTOUT).build().create(pottedBlock, texturemapping, this.modelOutput);
         this.blockStateOutput.accept(createSimpleBlock(pottedBlock, resourcelocation));
+    }
+
+    @Override
+    public void createCropBlock(@NotNull Block cropBlock, Property<Integer> ageProperty, int... ageToVisualStageMapping) {
+        if (ageProperty.getPossibleValues().size() != ageToVisualStageMapping.length) {
+            throw new IllegalArgumentException();
+        } else {
+            Int2ObjectMap<ResourceLocation> int2objectmap = new Int2ObjectOpenHashMap<>();
+            PropertyDispatch propertydispatch = PropertyDispatch.property(ageProperty)
+                    .generate(
+                            p_388091_ -> {
+                                int i = ageToVisualStageMapping[p_388091_];
+                                ResourceLocation resourcelocation = int2objectmap.computeIfAbsent(
+                                        i, p_387534_ -> this.createSuffixedVariant(cropBlock, "_stage" + i, ModelTemplates.CROP.extend().renderType(CUTOUT).build(), TextureMapping::crop)
+                                );
+                                return Variant.variant().with(VariantProperties.MODEL, resourcelocation);
+                            }
+                    );
+            this.registerSimpleFlatItemModel(cropBlock.asItem());
+            this.blockStateOutput.accept(MultiVariantGenerator.multiVariant(cropBlock).with(propertydispatch));
+        }
     }
 }
