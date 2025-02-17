@@ -27,7 +27,6 @@ public class ModModelTemplates extends ModelTemplates {
     public static final ModelTemplate ALCHEMICAL_CAULDRON = create(mod("alchemy_cauldron_liquid"), ModTextureSlots.LIQUID);
     public static final ModelTemplate DIRT_PATH = create("dirt_path", TextureSlot.UP, TextureSlot.DOWN, TextureSlot.SIDE, TextureSlot.PARTICLE);
     public static final ModelTemplate CRUCIFIX = createItem(mod("crucifix"), TextureSlot.TEXTURE, TextureSlot.PARTICLE);
-    public static final ModelTemplate HUNTER_INTEL = createItem(mod("hunter_intel"));
     public static final ModelTemplate HUNTER_AXE = createItem(mod("hunter_axe"), TextureSlot.TEXTURE);
     public static final ModelTemplate HEART_STRIKER = createItem(mod("heart_striker_model"), ModTextureSlots.TEXTURE_2);
     public static final ModelTemplate HEART_SEEKER = createItem(mod("heart_seeker_model"), ModTextureSlots.TEXTURE_3);
@@ -40,10 +39,10 @@ public class ModModelTemplates extends ModelTemplates {
     public static final ModelTemplate GARLIC_DIFFUSER_CORE = createItem(mod("garlic_diffuser_core"), TextureSlot.TEXTURE);
 
     public static ModelTemplate createItem(ResourceLocation modelName, TextureSlot... textures) {
-        return net.minecraft.client.data.models.model.ModelTemplates.createItem(modelName.toString(), textures);
+        return ModelTemplates.createItem(modelName.toString(), textures);
     }
 
     public static ModelTemplate create(ResourceLocation modelName, TextureSlot... textures) {
-        return net.minecraft.client.data.models.model.ModelTemplates.create(modelName.toString(), textures);
+        return ModelTemplates.create(modelName.toString(), textures);
     }
 }

@@ -161,9 +161,12 @@ public class ModItemModelGenerators extends net.minecraft.client.data.models.Ite
     }
 
     protected void generateHunterIntel() {
-        Stream.of(ModItems.HUNTER_INTEL_0, ModItems.HUNTER_INTEL_1, ModItems.HUNTER_INTEL_2, ModItems.HUNTER_INTEL_3, ModItems.HUNTER_INTEL_4, ModItems.HUNTER_INTEL_5, ModItems.HUNTER_INTEL_6, ModItems.HUNTER_INTEL_7, ModItems.HUNTER_INTEL_8, ModItems.HUNTER_INTEL_9).map(DeferredItem::asItem).forEach(item -> {
-            this.itemModelOutput.accept(item, ItemModelUtils.plainModel(createFlatItemModel(item, ModModelTemplates.HUNTER_INTEL)));
-        });
+        ModModelTemplates.FLAT_ITEM.create(ModelLocationUtils.decorateItemModelLocation(VResourceLocation.mod("hunter_intel").toString()), TextureMapping.layer0(mod("item/hunter_intel")), this.modelOutput);
+
+        Stream.of(ModItems.HUNTER_INTEL_0, ModItems.HUNTER_INTEL_1, ModItems.HUNTER_INTEL_2, ModItems.HUNTER_INTEL_3, ModItems.HUNTER_INTEL_4, ModItems.HUNTER_INTEL_5, ModItems.HUNTER_INTEL_6, ModItems.HUNTER_INTEL_7, ModItems.HUNTER_INTEL_8, ModItems.HUNTER_INTEL_9).map(DeferredItem::asItem).forEach(item ->
+                this.itemModelOutput.accept(item, ItemModelUtils.plainModel(mod("item/hunter_intel")))
+
+        );
     }
 
     protected void generateAccessories() {
