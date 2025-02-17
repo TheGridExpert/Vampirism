@@ -18,7 +18,6 @@ import de.teamlapen.vampirism.items.crossbow.TechCrossbowItem;
 import de.teamlapen.vampirism.items.crossbow.arrow.*;
 import de.teamlapen.vampirism.misc.VampirismCreativeTab;
 import de.teamlapen.vampirism.util.Helper;
-import de.teamlapen.vampirism.util.ItemDataUtils;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.component.DataComponents;
@@ -29,19 +28,13 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.*;
-import net.minecraft.world.item.alchemy.PotionBrewing;
-import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.item.component.Consumables;
 import net.minecraft.world.item.consume_effects.ApplyStatusEffectsConsumeEffect;
 import net.minecraft.world.item.consume_effects.ConsumeEffect;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.equipment.ArmorType;
 import net.minecraft.world.level.block.DispenserBlock;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.common.brewing.BrewingRecipe;
-import net.neoforged.neoforge.common.crafting.DataComponentIngredient;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
-import net.neoforged.neoforge.event.brewing.RegisterBrewingRecipesEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -318,34 +311,6 @@ public class ModItems {
     public static final DeferredItem<CandleHolderItem> CHANDELIER_GREEN = register("chandelier_green", null, (prop) -> new CandleHolderItem(ModBlocks.CHANDELIER_GREEN.get(), prop));
     public static final DeferredItem<CandleHolderItem> CHANDELIER_RED = register("chandelier_red", null, (prop) -> new CandleHolderItem(ModBlocks.CHANDELIER_RED.get(), prop));
     public static final DeferredItem<CandleHolderItem> CHANDELIER_BLACK = register("chandelier_black", null, (prop) -> new CandleHolderItem(ModBlocks.CHANDELIER_BLACK.get(), prop));
-
-    static void registerCraftingRecipes(RegisterBrewingRecipesEvent event) {
-        PotionBrewing.Builder builder = event.getBuilder();
-        // Brewing
-
-        builder.addRecipe(DataComponentIngredient.of(true, ItemDataUtils.createPotion(Potions.WATER)), Ingredient.of(PURE_SALT), new ItemStack(PURE_SALT_WATER.get()));
-
-        builder.addRecipe(new BrewingRecipe(Ingredient.of(HOLY_WATER_BOTTLE_NORMAL.get()), Ingredient.of(Items.GUNPOWDER), new ItemStack(HOLY_WATER_SPLASH_BOTTLE_NORMAL.get())) {
-            @Override
-            public boolean isInput(@NotNull ItemStack stack) {
-
-                return HOLY_WATER_BOTTLE_NORMAL.get().equals(stack.getItem());
-            }
-        });
-        builder.addRecipe(new BrewingRecipe(Ingredient.of(HOLY_WATER_BOTTLE_ENHANCED.get()), Ingredient.of(Items.GUNPOWDER), new ItemStack(HOLY_WATER_SPLASH_BOTTLE_ENHANCED.get())) {
-            @Override
-            public boolean isInput(@NotNull ItemStack stack) {
-
-                return HOLY_WATER_BOTTLE_ENHANCED.get().equals(stack.getItem());
-            }
-        });
-        builder.addRecipe(new BrewingRecipe(Ingredient.of(HOLY_WATER_BOTTLE_ULTIMATE.get()), Ingredient.of(Items.GUNPOWDER), new ItemStack(HOLY_WATER_SPLASH_BOTTLE_ULTIMATE.get())) {
-            @Override
-            public boolean isInput(@NotNull ItemStack stack) {
-                return HOLY_WATER_BOTTLE_ULTIMATE.get().equals(stack.getItem());
-            }
-        });
-    }
 
     static <I extends Item> DeferredItem<I> register(final String name, ResourceKey<CreativeModeTab> tab, final Function<Item.Properties, ? extends I> sup) {
         DeferredItem<I> item = ITEMS.registerItem(name, sup);
