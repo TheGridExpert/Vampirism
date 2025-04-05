@@ -344,7 +344,7 @@ public class ModBlocks {
     }
 
     private static <T extends Block, R extends Item> void createItem(String name, Supplier<T> block, BiFunction<T, Item.Properties, R> itemCreator, Function<Item.@NotNull Properties, Item.Properties> properties) {
-        ModItems.register(name, prop -> itemCreator.apply(block.get(), properties.apply(prop).overrideDescription(block.get().getDescriptionId())));
+        ModItems.ITEMS.registerItem(name, prop -> itemCreator.apply(block.get(), properties.apply(prop).overrideDescription(block.get().getDescriptionId())));
     }
 
     private static <T extends Block> DeferredBlock<T> registerWithItem(String name, Function<BlockBehaviour.Properties,T> supplier) {
