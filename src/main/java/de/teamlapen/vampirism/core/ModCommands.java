@@ -74,6 +74,7 @@ public class ModCommands {
                                     .then(GarlicCheckCommand.register())
                                     .then(SpawnTestAnimalCommand.register())
                                     .then(HealCommand.register())
+                                    .then(HungerBarCommand.register())
                                     .then(TaskCommand.register())
                                     .then(ForcePlayerSyncCommand.register())
                                     .then(SummonDummy.register())
