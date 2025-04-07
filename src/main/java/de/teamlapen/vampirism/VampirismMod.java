@@ -222,12 +222,13 @@ public class VampirismMod {
         event.enqueueWork(ModStats::registerFormatter);
         event.enqueueWork(CodecModifications::changeMobEffectCodec);
         event.enqueueWork(ModVillage::villagerTradeSetup);
-        event.enqueueWork(ModItems::registerDispenserBehaviourUnsafe);
+        event.enqueueWork(ModItems::registerDispenserBehaviour);
+        event.enqueueWork(ModBlocks::registerStrippables);
+        event.enqueueWork(ModBlocks::registerFlammables);
         TelemetryCollector.execute();
     }
 
     private void onInitStep(IInitListener.@NotNull Step step, @NotNull ParallelDispatchEvent event) {
         proxy.onInitStep(step, event);
     }
-
 }

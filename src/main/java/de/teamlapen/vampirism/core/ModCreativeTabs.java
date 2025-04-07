@@ -3,7 +3,7 @@ package de.teamlapen.vampirism.core;
 import de.teamlapen.lib.lib.util.ModDisplayItemGenerator;
 import de.teamlapen.vampirism.REFERENCE;
 import de.teamlapen.vampirism.api.util.VResourceLocation;
-import de.teamlapen.vampirism.util.Helper;
+import de.teamlapen.vampirism.util.ColorListsUtil;
 import de.teamlapen.vampirism.util.ItemDataUtils;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -43,7 +43,7 @@ public class ModCreativeTabs {
             addArmor();
             addItems();
 
-            addBlocks();
+            addFunctionalBlocks();
             addPlants();
             addBuildingBlocks();
             addDecorativeBlocks();
@@ -119,22 +119,7 @@ public class ModCreativeTabs {
             add(VAMPIRE_CLOTHING_CROWN);
             add(VAMPIRE_CLOTHING_HAT);
 
-            add(VAMPIRE_CLOAK_WHITE);
-            add(VAMPIRE_CLOAK_LIGHT_GRAY);
-            add(VAMPIRE_CLOAK_GRAY);
-            add(VAMPIRE_CLOAK_BLACK);
-            add(VAMPIRE_CLOAK_BROWN);
-            add(VAMPIRE_CLOAK_RED);
-            add(VAMPIRE_CLOAK_ORANGE);
-            add(VAMPIRE_CLOAK_YELLOW);
-            add(VAMPIRE_CLOAK_LIME);
-            add(VAMPIRE_CLOAK_GREEN);
-            add(VAMPIRE_CLOAK_CYAN);
-            add(VAMPIRE_CLOAK_LIGHT_BLUE);
-            add(VAMPIRE_CLOAK_BLUE);
-            add(VAMPIRE_CLOAK_PURPLE);
-            add(VAMPIRE_CLOAK_MAGENTA);
-            add(VAMPIRE_CLOAK_PINK);
+            ColorListsUtil.VAMPIRE_CLOAKS.forEach(this::add);
 
             add(VAMPIRE_CLOTHING_LEGS);
             add(VAMPIRE_CLOTHING_BOOTS);
@@ -190,9 +175,6 @@ public class ModCreativeTabs {
 
             add(ITEM_ALCHEMICAL_FIRE);
 
-            add(ITEM_TENT);
-            add(ITEM_TENT_SPAWNER);
-
             add(PURIFIED_GARLIC);
             add(PURE_SALT);
             add(PURE_SALT_WATER);
@@ -226,42 +208,53 @@ public class ModCreativeTabs {
             ModRegistries.OILS.listElements().filter(s -> !s.is(ModOils.EMPTY)).map(s -> ItemDataUtils.createOil(OIL_BOTTLE.get(), s)).forEach(this::add);
         }
 
-        private void addBlocks() {
-            add(ALCHEMICAL_CAULDRON);
-            add(ALTAR_INFUSION);
+        private void addFunctionalBlocks() {
             add(ALTAR_INSPIRATION);
+            add(ALTAR_INFUSION);
             add(ALTAR_PILLAR);
             add(ALTAR_TIP);
+
+            add(BLOOD_PEDESTAL);
             addBlockGen(BLOOD_CONTAINER);
             add(BLOOD_GRINDER);
-            add(BLOOD_PEDESTAL);
             add(BLOOD_SIEVE);
+            add(INFUSER);
+
+            add(FOG_DIFFUSER);
+            add(SUNSCREEN_BEACON);
+
+            add(HUNTER_TABLE);
+            add(WEAPON_TABLE);
+            add(ALCHEMICAL_CAULDRON);
+            add(POTION_TABLE);
+            add(ALCHEMY_TABLE);
+            add(MED_CHAIR);
             add(ALTAR_CLEANSING);
+
             add(GARLIC_DIFFUSER_NORMAL);
             add(GARLIC_DIFFUSER_WEAK);
             add(GARLIC_DIFFUSER_IMPROVED);
-            add(FOG_DIFFUSER);
-            add(HUNTER_TABLE);
-            add(SUNSCREEN_BEACON);
+
             add(VAMPIRE_BEACON);
+
             add(TOTEM_BASE);
             add(TOTEM_TOP);
             add(TOTEM_TOP_CRAFTED);
-            add(WEAPON_TABLE);
-            add(POTION_TABLE);
-            add(MED_CHAIR);
-            add(ALCHEMY_TABLE);
-            add(GARLIC);
         }
 
         private void addPlants() {
+            add(DARK_SPRUCE_LEAVES);
+
             add(DARK_SPRUCE_SAPLING);
             add(CURSED_SPRUCE_SAPLING);
+
+            add(VAMPIRE_ORCHID);
+
             add(CURSED_ROOTS);
             add(CURSED_HANGING_ROOTS);
-            add(VAMPIRE_ORCHID);
-            add(DARK_SPRUCE_LEAVES);
             add(DIRECT_CURSED_BARK);
+
+            add(GARLIC);
         }
 
         private void addBuildingBlocks() {
@@ -308,6 +301,7 @@ public class ModCreativeTabs {
             add(DARK_STONE_SLAB);
             add(DARK_STONE_WALL);
             add(INFESTED_DARK_STONE);
+
             add(DARK_STONE_BRICKS);
             add(DARK_STONE_BRICK_STAIRS);
             add(DARK_STONE_BRICK_SLAB);
@@ -315,36 +309,42 @@ public class ModCreativeTabs {
             add(CRACKED_DARK_STONE_BRICKS);
             add(CHISELED_DARK_STONE_BRICKS);
             add(BLOODY_DARK_STONE_BRICKS);
+
             add(COBBLED_DARK_STONE);
             add(COBBLED_DARK_STONE_STAIRS);
             add(COBBLED_DARK_STONE_SLAB);
             add(COBBLED_DARK_STONE_WALL);
+
             add(POLISHED_DARK_STONE);
             add(POLISHED_DARK_STONE_STAIRS);
             add(POLISHED_DARK_STONE_SLAB);
             add(POLISHED_DARK_STONE_WALL);
+
             add(DARK_STONE_TILES);
             add(DARK_STONE_TILES_STAIRS);
             add(DARK_STONE_TILES_SLAB);
             add(DARK_STONE_TILES_WALL);
             add(CRACKED_DARK_STONE_TILES);
+
             add(PURPLE_STONE_BRICKS);
             add(PURPLE_STONE_BRICK_STAIRS);
             add(PURPLE_STONE_BRICK_SLAB);
             add(PURPLE_STONE_BRICK_WALL);
+
             add(PURPLE_STONE_TILES);
             add(PURPLE_STONE_TILES_STAIRS);
             add(PURPLE_STONE_TILES_SLAB);
             add(PURPLE_STONE_TILES_WALL);
+
             add(BLOOD_INFUSED_IRON_BLOCK);
             add(BLOOD_INFUSED_ENHANCED_IRON_BLOCK);
         }
 
         private void addDecorativeBlocks() {
             add(FIRE_PLACE);
-            addCandleHolders(Helper.STANDING_AND_WALL_CANDLE_STICKS.stream().map(pair -> pair.getFirst().asItem()).toList());
-            addCandleHolders(Helper.STANDING_AND_WALL_CANDELABRAS.stream().map(pair -> pair.getFirst().asItem()).toList());
-            addCandleHolders(Helper.HANGING_CHANDELIERS.stream().map(Block::asItem).toList());
+            addCandleHolders(ColorListsUtil.STANDING_AND_WALL_CANDLE_STICKS.stream().map(pair -> pair.getFirst().asItem()).toList());
+            addCandleHolders(ColorListsUtil.STANDING_AND_WALL_CANDELABRAS.stream().map(pair -> pair.getFirst().asItem()).toList());
+            addCandleHolders(ColorListsUtil.HANGING_CHANDELIERS.stream().map(Block::asItem).toList());
             add(VAMPIRE_SOUL_LANTERN);
             add(CROSS);
             add(TOMBSTONE1);
@@ -356,22 +356,10 @@ public class ModCreativeTabs {
             add(BAT_CAGE);
             add(MOTHER_TROPHY);
 
-            add(COFFIN_WHITE);
-            add(COFFIN_LIGHT_GRAY);
-            add(COFFIN_GRAY);
-            add(COFFIN_BLACK);
-            add(COFFIN_BROWN);
-            add(COFFIN_RED);
-            add(COFFIN_ORANGE);
-            add(COFFIN_YELLOW);
-            add(COFFIN_LIME);
-            add(COFFIN_GREEN);
-            add(COFFIN_LIGHT_BLUE);
-            add(COFFIN_CYAN);
-            add(COFFIN_BLUE);
-            add(COFFIN_PURPLE);
-            add(COFFIN_MAGENTA);
-            add(COFFIN_PINK);
+            add(ITEM_TENT);
+            add(ITEM_TENT_SPAWNER);
+
+            ColorListsUtil.COFFINS.forEach(this::add);
         }
 
         private void addCandleHolders(List<Item> allCandles) {

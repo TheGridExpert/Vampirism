@@ -18,17 +18,15 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 
-public class FirePlaceBlock extends VampirismBlock {
+public class FirePlaceBlock extends Block {
     private static final VoxelShape shape = makeShape();
 
     private static @NotNull VoxelShape makeShape() {
         return Block.box(0, 0.01, 0, 16, 4, 16);
     }
 
-
     public FirePlaceBlock(BlockBehaviour.Properties properties) {
         super(properties.mapColor(MapColor.WOOD).lightLevel(s -> 15).strength(1).ignitedByLava().noOcclusion());
-
     }
 
     @Override
@@ -37,14 +35,12 @@ public class FirePlaceBlock extends VampirismBlock {
             worldIn.playLocalSound((float) pos.getX() + 0.5F, (float) pos.getY() + 0.5F, (float) pos.getZ() + 0.5F, SoundEvents.FIRE_AMBIENT, SoundSource.BLOCKS, 1.0F + rand.nextFloat(), rand.nextFloat() * 0.7F + 0.3F, false);
         }
 
-
         for (int i = 0; i < 2; ++i) {
             double d0 = (double) pos.getX() + rand.nextDouble();
             double d1 = (double) pos.getY() + rand.nextDouble() * 0.5D + 0.5D;
             double d2 = (double) pos.getZ() + rand.nextDouble();
             worldIn.addParticle(ParticleTypes.LARGE_SMOKE, d0, d1, d2, 0.0D, 0.0D, 0.0D);
         }
-
     }
 
     @NotNull

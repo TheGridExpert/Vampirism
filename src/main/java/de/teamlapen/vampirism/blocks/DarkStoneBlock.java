@@ -18,13 +18,14 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class DarkStoneBlock extends VampirismBlock {
+public class DarkStoneBlock extends Block {
 
     public DarkStoneBlock(Properties properties) {
         super(properties);
@@ -61,7 +62,6 @@ public class DarkStoneBlock extends VampirismBlock {
 
     @Override
     public void appendHoverText(@NotNull ItemStack stack, Item.TooltipContext context, @NotNull List<Component> tooltip, @NotNull TooltipFlag advanced) {
-        super.appendHoverText(stack, context, tooltip, advanced);
         if (stack.is(ModItemTags.NO_SPAWN)) {
             tooltip.add(Component.translatable("block.vampirism.castle_block.no_spawn").withStyle(ChatFormatting.ITALIC, ChatFormatting.GRAY));
         } else if (stack.is(ModItemTags.VAMPIRE_SPAWN)) {

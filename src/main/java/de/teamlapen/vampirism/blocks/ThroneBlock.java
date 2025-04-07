@@ -4,7 +4,7 @@ import de.teamlapen.vampirism.core.ModStats;
 import de.teamlapen.vampirism.sit.SitEntity;
 import de.teamlapen.vampirism.sit.SitHandler;
 import de.teamlapen.vampirism.sit.SitUtil;
-import de.teamlapen.vampirism.util.BlockVoxelshapes;
+import de.teamlapen.vampirism.util.BlockVoxelShapes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionResult;
@@ -21,8 +21,7 @@ import org.jetbrains.annotations.NotNull;
 public class ThroneBlock extends VampirismSplitBlock {
 
     public ThroneBlock(BlockBehaviour.Properties properties) {
-        super(properties.mapColor(MapColor.WOOD).ignitedByLava().pushReaction(PushReaction.DESTROY).strength(2, 3), BlockVoxelshapes.throneBottom, BlockVoxelshapes.throneTop, true);
-        markDecorativeBlock();
+        super(properties.mapColor(MapColor.WOOD).ignitedByLava().pushReaction(PushReaction.DESTROY).strength(2, 3), BlockVoxelShapes.throneBottom, BlockVoxelShapes.throneTop, true);
     }
 
     @Override

@@ -16,7 +16,7 @@ import de.teamlapen.vampirism.recipes.ApplicableOilRecipe;
 import de.teamlapen.vampirism.recipes.CleanOilRecipe;
 import de.teamlapen.vampirism.recipes.ConfigCondition;
 import de.teamlapen.vampirism.recipes.RerollVampireBookRecipe;
-import de.teamlapen.vampirism.util.Helper;
+import de.teamlapen.vampirism.util.ColorListsUtil;
 import de.teamlapen.vampirism.util.ItemDataUtils;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -155,7 +155,7 @@ public class RecipesProvider extends de.teamlapen.vampirism.data.provider.parent
         shapeless(RecipeCategory.MISC, ModItems.BLOOD_INFUSED_IRON_INGOT, 3).requires(tag(iron_ingot), 3).requires(Ingredient.of(pure_blood_0, pure_blood_1, pure_blood_2, pure_blood_3)).unlockedBy("has_iron", has(iron_ingot)).save(output, vampire("blood_infused_iron_ingot"));
         shaped(RecipeCategory.DECORATIONS, ModBlocks.BLOOD_PEDESTAL.get()).pattern("GYG").pattern("YZY").pattern("XXX").define('X', obsidian).define('Y', planks).define('Z', blood_bottle).define('G', gold_ingot).unlockedBy("has_gold", has(gold_ingot)).save(output, vampire("blood_pedestal"));
 
-        List<Item> vampireCloaks = Helper.VAMPIRE_CLOAKS.stream().map(Item::asItem).toList();
+        List<Item> vampireCloaks = ColorListsUtil.VAMPIRE_CLOAKS.stream().map(Item::asItem).toList();
         List<Item> coloredWool = List.of(Items.BLACK_WOOL, Items.BLUE_WOOL, Items.BROWN_WOOL, Items.CYAN_WOOL, Items.GRAY_WOOL, Items.GREEN_WOOL, Items.LIGHT_BLUE_WOOL, Items.LIGHT_GRAY_WOOL, Items.LIME_WOOL, Items.MAGENTA_WOOL, Items.ORANGE_WOOL, Items.PINK_WOOL, Items.PURPLE_WOOL, Items.RED_WOOL, Items.YELLOW_WOOL, Items.WHITE_WOOL);
 
         colorWithDye(vampireCloaks, RecipeCategory.COMBAT, this::vampire);

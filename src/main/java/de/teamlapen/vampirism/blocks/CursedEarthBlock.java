@@ -12,6 +12,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -20,11 +21,10 @@ import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.NotNull;
 
-public class CursedEarthBlock extends VampirismBlock implements HolyWaterEffectConsumer {
+public class CursedEarthBlock extends Block implements HolyWaterEffectConsumer {
 
     public CursedEarthBlock(BlockBehaviour.Properties properties) {
         super(properties.mapColor(MapColor.TERRACOTTA_BROWN).strength(0.5f, 2.0f).sound(SoundType.GRAVEL));
-
     }
 
     @Override
