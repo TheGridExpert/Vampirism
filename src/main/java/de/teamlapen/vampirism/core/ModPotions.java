@@ -33,7 +33,6 @@ public class ModPotions {
     public static final DeferredRegister<Potion> POTIONS = DeferredRegister.create(Registries.POTION, REFERENCE.MODID);
 
     //Hunter
-
     public static final DeferredHolder<Potion, HunterPotion> VERY_LONG_SLOW_FALLING = POTIONS.register("very_long_slow_falling", () -> new HunterPotion("slow_falling", new MobEffectInstance(MobEffects.SLOW_FALLING, 48000)));
     public static final DeferredHolder<Potion, HunterPotion> LONG_LUCK = POTIONS.register("long_luck", () -> new HunterPotion("luck", new MobEffectInstance(MobEffects.LUCK, 60000)));
     public static final DeferredHolder<Potion, HunterPotion> VERY_LONG_WEAKNESS = POTIONS.register("very_long_weakness", () -> new HunterPotion("weakness", new MobEffectInstance(MobEffects.WEAKNESS, 48000)));
@@ -86,8 +85,7 @@ public class ModPotions {
 
     static void registerPotionMixes(RegisterBrewingRecipesEvent event) {
         PotionBrewing.Builder builder = event.getBuilder();
-
-        registerPotionMixes(event.getRegistryAccess());
+        RegistryAccess registryAccess = event.getRegistryAccess();
 
         builder.addMix(Potions.WATER, ModBlocks.GARLIC.get().asItem(), GARLIC);
 
@@ -95,9 +93,7 @@ public class ModPotions {
         splashItemBottle(ModItems.HOLY_WATER_BOTTLE_NORMAL.get(), ModItems.HOLY_WATER_SPLASH_BOTTLE_NORMAL.get(), builder);
         splashItemBottle(ModItems.HOLY_WATER_BOTTLE_ENHANCED.get(), ModItems.HOLY_WATER_SPLASH_BOTTLE_ENHANCED.get(), builder);
         splashItemBottle(ModItems.HOLY_WATER_BOTTLE_ULTIMATE.get(), ModItems.HOLY_WATER_SPLASH_BOTTLE_ULTIMATE.get(), builder);
-    }
 
-    private static void registerPotionMixes(RegistryAccess registryAccess) {
         veryDurable(Potions.LUCK, LONG_LUCK);
         veryDurable(Potions.LONG_SLOW_FALLING, VERY_LONG_SLOW_FALLING);
         veryDurable(Potions.LONG_WEAKNESS, VERY_LONG_WEAKNESS);

@@ -15,7 +15,7 @@ import de.teamlapen.vampirism.blocks.mother.MotherBlock;
 import de.teamlapen.vampirism.blocks.mother.RemainsBlock;
 import de.teamlapen.vampirism.items.PureLevelBlockItem;
 import de.teamlapen.vampirism.items.component.PureLevel;
-import de.teamlapen.vampirism.util.BlockVoxelShapes;
+import de.teamlapen.vampirism.util.VampirismVoxelShapes;
 import de.teamlapen.vampirism.world.gen.ModTreeGrower;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -26,7 +26,6 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
@@ -44,7 +43,6 @@ import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.function.ToIntFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -78,7 +76,7 @@ public class ModBlocks {
 
     public static final DeferredBlock<HunterTableBlock> HUNTER_TABLE = registerWithItem("hunter_table", HunterTableBlock::new, () -> basicProperties().mapColor(MapColor.WOOD).strength(0.5f).ignitedByLava().noOcclusion());
     public static final DeferredBlock<WeaponTableBlock> WEAPON_TABLE = registerWithItem("weapon_table", WeaponTableBlock::new, () -> basicProperties().mapColor(MapColor.METAL).strength(3).noOcclusion());
-    public static final DeferredBlock<AlchemicalCauldronBlock> ALCHEMICAL_CAULDRON = registerWithItem("alchemical_cauldron", (props) -> new AlchemicalCauldronBlock(props.mapColor(MapColor.METAL).strength(4f).lightLevel(litBlockEmission(13)).noOcclusion()));
+    public static final DeferredBlock<AlchemicalCauldronBlock> ALCHEMICAL_CAULDRON = registerWithItem("alchemical_cauldron", (props) -> new AlchemicalCauldronBlock(props.mapColor(MapColor.METAL).strength(4f).lightLevel(state -> state.getValue(BlockStateProperties.LIT) ? 13 : 0).noOcclusion()));
     public static final DeferredBlock<PotionTableBlock> POTION_TABLE = registerWithItem("potion_table", props -> new PotionTableBlock(props.mapColor(MapColor.METAL).strength(1f).noOcclusion()));
     public static final DeferredBlock<AlchemyTableBlock> ALCHEMY_TABLE = registerWithItem("alchemy_table", AlchemyTableBlock::new, () -> basicProperties().mapColor(MapColor.METAL).requiresCorrectToolForDrops().strength(0.5F).lightLevel(state -> 1).noOcclusion());
     public static final DeferredBlock<MedChairBlock> MED_CHAIR = registerWithItem("med_chair", MedChairBlock::new);
@@ -88,7 +86,7 @@ public class ModBlocks {
     public static final DeferredBlock<GarlicDiffuserBlock> GARLIC_DIFFUSER_NORMAL = registerWithItem("garlic_diffuser_normal", props -> new GarlicDiffuserBlock(props, GarlicDiffuserBlock.Type.NORMAL));
     public static final DeferredBlock<GarlicDiffuserBlock> GARLIC_DIFFUSER_WEAK = registerWithItem("garlic_diffuser_weak", props -> new GarlicDiffuserBlock(props, GarlicDiffuserBlock.Type.WEAK));
 
-    public static final DeferredBlock<VampireBeaconBlock> VAMPIRE_BEACON = registerWithItem("vampire_beacon", props -> new VampireBeaconBlock(props.mapColor(MapColor.DIAMOND).instrument(NoteBlockInstrument.HAT).strength(3.0F).lightLevel((p_50828_) -> 15).noOcclusion().isRedstoneConductor(UtilLib::never)), x -> x.rarity(Rarity.RARE));
+    public static final DeferredBlock<VampireBeaconBlock> VAMPIRE_BEACON = registerWithItem("vampire_beacon", VampireBeaconBlock::new, () -> copyProperties(Blocks.BEACON).mapColor(MapColor.CRIMSON_HYPHAE), itemProps -> itemProps.rarity(Rarity.RARE));
 
     public static final DeferredBlock<TotemBaseBlock> TOTEM_BASE = registerWithItem("totem_base", TotemBaseBlock::new, () -> basicProperties().mapColor(MapColor.STONE).strength(40, 2000).sound(SoundType.STONE).noOcclusion().pushReaction(PushReaction.BLOCK));
     public static final DeferredBlock<TotemTopBlock> TOTEM_TOP = registerWithItem("totem_top", props -> new TotemTopBlock(props, false, null), () -> basicProperties().mapColor(MapColor.STONE).strength(12, 2000).sound(SoundType.STONE).pushReaction(PushReaction.BLOCK));
@@ -99,49 +97,49 @@ public class ModBlocks {
     public static final DeferredBlock<TotemTopBlock> TOTEM_TOP_VAMPIRISM_HUNTER_CRAFTED = registerBlock("totem_top_vampirism_hunter_crafted", props -> new TotemTopBlock(props, true, ModFactions.HUNTER), () -> copyProperties(TOTEM_TOP));
 
     // Nature
-    public static final DeferredBlock<LeavesBlock> DARK_SPRUCE_LEAVES = registerWithItem("dark_spruce_leaves", LeavesBlock::new, () -> basicProperties().mapColor(MapColor.COLOR_BLACK).strength(0.2F).randomTicks().ignitedByLava().pushReaction(PushReaction.DESTROY).isViewBlocking(UtilLib::never).sound(SoundType.GRASS).noOcclusion());
+    public static final DeferredBlock<LeavesBlock> DARK_SPRUCE_LEAVES = registerWithItem("dark_spruce_leaves", LeavesBlock::new, () -> copyProperties(Blocks.SPRUCE_LEAVES).mapColor(MapColor.COLOR_BLACK));
 
-    public static final DeferredBlock<SaplingBlock> DARK_SPRUCE_SAPLING = registerWithItem("dark_spruce_sapling", props -> new DarkSpruceSaplingBlock(ModTreeGrower.DARK_SPRUCE, ModTreeGrower.CURSED_SPRUCE, props.mapColor(MapColor.COLOR_BLACK).isViewBlocking(UtilLib::never).replaceable().pushReaction(PushReaction.DESTROY).noCollission().randomTicks().instabreak().sound(SoundType.GRASS)));
-    public static final DeferredBlock<SaplingBlock> CURSED_SPRUCE_SAPLING = registerWithItem("cursed_spruce_sapling", props -> new SaplingBlock(ModTreeGrower.CURSED_SPRUCE, props.mapColor(MapColor.COLOR_BLACK).isViewBlocking(UtilLib::never).replaceable().pushReaction(PushReaction.DESTROY).noCollission().randomTicks().instabreak().sound(SoundType.GRASS)));
+    public static final DeferredBlock<SaplingBlock> DARK_SPRUCE_SAPLING = registerWithItem("dark_spruce_sapling", props -> new DarkSpruceSaplingBlock(ModTreeGrower.DARK_SPRUCE, ModTreeGrower.CURSED_SPRUCE, props), () -> copyProperties(Blocks.SPRUCE_SAPLING).mapColor(MapColor.COLOR_BLACK));
+    public static final DeferredBlock<SaplingBlock> CURSED_SPRUCE_SAPLING = registerWithItem("cursed_spruce_sapling", props -> new SaplingBlock(ModTreeGrower.CURSED_SPRUCE, props), () -> copyProperties(DARK_SPRUCE_SAPLING));
 
-    public static final DeferredBlock<VampirismFlowerBlock> VAMPIRE_ORCHID = registerWithItem("vampire_orchid", props -> new VampirismFlowerBlock(props, MobEffects.BLINDNESS, 7, true), () -> basicProperties().mapColor(MapColor.PLANT).isViewBlocking(UtilLib::never).pushReaction(PushReaction.DESTROY).instabreak().noCollission().sound(SoundType.GRASS));
+    public static final DeferredBlock<VampirismFlowerBlock> VAMPIRE_ORCHID = registerWithItem("vampire_orchid", props -> new VampirismFlowerBlock(props, MobEffects.BLINDNESS, 7, true), () -> copyProperties(Blocks.BLUE_ORCHID).mapColor(MapColor.COLOR_MAGENTA));
 
-    public static final DeferredBlock<CursedRootsBlock> CURSED_ROOTS = registerWithItem("cursed_roots", props -> new CursedRootsBlock(props.mapColor(MapColor.COLOR_RED).isViewBlocking(UtilLib::never).pushReaction(PushReaction.DESTROY).ignitedByLava().replaceable().noCollission().instabreak().sound(SoundType.GRASS)));
-    public static final DeferredBlock<HangingRootsBlock> CURSED_HANGING_ROOTS = registerWithItem("cursed_hanging_roots", props -> new HangingRootsBlock(props.mapColor(MapColor.TERRACOTTA_BROWN).noCollission().instabreak().sound(SoundType.GRASS).offsetType(BlockBehaviour.OffsetType.XZ).ignitedByLava().pushReaction(PushReaction.DESTROY)));
+    public static final DeferredBlock<CursedRootsBlock> CURSED_ROOTS = registerWithItem("cursed_roots", CursedRootsBlock::new, () -> copyProperties(Blocks.CRIMSON_ROOTS).mapColor(MapColor.CRIMSON_HYPHAE));
+    public static final DeferredBlock<CursedHangingRootsBlock> CURSED_HANGING_ROOTS = registerWithItem("cursed_hanging_roots", CursedHangingRootsBlock::new, () -> copyProperties(Blocks.HANGING_ROOTS).mapColor(MapColor.CRIMSON_HYPHAE));
     
-    public static final DeferredBlock<DirectCursedBarkBlock> DIRECT_CURSED_BARK = registerWithItem("direct_cursed_bark", DirectCursedBarkBlock::new);
-    public static final DeferredBlock<DiagonalCursedBarkBlock> DIAGONAL_CURSED_BARK = BLOCKS.registerBlock("diagonal_cursed_bark", DiagonalCursedBarkBlock::new);
+    public static final DeferredBlock<DirectCursedBarkBlock> DIRECT_CURSED_BARK = registerWithItem("direct_cursed_bark", DirectCursedBarkBlock::new, () -> basicProperties().sound(SoundType.WOOD));
+    public static final DeferredBlock<DiagonalCursedBarkBlock> DIAGONAL_CURSED_BARK = registerBlock("diagonal_cursed_bark", DiagonalCursedBarkBlock::new, () -> basicProperties().sound(SoundType.EMPTY));
 
     public static final DeferredBlock<FlowerPotBlock> POTTED_DARK_SPRUCE_SAPLING = registerPottedPlant("potted_dark_spruce_sapling", DARK_SPRUCE_SAPLING);
     public static final DeferredBlock<FlowerPotBlock> POTTED_CURSED_SPRUCE_SAPLING = registerPottedPlant("potted_cursed_spruce_sapling", CURSED_SPRUCE_SAPLING);
     public static final DeferredBlock<FlowerPotBlock> POTTED_VAMPIRE_ORCHID = registerPottedPlant("potted_vampire_orchid", VAMPIRE_ORCHID);
     public static final DeferredBlock<FlowerPotBlock> POTTED_CURSED_ROOTS = registerPottedPlant("potted_cursed_roots", CURSED_ROOTS);
 
-    public static final DeferredBlock<GarlicBlock> GARLIC = registerWithItem("garlic", GarlicBlock::new);
+    public static final DeferredBlock<GarlicBlock> GARLIC = registerWithItem("garlic", GarlicBlock::new, () -> copyProperties(Blocks.CARROTS));
 
     // Building Blocks
-    public static final DeferredBlock<CursedGrass> CURSED_GRASS = registerWithItem("cursed_grass", props -> new CursedGrass(props.mapColor(MapColor.COLOR_BLACK).randomTicks().strength(0.6F).sound(SoundType.GRASS)));
-    public static final DeferredBlock<CursedEarthBlock> CURSED_EARTH = registerWithItem("cursed_earth", CursedEarthBlock::new);
-    public static final DeferredBlock<CursedEarthPathBlock> CURSED_EARTH_PATH = registerWithItem("cursed_earth_path", props -> new CursedEarthPathBlock(props.mapColor(MapColor.DIRT).strength(0.65F).sound(SoundType.GRASS).isViewBlocking(UtilLib::always).isSuffocating(UtilLib::always)));
+    public static final DeferredBlock<CursedGrass> CURSED_GRASS = registerWithItem("cursed_grass", CursedGrass::new, () -> copyProperties(Blocks.GRASS_BLOCK).mapColor(MapColor.COLOR_BLACK));
+    public static final DeferredBlock<CursedEarthBlock> CURSED_EARTH = registerWithItem("cursed_earth", CursedEarthBlock::new, () -> copyProperties(Blocks.DIRT).mapColor(MapColor.TERRACOTTA_BROWN));
+    public static final DeferredBlock<CursedEarthPathBlock> CURSED_EARTH_PATH = registerWithItem("cursed_earth_path", CursedEarthPathBlock::new, () -> copyProperties(Blocks.DIRT_PATH).mapColor(MapColor.COLOR_GRAY));
 
     public static final DeferredBlock<RotatedPillarBlock> DARK_SPRUCE_LOG = registerWithItem("dark_spruce_log", RotatedPillarBlock::new, logProperties(MapColor.COLOR_BLACK, MapColor.COLOR_BLACK));
     public static final DeferredBlock<RotatedPillarBlock> DARK_SPRUCE_WOOD = registerWithItem("dark_spruce_wood", RotatedPillarBlock::new, logProperties(MapColor.COLOR_BLACK, MapColor.COLOR_BLACK));
     public static final DeferredBlock<RotatedPillarBlock> STRIPPED_DARK_SPRUCE_LOG = registerWithItem("stripped_dark_spruce_log", RotatedPillarBlock::new, logProperties(MapColor.COLOR_BLACK, MapColor.COLOR_GRAY));
     public static final DeferredBlock<RotatedPillarBlock> STRIPPED_DARK_SPRUCE_WOOD = registerWithItem("stripped_dark_spruce_wood", RotatedPillarBlock::new, logProperties(MapColor.COLOR_BLACK, MapColor.COLOR_GRAY));
 
-    public static final DeferredBlock<Block> DARK_SPRUCE_PLANKS = registerWithItem(ModRegistryItems.DARK_SPRUCE_PLANKS.getId().getPath(), props -> new Block(props.mapColor(MapColor.COLOR_GRAY).ignitedByLava().mapColor(MapColor.COLOR_GRAY).strength(2.0F, 3.0F).sound(SoundType.WOOD)));
-    public static final DeferredBlock<StairBlock> DARK_SPRUCE_STAIRS = registerWithItem("dark_spruce_stairs", props -> new StairBlock(DARK_SPRUCE_PLANKS.get().defaultBlockState(), props), () -> copyProperties(DARK_SPRUCE_PLANKS));
-    public static final DeferredBlock<SlabBlock> DARK_SPRUCE_SLAB = registerWithItem("dark_spruce_slab", props -> new SlabBlock(props.mapColor(MapColor.COLOR_GRAY).ignitedByLava().strength(2.0F, 3.0F).sound(SoundType.WOOD)));
-    public static final DeferredBlock<FenceBlock> DARK_SPRUCE_FENCE = registerWithItem("dark_spruce_fence", props -> new FenceBlock(props.mapColor(DARK_SPRUCE_PLANKS.get().defaultMapColor()).ignitedByLava().strength(2.0F, 3.0F).sound(SoundType.WOOD)));
-    public static final DeferredBlock<FenceGateBlock> DARK_SPRUCE_FENCE_GATE = registerWithItem("dark_spruce_fence_gate", props -> new FenceGateBlock(ModBlocks.WoodTypes.DARK_SPRUCE, props.mapColor(DARK_SPRUCE_PLANKS.get().defaultMapColor()).ignitedByLava().strength(2.0F, 3.0F).sound(SoundType.WOOD)));
-    public static final DeferredBlock<DoorBlock> DARK_SPRUCE_DOOR = registerWithItem("dark_spruce_door", props -> new DoorBlock(BlockSetType.SPRUCE, props.mapColor(MapColor.COLOR_GRAY).ignitedByLava().strength(3.0F).sound(SoundType.WOOD).noOcclusion()));
-    public static final DeferredBlock<TrapDoorBlock> DARK_SPRUCE_TRAPDOOR = registerWithItem("dark_spruce_trapdoor", props -> new TrapDoorBlock(BlockSetType.SPRUCE, props.mapColor(MapColor.COLOR_GRAY).ignitedByLava().strength(3.0F).sound(SoundType.WOOD).noOcclusion().isValidSpawn((p_61031_, p_61032_, p_61033_, p_61034_) -> false)));
-    public static final DeferredBlock<PressurePlateBlock> DARK_SPRUCE_PRESSURE_PLACE = registerWithItem("dark_spruce_pressure_plate", props -> new PressurePlateBlock(BlockSetType.SPRUCE, props.mapColor(DARK_SPRUCE_PLANKS.get().defaultMapColor()).ignitedByLava().noCollission().strength(0.5F).sound(SoundType.WOOD)));
-    public static final DeferredBlock<ButtonBlock> DARK_SPRUCE_BUTTON = registerWithItem("dark_spruce_button", props -> new ButtonBlock(BlockSetType.SPRUCE, 30, props.noCollission().isViewBlocking(UtilLib::never).pushReaction(PushReaction.DESTROY).ignitedByLava().replaceable().strength(0.5F).sound(SoundType.WOOD)));
-    public static final DeferredBlock<StandingSignBlock> DARK_SPRUCE_SIGN = registerBlock("dark_spruce_sign", props -> new StandingSignBlock(ModBlocks.WoodTypes.DARK_SPRUCE, props.mapColor(DARK_SPRUCE_LOG.get().defaultMapColor()).ignitedByLava().noCollission().strength(1.0F).sound(SoundType.WOOD)));
-    public static final DeferredBlock<WallSignBlock> DARK_SPRUCE_WALL_SIGN = registerBlock("dark_spruce_wall_sign", props -> new WallSignBlock(ModBlocks.WoodTypes.DARK_SPRUCE, props.mapColor(DARK_SPRUCE_LOG.get().defaultMapColor()).ignitedByLava().noCollission().strength(1.0F).sound(SoundType.WOOD).overrideLootTable(DARK_SPRUCE_SIGN.get().getLootTable())));
-    public static final DeferredBlock<CeilingHangingSignBlock> DARK_SPRUCE_HANGING_SIGN = registerBlock("dark_spruce_hanging_sign", props -> new CeilingHangingSignBlock(ModBlocks.WoodTypes.DARK_SPRUCE, props.mapColor(DARK_SPRUCE_LOG.get().defaultMapColor()).ignitedByLava().noCollission().strength(1.0F).sound(SoundType.WOOD)));
-    public static final DeferredBlock<WallHangingSignBlock> DARK_SPRUCE_WALL_HANGING_SIGN = registerBlock("dark_spruce_wall_hanging_sign", props -> new WallHangingSignBlock(ModBlocks.WoodTypes.DARK_SPRUCE, props.mapColor(DARK_SPRUCE_LOG.get().defaultMapColor()).ignitedByLava().noCollission().strength(1.0F).sound(SoundType.WOOD).overrideLootTable(DARK_SPRUCE_HANGING_SIGN.get().getLootTable())));
+    public static final DeferredBlock<Block> DARK_SPRUCE_PLANKS = registerWithItem(ModRegistryItems.DARK_SPRUCE_PLANKS.getId().getPath(), Block::new, () -> copyProperties(Blocks.SPRUCE_PLANKS).mapColor(MapColor.COLOR_GRAY));
+    public static final DeferredBlock<StairBlock> DARK_SPRUCE_STAIRS = registerWithItem("dark_spruce_stairs", props -> new StairBlock(DARK_SPRUCE_PLANKS.get().defaultBlockState(), props), () -> copyProperties(Blocks.SPRUCE_STAIRS, DARK_SPRUCE_PLANKS));
+    public static final DeferredBlock<SlabBlock> DARK_SPRUCE_SLAB = registerWithItem("dark_spruce_slab", SlabBlock::new, () -> copyProperties(Blocks.SPRUCE_SLAB, DARK_SPRUCE_PLANKS));
+    public static final DeferredBlock<FenceBlock> DARK_SPRUCE_FENCE = registerWithItem("dark_spruce_fence", FenceBlock::new, () -> copyProperties(Blocks.SPRUCE_FENCE, DARK_SPRUCE_PLANKS));
+    public static final DeferredBlock<FenceGateBlock> DARK_SPRUCE_FENCE_GATE = registerWithItem("dark_spruce_fence_gate", props -> new FenceGateBlock(ModBlocks.WoodTypes.DARK_SPRUCE, props), () -> copyProperties(Blocks.SPRUCE_FENCE_GATE, DARK_SPRUCE_PLANKS));
+    public static final DeferredBlock<DoorBlock> DARK_SPRUCE_DOOR = registerWithItem("dark_spruce_door", props -> new DoorBlock(BlockSetType.SPRUCE, props), () -> copyProperties(Blocks.SPRUCE_DOOR, DARK_SPRUCE_PLANKS));
+    public static final DeferredBlock<TrapDoorBlock> DARK_SPRUCE_TRAPDOOR = registerWithItem("dark_spruce_trapdoor", props -> new TrapDoorBlock(BlockSetType.SPRUCE, props), () -> copyProperties(Blocks.SPRUCE_TRAPDOOR, DARK_SPRUCE_PLANKS));
+    public static final DeferredBlock<PressurePlateBlock> DARK_SPRUCE_PRESSURE_PLACE = registerWithItem("dark_spruce_pressure_plate", props -> new PressurePlateBlock(BlockSetType.SPRUCE, props), () -> copyProperties(Blocks.SPRUCE_PRESSURE_PLATE, DARK_SPRUCE_PLANKS));
+    public static final DeferredBlock<ButtonBlock> DARK_SPRUCE_BUTTON = registerWithItem("dark_spruce_button", props -> new ButtonBlock(BlockSetType.SPRUCE, 30, props), () -> copyProperties(Blocks.SPRUCE_BUTTON, DARK_SPRUCE_PLANKS));
+    public static final DeferredBlock<StandingSignBlock> DARK_SPRUCE_SIGN = registerBlock("dark_spruce_sign", props -> new StandingSignBlock(ModBlocks.WoodTypes.DARK_SPRUCE, props), () -> copyProperties(Blocks.SPRUCE_SIGN, DARK_SPRUCE_PLANKS));
+    public static final DeferredBlock<WallSignBlock> DARK_SPRUCE_WALL_SIGN = registerBlock("dark_spruce_wall_sign", props -> new WallSignBlock(ModBlocks.WoodTypes.DARK_SPRUCE, props), () -> copyProperties(Blocks.SPRUCE_WALL_SIGN, DARK_SPRUCE_PLANKS));
+    public static final DeferredBlock<CeilingHangingSignBlock> DARK_SPRUCE_HANGING_SIGN = registerBlock("dark_spruce_hanging_sign", props -> new CeilingHangingSignBlock(ModBlocks.WoodTypes.DARK_SPRUCE, props), () -> copyProperties(Blocks.SPRUCE_HANGING_SIGN, DARK_SPRUCE_PLANKS));
+    public static final DeferredBlock<WallHangingSignBlock> DARK_SPRUCE_WALL_HANGING_SIGN = registerBlock("dark_spruce_wall_hanging_sign", props -> new WallHangingSignBlock(ModBlocks.WoodTypes.DARK_SPRUCE, props), () -> copyProperties(Blocks.SPRUCE_WALL_HANGING_SIGN, DARK_SPRUCE_PLANKS));
 
     public static final DeferredBlock<CursedSpruceBlock> CURSED_SPRUCE_LOG_CURED = registerWithItem("cursed_spruce_log_cured", CursedSpruceBlock::new, logProperties(MapColor.COLOR_BLACK, MapColor.CRIMSON_HYPHAE));
     public static final DeferredBlock<CursedSpruceBlock> CURSED_SPRUCE_WOOD_CURED = registerWithItem("cursed_spruce_wood_cured", CursedSpruceBlock::new, logProperties(MapColor.COLOR_BLACK, MapColor.CRIMSON_HYPHAE));
@@ -151,19 +149,19 @@ public class ModBlocks {
     public static final DeferredBlock<RotatedPillarBlock> STRIPPED_CURSED_SPRUCE_LOG = registerWithItem("stripped_cursed_spruce_log", RotatedPillarBlock::new, logProperties(MapColor.COLOR_BLACK, MapColor.CRIMSON_HYPHAE));
     public static final DeferredBlock<RotatedPillarBlock> STRIPPED_CURSED_SPRUCE_WOOD = registerWithItem("stripped_cursed_spruce_wood", RotatedPillarBlock::new, logProperties(MapColor.COLOR_BLACK, MapColor.CRIMSON_HYPHAE));
 
-    public static final DeferredBlock<Block> CURSED_SPRUCE_PLANKS = registerWithItem(ModRegistryItems.CURSED_SPRUCE_PLANKS.getId().getPath(), props -> new Block(props.ignitedByLava().mapColor(MapColor.CRIMSON_HYPHAE).strength(2.0F, 3.0F).sound(SoundType.WOOD)));
-    public static final DeferredBlock<StairBlock> CURSED_SPRUCE_STAIRS = registerWithItem("cursed_spruce_stairs", props -> new StairBlock(CURSED_SPRUCE_PLANKS.get().defaultBlockState(), props), () -> copyProperties(CURSED_SPRUCE_PLANKS));
-    public static final DeferredBlock<SlabBlock> CURSED_SPRUCE_SLAB = registerWithItem("cursed_spruce_slab", props -> new SlabBlock(props.mapColor(MapColor.CRIMSON_HYPHAE).ignitedByLava().strength(2.0F, 3.0F).sound(SoundType.WOOD)));
-    public static final DeferredBlock<FenceBlock> CURSED_SPRUCE_FENCE = registerWithItem("cursed_spruce_fence", props -> new FenceBlock(props.mapColor(CURSED_SPRUCE_PLANKS.get().defaultMapColor()).ignitedByLava().strength(2.0F, 3.0F).sound(SoundType.WOOD)));
-    public static final DeferredBlock<FenceGateBlock> CURSED_SPRUCE_FENCE_GATE = registerWithItem("cursed_spruce_fence_gate", props -> new FenceGateBlock(ModBlocks.WoodTypes.CURSED_SPRUCE, props.mapColor(CURSED_SPRUCE_PLANKS.get().defaultMapColor()).ignitedByLava().strength(2.0F, 3.0F).sound(SoundType.WOOD)));
-    public static final DeferredBlock<DoorBlock> CURSED_SPRUCE_DOOR = registerWithItem("cursed_spruce_door", props -> new DoorBlock(BlockSetType.SPRUCE, props.mapColor(MapColor.CRIMSON_HYPHAE).ignitedByLava().strength(3.0F).sound(SoundType.WOOD).noOcclusion()));
-    public static final DeferredBlock<TrapDoorBlock> CURSED_SPRUCE_TRAPDOOR = registerWithItem("cursed_spruce_trapdoor", props -> new TrapDoorBlock(BlockSetType.SPRUCE, props.mapColor(MapColor.CRIMSON_HYPHAE).ignitedByLava().strength(3.0F).sound(SoundType.WOOD).noOcclusion().isValidSpawn((p_61031_, p_61032_, p_61033_, p_61034_) -> false)));
-    public static final DeferredBlock<PressurePlateBlock> CURSED_SPRUCE_PRESSURE_PLACE = registerWithItem("cursed_spruce_pressure_plate", props -> new PressurePlateBlock(BlockSetType.SPRUCE, props.mapColor(CURSED_SPRUCE_PLANKS.get().defaultMapColor()).ignitedByLava().noCollission().strength(0.5F).sound(SoundType.WOOD)));
-    public static final DeferredBlock<ButtonBlock> CURSED_SPRUCE_BUTTON = registerWithItem("cursed_spruce_button", props -> new ButtonBlock(BlockSetType.SPRUCE, 30, props.noCollission().isViewBlocking(UtilLib::never).pushReaction(PushReaction.DESTROY).ignitedByLava().replaceable().strength(0.5F).sound(SoundType.WOOD)));
-    public static final DeferredBlock<StandingSignBlock> CURSED_SPRUCE_SIGN = registerBlock("cursed_spruce_sign", props -> new StandingSignBlock(ModBlocks.WoodTypes.CURSED_SPRUCE, props.mapColor(CURSED_SPRUCE_LOG.get().defaultMapColor()).ignitedByLava().noCollission().strength(1.0F).sound(SoundType.WOOD)));
-    public static final DeferredBlock<WallSignBlock> CURSED_SPRUCE_WALL_SIGN = registerBlock("cursed_spruce_wall_sign", props -> new WallSignBlock(ModBlocks.WoodTypes.CURSED_SPRUCE, props.mapColor(CURSED_SPRUCE_LOG.get().defaultMapColor()).ignitedByLava().noCollission().strength(1.0F).sound(SoundType.WOOD).overrideLootTable(CURSED_SPRUCE_SIGN.get().getLootTable())));
-    public static final DeferredBlock<CeilingHangingSignBlock> CURSED_SPRUCE_HANGING_SIGN = BLOCKS.registerBlock("cursed_spruce_hanging_sign", props -> new CeilingHangingSignBlock(ModBlocks.WoodTypes.CURSED_SPRUCE, props.mapColor(CURSED_SPRUCE_LOG.get().defaultMapColor()).ignitedByLava().noCollission().strength(1.0F).sound(SoundType.WOOD)));
-    public static final DeferredBlock<WallHangingSignBlock> CURSED_SPRUCE_WALL_HANGING_SIGN = BLOCKS.registerBlock("cursed_spruce_wall_hanging_sign", props -> new WallHangingSignBlock(ModBlocks.WoodTypes.CURSED_SPRUCE, props.mapColor(CURSED_SPRUCE_LOG.get().defaultMapColor()).ignitedByLava().noCollission().strength(1.0F).sound(SoundType.WOOD).overrideLootTable(CURSED_SPRUCE_HANGING_SIGN.get().getLootTable())));
+    public static final DeferredBlock<Block> CURSED_SPRUCE_PLANKS = registerWithItem(ModRegistryItems.CURSED_SPRUCE_PLANKS.getId().getPath(), Block::new, () -> copyProperties(Blocks.SPRUCE_PLANKS).mapColor(MapColor.CRIMSON_HYPHAE));
+    public static final DeferredBlock<StairBlock> CURSED_SPRUCE_STAIRS = registerWithItem("cursed_spruce_stairs", props -> new StairBlock(CURSED_SPRUCE_PLANKS.get().defaultBlockState(), props), () -> copyProperties(Blocks.SPRUCE_STAIRS, CURSED_SPRUCE_PLANKS));
+    public static final DeferredBlock<SlabBlock> CURSED_SPRUCE_SLAB = registerWithItem("cursed_spruce_slab", SlabBlock::new, () -> copyProperties(Blocks.SPRUCE_SLAB, CURSED_SPRUCE_PLANKS));
+    public static final DeferredBlock<FenceBlock> CURSED_SPRUCE_FENCE = registerWithItem("cursed_spruce_fence", FenceBlock::new, () -> copyProperties(Blocks.SPRUCE_FENCE, CURSED_SPRUCE_PLANKS));
+    public static final DeferredBlock<FenceGateBlock> CURSED_SPRUCE_FENCE_GATE = registerWithItem("cursed_spruce_fence_gate", props -> new FenceGateBlock(ModBlocks.WoodTypes.CURSED_SPRUCE, props), () -> copyProperties(Blocks.SPRUCE_FENCE_GATE, CURSED_SPRUCE_PLANKS));
+    public static final DeferredBlock<DoorBlock> CURSED_SPRUCE_DOOR = registerWithItem("cursed_spruce_door", props -> new DoorBlock(BlockSetType.SPRUCE, props), () -> copyProperties(Blocks.SPRUCE_DOOR, CURSED_SPRUCE_PLANKS));
+    public static final DeferredBlock<TrapDoorBlock> CURSED_SPRUCE_TRAPDOOR = registerWithItem("cursed_spruce_trapdoor", props -> new TrapDoorBlock(BlockSetType.SPRUCE, props), () -> copyProperties(Blocks.SPRUCE_TRAPDOOR, CURSED_SPRUCE_PLANKS));
+    public static final DeferredBlock<PressurePlateBlock> CURSED_SPRUCE_PRESSURE_PLACE = registerWithItem("cursed_spruce_pressure_plate", props -> new PressurePlateBlock(BlockSetType.SPRUCE, props), () -> copyProperties(Blocks.SPRUCE_PRESSURE_PLATE, CURSED_SPRUCE_PLANKS));
+    public static final DeferredBlock<ButtonBlock> CURSED_SPRUCE_BUTTON = registerWithItem("cursed_spruce_button", props -> new ButtonBlock(BlockSetType.SPRUCE, 30, props), () -> copyProperties(Blocks.SPRUCE_BUTTON, CURSED_SPRUCE_PLANKS));
+    public static final DeferredBlock<StandingSignBlock> CURSED_SPRUCE_SIGN = registerBlock("cursed_spruce_sign", props -> new StandingSignBlock(ModBlocks.WoodTypes.CURSED_SPRUCE, props), () -> copyProperties(Blocks.SPRUCE_SIGN, CURSED_SPRUCE_PLANKS));
+    public static final DeferredBlock<WallSignBlock> CURSED_SPRUCE_WALL_SIGN = registerBlock("cursed_spruce_wall_sign", props -> new WallSignBlock(ModBlocks.WoodTypes.CURSED_SPRUCE, props), () -> copyProperties(Blocks.SPRUCE_WALL_SIGN, CURSED_SPRUCE_PLANKS));
+    public static final DeferredBlock<CeilingHangingSignBlock> CURSED_SPRUCE_HANGING_SIGN = registerBlock("cursed_spruce_hanging_sign", props -> new CeilingHangingSignBlock(ModBlocks.WoodTypes.CURSED_SPRUCE, props), () -> copyProperties(Blocks.SPRUCE_HANGING_SIGN, CURSED_SPRUCE_PLANKS));
+    public static final DeferredBlock<WallHangingSignBlock> CURSED_SPRUCE_WALL_HANGING_SIGN = registerBlock("cursed_spruce_wall_hanging_sign", props -> new WallHangingSignBlock(ModBlocks.WoodTypes.CURSED_SPRUCE, props), () -> copyProperties(Blocks.SPRUCE_WALL_HANGING_SIGN, CURSED_SPRUCE_PLANKS));
 
     public static final DeferredBlock<DarkStoneBlock> DARK_STONE = registerWithItem("dark_stone", props -> new DarkStoneBlock(props.mapColor(MapColor.DEEPSLATE).requiresCorrectToolForDrops().strength(2f, 10f).sound(SoundType.STONE)));
     public static final DeferredBlock<StairBlock> DARK_STONE_STAIRS = registerWithItem("dark_stone_stairs", props -> new StairBlock(DARK_STONE.get().defaultBlockState(), props), () -> copyProperties(DARK_STONE));
@@ -205,15 +203,15 @@ public class ModBlocks {
     public static final DeferredBlock<SlabBlock> PURPLE_STONE_TILES_SLAB = registerWithItem("purple_stone_tiles_slab", SlabBlock::new, () -> copyProperties(PURPLE_STONE_TILES));
     public static final DeferredBlock<WallBlock> PURPLE_STONE_TILES_WALL = registerWithItem("purple_stone_tiles_wall", props -> new WallBlock(props.forceSolidOn()), () -> copyProperties(PURPLE_STONE_TILES));
 
-    public static final DeferredBlock<Block> BLOOD_INFUSED_IRON_BLOCK = registerWithItem("blood_infused_iron_block", props -> new PureBloodBlock(props.mapColor(MapColor.METAL).requiresCorrectToolForDrops().strength(6.0F, 7.0F).sound(SoundType.METAL)), (block, props) -> new PureLevelBlockItem(block, props.component(ModDataComponents.PURE_LEVEL, PureLevel.LOW)));
-    public static final DeferredBlock<Block> BLOOD_INFUSED_ENHANCED_IRON_BLOCK = registerWithItem("blood_infused_enhanced_iron_block", props -> new PureBloodBlock(props.mapColor(MapColor.METAL).requiresCorrectToolForDrops().strength(6.5F, 8.0F).sound(SoundType.METAL)), (block, props) -> new PureLevelBlockItem(block, props.component(ModDataComponents.PURE_LEVEL, new PureLevel(4))));
+    public static final DeferredBlock<Block> BLOOD_INFUSED_IRON_BLOCK = registerWithItem("blood_infused_iron_block", PureBloodBlock::new, () -> copyProperties(Blocks.IRON_BLOCK).mapColor(MapColor.CRIMSON_HYPHAE).strength(6.0F, 7.0F), (block, itemProps) -> new PureLevelBlockItem(block, itemProps.component(ModDataComponents.PURE_LEVEL, PureLevel.LOW)));
+    public static final DeferredBlock<Block> BLOOD_INFUSED_ENHANCED_IRON_BLOCK = registerWithItem("blood_infused_enhanced_iron_block", PureBloodBlock::new, () -> copyProperties(Blocks.IRON_BLOCK).mapColor(MapColor.CRIMSON_HYPHAE).strength(6.5F, 8.0F), (block, itemProps) -> new PureLevelBlockItem(block, itemProps.component(ModDataComponents.PURE_LEVEL, new PureLevel(4))));
 
     // Decorative Blocks
-    public static final DeferredBlock<FirePlaceBlock> FIRE_PLACE = registerWithItem("fire_place", FirePlaceBlock::new);
+    public static final DeferredBlock<FirePlaceBlock> FIRE_PLACE = registerWithItem("fire_place", FirePlaceBlock::new, () -> basicProperties().mapColor(MapColor.WOOD).lightLevel(state -> 15).strength(1).ignitedByLava().noOcclusion());
     public static final DeferredBlock<AlchemicalFireBlock> ALCHEMICAL_FIRE = registerBlock("alchemical_fire", AlchemicalFireBlock::new, () -> copyProperties(Blocks.FIRE).mapColor(MapColor.COLOR_PURPLE).noLootTable());
 
-    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK = BLOCKS.registerBlock("candle_stick", props -> new StandingCandleStickBlock(null, () -> null, props.mapColor(MapColor.METAL).noOcclusion().strength(0.5f).sound(SoundType.METAL).pushReaction(PushReaction.DESTROY)));
-    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK = registerBlock("wall_candle_stick", props -> new WallCandleStickBlock(null, () -> null, props.overrideLootTable(CANDLE_STICK.get().getLootTable())), () -> copyProperties(CANDLE_STICK));
+    public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK = registerBlock("candle_stick", props -> new StandingCandleStickBlock(null, () -> null, props), () -> basicProperties().mapColor(MapColor.METAL).noOcclusion().strength(0.5f).sound(SoundType.METAL).pushReaction(PushReaction.DESTROY));
+    public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK = registerBlock("wall_candle_stick", props -> new WallCandleStickBlock(null, () -> null, props), () -> copyProperties(CANDLE_STICK).strength(1.5f).overrideLootTable(CANDLE_STICK.get().getLootTable()));
 
     public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_NORMAL = registerCandleStick("normal", Items.CANDLE);
     public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_NORMAL = registerWallCandleStick("normal", Items.CANDLE, CANDLE_STICK_NORMAL);
@@ -250,8 +248,8 @@ public class ModBlocks {
     public static final DeferredBlock<StandingCandleStickBlock> CANDLE_STICK_BLACK = registerCandleStick("black", Items.BLACK_CANDLE);
     public static final DeferredBlock<WallCandleStickBlock> WALL_CANDLE_STICK_BLACK = registerWallCandleStick("black", Items.BLACK_CANDLE, CANDLE_STICK_BLACK);
 
-    public static final DeferredBlock<StandingCandelabraBlock> CANDELABRA = BLOCKS.registerBlock("candelabra", props -> new StandingCandelabraBlock(null, () -> null, props.mapColor(MapColor.METAL).noOcclusion().strength(1.0f).sound(SoundType.METAL).pushReaction(PushReaction.DESTROY)));
-    public static final DeferredBlock<WallCandelabraBlock> WALL_CANDELABRA = registerBlock("wall_candelabra", props -> new WallCandelabraBlock(null, () -> null, props.strength(3.5f).overrideLootTable(CANDELABRA.get().getLootTable())), () -> copyProperties(CANDELABRA));
+    public static final DeferredBlock<StandingCandelabraBlock> CANDELABRA = registerBlock("candelabra", props -> new StandingCandelabraBlock(null, () -> null, props), () -> basicProperties().mapColor(MapColor.METAL).noOcclusion().strength(1.0f).sound(SoundType.METAL).pushReaction(PushReaction.DESTROY));
+    public static final DeferredBlock<WallCandelabraBlock> WALL_CANDELABRA = registerBlock("wall_candelabra", props -> new WallCandelabraBlock(null, () -> null, props), () -> copyProperties(CANDELABRA).strength(3.5f).overrideLootTable(CANDELABRA.get().getLootTable()));
 
     public static final DeferredBlock<StandingCandelabraBlock> CANDELABRA_NORMAL = registerCandelabra("normal", Items.CANDLE);
     public static final DeferredBlock<WallCandelabraBlock> WALL_CANDELABRA_NORMAL = registerWallCandelabra("normal", Items.CANDLE, CANDELABRA_NORMAL);
@@ -288,7 +286,7 @@ public class ModBlocks {
     public static final DeferredBlock<StandingCandelabraBlock> CANDELABRA_BLACK = registerCandelabra("black", Items.BLACK_CANDLE);
     public static final DeferredBlock<WallCandelabraBlock> WALL_CANDELABRA_BLACK = registerWallCandelabra("black", Items.BLACK_CANDLE, CANDELABRA_BLACK);
 
-    public static final DeferredBlock<ChandelierBlock> CHANDELIER = BLOCKS.registerBlock("chandelier", props -> new ChandelierBlock(null, () -> null, props.mapColor(MapColor.METAL).noOcclusion().strength(4.5f, 5.5f).sound(SoundType.METAL).pushReaction(PushReaction.DESTROY)));
+    public static final DeferredBlock<ChandelierBlock> CHANDELIER = registerWithItem("chandelier", props -> new ChandelierBlock(null, () -> null, props), () -> basicProperties().mapColor(MapColor.METAL).noOcclusion().strength(4.5f, 5.5f).sound(SoundType.METAL).pushReaction(PushReaction.DESTROY), (block, itemProps) -> new BlockItem(block, itemProps.useBlockDescriptionPrefix()));
 
     public static final DeferredBlock<ChandelierBlock> CHANDELIER_NORMAL = registerChandelier("normal", Items.CANDLE);
     public static final DeferredBlock<ChandelierBlock> CHANDELIER_WHITE = registerChandelier("white", Items.WHITE_CANDLE);
@@ -308,21 +306,21 @@ public class ModBlocks {
     public static final DeferredBlock<ChandelierBlock> CHANDELIER_RED = registerChandelier("red", Items.RED_CANDLE);
     public static final DeferredBlock<ChandelierBlock> CHANDELIER_BLACK = registerChandelier("black", Items.BLACK_CANDLE);
 
-    public static final DeferredBlock<VampireSoulLanternBlock> VAMPIRE_SOUL_LANTERN = registerWithItem("vampire_soul_lantern", props -> new VampireSoulLanternBlock(props.mapColor(MapColor.METAL).forceSolidOn().requiresCorrectToolForDrops().strength(3.5F).sound(SoundType.LANTERN).lightLevel(state -> 12).noOcclusion().pushReaction(PushReaction.DESTROY)));
+    public static final DeferredBlock<VampireSoulLanternBlock> VAMPIRE_SOUL_LANTERN = registerWithItem("vampire_soul_lantern", VampireSoulLanternBlock::new, () -> copyProperties(Blocks.LANTERN).mapColor(MapColor.GOLD).lightLevel(state -> 12));
 
-    public static final DeferredBlock<Block> CROSS = registerWithItem("cross", props -> new VampirismSplitBlock(props.pushReaction(PushReaction.DESTROY).mapColor(MapColor.WOOD).ignitedByLava().strength(2, 3), BlockVoxelShapes.crossBottom, BlockVoxelShapes.crossTop, true));
-    public static final DeferredBlock<Block> TOMBSTONE1 = registerWithItem("tombstone1", props -> new VampirismHorizontalBlock(props.mapColor(MapColor.STONE).strength(2, 6), BlockVoxelShapes.tomb1));
-    public static final DeferredBlock<Block> TOMBSTONE2 = registerWithItem("tombstone2", props -> new VampirismHorizontalBlock(props.mapColor(MapColor.STONE).strength(2, 6), BlockVoxelShapes.tomb2));
-    public static final DeferredBlock<Block> TOMBSTONE3 = registerWithItem("tombstone3", props -> new VampirismSplitBlock(props.mapColor(MapColor.STONE).pushReaction(PushReaction.DESTROY).strength(2, 6), BlockVoxelShapes.tomb3_base, BlockVoxelShapes.tomb3_top, true));
-    public static final DeferredBlock<Block> GRAVE_CAGE = registerWithItem("grave_cage", props -> new VampirismHorizontalBlock(props.mapColor(MapColor.METAL).strength(6, 8).requiresCorrectToolForDrops().sound(SoundType.METAL), BlockVoxelShapes.grave_cage));
+    public static final DeferredBlock<VampirismSplitBlock> CROSS = registerWithItem("cross", props -> new VampirismSplitBlock(props, VampirismVoxelShapes.CROSS_BOTTOM, VampirismVoxelShapes.CROSS_TOP, true), () -> basicProperties().pushReaction(PushReaction.DESTROY).mapColor(MapColor.WOOD).ignitedByLava().strength(2, 3));
+    public static final DeferredBlock<VampirismHorizontalBlock> TOMBSTONE1 = registerWithItem("tombstone1", props -> new VampirismHorizontalBlock(props, VampirismVoxelShapes.TOMB_1), () -> basicProperties().mapColor(MapColor.STONE).strength(2, 6));
+    public static final DeferredBlock<VampirismHorizontalBlock> TOMBSTONE2 = registerWithItem("tombstone2", props -> new VampirismHorizontalBlock(props, VampirismVoxelShapes.TOMB_2), () -> basicProperties().mapColor(MapColor.STONE).strength(2, 6));
+    public static final DeferredBlock<VampirismSplitBlock> TOMBSTONE3 = registerWithItem("tombstone3", props -> new VampirismSplitBlock(props, VampirismVoxelShapes.TOMB_3_BASE, VampirismVoxelShapes.TOMB_3_TOP, true), () -> basicProperties().mapColor(MapColor.STONE).pushReaction(PushReaction.DESTROY).strength(2, 6));
+    public static final DeferredBlock<VampirismHorizontalBlock> GRAVE_CAGE = registerWithItem("grave_cage", props -> new VampirismHorizontalBlock(props, VampirismVoxelShapes.GRAVE_CAGE), () -> basicProperties().mapColor(MapColor.METAL).strength(6, 8).requiresCorrectToolForDrops().sound(SoundType.METAL));
 
-    public static final DeferredBlock<Block> VAMPIRE_RACK = registerWithItem("vampire_rack", props -> new VampirismHorizontalBlock(props.ignitedByLava().strength(2, 3), BlockVoxelShapes.vampire_rack));
-    public static final DeferredBlock<Block> THRONE = registerWithItem("throne", ThroneBlock::new);
-    public static final DeferredBlock<Block> BAT_CAGE = registerWithItem("bat_cage", props -> new BatCageBlock(props.strength(5.0F, 6.0F).sound(SoundType.METAL).noOcclusion()));
-    public static final DeferredBlock<Block> MOTHER_TROPHY = registerWithItem("mother_trophy", props -> new MotherTrophyBlock(props.mapColor(MapColor.COLOR_GRAY).strength(3, 9).lightLevel(s -> 1).noOcclusion()), props -> props.rarity(Rarity.EPIC).stacksTo(1));
+    public static final DeferredBlock<VampirismHorizontalBlock> VAMPIRE_RACK = registerWithItem("vampire_rack", props -> new VampirismHorizontalBlock(props.ignitedByLava().strength(2, 3), VampirismVoxelShapes.VAMPIRE_RACK));
+    public static final DeferredBlock<ThroneBlock> THRONE = registerWithItem("throne", ThroneBlock::new, () -> basicProperties().mapColor(MapColor.WOOD).ignitedByLava().pushReaction(PushReaction.DESTROY).strength(2, 3));
+    public static final DeferredBlock<BatCageBlock> BAT_CAGE = registerWithItem("bat_cage", BatCageBlock::new, () -> basicProperties().strength(5.0F, 6.0F).sound(SoundType.METAL).noOcclusion());
+    public static final DeferredBlock<MotherTrophyBlock> MOTHER_TROPHY = registerWithItem("mother_trophy", MotherTrophyBlock::new, () -> basicProperties().mapColor(MapColor.COLOR_GRAY).strength(3, 9).lightLevel(s -> 1).noOcclusion(), itemProps -> itemProps.rarity(Rarity.EPIC).stacksTo(1));
 
-    public static final DeferredBlock<TentBlock> TENT = BLOCKS.registerBlock("tent", TentBlock::new);
-    public static final DeferredBlock<TentMainBlock> TENT_MAIN = BLOCKS.registerBlock("tent_main", TentMainBlock::new);
+    public static final DeferredBlock<TentBlock> TENT = registerBlock("tent", TentBlock::new, () -> basicProperties().mapColor(MapColor.WOOL).ignitedByLava().strength(0.6f).sound(SoundType.WOOL).noOcclusion());
+    public static final DeferredBlock<TentMainBlock> TENT_MAIN = registerBlock("tent_main", TentMainBlock::new, () -> copyProperties(TENT));
 
     public static final DeferredBlock<CoffinBlock> COFFIN_WHITE = registerWithItem("coffin_white", props -> new CoffinBlock(props, DyeColor.WHITE), coffinProperties());
     public static final DeferredBlock<CoffinBlock> COFFIN_ORANGE = registerWithItem("coffin_orange", props -> new CoffinBlock(props, DyeColor.ORANGE), coffinProperties());
@@ -341,11 +339,11 @@ public class ModBlocks {
     public static final DeferredBlock<CoffinBlock> COFFIN_RED = registerWithItem("coffin_red", props -> new CoffinBlock(props, DyeColor.RED), coffinProperties());
     public static final DeferredBlock<CoffinBlock> COFFIN_BLACK = registerWithItem("coffin_black", props -> new CoffinBlock(props, DyeColor.BLACK), coffinProperties());
 
-    public static final DeferredBlock<MotherBlock> MOTHER = BLOCKS.registerBlock("mother", MotherBlock::new);
-    public static final DeferredBlock<RemainsBlock> REMAINS = BLOCKS.registerBlock("remains", props -> new RemainsBlock(props.mapColor(MapColor.TERRACOTTA_BROWN).strength(-1, 3600000.0F).sound(SoundType.ROOTED_DIRT).randomTicks().noLootTable(), false, false));
-    public static final DeferredBlock<RemainsBlock> VULNERABLE_REMAINS = BLOCKS.registerBlock("vulnerable_remains", props -> new RemainsBlock(props.mapColor(MapColor.TERRACOTTA_BROWN).strength(-1, 3600000.0F).sound(SoundType.ROOTED_DIRT).randomTicks().noLootTable(), true, true));
-    public static final DeferredBlock<ActiveVulnerableRemainsBlock> ACTIVE_VULNERABLE_REMAINS = BLOCKS.registerBlock("active_vulnerable_remains", props -> new ActiveVulnerableRemainsBlock(props.mapColor(MapColor.TERRACOTTA_BROWN).strength(-1, 3600000.0F).randomTicks().sound(SoundType.ROOTED_DIRT).noLootTable()));
-    public static final DeferredBlock<RemainsBlock> INCAPACITATED_VULNERABLE_REMAINS = BLOCKS.registerBlock("incapacitated_vulnerable_remains", props -> new RemainsBlock(props.mapColor(MapColor.TERRACOTTA_BROWN).strength(-1.0F, 3600000.0F).sound(SoundType.ROOTED_DIRT).randomTicks().noLootTable(), false, true));
+    public static final DeferredBlock<MotherBlock> MOTHER = registerBlock("mother", MotherBlock::new, () -> basicProperties().mapColor(MapColor.TERRACOTTA_BROWN).strength(5, 3600000.0F).sound(SoundType.CHAIN));
+    public static final DeferredBlock<RemainsBlock> REMAINS = registerBlock("remains", props -> new RemainsBlock(props, false, false), () -> basicProperties().mapColor(MapColor.TERRACOTTA_BROWN).strength(-1, 3600000.0F).sound(SoundType.ROOTED_DIRT).randomTicks().noLootTable());
+    public static final DeferredBlock<RemainsBlock> VULNERABLE_REMAINS = registerBlock("vulnerable_remains", props -> new RemainsBlock(props, true, true), () -> basicProperties().mapColor(MapColor.TERRACOTTA_BROWN).strength(-1, 3600000.0F).sound(SoundType.ROOTED_DIRT).randomTicks().noLootTable());
+    public static final DeferredBlock<ActiveVulnerableRemainsBlock> ACTIVE_VULNERABLE_REMAINS = registerBlock("active_vulnerable_remains", ActiveVulnerableRemainsBlock::new, () -> basicProperties().mapColor(MapColor.TERRACOTTA_BROWN).strength(-1, 3600000.0F).randomTicks().sound(SoundType.ROOTED_DIRT).noLootTable());
+    public static final DeferredBlock<RemainsBlock> INCAPACITATED_VULNERABLE_REMAINS = registerBlock("incapacitated_vulnerable_remains", props -> new RemainsBlock(props, false, true), () -> basicProperties().mapColor(MapColor.TERRACOTTA_BROWN).strength(-1.0F, 3600000.0F).sound(SoundType.ROOTED_DIRT).randomTicks().noLootTable());
 
 
     /**
@@ -367,30 +365,20 @@ public class ModBlocks {
         return block;
     }
 
-    private static <T extends Block> DeferredBlock<T> registerWithItem(String name, Function<BlockBehaviour.Properties, T> supplier, Function<Item.@NotNull Properties, Item.Properties> properties) {
+    private static <T extends Block> DeferredBlock<T> registerWithItem(String name, Function<BlockBehaviour.Properties, T> supplier) {
         DeferredBlock<T> block = BLOCKS.registerBlock(name, supplier);
-        createItem(name, block, BlockItem::new, properties);
+        createItem(name, block, BlockItem::new, props -> props);
         return block;
     }
 
-    private static <T extends Block, R extends Item> DeferredBlock<T> registerWithItem(String name, Function<BlockBehaviour.Properties, T> supplier, @NotNull BiFunction<T, Item.Properties, R> itemCreator) {
+    private static <T extends Block, R extends Item> DeferredBlock<T> registerWithItem(String name, Function<BlockBehaviour.Properties, T> supplier, Supplier<BlockBehaviour.Properties> blockProperties, @NotNull BiFunction<T, Item.Properties, R> itemCreator) {
         DeferredBlock<T> block = BLOCKS.registerBlock(name, supplier);
         createItem(name, block, itemCreator, props -> props);
         return block;
     }
 
-    private static <T extends Block, R extends Item> DeferredBlock<T> registerWithItem(String name, Function<BlockBehaviour.Properties, T> supplier, @NotNull BiFunction<T, Item.Properties, R> itemCreator, Function<Item.@NotNull Properties, Item.Properties> properties) {
-        DeferredBlock<T> block = BLOCKS.registerBlock(name, supplier);
-        createItem(name, block, itemCreator, properties);
-        return block;
-    }
-
     private static <T extends Block, R extends Item> void createItem(String name, Supplier<T> block, BiFunction<T, Item.Properties, R> itemCreator, Function<Item.@NotNull Properties, Item.Properties> properties) {
         ModItems.ITEMS.registerItem(name, props -> itemCreator.apply(block.get(), properties.apply(props).overrideDescription(block.get().getDescriptionId())));
-    }
-
-    private static <T extends Block> DeferredBlock<T> registerWithItem(String name, Function<BlockBehaviour.Properties,T> supplier) {
-        return registerWithItem(name, supplier, props -> props);
     }
 
     private static <T extends Block> DeferredBlock<T> registerWithItem(String name, Function<BlockBehaviour.Properties,T> supplier, Supplier<BlockBehaviour.Properties> blockProperties) {
@@ -399,10 +387,6 @@ public class ModBlocks {
 
     private static <T extends Block> DeferredBlock<T> registerBlock(String name, Function<BlockBehaviour.Properties,T> supplier, Supplier<BlockBehaviour.Properties> blockProperties) {
         return BLOCKS.registerBlock(name, props -> supplier.apply(blockProperties.get().setId(ResourceKey.create(Registries.BLOCK, VResourceLocation.mod(name)))));
-    }
-
-    private static <T extends Block> DeferredBlock<T> registerBlock(String name, Function<BlockBehaviour.Properties,T> supplier) {
-        return registerBlock(name, supplier, BlockBehaviour.Properties::of);
     }
 
     private static DeferredBlock<FlowerPotBlock> registerPottedPlant(String name, DeferredBlock<?> plantBlock) {
@@ -446,11 +430,11 @@ public class ModBlocks {
     }
 
     private static DeferredBlock<ChandelierBlock> registerChandelier(String suffix, Item candle) {
-        return registerBlock("chandelier_" + suffix, props -> {
+        return registerWithItem("chandelier_" + suffix, props -> {
             ChandelierBlock block = new ChandelierBlock(CHANDELIER, () -> candle, props);
             CHANDELIER.get().addCandle(BuiltInRegistries.ITEM.getKey(candle), () -> block);
             return block;
-        }, () -> copyProperties(CHANDELIER));
+        }, () -> copyProperties(CHANDELIER), (block, itemProps) -> new BlockItem(block, itemProps.useBlockDescriptionPrefix()));
     }
 
     private static BlockBehaviour.Properties basicProperties() {
@@ -465,16 +449,16 @@ public class ModBlocks {
         return copyProperties(block.get());
     }
 
+    private static BlockBehaviour.Properties copyProperties(BlockBehaviour block, DeferredBlock<?> copyMapColorBlock) {
+        return copyProperties(block).mapColor(copyMapColorBlock.get().defaultMapColor());
+    }
+
     private static Supplier<BlockBehaviour.Properties> logProperties(MapColor sideColor, MapColor topColor) {
         return () -> basicProperties().mapColor(state -> state.getValue(RotatedPillarBlock.AXIS) == Direction.Axis.Y ? sideColor : topColor).instrument(NoteBlockInstrument.BASS).strength(2.0F).sound(SoundType.WOOD).ignitedByLava();
     }
 
     private static Supplier<BlockBehaviour.Properties> coffinProperties() {
         return () -> basicProperties().mapColor(MapColor.WOOD).strength(0.2f).noOcclusion().pushReaction(PushReaction.DESTROY).ignitedByLava();
-    }
-
-    private static ToIntFunction<BlockState> litBlockEmission(int lightValue) {
-        return state -> state.getValue(BlockStateProperties.LIT) ? lightValue : 0;
     }
 
     public static @NotNull Set<Block> getAllBlocks() {

@@ -10,8 +10,9 @@ import java.util.stream.Stream;
 /**
  * Store voxel shapes for blocks without dedicated classes
  */
-public class BlockVoxelShapes {
-    public static final VoxelShape grave_cage = Stream.of(
+public class VampirismVoxelShapes {
+
+    public static final VoxelShape GRAVE_CAGE = Stream.of(
             Block.box(0, 0, 0, 2, 10, 2),
             Block.box(0, 0, 6, 2, 10, 8),
             Block.box(0, 0, 12, 2, 10, 14),
@@ -39,21 +40,21 @@ public class BlockVoxelShapes {
             Block.box(7, 4, 0, 9, 6, 2)
     ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).orElseGet(Shapes::empty);
 
-    public static final VoxelShape tomb1 = Stream.of(
+    public static final VoxelShape TOMB_1 = Stream.of(
             Block.box(2, 0, 2, 14, 1, 7),
             Block.box(3, 1, 3, 13, 9, 6),
             Block.box(4, 9, 3, 12, 10, 6),
             Block.box(6, 10, 3, 10, 11, 6)
     ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).orElseGet(Shapes::empty);
 
-    public static final VoxelShape tomb2 = Stream.of(
+    public static final VoxelShape TOMB_2 = Stream.of(
             Block.box(2, 0, 2, 14, 2, 7),
             Block.box(3, 2, 3, 13, 14, 6),
             Block.box(4, 14, 3, 12, 15, 6),
             Block.box(6, 15, 3, 10, 16, 6)
     ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).orElseGet(Shapes::empty);
 
-    public static final VoxelShape tomb3 = Stream.of(
+    public static final VoxelShape TOMB_3 = Stream.of(
             Block.box(2, 0, 2, 14, 2, 10),
             Block.box(4, 2, 4, 12, 14, 8),
             Block.box(0, 14, 4, 16, 18, 8),
@@ -62,27 +63,27 @@ public class BlockVoxelShapes {
             Block.box(5, 26, 4, 11, 27, 8)
     ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).orElseGet(Shapes::empty);
 
-    public static final VoxelShape tomb3_base = Shapes.join(tomb3, Shapes.block(), BooleanOp.AND);
-    public static final VoxelShape tomb3_top = Shapes.join(tomb3, Shapes.block().move(0, 1, 0), BooleanOp.AND).move(0, -1, 0);
+    public static final VoxelShape TOMB_3_BASE = Shapes.join(TOMB_3, Shapes.block(), BooleanOp.AND);
+    public static final VoxelShape TOMB_3_TOP = Shapes.join(TOMB_3, Shapes.block().move(0, 1, 0), BooleanOp.AND).move(0, -1, 0);
 
-    public static final VoxelShape vampire_rack = Block.box(3, 0, 0, 13, 15.55, 3.23);
+    public static final VoxelShape VAMPIRE_RACK = Block.box(3, 0, 0, 13, 15.55, 3.23);
 
-    public static final VoxelShape throneBottom = Stream.of(
+    public static final VoxelShape THRONE_BOTTOM = Stream.of(
             Block.box(2.0, 0, 2.2, 13.5, 10.4, 14),
             Block.box(2.0, 9, 1.2, 13.5, 16, 3),
             Block.box(0.5, 13.5, 2.2, 2.7, 15.5, 14.2),
             Block.box(13.3, 13.5, 2.2, 15.5, 15.5, 14.2)
     ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).orElse(Shapes.empty());
 
-    public static final VoxelShape throneTop = Block.box(2.0, 0, 1.2, 13.5, 10, 3);
+    public static final VoxelShape THRONE_TOP = Block.box(2.0, 0, 1.2, 13.5, 10, 3);
 
-    public static final VoxelShape crossBottom = Stream.of(
+    public static final VoxelShape CROSS_BOTTOM = Stream.of(
             Block.box(1, 0, 1, 15, 2, 15),
             Block.box(3, 2, 3, 13, 3, 13),
             Block.box(6, 3, 6, 10, 16, 10)
     ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).orElseGet(Shapes::empty);
 
-    public static final VoxelShape crossTop = Stream.of(
+    public static final VoxelShape CROSS_TOP = Stream.of(
             Block.box(6, 0, 6, 10, 14, 10),
             Block.box(10, 3, 6, 16, 7, 10),
             Block.box(0, 3, 6, 6, 7, 10)

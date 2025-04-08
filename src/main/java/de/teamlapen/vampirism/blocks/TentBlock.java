@@ -200,7 +200,7 @@ public class TentBlock extends Block {
     }
 
     public TentBlock(BlockBehaviour.Properties properties) {
-        super(properties.mapColor(MapColor.WOOL).ignitedByLava().strength(0.6f).sound(SoundType.WOOL).noOcclusion());
+        super(properties);
         this.registerDefaultState(this.getStateDefinition().any().setValue(FACING, Direction.NORTH).setValue(POSITION, 0).setValue(OCCUPIED, false));
     }
 

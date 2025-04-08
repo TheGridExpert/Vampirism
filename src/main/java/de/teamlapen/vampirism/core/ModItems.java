@@ -313,10 +313,6 @@ public class ModItems {
     public static final DeferredItem<SpawnEggItem> GHOST_SPAWN_EGG = ITEMS.registerItem("ghost_spawn_egg",  props -> new SpawnEggItem(ModEntities.GHOST.get(), props));
 
 
-    private static Item.Properties basicProperties() {
-        return new Item.Properties();
-    }
-
     @SuppressWarnings("unchecked")
     public static Stream<Holder<Item>> listElements() {
         return ((Collection<Holder<Item>>) (Object) ITEMS.getEntries()).stream();
