@@ -280,25 +280,6 @@ public class ModItems {
     public static final DeferredItem<StandingAndWallBlockItem> CANDELABRA_RED = ITEMS.registerItem("candelabra_red",  props -> new  StandingAndWallBlockItem(ModBlocks.CANDELABRA_RED.get(), ModBlocks.WALL_CANDELABRA_RED.get(), Direction.DOWN, props.useBlockDescriptionPrefix()));
     public static final DeferredItem<StandingAndWallBlockItem> CANDELABRA_BLACK = ITEMS.registerItem("candelabra_black",  props -> new  StandingAndWallBlockItem(ModBlocks.CANDELABRA_BLACK.get(), ModBlocks.WALL_CANDELABRA_BLACK.get(), Direction.DOWN, props.useBlockDescriptionPrefix()));
 
-    public static final DeferredItem<BlockItem> CHANDELIER = ITEMS.registerItem("chandelier",  props -> new BlockItem(ModBlocks.CHANDELIER.get(), props.useBlockDescriptionPrefix()));
-    public static final DeferredItem<BlockItem> CHANDELIER_NORMAL = ITEMS.registerItem("chandelier_normal",  props -> new BlockItem(ModBlocks.CHANDELIER_NORMAL.get(), props.useBlockDescriptionPrefix()));
-    public static final DeferredItem<BlockItem> CHANDELIER_WHITE = ITEMS.registerItem("chandelier_white",  props -> new BlockItem(ModBlocks.CHANDELIER_WHITE.get(), props.useBlockDescriptionPrefix()));
-    public static final DeferredItem<BlockItem> CHANDELIER_ORANGE = ITEMS.registerItem("chandelier_orange",  props -> new BlockItem(ModBlocks.CHANDELIER_ORANGE.get(), props.useBlockDescriptionPrefix()));
-    public static final DeferredItem<BlockItem> CHANDELIER_MAGENTA = ITEMS.registerItem("chandelier_magenta",  props -> new BlockItem(ModBlocks.CHANDELIER_MAGENTA.get(), props.useBlockDescriptionPrefix()));
-    public static final DeferredItem<BlockItem> CHANDELIER_LIGHT_BLUE = ITEMS.registerItem("chandelier_light_blue",  props -> new BlockItem(ModBlocks.CHANDELIER_LIGHT_BLUE.get(), props.useBlockDescriptionPrefix()));
-    public static final DeferredItem<BlockItem> CHANDELIER_YELLOW = ITEMS.registerItem("chandelier_yellow",  props -> new BlockItem(ModBlocks.CHANDELIER_YELLOW.get(), props.useBlockDescriptionPrefix()));
-    public static final DeferredItem<BlockItem> CHANDELIER_LIME = ITEMS.registerItem("chandelier_lime",  props -> new BlockItem(ModBlocks.CHANDELIER_LIME.get(), props.useBlockDescriptionPrefix()));
-    public static final DeferredItem<BlockItem> CHANDELIER_PINK = ITEMS.registerItem("chandelier_pink",  props -> new BlockItem(ModBlocks.CHANDELIER_PINK.get(), props.useBlockDescriptionPrefix()));
-    public static final DeferredItem<BlockItem> CHANDELIER_GRAY = ITEMS.registerItem("chandelier_gray",  props -> new BlockItem(ModBlocks.CHANDELIER_GRAY.get(), props.useBlockDescriptionPrefix()));
-    public static final DeferredItem<BlockItem> CHANDELIER_LIGHT_GRAY = ITEMS.registerItem("chandelier_light_gray",  props -> new BlockItem(ModBlocks.CHANDELIER_LIGHT_GRAY.get(), props.useBlockDescriptionPrefix()));
-    public static final DeferredItem<BlockItem> CHANDELIER_CYAN = ITEMS.registerItem("chandelier_cyan",  props -> new BlockItem(ModBlocks.CHANDELIER_CYAN.get(), props.useBlockDescriptionPrefix()));
-    public static final DeferredItem<BlockItem> CHANDELIER_PURPLE = ITEMS.registerItem("chandelier_purple",  props -> new BlockItem(ModBlocks.CHANDELIER_PURPLE.get(), props.useBlockDescriptionPrefix()));
-    public static final DeferredItem<BlockItem> CHANDELIER_BLUE = ITEMS.registerItem("chandelier_blue",  props -> new BlockItem(ModBlocks.CHANDELIER_BLUE.get(), props.useBlockDescriptionPrefix()));
-    public static final DeferredItem<BlockItem> CHANDELIER_BROWN = ITEMS.registerItem("chandelier_brown",  props -> new BlockItem(ModBlocks.CHANDELIER_BROWN.get(), props.useBlockDescriptionPrefix()));
-    public static final DeferredItem<BlockItem> CHANDELIER_GREEN = ITEMS.registerItem("chandelier_green",  props -> new BlockItem(ModBlocks.CHANDELIER_GREEN.get(), props.useBlockDescriptionPrefix()));
-    public static final DeferredItem<BlockItem> CHANDELIER_RED = ITEMS.registerItem("chandelier_red",  props -> new BlockItem(ModBlocks.CHANDELIER_RED.get(), props.useBlockDescriptionPrefix()));
-    public static final DeferredItem<BlockItem> CHANDELIER_BLACK = ITEMS.registerItem("chandelier_black",  props -> new BlockItem(ModBlocks.CHANDELIER_BLACK.get(), props.useBlockDescriptionPrefix()));
-
     // Spawn Eggs
     public static final DeferredItem<SpawnEggItem> VAMPIRE_SPAWN_EGG = ITEMS.registerItem("vampire_spawn_egg",  props -> new SpawnEggItem(ModEntities.VAMPIRE.get(), props));
     public static final DeferredItem<SpawnEggItem> ADVANCED_VAMPIRE_SPAWN_EGG = ITEMS.registerItem("advanced_vampire_spawn_egg",  props -> new SpawnEggItem(ModEntities.ADVANCED_VAMPIRE.get(), props));

@@ -142,11 +142,10 @@ public abstract class DiffuserBlockEntity extends PlayerOwnedBlockEntity {
     }
 
     public void onTouched(Player pPlayer) {
-
     }
 
     public static boolean tryAccess(Player player, Holder<? extends IPlayableFaction<?>> faction, Component displayName) {
-        if (!player.isSpectator() && IFaction.is(VampirismAPI.factionRegistry().getFaction(player), faction)) {
+        if (!player.isSpectator() && !IFaction.is(VampirismAPI.factionRegistry().getFaction(player), faction)) {
             player.displayClientMessage(Component.translatable("text.vampirism.cannot_access_menu", displayName), true);
             player.playNotifySound(SoundEvents.CHEST_LOCKED, SoundSource.BLOCKS, 1.0F, 1.0F);
             return false;

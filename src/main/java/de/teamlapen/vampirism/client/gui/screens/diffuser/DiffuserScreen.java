@@ -27,23 +27,20 @@ public abstract class DiffuserScreen<T extends DiffuserMenu> extends AbstractCon
     protected ProgressBar startupBar;
     private LockIconButton lock;
 
-    public DiffuserScreen(T pMenu, Inventory pPlayerInventory, Component pTitle) {
-        super(pMenu, pPlayerInventory, pTitle);
+    public DiffuserScreen(T menu, Inventory playerInventory, Component title) {
+        super(menu, playerInventory, title);
     }
 
     @Override
     protected void init() {
         super.init();
         this.startupBar = this.addRenderableOnly(new ProgressBar(this.getGuiLeft() + (xSize - 150) / 2, this.getGuiTop() + 23, 150, getBootMessage(0)));
-        this.startupBar.setColor(getProgressBarColor());
+        //this.startupBar.setColor(getProgressBarColor());
         this.startupBar.setFGColor(getProgressBarFGColor());
         if (this.menu.hasOwner()) {
-            lock = this.addRenderableWidget(new LockIconButton(this.getGuiLeft() + xSize - 30, this.getGuiTop() + 50, new Button.OnPress() {
-                @Override
-                public void onPress(@NotNull Button pButton) {
-                    setLock(!((LockIconButton) pButton).isLocked());
-                    lock.setTooltip(Tooltip.create(getLockText()));
-                }
+            lock = this.addRenderableWidget(new LockIconButton(this.getGuiLeft() + xSize - 30, this.getGuiTop() + 50, button -> {
+                setLock(!((LockIconButton) button).isLocked());
+                lock.setTooltip(Tooltip.create(getLockText()));
             }));
             lock.setLocked(this.menu.getLockStatus() == PlayerOwnedBlockEntity.Lock.PRIVATE);
             lock.active = this.menu.isOwner(minecraft.player);
@@ -76,9 +73,9 @@ public abstract class DiffuserScreen<T extends DiffuserMenu> extends AbstractCon
     }
 
     @Override
-    public void render(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
-        super.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
-        this.renderTooltip(pGuiGraphics, pMouseX, pMouseY);
+    public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        super.render(guiGraphics, mouseX, mouseY, partialTick);
+        this.renderTooltip(guiGraphics, mouseX, mouseY);
     }
 
     @Override
@@ -103,11 +100,11 @@ public abstract class DiffuserScreen<T extends DiffuserMenu> extends AbstractCon
     }
 
     @Override
-    protected void renderBg(@NotNull GuiGraphics pGuiGraphics, float pPartialTick, int pMouseX, int pMouseY) {
-        pGuiGraphics.blit(RenderType::guiTextured, BACKGROUND, this.getGuiLeft(), this.getGuiTop(), 0, 0, 0, this.xSize, this.ySize, 256, 256);
+    protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
+        guiGraphics.blit(RenderType::guiTextured, BACKGROUND, this.getGuiLeft(), this.getGuiTop(), 0.0F, 0.0F, xSize, ySize, 256, 256);
         if (this.menu.isLit()) {
             int l = Mth.ceil(this.menu.getLitProgress() * 13.0F) + 1;
-            pGuiGraphics.blitSprite(RenderType::guiTextured, LIT_PROGRESS_SPRITE, 14, 14, 0, 14 - l, getGuiLeft() + 26 + 19, getGuiTop() + 53 + 2 + (14 - l), 14, l);
+            guiGraphics.blitSprite(RenderType::guiTextured, LIT_PROGRESS_SPRITE, 14, 14, 0, 14 - l, getGuiLeft() + 26 + 19, getGuiTop() + 53 + 2 + (14 - l), 14, l);
         }
     }
 }
