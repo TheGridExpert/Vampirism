@@ -49,11 +49,11 @@ public class HunterTableMenu extends ItemCombinerMenu {
         int hunterLevel = FactionPlayerHandler.get(player).getCurrentLevel(ModFactions.HUNTER);
         var tableRequirement = HunterLeveling.getTrainerRequirement(hunterLevel + 1).map(HunterLeveling.HunterTrainerRequirement::tableRequirement);
         return ItemCombinerMenuSlotDefinition.create()
-                .withSlot(0, 15, 28, stack -> stack.is(Items.BOOK))
-                .withSlot(1, 42, 28, stack -> stack.is(ModItems.VAMPIRE_FANG.get()))
-                .withSlot(2, 69, 28, stack -> tableRequirement.filter(req -> req.pureBloodLevel() <= (stack.getItem() instanceof PureBloodItem pure ? pure.getLevel(stack) : -1)).isPresent())
-                .withSlot(3, 96, 28, stack -> stack.is(ModItems.VAMPIRE_BOOK.get()))
-                .withResultSlot(4, 146, 28)
+                .withSlot(0, 19, 28, stack -> stack.is(Items.BOOK))
+                .withSlot(1, 46, 28, stack -> stack.is(ModItems.VAMPIRE_FANG.get()))
+                .withSlot(2, 73, 28, stack -> tableRequirement.filter(req -> req.pureBloodLevel() <= (stack.getItem() instanceof PureBloodItem pure ? pure.getLevel(stack) : -1)).isPresent())
+                .withSlot(3, 100, 28, stack -> stack.is(ModItems.VAMPIRE_BOOK.get()))
+                .withResultSlot(4, 137, 28)
                 .build();
     }
 
