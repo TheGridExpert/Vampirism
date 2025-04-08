@@ -7,6 +7,7 @@ import de.teamlapen.vampirism.recipes.AlchemicalCauldronRecipe;
 import de.teamlapen.vampirism.recipes.AlchemicalCauldronRecipeInput;
 import de.teamlapen.vampirism.recipes.ITestableRecipeInput;
 import net.minecraft.recipebook.ServerPlaceRecipe;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Container;
@@ -21,12 +22,14 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
 
 
 public class AlchemicalCauldronMenu extends RecipeBookMenu {
+    static final ResourceLocation EMPTY_SLOT_POTION = ResourceLocation.withDefaultNamespace("container/slot/potion");
     public static final int INGREDIENT_SLOT = 1;
     public static final int FLUID_SLOT = 0;
     public static final int FUEL_SLOT = 3;
@@ -58,7 +61,12 @@ public class AlchemicalCauldronMenu extends RecipeBookMenu {
         this.container = inv;
         this.data = pData;
         this.level = playerInventory.player.level();
-        this.addSlot(new Slot(this.container, FLUID_SLOT, 44, 17));
+        this.addSlot(new Slot(this.container, FLUID_SLOT, 44, 17) {
+            @Override
+            public @NotNull ResourceLocation getNoItemIcon() {
+                return EMPTY_SLOT_POTION;
+            }
+        });
         this.addSlot(new Slot(this.container, INGREDIENT_SLOT, 68, 17));
         this.addSlot(new FurnaceResultSlot(playerInventory.player, this.container, RESULT_SLOT, 116, 35));
         this.addSlot(new FurnaceFuelSlot(this, this.container, FUEL_SLOT, 56, 53));

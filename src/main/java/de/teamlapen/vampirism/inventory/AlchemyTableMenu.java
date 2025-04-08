@@ -3,7 +3,7 @@ package de.teamlapen.vampirism.inventory;
 import de.teamlapen.vampirism.VampirismMod;
 import de.teamlapen.vampirism.core.ModMenus;
 import de.teamlapen.vampirism.core.ModRecipes;
-import de.teamlapen.vampirism.recipes.BrewingRecipeInput;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -14,11 +14,12 @@ import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
 public class AlchemyTableMenu extends AbstractContainerMenu {
+    static final ResourceLocation EMPTY_SLOT_FUEL = ResourceLocation.withDefaultNamespace("container/slot/brewing_fuel");
+    static final ResourceLocation EMPTY_SLOT_POTION = ResourceLocation.withDefaultNamespace("container/slot/potion");
     public static final int OIL_SLOT_1 = 0;
     public static final int OIL_SLOT_2 = 1;
     public static final int RESULT_SLOT_1 = 2;
@@ -157,6 +158,11 @@ public class AlchemyTableMenu extends AbstractContainerMenu {
         public int getMaxStackSize() {
             return 1;
         }
+
+        @Override
+        public @NotNull ResourceLocation getNoItemIcon() {
+            return EMPTY_SLOT_POTION;
+        }
     }
 
     static class IngredientSlot extends Slot {
@@ -192,6 +198,11 @@ public class AlchemyTableMenu extends AbstractContainerMenu {
 
         public int getMaxStackSize() {
             return 64;
+        }
+
+        @Override
+        public @NotNull ResourceLocation getNoItemIcon() {
+            return EMPTY_SLOT_FUEL;
         }
     }
 

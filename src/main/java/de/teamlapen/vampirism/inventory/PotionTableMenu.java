@@ -2,8 +2,10 @@ package de.teamlapen.vampirism.inventory;
 
 import de.teamlapen.lib.lib.inventory.InventoryContainerMenu;
 import de.teamlapen.vampirism.api.VampirismAPI;
+import de.teamlapen.vampirism.api.util.VResourceLocation;
 import de.teamlapen.vampirism.core.ModMenus;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -18,6 +20,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class PotionTableMenu extends InventoryContainerMenu {
+
+    static final ResourceLocation EMPTY_SLOT_FUEL = ResourceLocation.withDefaultNamespace("container/slot/brewing_fuel");
+    static final ResourceLocation EMPTY_SLOT_POTION = ResourceLocation.withDefaultNamespace("container/slot/potion");
+    static final ResourceLocation EMPTY_SLOT_VAMPIRE_BLOOD = VResourceLocation.mod("container/slot/vampire_blood_bottle");
 
     private final boolean extended;
     private final @NotNull ContainerData syncedProperties;
@@ -61,16 +67,16 @@ public class PotionTableMenu extends InventoryContainerMenu {
     }
 
     private static SelectorInfo[] getSelectorInfos(Level level, boolean extended) {
-        var SELECTOR_INFOS = new SelectorInfo[6];
-        var SELECTOR_INFOS_EXTENDED = new SelectorInfo[8];
-        SELECTOR_INFOS[0] = SELECTOR_INFOS_EXTENDED[0] = new SelectorInfo(Ingredient.of(Items.BLAZE_POWDER), 23, 14);
-        SELECTOR_INFOS[1] = SELECTOR_INFOS_EXTENDED[1] = new SelectorInfo(stack -> VampirismAPI.extendedBrewingRecipeRegistry().isValidExtraIngredient(stack), 101, 16);
+        SelectorInfo[] SELECTOR_INFOS = new SelectorInfo[6];
+        SelectorInfo[] SELECTOR_INFOS_EXTENDED = new SelectorInfo[8];
+        SELECTOR_INFOS[0] = SELECTOR_INFOS_EXTENDED[0] = new SelectorInfo(Ingredient.of(Items.BLAZE_POWDER), 23, 14, EMPTY_SLOT_FUEL);
+        SELECTOR_INFOS[1] = SELECTOR_INFOS_EXTENDED[1] = new SelectorInfo(stack -> VampirismAPI.extendedBrewingRecipeRegistry().isValidExtraIngredient(stack), 101, 16, EMPTY_SLOT_VAMPIRE_BLOOD);
         SELECTOR_INFOS[2] = SELECTOR_INFOS_EXTENDED[2] = new SelectorInfo(stack -> VampirismAPI.extendedBrewingRecipeRegistry().isValidIngredient(level.potionBrewing(), stack), 126, 8);
-        SELECTOR_INFOS[3] = SELECTOR_INFOS_EXTENDED[3] = new SelectorInfo(stack -> VampirismAPI.extendedBrewingRecipeRegistry().isValidInput(level.potionBrewing(), stack), 148, 59);
-        SELECTOR_INFOS[4] = SELECTOR_INFOS_EXTENDED[4] = new SelectorInfo(stack -> VampirismAPI.extendedBrewingRecipeRegistry().isValidInput(level.potionBrewing(), stack), 126, 59);
-        SELECTOR_INFOS[5] = SELECTOR_INFOS_EXTENDED[5] = new SelectorInfo(stack -> VampirismAPI.extendedBrewingRecipeRegistry().isValidInput(level.potionBrewing(), stack), 104, 59);
-        SELECTOR_INFOS_EXTENDED[6] = new SelectorInfo(stack -> VampirismAPI.extendedBrewingRecipeRegistry().isValidInput(level.potionBrewing(), stack), 82, 59);
-        SELECTOR_INFOS_EXTENDED[7] = new SelectorInfo(stack -> VampirismAPI.extendedBrewingRecipeRegistry().isValidInput(level.potionBrewing(), stack), 60, 59);
+        SELECTOR_INFOS[3] = SELECTOR_INFOS_EXTENDED[3] = new SelectorInfo(stack -> VampirismAPI.extendedBrewingRecipeRegistry().isValidInput(level.potionBrewing(), stack), 148, 59, EMPTY_SLOT_POTION);
+        SELECTOR_INFOS[4] = SELECTOR_INFOS_EXTENDED[4] = new SelectorInfo(stack -> VampirismAPI.extendedBrewingRecipeRegistry().isValidInput(level.potionBrewing(), stack), 126, 59, EMPTY_SLOT_POTION);
+        SELECTOR_INFOS[5] = SELECTOR_INFOS_EXTENDED[5] = new SelectorInfo(stack -> VampirismAPI.extendedBrewingRecipeRegistry().isValidInput(level.potionBrewing(), stack), 104, 59, EMPTY_SLOT_POTION);
+        SELECTOR_INFOS_EXTENDED[6] = new SelectorInfo(stack -> VampirismAPI.extendedBrewingRecipeRegistry().isValidInput(level.potionBrewing(), stack), 82, 59, EMPTY_SLOT_POTION);
+        SELECTOR_INFOS_EXTENDED[7] = new SelectorInfo(stack -> VampirismAPI.extendedBrewingRecipeRegistry().isValidInput(level.potionBrewing(), stack), 60, 59, EMPTY_SLOT_POTION);
         return extended ? SELECTOR_INFOS_EXTENDED : SELECTOR_INFOS;
     }
 }

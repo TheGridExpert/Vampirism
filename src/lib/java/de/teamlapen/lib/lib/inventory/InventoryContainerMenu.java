@@ -241,6 +241,9 @@ public abstract class InventoryContainerMenu extends AbstractContainerMenu {
             this(predicate, x, y, inverted, 64, null);
         }
 
+        public SelectorInfo(Predicate<ItemStack> predicate, int x, int y, @Nullable ResourceLocation background) {
+            this(predicate, x, y, false, 64, background);
+        }
 
         public SelectorInfo(Predicate<ItemStack> predicate, int x, int y, int stackLimit, @Nullable ResourceLocation background) {
             this(predicate, x, y, false, stackLimit, background);
