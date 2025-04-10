@@ -39,9 +39,9 @@ public class VampirismMenu extends InventoryContainerMenu implements TaskMenu {
     private static final Function<Player, SelectorInfo[]> SELECTOR_INFOS = player -> {
         Holder<? extends IPlayableFaction<?>> faction = FactionPlayerHandler.getCurrentFactionPlayer(player).orElseThrow(() -> new IllegalStateException("Opening vampirism container without faction")).getFaction();
         return new SelectorInfo[] {
-                new SelectorInfo(stack -> stack.getItem() instanceof IRefinementItem refinement && refinement.getSlotType() == IRefinementItem.AccessorySlotType.AMULET && IFaction.contains(refinement.getExclusiveFactions(stack), faction), 58, 8),
-                new SelectorInfo(stack -> stack.getItem() instanceof IRefinementItem refinement && refinement.getSlotType() == IRefinementItem.AccessorySlotType.RING && IFaction.contains(refinement.getExclusiveFactions(stack), faction), 58, 26),
-                new SelectorInfo(stack -> stack.getItem() instanceof IRefinementItem refinement && refinement.getSlotType() == IRefinementItem.AccessorySlotType.OBI_BELT && IFaction.contains(refinement.getExclusiveFactions(stack), faction), 58, 44)};
+                new SelectorInfo(stack -> stack.getItem() instanceof IRefinementItem refinement && refinement.getSlotType() == IRefinementItem.AccessorySlotType.AMULET && IFaction.contains(refinement.getExclusiveFactions(stack), faction), 59, 8),
+                new SelectorInfo(stack -> stack.getItem() instanceof IRefinementItem refinement && refinement.getSlotType() == IRefinementItem.AccessorySlotType.RING && IFaction.contains(refinement.getExclusiveFactions(stack), faction), 59, 26),
+                new SelectorInfo(stack -> stack.getItem() instanceof IRefinementItem refinement && refinement.getSlotType() == IRefinementItem.AccessorySlotType.OBI_BELT && IFaction.contains(refinement.getExclusiveFactions(stack), faction), 59, 44)};
     };
     private final IFactionPlayer<?> factionPlayer;
     private final TextColor factionColor;
@@ -58,7 +58,7 @@ public class VampirismMenu extends InventoryContainerMenu implements TaskMenu {
         this.factionPlayer = FactionPlayerHandler.get(playerInventory.player).factionPlayer();
         this.factionColor = factionPlayer.getFaction().value().getChatColor();
         this.refinementsAvailable = factionPlayer.getFaction().value().hasRefinements();
-        this.addPlayerSlots(playerInventory, 37, 124);
+        this.addPlayerSlots(playerInventory, 36, 126);
         this.refinementStacks = this.factionPlayer instanceof IRefinementPlayer<?> refinementPlayer ? refinementPlayer.getRefinementHandler().getRefinementItems() : NonNullList.create();
         this.registry = playerInventory.player.level().registryAccess().lookupOrThrow(VampirismRegistries.Keys.TASK);
     }

@@ -256,7 +256,7 @@ public class TaskList extends ContainerObjectSelectionListWithDummy<ITaskInstanc
         }
 
         protected void renderBg(@NotNull GuiGraphics graphics, int pIndex, int pTop, int pLeft, int pWidth, int pHeight, int pMouseX, int pMouseY, boolean pIsMouseOver, float pPartialTick) {
-            graphics.blitSprite(RenderType::guiTextured,  TASK_DETAILS_BACKGROUND, pLeft + 2, pTop, pWidth-4, pHeight);
+            graphics.blitSprite(RenderType::guiTextured, TASK_DETAILS_BACKGROUND, pLeft + 2, pTop, pWidth - 4, pHeight);
         }
 
         @Override
