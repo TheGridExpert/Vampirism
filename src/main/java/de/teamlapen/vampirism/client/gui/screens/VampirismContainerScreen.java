@@ -1,7 +1,7 @@
 package de.teamlapen.vampirism.client.gui.screens;
 
 import de.teamlapen.lib.lib.client.gui.GuiRenderer;
-import de.teamlapen.lib.lib.client.gui.components.VampirismButtons;
+import de.teamlapen.lib.lib.client.gui.components.VampirismCommonButtons;
 import de.teamlapen.lib.lib.util.UtilLib;
 import de.teamlapen.vampirism.VampirismMod;
 import de.teamlapen.vampirism.api.entity.player.IFactionPlayer;
@@ -9,8 +9,8 @@ import de.teamlapen.vampirism.api.entity.player.task.ITaskInstance;
 import de.teamlapen.vampirism.api.items.IRefinementItem;
 import de.teamlapen.vampirism.api.util.VResourceLocation;
 import de.teamlapen.vampirism.client.core.ModKeys;
+import de.teamlapen.vampirism.client.gui.components.PlayerHeadButton;
 import de.teamlapen.vampirism.client.gui.screens.skills.SkillsScreen;
-import de.teamlapen.vampirism.client.gui.screens.taskboard.TaskList;
 import de.teamlapen.vampirism.core.ModFactions;
 import de.teamlapen.vampirism.entity.factions.FactionPlayerHandler;
 import de.teamlapen.vampirism.entity.player.VampirismPlayerAttributes;
@@ -95,8 +95,8 @@ public class VampirismContainerScreen extends AbstractContainerScreen<VampirismM
     }
 
     @Override
-    public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-        super.render(graphics, mouseX, mouseY, partialTicks);
+    public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
+        super.render(guiGraphics, mouseX, mouseY, partialTicks);
 
         if (this.menu.areRefinementsAvailable()) {
             for (int i = 0; i < this.menu.getRefinementStacks().size(); i++) {
@@ -104,17 +104,17 @@ public class VampirismContainerScreen extends AbstractContainerScreen<VampirismM
                 Slot slot = this.menu.getSlot(i);
                 int x = slot.x + this.leftPos;
                 int y = slot.y + this.topPos;
-                graphics.blitSprite(RenderType::guiTextured, SLOT_SPRITE, x - 1, y - 1, 18, 18);
-                graphics.renderItem(stack, x, y);
-                graphics.renderItemDecorations(this.font, stack, x, y, null);
+                guiGraphics.blitSprite(RenderType::guiTextured, SLOT_SPRITE, x - 1, y - 1, 18, 18);
+                guiGraphics.renderItem(stack, x, y);
+                guiGraphics.renderItemDecorations(this.font, stack, x, y, null);
             }
         }
 
-        this.renderAccessorySlots(graphics, mouseX, mouseY, partialTicks);
+        this.renderAccessorySlots(guiGraphics, mouseX, mouseY, partialTicks);
 
-        this.renderTooltip(graphics, mouseX, mouseY);
+        this.renderTooltip(guiGraphics, mouseX, mouseY);
         if (this.menu.areRefinementsAvailable()) {
-            this.renderHoveredRefinementTooltip(graphics, mouseX, mouseY);
+            this.renderHoveredRefinementTooltip(guiGraphics, mouseX, mouseY);
         }
     }
 
@@ -157,8 +157,8 @@ public class VampirismContainerScreen extends AbstractContainerScreen<VampirismM
 
         boolean isAppearanceButtonShown = minecraft != null && Helper.isVampire(minecraft.player);
 
-        ImageButton appearanceButton = this.addRenderableWidget(new ImageButton(skillsScreenButton.getX() + distanceBetweenButtons, skillsScreenButton.getY(), 20, 20, APPEARANCE, (context)
-                -> Minecraft.getInstance().setScreen(new VampirePlayerAppearanceScreen(this)), Component.empty()));
+        PlayerHeadButton appearanceButton = this.addRenderableWidget(new PlayerHeadButton(Component.translatable("gui.vampirism.vampirism_menu.appearance_menu"), button -> Minecraft.getInstance().setScreen(new VampirePlayerAppearanceScreen(this))));
+        appearanceButton.setPosition(skillsScreenButton.getX() + distanceBetweenButtons, skillsScreenButton.getY());
         appearanceButton.setTooltip(Tooltip.create(Component.translatable("gui.vampirism.vampirism_menu.appearance_menu")));
 
         if (!isAppearanceButtonShown) {
@@ -168,10 +168,10 @@ public class VampirismContainerScreen extends AbstractContainerScreen<VampirismM
 
         boolean isEditTasksButtonShown = FactionPlayerHandler.get(factionPlayer.asEntity()).getLordLevel() > 0;
 
-        SpriteIconButton editActionsButton = this.addRenderableWidget(VampirismButtons.settings(20, Component.translatable("gui.vampirism.vampirism_menu.edit_actions"), button -> EditSelectActionScreen.show()));
-        editActionsButton.setPosition(skillsScreenButton.getX() + (isAppearanceButtonShown ? 0 : distanceBetweenButtons), (isAppearanceButtonShown ? this.topPos + 160 : skillsScreenButton.getY()) + (isEditTasksButtonShown ? 0 : distanceBetweenButtons));
+        SpriteIconButton editActionsButton = this.addRenderableWidget(VampirismCommonButtons.settings(20, Component.translatable("gui.vampirism.vampirism_menu.edit_actions"), button -> EditSelectActionScreen.show()));
+        editActionsButton.setPosition(skillsScreenButton.getX() + (isAppearanceButtonShown ? 0 : distanceBetweenButtons), (isAppearanceButtonShown ? this.topPos + 160 : skillsScreenButton.getY()));
 
-        SpriteIconButton editTasksButton = this.addRenderableWidget(VampirismButtons.settings(20, Component.translatable("gui.vampirism.vampirism_menu.edit_tasks"), button -> EditSelectMinionTaskScreen.show()));
+        SpriteIconButton editTasksButton = this.addRenderableWidget(VampirismCommonButtons.settings(20, Component.translatable("gui.vampirism.vampirism_menu.edit_tasks"), button -> EditSelectMinionTaskScreen.show()));
         editTasksButton.setPosition(editActionsButton.getX() + (isAppearanceButtonShown ? 0 : distanceBetweenButtons), editActionsButton.getY() + (isAppearanceButtonShown ? distanceBetweenButtons : 0));
         editTasksButton.visible = isEditTasksButtonShown;
 
@@ -206,33 +206,33 @@ public class VampirismContainerScreen extends AbstractContainerScreen<VampirismM
     }
 
     @Override
-    protected void renderLabels(@NotNull GuiGraphics graphics, int mouseX, int mouseY) {
-        super.renderLabels(graphics, mouseX, mouseY);
-        graphics.drawString(this.font, this.level, Math.max(5, 31 - this.font.width(this.level) / 2), 81, -1, false);
+    protected void renderLabels(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        super.renderLabels(guiGraphics, mouseX, mouseY);
+        guiGraphics.drawString(this.font, this.level, Math.max(5, 31 - this.font.width(this.level) / 2), 81, -1, false);
     }
 
     @Override
-    protected void renderBg(@NotNull GuiGraphics graphics, float pPartialTick, int mouseX, int mouseY) {
+    protected void renderBg(@NotNull GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
         GuiRenderer.resetColor();
-        GuiRenderer.blit(graphics, BACKGROUND, this.leftPos, this.topPos, this.imageWidth, this.imageHeight);
+        GuiRenderer.blit(guiGraphics, BACKGROUND, this.leftPos, this.topPos, this.imageWidth, this.imageHeight);
         if (this.minecraft != null && this.minecraft.player != null) {
-            InventoryScreen.renderEntityInInventoryFollowsMouse(graphics, this.leftPos + 8, this.topPos + 7, this.leftPos + 56, this.topPos + 78, 30, 0.0625f, mouseX, mouseY, this.minecraft.player);
+            InventoryScreen.renderEntityInInventoryFollowsMouse(guiGraphics, this.leftPos + 8, this.topPos + 7, this.leftPos + 56, this.topPos + 78, 30, 0.0625f, mouseX, mouseY, this.minecraft.player);
         }
     }
 
-    protected void renderHoveredRefinementTooltip(@NotNull GuiGraphics graphics, int mouseX, int mouseY) {
+    protected void renderHoveredRefinementTooltip(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY) {
         if (this.hoveredSlot != null) {
             int index = this.hoveredSlot.index;
             NonNullList<ItemStack> list = this.menu.getRefinementStacks();
             if (index < list.size() && index >= 0) {
                 if (this.getMenu().getCarried().isEmpty() && !list.get(index).isEmpty()) {
                     if (!this.refinementRemoveButtons.get(this.hoveredSlot.getSlotIndex()).isHoveredOrFocused()) {
-                        graphics.renderTooltip(this.font, list.get(index), mouseX, mouseY);
+                        guiGraphics.renderTooltip(this.font, list.get(index), mouseX, mouseY);
 
                     }
                 } else {
                     if (!list.get(index).isEmpty() && this.menu.getSlot(index).mayPlace(this.getMenu().getCarried())) {
-                        graphics.renderTooltip(this.font, Component.translatable("gui.vampirism.vampirism_menu.destroy_item").withStyle(ChatFormatting.RED), mouseX, mouseY);
+                        guiGraphics.renderTooltip(this.font, Component.translatable("gui.vampirism.vampirism_menu.destroy_item").withStyle(ChatFormatting.RED), mouseX, mouseY);
                     }
                 }
             }
@@ -251,10 +251,10 @@ public class VampirismContainerScreen extends AbstractContainerScreen<VampirismM
         }
 
         @Override
-        public void renderWidget(GuiGraphics graphics, int p_283242_, int p_282891_, float p_283683_) {
-            super.renderWidget(graphics, p_283242_, p_282891_, p_283683_);
+        public void renderWidget(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
+            super.renderWidget(guiGraphics, mouseX, mouseY, partialTicks);
             if (children().isEmpty()) {
-                graphics.drawCenteredString(minecraft.font, Component.translatable("gui.vampirism.vampirism_menu.no_tasks"), this.getX() + width / 2, this.getY() + height / 2, 0x404040);
+                guiGraphics.drawCenteredString(minecraft.font, Component.translatable("gui.vampirism.vampirism_menu.no_tasks"), this.getX() + width / 2, this.getY() + height / 2, 0x404040);
             }
         }
 
@@ -303,11 +303,11 @@ public class VampirismContainerScreen extends AbstractContainerScreen<VampirismM
             }
 
             @Override
-            public void render(GuiGraphics graphics, int pIndex, int pTop, int pLeft, int pWidth, int pHeight, int pMouseX, int pMouseY, boolean pIsMouseOver, float pPartialTick) {
-                super.render(graphics, pIndex, pTop, pLeft, pWidth, pHeight, pMouseX, pMouseY, pIsMouseOver, pPartialTick);
+            public void render(GuiGraphics guiGraphics, int pIndex, int pTop, int pLeft, int pWidth, int pHeight, int pMouseX, int pMouseY, boolean pIsMouseOver, float pPartialTick) {
+                super.render(guiGraphics, pIndex, pTop, pLeft, pWidth, pHeight, pMouseX, pMouseY, pIsMouseOver, pPartialTick);
                 if (this.button != null) {
                     this.button.setPosition(pLeft + pWidth - this.button.getWidth() - 1, pTop + 1);
-                    this.button.render(graphics, pMouseX, pMouseY, pPartialTick);
+                    this.button.render(guiGraphics, pMouseX, pMouseY, pPartialTick);
                 }
             }
         }

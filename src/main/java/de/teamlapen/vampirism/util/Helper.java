@@ -10,6 +10,7 @@ import de.teamlapen.vampirism.api.entity.player.skills.ISkill;
 import de.teamlapen.vampirism.api.entity.player.skills.ISkillHandler;
 import de.teamlapen.vampirism.api.entity.player.vampire.IVampirePlayer;
 import de.teamlapen.vampirism.api.entity.vampire.IVampire;
+import de.teamlapen.vampirism.api.util.VResourceLocation;
 import de.teamlapen.vampirism.config.VampirismConfig;
 import de.teamlapen.vampirism.core.ModFactions;
 import de.teamlapen.vampirism.core.tags.ModBiomeTags;
@@ -276,5 +277,13 @@ public class Helper {
             }
         }
         return true;
+    }
+
+    public static ResourceLocation getVampireEyesLocation(int index) {
+        return VResourceLocation.mod("textures/entity/vanilla/eyes" + index + ".png");
+    }
+
+    public static ResourceLocation getVampireFangLocation(int index) {
+        return VResourceLocation.mod("textures/entity/vanilla/fangs" + index + ".png");
     }
 }

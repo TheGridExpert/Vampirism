@@ -3,10 +3,10 @@ package de.teamlapen.vampirism.client.renderer.entity.layers;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import de.teamlapen.vampirism.REFERENCE;
-import de.teamlapen.vampirism.api.util.VResourceLocation;
 import de.teamlapen.vampirism.client.renderer.entity.state.IVampirismRenderState;
 import de.teamlapen.vampirism.config.VampirismConfig;
 import de.teamlapen.vampirism.entity.player.VampirismPlayerAttributes;
+import de.teamlapen.vampirism.util.Helper;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -27,11 +27,11 @@ public class VampirePlayerHeadLayer<T extends PlayerRenderState, Q extends Playe
         super(entityRendererIn);
         eyeOverlays = new ResourceLocation[REFERENCE.EYE_TYPE_COUNT];
         for (int i = 0; i < eyeOverlays.length; i++) {
-            eyeOverlays[i] = VResourceLocation.mod("textures/entity/vanilla/eyes" + (i) + ".png");
+            eyeOverlays[i] = Helper.getVampireEyesLocation(i);
         }
         fangOverlays = new ResourceLocation[REFERENCE.FANG_TYPE_COUNT];
         for (int i = 0; i < fangOverlays.length; i++) {
-            fangOverlays[i] = VResourceLocation.mod("textures/entity/vanilla/fangs" + i + ".png");
+            fangOverlays[i] = Helper.getVampireFangLocation(i);
         }
     }
 
@@ -49,10 +49,6 @@ public class VampirePlayerHeadLayer<T extends PlayerRenderState, Q extends Playe
             head.render(stack, vertexBuilderEye, i, packerOverlay);
             VertexConsumer vertexBuilderFang = iRenderTypeBuffer.getBuffer(RenderType.entityCutoutNoCull(fangOverlays[fangType]));
             head.render(stack, vertexBuilderFang, i, packerOverlay);
-
-
         }
-
     }
-
 }
