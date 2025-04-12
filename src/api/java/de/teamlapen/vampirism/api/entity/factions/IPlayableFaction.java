@@ -6,6 +6,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import net.neoforged.fml.common.asm.enumextension.IExtensibleEnum;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
@@ -58,7 +59,7 @@ public interface IPlayableFaction<T extends IFactionPlayer<T>> extends IFaction<
 
     Collection<IRefinementItem> getRefinementItems(IRefinementItem.AccessorySlotType type);
 
-    enum TitleGender implements StringRepresentable {
+    enum TitleGender implements StringRepresentable, IExtensibleEnum {
         UNKNOWN("unknown"),
         MALE("male"),
         FEMALE("female");

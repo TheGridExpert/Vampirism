@@ -73,7 +73,7 @@ public class CloakModel extends VampirismArmorModel {
         if (state.isCrouching) holder.xRot -= 50.0F * (float) Math.PI / 180.0F;
 
         holder.x += 5.0F;
-        holder.y -= 0.02F;
+        holder.y -= 0.04F;
         holder.z -= 1.01F;
     }
 }

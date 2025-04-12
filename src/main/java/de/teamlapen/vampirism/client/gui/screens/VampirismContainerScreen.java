@@ -48,7 +48,6 @@ public class VampirismContainerScreen extends AbstractContainerScreen<VampirismM
 
     private static final ResourceLocation BACKGROUND = VResourceLocation.mod("textures/gui/container/vampirism_menu.png");
     private static final ResourceLocation SLOT_SPRITE = ResourceLocation.withDefaultNamespace("container/slot");
-    private static final WidgetSprites APPEARANCE = new WidgetSprites(VResourceLocation.mod("widget/appearance"), VResourceLocation.mod("widget/appearance_highlighted"));
     private static final WidgetSprites SKILLS = new WidgetSprites(VResourceLocation.mod("widget/skills"), VResourceLocation.mod("widget/skills_highlighted"));
     private static final WidgetSprites REMOVE_ACCESSORY = new WidgetSprites(VResourceLocation.mod("widget/remove_accessory"), VResourceLocation.mod("widget/remove_accessory_highlighted"));
     private static final WidgetSprites LOCATE_TASK_MASTER = new WidgetSprites(VResourceLocation.mod("widget/locate_task_master"), VResourceLocation.mod("widget/locate_task_master_highlighted"));
@@ -159,7 +158,6 @@ public class VampirismContainerScreen extends AbstractContainerScreen<VampirismM
 
         PlayerHeadButton appearanceButton = this.addRenderableWidget(new PlayerHeadButton(Component.translatable("gui.vampirism.vampirism_menu.appearance_menu"), button -> Minecraft.getInstance().setScreen(new VampirePlayerAppearanceScreen(this))));
         appearanceButton.setPosition(skillsScreenButton.getX() + distanceBetweenButtons, skillsScreenButton.getY());
-        appearanceButton.setTooltip(Tooltip.create(Component.translatable("gui.vampirism.vampirism_menu.appearance_menu")));
 
         if (!isAppearanceButtonShown) {
             appearanceButton.active = false;
