@@ -55,13 +55,13 @@ public class VampirePlayerAppearanceScreen extends AppearanceScreen<Player> {
         this.addPickerButtons(this.guiLeft + 13, this.guiTop + 28, 104, this::eye);
         this.addPickerButtons(this.guiLeft + 13, this.guiTop + 50, 104, this::fang);
 
-        this.addRenderableWidget(new SmallCheckbox(this.guiLeft + 13, this.guiTop + 72, glowingEyes, Component.translatable("gui.vampirism.appearance.glowing_eye"), this.font, DEFAULT_FORE_COLOR, (checkBox, checked) -> {
-            glowingEyes = checked;
-            VampirePlayer.get(entity).setGlowingEyes(glowingEyes);
+        this.addRenderableWidget(new SmallCheckbox(this.guiLeft + 13, this.guiTop + 72, this.glowingEyes, Component.translatable("gui.vampirism.appearance.glowing_eye"), this.font, (checkBox, checked) -> {
+            this.glowingEyes = checked;
+            VampirePlayer.get(this.entity).setGlowingEyes(this.glowingEyes);
         }));
-        this.addRenderableWidget(new SmallCheckbox(this.guiLeft + 13, this.guiTop + 92, titleGender, Component.translatable("gui.vampirism.appearance.title_gender"), this.font, DEFAULT_FORE_COLOR, (checkBox, checked) -> {
-            titleGender = checked;
-            FactionPlayerHandler.get(entity).setTitleGender(titleGender);
+        this.addRenderableWidget(new SmallCheckbox(this.guiLeft + 13, this.guiTop + 92, this.titleGender, Component.translatable("gui.vampirism.appearance.title_gender"), this.font, (checkBox, checked) -> {
+            this.titleGender = checked;
+            FactionPlayerHandler.get(this.entity).setTitleGender(this.titleGender);
         }));
     }
 
@@ -78,7 +78,7 @@ public class VampirePlayerAppearanceScreen extends AppearanceScreen<Player> {
 
         VampirePlayer vampire = VampirePlayer.get(this.minecraft.player);
 
-        this.eyeType = (this.eyeType + difference) % (REFERENCE.EYE_TYPE_COUNT - 1);
+        this.eyeType = (this.eyeType + difference) % REFERENCE.EYE_TYPE_COUNT;
         if (this.eyeType < 0) this.eyeType = (REFERENCE.EYE_TYPE_COUNT - 1);
 
         vampire.setEyeType(this.eyeType);
@@ -89,7 +89,7 @@ public class VampirePlayerAppearanceScreen extends AppearanceScreen<Player> {
 
         VampirePlayer vampire = VampirePlayer.get(this.minecraft.player);
 
-        this.fangType = (this.fangType + difference) % (REFERENCE.FANG_TYPE_COUNT - 1);
+        this.fangType = (this.fangType + difference) % REFERENCE.FANG_TYPE_COUNT;
         if (this.fangType < 0) this.fangType = (REFERENCE.FANG_TYPE_COUNT - 1);
 
         vampire.setFangType(this.fangType);

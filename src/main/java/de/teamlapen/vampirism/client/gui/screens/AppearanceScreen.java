@@ -2,6 +2,7 @@ package de.teamlapen.vampirism.client.gui.screens;
 
 import de.teamlapen.vampirism.api.util.VResourceLocation;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.SpriteIconButton;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
@@ -18,12 +19,15 @@ import java.util.function.Consumer;
 public class AppearanceScreen<T extends LivingEntity> extends Screen {
 
     private static final ResourceLocation BACKGROUND = VResourceLocation.mod("textures/gui/container/appearance.png");
+    private static final ResourceLocation TEXT_FIELD = VResourceLocation.mc("container/anvil/text_field");
     private static final ResourceLocation SMALL_ARROW_LEFT = VResourceLocation.mod("icon/small_arrow_left");
     private static final ResourceLocation SMALL_ARROW_RIGHT = VResourceLocation.mod("icon/small_arrow_right");
-    public static final int DEFAULT_FORE_COLOR = 0x404040;
 
-    public static final int WIDTH = 256;
-    public static final int HEIGHT = 157;
+    public static final int DEFAULT_FORE_TEXT_COLOR = 0x404040;
+    public static final int DEFAULT_WIDGET_TEXT_COLOR = 0xFFFFFF;
+
+    public static final int WIDTH = 241;
+    public static final int HEIGHT = 144;
 
     protected final T entity;
     @Nullable
@@ -70,20 +74,37 @@ public class AppearanceScreen<T extends LivingEntity> extends Screen {
 
     protected void drawDisplayButton(@NotNull GuiGraphics guiGraphics, int cornerX, int cornerY, int width, Component displayText) {
         guiGraphics.blitSprite(RenderType::guiTextured, ResourceLocation.withDefaultNamespace("widget/button"), cornerX, cornerY, width, 18);
-        guiGraphics.drawCenteredString(this.font, displayText, cornerX + width / 2, cornerY + 5, 16777215);
+        guiGraphics.drawCenteredString(this.font, displayText, cornerX + width / 2, cornerY + 5, DEFAULT_WIDGET_TEXT_COLOR);
+    }
+    
+    protected EditBox addTextField(int cornerX, int cornerY, String startValue, int maxLength, Consumer<String> onNameChanged, Component name) {
+        EditBox textField = this.addRenderableWidget(new EditBox(this.font, cornerX, cornerY, 103, 12, name));
+        textField.setValue(startValue);
+        textField.setTextColor(-1);
+        textField.setTextColorUneditable(-1);
+        textField.setBordered(false);
+        textField.setMaxLength(maxLength);
+        textField.setResponder(onNameChanged);
+
+        return textField;
+    }
+
+    protected void drawNameField(@NotNull GuiGraphics guiGraphics, int cornerX, int cornerY) {
+        guiGraphics.drawString(this.font, Component.translatable("text.vampirism.name").append(":"), cornerX - 29, cornerY + 4, DEFAULT_FORE_TEXT_COLOR, false);
+        guiGraphics.blitSprite(RenderType::guiTextured, TEXT_FIELD, cornerX, cornerY, 110, 16);
     }
 
     @Override
     public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
         super.render(guiGraphics, mouseX, mouseY, partialTicks);
 
-        renderLabels(guiGraphics);
+        guiGraphics.drawString(this.font, title, this.guiLeft + 5, this.guiTop + 6, DEFAULT_FORE_TEXT_COLOR, false);
 
-        InventoryScreen.renderEntityInInventoryFollowsMouse(guiGraphics, this.guiLeft + 155, this.guiTop + 19, this.guiLeft + 233, this.guiTop + 136, 50, 0.0625f, mouseX, mouseY, this.entity);
+        InventoryScreen.renderEntityInInventoryFollowsMouse(guiGraphics, this.guiLeft + 155, this.guiTop + 19, this.guiLeft + 233, this.guiTop + 136, 50, getEntityGuiYOffset(), mouseX, mouseY, this.entity);
     }
 
-    protected void renderLabels(@NotNull GuiGraphics guiGraphics) {
-        guiGraphics.drawString(this.font, title, this.guiLeft + 5, this.guiTop + 6, DEFAULT_FORE_COLOR, false);
+    protected float getEntityGuiYOffset() {
+        return 0.0625f;
     }
 
     @Override

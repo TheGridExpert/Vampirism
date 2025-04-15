@@ -32,6 +32,10 @@ public class SmallCheckbox extends AbstractButton {
         this.textColor = textColor;
     }
 
+    public SmallCheckbox(int x, int y, boolean checked, Component message, Font font, BiConsumer<SmallCheckbox, Boolean> onValueChange) {
+        this(x, y, checked, message, font, 0x404040, onValueChange);
+    }
+
     @Override
     public void onPress() {
         this.checked = !this.checked;
