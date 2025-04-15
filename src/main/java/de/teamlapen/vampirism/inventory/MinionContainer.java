@@ -1,9 +1,7 @@
 package de.teamlapen.vampirism.inventory;
 
-import com.mojang.datafixers.util.Pair;
 import de.teamlapen.lib.lib.inventory.InventoryContainerMenu;
 import de.teamlapen.vampirism.VampirismMod;
-import de.teamlapen.vampirism.api.entity.minion.IMinionInventory;
 import de.teamlapen.vampirism.api.entity.minion.IMinionTask;
 import de.teamlapen.vampirism.api.entity.player.ILordPlayer;
 import de.teamlapen.vampirism.core.ModMenus;
@@ -35,22 +33,21 @@ public class MinionContainer extends InventoryContainerMenu {
 
     @Nullable
     public static MinionContainer create(int id, @NotNull Inventory playerInventory, @NotNull MinionEntity<?> minionEntity, @NotNull ILordPlayer lord) {
-        Optional<IMinionInventory> minionInv = minionEntity.getInventory();
-        return minionInv.map(inv -> new MinionContainer(id, playerInventory, lord, minionEntity, inv, inv.getAvailableSize(), createSelectors(minionEntity, inv.getAvailableSize()))).orElse(null);
+        return minionEntity.getInventory().map(inv -> new MinionContainer(id, playerInventory, lord, minionEntity, inv, inv.getAvailableSize(), createSelectors(minionEntity, inv.getAvailableSize()))).orElse(null);
     }
 
     private static SelectorInfo @NotNull [] createSelectors(@NotNull MinionEntity<?> minionEntity, int extraSlots) {
         SelectorInfo[] slots = new SelectorInfo[6 + extraSlots];
-        slots[0] = new SelectorInfo(minionEntity.getEquipmentPredicate(EquipmentSlot.MAINHAND).and(stack -> stack.canEquip(EquipmentSlot.MAINHAND, minionEntity)), 7, 60, false, 1, null);
-        slots[1] = new SelectorInfo(minionEntity.getEquipmentPredicate(EquipmentSlot.OFFHAND).and(stack -> stack.canEquip(EquipmentSlot.OFFHAND, minionEntity) || stack.getUseAnimation() == ItemUseAnimation.DRINK || stack.getUseAnimation() == ItemUseAnimation.EAT), 7, 78, false, 5, null);
-        slots[2] = new SelectorInfo(minionEntity.getEquipmentPredicate(EquipmentSlot.FEET).and(stack -> stack.canEquip(EquipmentSlot.FEET, minionEntity)), 81, 22, false, 1, InventoryMenu.EMPTY_ARMOR_SLOT_BOOTS);
-        slots[3] = new SelectorInfo(minionEntity.getEquipmentPredicate(EquipmentSlot.LEGS).and(stack -> stack.canEquip(EquipmentSlot.LEGS, minionEntity)), 63, 22, false, 1, InventoryMenu.EMPTY_ARMOR_SLOT_LEGGINGS);
-        slots[4] = new SelectorInfo(minionEntity.getEquipmentPredicate(EquipmentSlot.CHEST).and(stack -> stack.canEquip(EquipmentSlot.CHEST, minionEntity)), 45, 22, false, 1, InventoryMenu.EMPTY_ARMOR_SLOT_CHESTPLATE);
-        slots[5] = new SelectorInfo(minionEntity.getEquipmentPredicate(EquipmentSlot.HEAD).and(stack -> stack.canEquip(EquipmentSlot.HEAD, minionEntity)), 27, 22, false, 1, InventoryMenu.EMPTY_ARMOR_SLOT_HELMET);
+        slots[0] = new SelectorInfo(minionEntity.getEquipmentPredicate(EquipmentSlot.MAINHAND).and(stack -> stack.canEquip(EquipmentSlot.MAINHAND, minionEntity)), 96, 46, false, 1, null);
+        slots[1] = new SelectorInfo(minionEntity.getEquipmentPredicate(EquipmentSlot.OFFHAND).and(stack -> stack.canEquip(EquipmentSlot.OFFHAND, minionEntity) || stack.getUseAnimation() == ItemUseAnimation.DRINK || stack.getUseAnimation() == ItemUseAnimation.EAT), 27, 46, false, 5, null);
+        slots[2] = new SelectorInfo(minionEntity.getEquipmentPredicate(EquipmentSlot.FEET).and(stack -> stack.canEquip(EquipmentSlot.FEET, minionEntity)), 96, 73, false, 1, InventoryMenu.EMPTY_ARMOR_SLOT_BOOTS);
+        slots[3] = new SelectorInfo(minionEntity.getEquipmentPredicate(EquipmentSlot.LEGS).and(stack -> stack.canEquip(EquipmentSlot.LEGS, minionEntity)), 96, 19, false, 1, InventoryMenu.EMPTY_ARMOR_SLOT_LEGGINGS);
+        slots[4] = new SelectorInfo(minionEntity.getEquipmentPredicate(EquipmentSlot.CHEST).and(stack -> stack.canEquip(EquipmentSlot.CHEST, minionEntity)), 27, 73, false, 1, InventoryMenu.EMPTY_ARMOR_SLOT_CHESTPLATE);
+        slots[5] = new SelectorInfo(minionEntity.getEquipmentPredicate(EquipmentSlot.HEAD).and(stack -> stack.canEquip(EquipmentSlot.HEAD, minionEntity)), 27, 19, false, 1, InventoryMenu.EMPTY_ARMOR_SLOT_HELMET);
 
         assert extraSlots == 9 || extraSlots == 12 || extraSlots == 15 : "Minion inventory has unexpected size";
         for (int i = 0; i < extraSlots; i++) {
-            slots[6 + i] = new SelectorInfo(itemStack -> true, 27 + 18 * (i / 3), 42 + 18 * (i % 3));
+            slots[6 + i] = new SelectorInfo(itemStack -> true, 118 + 18 * (i / 3), 37 + 18 * (i % 3));
         }
 
         return slots;
@@ -76,7 +73,6 @@ public class MinionContainer extends InventoryContainerMenu {
         this.addPlayerSlots(playerInventory, 27, 103);
         this.previousTask = this.minionEntity.getCurrentTask().map(IMinionTask.IMinionTaskDesc::getTask).orElse(null);
         this.previousTaskLocked = this.taskLocked = this.minionEntity.isTaskLocked();
-
     }
 
     @Override
@@ -86,6 +82,10 @@ public class MinionContainer extends InventoryContainerMenu {
             sendChanges();
         }
         minionEntity.setInteractingPlayer(null);
+    }
+
+    public @NotNull MinionEntity<?> getMinionEntity() {
+        return minionEntity;
     }
 
     @NotNull
