@@ -346,6 +346,9 @@ public class ModCreativeTabs {
             addCandleHolders(ColorListsUtil.STANDING_AND_WALL_CANDELABRAS.stream().map(pair -> pair.getFirst().asItem()).toList());
             addCandleHolders(ColorListsUtil.HANGING_CHANDELIERS.stream().map(Block::asItem).toList());
             add(VAMPIRE_SOUL_LANTERN);
+
+            add(TOMBSTONE);
+
             add(CROSS);
             add(TOMBSTONE1);
             add(TOMBSTONE2);

@@ -310,6 +310,8 @@ public class ModBlocks {
 
     public static final DeferredBlock<VampireSoulLanternBlock> VAMPIRE_SOUL_LANTERN = registerWithItem("vampire_soul_lantern", VampireSoulLanternBlock::new, () -> copyProperties(Blocks.LANTERN).mapColor(MapColor.GOLD).lightLevel(state -> 12));
 
+    public static final DeferredBlock<TombstoneBlock> TOMBSTONE = registerWithItem("tombstone", props -> new TombstoneBlock(props, 0x545454, 0xa3a3a3, VampirismVoxelShapes.TOMBSTONE), () -> copyProperties(Blocks.STONE).strength(2.0F));
+
     public static final DeferredBlock<VampirismSplitBlock> CROSS = registerWithItem("cross", props -> new VampirismSplitBlock(props, VampirismVoxelShapes.CROSS_BOTTOM, VampirismVoxelShapes.CROSS_TOP, true), () -> basicProperties().pushReaction(PushReaction.DESTROY).mapColor(MapColor.WOOD).ignitedByLava().strength(2, 3));
     public static final DeferredBlock<VampirismHorizontalBlock> TOMBSTONE1 = registerWithItem("tombstone1", props -> new VampirismHorizontalBlock(props, VampirismVoxelShapes.TOMB_1), () -> basicProperties().mapColor(MapColor.STONE).strength(2, 6));
     public static final DeferredBlock<VampirismHorizontalBlock> TOMBSTONE2 = registerWithItem("tombstone2", props -> new VampirismHorizontalBlock(props, VampirismVoxelShapes.TOMB_2), () -> basicProperties().mapColor(MapColor.STONE).strength(2, 6));

@@ -292,6 +292,9 @@ public class ModBlockModelGenerators extends VBlockModelGenerators {
                 ModBlocks.BLOOD_PEDESTAL,
                 ModBlocks.POTION_TABLE,
                 ModBlocks.FIRE_PLACE,
+
+                ModBlocks.TOMBSTONE,
+
                 ModBlocks.CROSS,
                 ModBlocks.TOMBSTONE1,
                 ModBlocks.TOMBSTONE2,

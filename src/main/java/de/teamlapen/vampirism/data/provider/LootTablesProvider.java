@@ -473,6 +473,9 @@ public class LootTablesProvider {
             this.dropSelf(ModBlocks.DARK_SPRUCE_SAPLING.get());
             this.dropSelf(ModBlocks.CURSED_SPRUCE_SAPLING.get());
             this.add(ModBlocks.DARK_SPRUCE_LEAVES.get(), (block) -> createLeavesDrops(block, ModBlocks.DARK_SPRUCE_SAPLING.get(), DEFAULT_SAPLING_DROP_RATES));
+
+            this.dropSelf(ModBlocks.TOMBSTONE.get());
+
             this.add(ModBlocks.CROSS.get(), (p_218567_0_) -> createSinglePropConditionTable(p_218567_0_, VampirismSplitBlock.PART, VampirismSplitBlock.Part.MAIN));
             this.dropSelf(ModBlocks.TOMBSTONE1.get());
             this.dropSelf(ModBlocks.TOMBSTONE2.get());

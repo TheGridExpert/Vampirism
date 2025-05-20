@@ -8,9 +8,11 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import java.util.stream.Stream;
 
 /**
- * Store voxel shapes for blocks without dedicated classes
+ * Stores voxel shapes for blocks without dedicated classes
  */
 public class VampirismVoxelShapes {
+
+    public static final VoxelShape TOMBSTONE = Shapes.join(Block.box(3, 2, 3, 13, 16, 6), Block.box(2, 0, 2, 14, 2, 7), BooleanOp.OR);
 
     public static final VoxelShape GRAVE_CAGE = Stream.of(
             Block.box(0, 0, 0, 2, 10, 2),

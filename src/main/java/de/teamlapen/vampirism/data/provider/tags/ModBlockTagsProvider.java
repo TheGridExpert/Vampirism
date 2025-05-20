@@ -47,6 +47,9 @@ public class ModBlockTagsProvider extends BlockTagsProvider {
                 .add(ModBlocks.ALTAR_INFUSION.get())
                 .add(ModBlocks.WEAPON_TABLE.get())
                 .add(ModBlocks.GRAVE_CAGE.get())
+
+                .add(ModBlocks.TOMBSTONE.get())
+
                 .add(ModBlocks.TOMBSTONE1.get())
                 .add(ModBlocks.TOMBSTONE2.get())
                 .add(ModBlocks.TOMBSTONE3.get())
