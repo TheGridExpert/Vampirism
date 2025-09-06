@@ -21,7 +21,9 @@ import java.util.List;
  * works the same as a {@link RuleProcessor} but for {@link RandomBlockStateRule} instead of {@link ProcessorRule}
  */
 public class RandomStructureProcessor extends RuleProcessor {
+
     public static final MapCodec<RandomStructureProcessor> CODEC = RandomBlockStateRule.CODEC.listOf().fieldOf("rules").xmap(RandomStructureProcessor::new, rule -> rule.rules);
+
     private final @NotNull ImmutableList<RandomBlockStateRule> rules;
 
     public RandomStructureProcessor(@NotNull List<RandomBlockStateRule> rules) {

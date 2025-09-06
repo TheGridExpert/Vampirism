@@ -47,7 +47,7 @@ public class SplashManagerMixin {
         }
 
         if (!customSplashes.isEmpty()) {
-            double chance = 0.3;
+            double chance = 0.2;
             int originalSize = baseSplashes.size();
             int timesAdded = (int) Math.ceil((chance * originalSize) / ((1 - chance) * customSplashes.size()));
 

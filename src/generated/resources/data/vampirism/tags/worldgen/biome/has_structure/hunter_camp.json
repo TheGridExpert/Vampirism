@@ -1,0 +1,16 @@
+{
+  "remove": [
+    "#vampirism:has_faction",
+    "minecraft:pale_garden"
+  ],
+  "values": [
+    "#c:is_desert",
+    "#c:is_plains",
+    "#c:is_snowy_plains",
+    "#c:is_plateau",
+    "#c:is_badlands",
+    "#c:is_forest",
+    "#c:is_taiga",
+    "minecraft:sparse_jungle"
+  ]
+}

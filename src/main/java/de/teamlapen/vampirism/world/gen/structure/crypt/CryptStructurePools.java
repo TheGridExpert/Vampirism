@@ -16,6 +16,7 @@ import static de.teamlapen.vampirism.core.ModStructures.createTemplatePool;
 import static de.teamlapen.vampirism.world.gen.structure.PoolExtensions.single;
 
 public class CryptStructurePools {
+
     public static final ResourceKey<StructureTemplatePool> END = createTemplatePool("crypt/end");
     public static final ResourceKey<StructureTemplatePool> CORRIDOR = createTemplatePool("crypt/structures");
     public static final ResourceKey<StructureTemplatePool> STAIRS_1 = createTemplatePool("crypt/stairs1");

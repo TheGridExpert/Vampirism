@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
  */
 @SuppressWarnings("JavadocReference")
 public class RandomBlockStateRule extends ProcessorRule {
+
     @SuppressWarnings({"Convert2MethodRef", "CodeBlock2Expr"})
     public static final Codec<Pair<BlockState, RuleBlockEntityModifier>> PAIR_CODEC = RecordCodecBuilder.create((instance) -> {
         return instance.group(BlockState.CODEC.fieldOf("state").forGetter(entry -> {

@@ -18,8 +18,10 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Random;
 
 public class RandomCandleLitProcessor extends StructureProcessor {
+
     public static final MapCodec<RandomCandleLitProcessor> CODEC = Codec.FLOAT.fieldOf("lit_probability").xmap(RandomCandleLitProcessor::new, entry -> entry.litProbability);
     private static final Random RANDOM = new Random();
+
     private final float litProbability;
 
     public RandomCandleLitProcessor(float litProbability) {

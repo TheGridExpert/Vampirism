@@ -1,0 +1,6 @@
+{
+  "type": "vampirism:hunter_camp",
+  "biomes": "#vampirism:has_structure/hunter_camp",
+  "spawn_overrides": {},
+  "step": "surface_structures"
+}

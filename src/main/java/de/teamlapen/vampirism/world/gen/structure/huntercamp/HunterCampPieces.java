@@ -1,300 +1,245 @@
 package de.teamlapen.vampirism.world.gen.structure.huntercamp;
 
-import com.google.common.collect.Lists;
-import de.teamlapen.lib.lib.util.UtilLib;
-import de.teamlapen.vampirism.blockentity.TentBlockEntity;
-import de.teamlapen.vampirism.blocks.TentBlock;
-import de.teamlapen.vampirism.config.VampirismConfig;
-import de.teamlapen.vampirism.core.ModBlocks;
+import de.teamlapen.vampirism.api.util.VResourceLocation;
 import de.teamlapen.vampirism.core.ModStructures;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.StructureTags;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
-import net.minecraft.world.level.levelgen.structure.StructurePiece;
 import net.minecraft.world.level.levelgen.structure.StructurePieceAccessor;
+import net.minecraft.world.level.levelgen.structure.TemplateStructurePiece;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSerializationContext;
-import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceType;
-import net.minecraft.world.level.levelgen.structure.pieces.StructurePiecesBuilder;
+import net.minecraft.world.level.levelgen.structure.templatesystem.*;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
+public class HunterCampPieces {
 
-public abstract class HunterCampPieces extends StructurePiece {
-    public static void addStartPieces(@NotNull StructurePiecesBuilder structurePiecesBuilder, @NotNull RandomSource random, BlockPos pos) {
-        Fireplace hunterCamp = new Fireplace(random, pos);
-        structurePiecesBuilder.addPiece(hunterCamp);
-        hunterCamp.addChildren(hunterCamp, structurePiecesBuilder, random);
-    }
+    public static final int GENERATION_HEIGHT = 90;
 
-    protected final BlockPos pos;
+    public static final ResourceLocation FLAGPOLE = VResourceLocation.mod("hunter_camp/flagpole");
+    public static final ResourceLocation FLAG = VResourceLocation.mod("hunter_camp/flag");
+    public static final ResourceLocation TENT = VResourceLocation.mod("hunter_camp/tent");
+    public static final ResourceLocation TOWER = VResourceLocation.mod("hunter_camp/tower");
+    public static final ResourceLocation CAMPFIRE = VResourceLocation.mod("hunter_camp/campfire");
 
-    public HunterCampPieces(@NotNull StructurePieceType structurePieceType, int part, BlockPos pos) {
-        super(structurePieceType, part, new BoundingBox(pos.getX() - 1, pos.getY(), pos.getZ() - 1, pos.getX() + 1, pos.getY() + 2, pos.getZ() + 1));
-        this.pos = pos;
-    }
+    public static void addPieces(StructureTemplateManager templateManager, BlockPos centerPos, Rotation rotation, StructurePieceAccessor pieces, RandomSource random) {
+        int increase = random.nextInt(4);
+        int addonNumber = 2 + increase; // 2 - 5 tents and towers combined
+        int radius = 6 + increase; // 8 - 11
 
-    public HunterCampPieces(@NotNull StructurePieceType structurePieceType, @NotNull CompoundTag nbt) {
-        super(structurePieceType, nbt);
-        this.pos = new BlockPos(nbt.getInt("x"), nbt.getInt("y"), nbt.getInt("z"));
-    }
+        HunterCampPiece pole = new HunterCampPiece(
+                templateManager,
+                FLAGPOLE,
+                centerPos,
+                rotation
+        );
+        pieces.addPiece(pole);
 
-    @Override
-    protected void addAdditionalSaveData(@NotNull StructurePieceSerializationContext context, @NotNull CompoundTag tagCompound) {
-        tagCompound.putInt("x", this.pos.getX());
-        tagCompound.putInt("y", this.pos.getY());
-        tagCompound.putInt("z", this.pos.getZ());
-    }
+        double campfireRadius = Math.min(3.0 + random.nextDouble() * 2.5 + increase / 1.5, radius / 2.0 + 2);
+        double campfireAngle = random.nextDouble() * 2.3; // 0 rad = east (opposite of west where the flag is)
 
-    protected boolean testPreconditions(@NotNull WorldGenLevel worldIn, @NotNull StructureManager manager, @NotNull ChunkPos chunkPos) {
-        if (!VampirismConfig.COMMON.enableHunterTentGeneration.get()) return false;
-        return UtilLib.getStructureStartAt(worldIn.getLevel(), this.pos, StructureTags.VILLAGE).isEmpty();
-    }
+        pieces.addPiece(new HunterCampPiece(
+                templateManager,
+                CAMPFIRE,
+                new BlockPos((int) (centerPos.getX() + Math.round(Math.cos(campfireAngle) * campfireRadius)), GENERATION_HEIGHT, (int) (centerPos.getZ() + Math.round(Math.sin(campfireAngle) * campfireRadius))),
+                getClosestRotation(Math.toDegrees(campfireAngle))
+        ));
 
-    public static class Fireplace extends HunterCampPieces {
-        boolean specialComponentAdd = false;
-        private boolean advanced;
-
-        public Fireplace(@NotNull RandomSource random, BlockPos pos) {
-            super(ModStructures.HUNTER_CAMP_FIREPLACE.get(), 0, pos);
-            this.setOrientation(Direction.Plane.HORIZONTAL.getRandomDirection(random));
+        StructureTemplate template = templateManager.getOrCreate(FLAGPOLE);
+        for (StructureTemplate.StructureBlockInfo info : template.filterBlocks(pole.templatePosition(), pole.placeSettings(), Blocks.STRUCTURE_BLOCK)) {
+            if (info.nbt() != null && "attach:flag".equals(info.nbt().getString("metadata"))) {
+                pieces.addPiece(new FlagPiece(
+                        templateManager,
+                        FLAG,
+                        info.pos(),
+                        Rotation.COUNTERCLOCKWISE_90 // west
+                ));
+            }
         }
 
-        public Fireplace(@NotNull CompoundTag nbt) {
-            super(ModStructures.HUNTER_CAMP_FIREPLACE.get(), nbt);
-            this.advanced = nbt.getBoolean("advanced");
-            this.specialComponentAdd = nbt.getBoolean("specialComponentAdd");
+        double step = Math.PI * 2 / addonNumber;
+        double angle = random.nextDouble() * 3;
+
+        boolean isTent = true;
+
+        for (int i = 0; i < addonNumber; i++) {
+            int jitter = random.nextInt(-1, 3);
+            int dX = (int) Math.round(Math.cos(angle) * (radius + jitter));
+            int dZ = (int) Math.round(Math.sin(angle) * (radius + jitter));
+            BlockPos pos = new BlockPos(centerPos.getX() + dX, GENERATION_HEIGHT, centerPos.getZ() + dZ);
+
+            pieces.addPiece(new HunterCampPiece(
+                    templateManager,
+                    isTent ? TENT : TOWER,
+                    pos,
+                    getClosestRotation(Math.toDegrees(angle))
+            ));
+
+            angle += step;
+            isTent = !isTent;
+        }
+    }
+
+    public static Rotation getClosestRotation(double angle) {
+        angle = ((angle % 360) + 360) % 360;
+        int index = (int) Math.round(angle / 90.0) % 4;
+        return switch (index) {
+            case 1 -> Rotation.CLOCKWISE_90;
+            case 2 -> Rotation.CLOCKWISE_180;
+            case 3 -> Rotation.COUNTERCLOCKWISE_90;
+            default -> Rotation.NONE;
+        };
+    }
+
+    public static class HunterCampPiece extends TemplateStructurePiece {
+
+        public HunterCampPiece(StructureTemplateManager templateManager, ResourceLocation location, BlockPos startPos, Rotation rotation) {
+            super(ModStructures.HUNTER_CAMP_PIECE.get(), 0, templateManager, location, location.toString(), makeSettings(rotation), startPos);
+        }
+
+        public HunterCampPiece(StructureTemplateManager templateManager, CompoundTag tag) {
+            super(ModStructures.HUNTER_CAMP_PIECE.get(), tag, templateManager, key -> makeSettings(Rotation.valueOf(tag.getString("Rot"))));
         }
 
         @Override
-        public void addChildren(@NotNull StructurePiece componentInt, @NotNull StructurePieceAccessor listIn, @NotNull RandomSource rand) {
-            //adds 1-4 tent or crafting table elements to the structure (max 1 per direction && max 1 crafting table)
-            @NotNull List<Direction> directions = Lists.newArrayList(Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST);
-            if (rand.nextInt(3) == 0) {
-                this.advanced = true;
-                //advanced
-                listIn.addPiece(getTentComponent(rand, directions, true));
-                listIn.addPiece(getTentComponent(rand, directions, false));
-                int i = rand.nextInt(4);
-                if (i < 2) {
-                    listIn.addPiece(getComponent(rand, directions, true));
-                }
-                if (i < 1) {
-                    listIn.addPiece(getComponent(rand, directions, true));
-                }
-            } else {
-                //normal
-                listIn.addPiece(getTentComponent(rand, directions, false));
-                if (rand.nextInt(2) == 0) {
-                    listIn.addPiece(getComponent(rand, directions, false));
+        protected void addAdditionalSaveData(@NotNull StructurePieceSerializationContext context, @NotNull CompoundTag tag) {
+            super.addAdditionalSaveData(context, tag);
+            tag.putString("Rot", placeSettings.getRotation().name());
+        }
+
+        @Override
+        protected void handleDataMarker(@NotNull String name, @NotNull BlockPos pos, @NotNull ServerLevelAccessor level, @NotNull RandomSource random, @NotNull BoundingBox box) {
+            handleExtensionMarkers(name, pos, level);
+        }
+
+        @Override
+        public void postProcess(@NotNull WorldGenLevel level, @NotNull StructureManager structureManager, @NotNull ChunkGenerator chunkGen, @NotNull RandomSource random, @NotNull BoundingBox box, @NotNull ChunkPos chunkPos, @NotNull BlockPos refPos) {
+            ResourceLocation template = ResourceLocation.parse(templateName);
+
+            int surfaceY = level.getHeight(Heightmap.Types.WORLD_SURFACE_WG, templatePosition.getX(), templatePosition.getZ());
+            int heightShift = CAMPFIRE.equals(template) ? -1 : 0;
+            templatePosition = new BlockPos(templatePosition.getX(), surfaceY + heightShift, templatePosition.getZ());
+
+            super.postProcess(level, structureManager, chunkGen, random, box, chunkPos, refPos);
+        }
+    }
+
+    public static class FlagPiece extends TemplateStructurePiece {
+
+        public FlagPiece(StructureTemplateManager templateManager, ResourceLocation location, BlockPos poleAttachPos, Rotation rotation) {
+            super(ModStructures.HUNTER_CAMP_PIECE.get(), 0, templateManager, location, location.toString(), makeSettings(rotation), calculateAlignedPosition(templateManager, location, poleAttachPos, rotation));
+        }
+
+        private static BlockPos calculateAlignedPosition(StructureTemplateManager templateManager, ResourceLocation location, BlockPos poleAttachPos, Rotation rotation) {
+            StructureTemplate template = templateManager.getOrCreate(location);
+
+            BlockPos flagMarker = findAttachMarker(template, "attach:flagpole");
+            if (flagMarker == null) {
+                return poleAttachPos;
+            }
+
+            BlockPos rotatedMarker = StructureTemplate.calculateRelativePosition(makeSettings(rotation), flagMarker);
+
+            return poleAttachPos.subtract(rotatedMarker);
+        }
+
+        public FlagPiece(StructureTemplateManager templateManager, CompoundTag tag) {
+            super(ModStructures.HUNTER_CAMP_FLAG_PIECE.get(), tag, templateManager, key -> makeSettings(Rotation.valueOf(tag.getString("Rot"))));
+        }
+
+        @Override
+        protected void addAdditionalSaveData(@NotNull StructurePieceSerializationContext context, @NotNull CompoundTag tag) {
+            super.addAdditionalSaveData(context, tag);
+            tag.putString("Rot", placeSettings.getRotation().name());
+        }
+
+        @Override
+        protected void handleDataMarker(@NotNull String name, @NotNull BlockPos pos, @NotNull ServerLevelAccessor level, @NotNull RandomSource random, @NotNull BoundingBox box) {
+            handleExtensionMarkers(name, pos, level);
+
+            if (name.equals("attach:flagpole")) {
+                BlockState placeState = level.getBlockState(pos.above()).getBlock().defaultBlockState();
+
+                BlockPos placePos = pos;
+                while (level.getBlockState(placePos).canBeReplaced()) {
+                    level.setBlock(placePos, placeState, Block.UPDATE_ALL);
+                    placePos = placePos.below();
                 }
             }
         }
 
+        private static BlockPos findAttachMarker(StructureTemplate template, String markerName) {
+            for (StructureTemplate.StructureBlockInfo info : template.filterBlocks(BlockPos.ZERO, new StructurePlaceSettings(), Blocks.STRUCTURE_BLOCK)) {
+                if (info.nbt() != null && markerName.equals(info.nbt().getString("metadata"))) {
+                    return info.pos();
+                }
+            }
+            return null;
+        }
+
         @Override
-        public void postProcess(@NotNull WorldGenLevel worldIn, @NotNull StructureManager structureManager, @NotNull ChunkGenerator chunkGenerator, @NotNull RandomSource random, @NotNull BoundingBox structureBoundingBoxIn, @NotNull ChunkPos chunkPos, @NotNull BlockPos blockPos) {
-            //fail conditions
-            if (!testPreconditions(worldIn, structureManager, chunkPos)) {
+        public void postProcess(WorldGenLevel level, @NotNull StructureManager structureManager, @NotNull ChunkGenerator chunkGen, @NotNull RandomSource random, @NotNull BoundingBox box, @NotNull ChunkPos chunkPos, @NotNull BlockPos refPos) {
+            int surfaceY = level.getHeight(Heightmap.Types.WORLD_SURFACE_WG, templatePosition.getX(), templatePosition.getZ());
+            int poleHeight = level.getRandom().nextInt(12, 16);
+            templatePosition = new BlockPos(templatePosition.getX(), surfaceY + poleHeight, templatePosition.getZ());
+
+            super.postProcess(level, structureManager, chunkGen, random, box, chunkPos, refPos);
+        }
+    }
+
+    private static StructurePlaceSettings makeSettings(Rotation rotation) {
+        return new StructurePlaceSettings()
+                .setRotation(rotation)
+                .addProcessor(BlockIgnoreProcessor.STRUCTURE_BLOCK)
+                .setLiquidSettings(LiquidSettings.APPLY_WATERLOGGING);
+    }
+
+    public static void handleExtensionMarkers(@NotNull String name, @NotNull BlockPos pos, @NotNull ServerLevelAccessor level) {
+        if (name.startsWith("extend:")) {
+            String id = name.substring("extend:".length());
+            ResourceLocation location = ResourceLocation.tryParse(id);
+
+            if (location == null || !BuiltInRegistries.BLOCK.containsKey(location)) {
                 return;
             }
 
-            //generation
-            this.placeBlock(worldIn, VampirismConfig.COMMON.useVanillaCampfire.get() ? Blocks.CAMPFIRE.defaultBlockState() : ModBlocks.FIRE_PLACE.get().defaultBlockState(), 1, 0, 1, structureBoundingBoxIn);
-            this.placeBlock(worldIn, Blocks.AIR.defaultBlockState(), 1, 1, 1, structureBoundingBoxIn);
-        }
+            Block block = BuiltInRegistries.BLOCK.getValue(location);
+            BlockState stateAbove = level.getBlockState(pos.above());
+            BlockState placeState = stateAbove.is(block) ? stateAbove : block.defaultBlockState();
 
-        @Override
-        protected void addAdditionalSaveData(@NotNull StructurePieceSerializationContext context, @NotNull CompoundTag tagCompound) {
-            super.addAdditionalSaveData(context, tagCompound);
-            tagCompound.putBoolean("advanced", this.advanced);
-            tagCompound.putBoolean("specialComponentAdd", this.specialComponentAdd);
-        }
+            BlockPos placePos = pos;
 
-        /**
-         * @throws IllegalArgumentException if direction size == 0
-         */
-        private @NotNull StructurePiece getComponent(@NotNull RandomSource rand, @NotNull List<Direction> directions, boolean advanced) {
-            @NotNull Direction direction = directions.remove(rand.nextInt(directions.size()));
-            //blockpos at center of the 3x3 component
-            int xOffset = (direction.getAxis().equals(Direction.Axis.X) ? direction.getAxisDirection().equals(Direction.AxisDirection.POSITIVE) ? 3 : -3 : 0);
-            int zOffset = (direction.getAxis().equals(Direction.Axis.Z) ? direction.getAxisDirection().equals(Direction.AxisDirection.POSITIVE) ? 3 : -3 : 0);
-
-            //make sure a crafting table is only generated once
-            if (!specialComponentAdd && rand.nextInt(2) == 0) {
-                specialComponentAdd = true;
-                return new SpecialBlock(this.pos.offset(xOffset, 0, zOffset), direction, advanced);
+            if (level.getBlockState(placePos).canBeReplaced() || level.getBlockState(placePos).is(Blocks.SPRUCE_FENCE) || level.getBlockState(placePos).is(Blocks.SPRUCE_LOG)) {
+                level.setBlock(placePos, applyWaterlogging(level, placePos, placeState), Block.UPDATE_ALL);
             }
-            return new Tent(this.pos.offset(xOffset, 0, zOffset), direction, advanced);
-        }
 
-        /**
-         * @throws IllegalArgumentException if direction size == 0
-         */
-        private @NotNull StructurePiece getTentComponent(@NotNull RandomSource rand, @NotNull List<Direction> directions, boolean advanced) {
-            @NotNull Direction direction = directions.remove(rand.nextInt(directions.size()));
-            //blockpos at center of the 3x3 component
-            int xOffset = (direction.getAxis().equals(Direction.Axis.X) ? direction.getAxisDirection().equals(Direction.AxisDirection.POSITIVE) ? 3 : -3 : 0);
-            int zOffset = (direction.getAxis().equals(Direction.Axis.Z) ? direction.getAxisDirection().equals(Direction.AxisDirection.POSITIVE) ? 3 : -3 : 0);
-            return new Tent(this.pos.offset(xOffset, 0, zOffset), direction, advanced);
+            placePos = placePos.below();
+            while (level.getBlockState(placePos).canBeReplaced() || level.getBlockState(placePos).is(Blocks.SPRUCE_LOG)) {
+                level.setBlock(placePos, applyWaterlogging(level, placePos, placeState), Block.UPDATE_ALL);
+                placePos = placePos.below();
+            }
         }
     }
 
-    public static class Tent extends HunterCampPieces {
-        private final @NotNull Direction direction;
-        private final boolean advanced;
-        int xDiff;
-        int xCenter;
-        private int mirror;
-
-        public Tent(BlockPos pos, @NotNull Direction direction, boolean advanced) {
-            super(ModStructures.HUNTER_CAMP_TENT.get(), 1, pos);
-            this.setOrientation(direction);
-            this.direction = direction;
-            this.advanced = advanced;
+    public static BlockState applyWaterlogging(ServerLevelAccessor level, BlockPos pos, BlockState state) {
+        if (state.hasProperty(BlockStateProperties.WATERLOGGED) && level.getFluidState(pos).is(FluidTags.WATER)) {
+            return state.setValue(BlockStateProperties.WATERLOGGED, true);
         }
 
-        public Tent(@NotNull CompoundTag nbt) {
-            super(ModStructures.HUNTER_CAMP_TENT.get(), nbt);
-            this.direction = Direction.from2DDataValue(nbt.getInt("direction"));
-            this.mirror = nbt.getInt("mirror");
-            this.advanced = nbt.getBoolean("advanced");
-        }
-
-        @Override
-        public void postProcess(@NotNull WorldGenLevel worldIn, @NotNull StructureManager structureManager, @NotNull ChunkGenerator chunkGenerator, @NotNull RandomSource random, @NotNull BoundingBox structureBoundingBoxIn, @NotNull ChunkPos chunkPos, @NotNull BlockPos blockPos) {
-            //set helper variables
-            if (mirror == 0 ? (mirror = random.nextInt(2) + 1) == 1 : mirror == 1) {
-                this.xDiff = 2;
-                this.xCenter = this.pos.getX() + 1;
-            } else {
-                this.xDiff = 0;
-                this.xCenter = this.pos.getX() - 1;
-            }
-
-            //fail conditions
-            if (!testPreconditions(worldIn, structureManager, chunkPos)) {
-                return;
-            }
-
-            //helper variable for tent blockstates
-            Direction dir = direction == Direction.SOUTH || direction == Direction.WEST ? direction.getOpposite() : direction;
-            int nul = this.direction.get2DDataValue() % 4;
-            int one = (this.direction.get2DDataValue() + 1) % 4;
-            int two = (this.direction.get2DDataValue() + 2) % 4;
-            int three = (this.direction.get2DDataValue() + 3) % 4;
-            boolean positiveAxisDirection = this.direction.getAxisDirection().equals(Direction.AxisDirection.POSITIVE);
-            boolean xAxis = this.direction.getAxis().equals(Direction.Axis.X);
-            int a = positiveAxisDirection ? one : xAxis ? nul : two;
-            int b = !positiveAxisDirection ? three : xAxis ? two : nul;
-            int c = positiveAxisDirection ? three : xAxis ? two : nul;
-            int d = !positiveAxisDirection ? one : xAxis ? nul : two;
-
-            //----------------------generation---------------------
-
-            //generation of tent blocks
-            if (mirror == 1) {
-                this.placeBlock(worldIn, ModBlocks.TENT.get().defaultBlockState().setValue(TentBlock.FACING, dir.getOpposite()).setValue(TentBlock.POSITION, a), xDiff, 0, 0, structureBoundingBoxIn);
-                this.placeBlock(worldIn, ModBlocks.TENT.get().defaultBlockState().setValue(TentBlock.FACING, dir).setValue(TentBlock.POSITION, b), 1, 0, 0, structureBoundingBoxIn);
-                this.placeBlock(worldIn, ModBlocks.TENT_MAIN.get().defaultBlockState().setValue(TentBlock.FACING, dir).setValue(TentBlock.POSITION, c), 1, 0, 1, structureBoundingBoxIn);
-                this.placeBlock(worldIn, ModBlocks.TENT.get().defaultBlockState().setValue(TentBlock.FACING, dir.getOpposite()).setValue(TentBlock.POSITION, d), xDiff, 0, 1, structureBoundingBoxIn);
-            } else {
-                this.placeBlock(worldIn, ModBlocks.TENT.get().defaultBlockState().setValue(TentBlock.FACING, dir).setValue(TentBlock.POSITION, b), xDiff, 0, 0, structureBoundingBoxIn);
-                this.placeBlock(worldIn, ModBlocks.TENT.get().defaultBlockState().setValue(TentBlock.FACING, dir.getOpposite()).setValue(TentBlock.POSITION, a), 1, 0, 0, structureBoundingBoxIn);
-                this.placeBlock(worldIn, ModBlocks.TENT_MAIN.get().defaultBlockState().setValue(TentBlock.FACING, dir.getOpposite()).setValue(TentBlock.POSITION, d), 1, 0, 1, structureBoundingBoxIn);
-                this.placeBlock(worldIn, ModBlocks.TENT.get().defaultBlockState().setValue(TentBlock.FACING, dir).setValue(TentBlock.POSITION, c), xDiff, 0, 1, structureBoundingBoxIn);
-            }
-
-            BlockEntity tile = worldIn.getBlockEntity(this.pos);
-            if (tile instanceof TentBlockEntity) {
-                ((TentBlockEntity) tile).setSpawn(true);
-                if (this.advanced) {
-                    ((TentBlockEntity) tile).setAdvanced(true);
-                }
-            }
-
-            //generate air
-            BlockState air = Blocks.AIR.defaultBlockState();
-            //generate air towards fireplace
-            this.placeBlock(worldIn, air, 1, 0, -1, structureBoundingBoxIn);
-            this.placeBlock(worldIn, air, xDiff, 0, -1, structureBoundingBoxIn);
-            this.placeBlock(worldIn, air, 1, 1, -1, structureBoundingBoxIn);
-            this.placeBlock(worldIn, air, xDiff, 1, -1, structureBoundingBoxIn);
-            //generate air above
-            this.placeBlock(worldIn, air, xDiff, 1, 0, structureBoundingBoxIn);
-            this.placeBlock(worldIn, air, 1, 1, 0, structureBoundingBoxIn);
-            this.placeBlock(worldIn, air, 1, 1, 1, structureBoundingBoxIn);
-            this.placeBlock(worldIn, air, xDiff, 1, 1, structureBoundingBoxIn);
-
-            //replace top level dirt with grass
-            if (worldIn.getBlockState(this.pos.offset(0, -1, -2)).is(BlockTags.DIRT)) {
-                this.placeBlock(worldIn, Blocks.GRASS_BLOCK.defaultBlockState(), 1, -1, -1, structureBoundingBoxIn);
-            }
-            if (worldIn.getBlockState(atX(this.pos.offset(0, -1, -2), xCenter)).is(BlockTags.DIRT)) {
-                this.placeBlock(worldIn, Blocks.GRASS_BLOCK.defaultBlockState(), xDiff, -1, -1, structureBoundingBoxIn);
-            }
-        }
-
-        private BlockPos atX(BlockPos pos, int newX) {
-            return new BlockPos(newX, pos.getY(), pos.getZ());
-        }
-
-        @Override
-        protected void addAdditionalSaveData(@NotNull StructurePieceSerializationContext context, @NotNull CompoundTag tagCompound) {
-            tagCompound.putInt("direction", this.direction.get2DDataValue());
-            tagCompound.putInt("mirror", this.mirror);
-            tagCompound.putBoolean("advanced", this.advanced);
-            super.addAdditionalSaveData(context, tagCompound);
-        }
-    }
-
-    public static class SpecialBlock extends HunterCampPieces {
-        private final Direction direction;
-        private final boolean advanced;
-
-        public SpecialBlock(BlockPos pos, Direction direction, boolean advanced) {
-            super(ModStructures.HUNTER_CAMP_SPECIAL.get(), 2, pos);
-            this.setOrientation(direction);
-            this.direction = direction;
-            this.advanced = advanced;
-        }
-
-        public SpecialBlock(@NotNull CompoundTag compoundNBT) {
-            super(ModStructures.HUNTER_CAMP_SPECIAL.get(), compoundNBT);
-            this.direction = Direction.from2DDataValue(compoundNBT.getInt("dir"));
-            this.advanced = compoundNBT.getBoolean("advanced");
-        }
-
-        @Override
-        public void postProcess(@NotNull WorldGenLevel worldIn, @NotNull StructureManager structureManager, @NotNull ChunkGenerator chunkGenerator, @NotNull RandomSource random, @NotNull BoundingBox structureBoundingBoxIn, @NotNull ChunkPos chunkPos, @NotNull BlockPos blockPos) {
-            //fail conditions
-            if (!testPreconditions(worldIn, structureManager, chunkPos)) {
-                return;
-            }
-
-            //generation
-            if (advanced) {
-                this.placeBlock(worldIn, ModBlocks.WEAPON_TABLE.get().defaultBlockState(), 2, 0, 1, structureBoundingBoxIn);
-                this.placeBlock(worldIn, Blocks.CRAFTING_TABLE.defaultBlockState(), 0, 0, 1, structureBoundingBoxIn);
-            } else {
-                this.placeBlock(worldIn, Blocks.CRAFTING_TABLE.defaultBlockState(), 1, 0, 1, structureBoundingBoxIn);
-            }
-        }
-
-        @Override
-        protected void addAdditionalSaveData(@NotNull StructurePieceSerializationContext context, @NotNull CompoundTag tagCompound) {
-            super.addAdditionalSaveData(context, tagCompound);
-            tagCompound.putInt("dir", this.direction.get2DDataValue());
-            tagCompound.putBoolean("advanced", this.advanced);
-        }
+        return state;
     }
 }

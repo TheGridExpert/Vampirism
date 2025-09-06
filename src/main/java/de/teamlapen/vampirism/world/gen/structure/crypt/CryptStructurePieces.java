@@ -15,6 +15,7 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProc
 import static de.teamlapen.vampirism.world.gen.structure.PoolExtensions.single;
 
 public class CryptStructurePieces {
+
     public static final ResourceKey<StructureTemplatePool> START = ModStructures.createTemplatePool("crypt/church");
 
     public static void bootstrap(BootstrapContext<StructureTemplatePool> context) {

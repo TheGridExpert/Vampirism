@@ -36,7 +36,6 @@ public class PlainsHunterOutpostPools {
 
     public static void bootstrap(BootstrapContext<StructureTemplatePool> context) {
         HolderGetter<StructureTemplatePool> templatePools = context.lookup(Registries.TEMPLATE_POOL);
-
         Holder<StructureTemplatePool> empty = templatePools.getOrThrow(Pools.EMPTY);
 
         context.register(START, new StructureTemplatePool(empty, ImmutableList.of(Pair.of(single("hunter_outpost/plains/plate/plate_1/base_1"), 1), Pair.of(single("hunter_outpost/plains/plate/plate_2/base_1"), 1), Pair.of(single("hunter_outpost/plains/plate/plate_2/base_2"), 1), Pair.of(single("hunter_outpost/plains/plate/plate_2/base_3"), 1), Pair.of(single("hunter_outpost/plains/plate/plate_2/base_4"), 1), Pair.of(single("hunter_outpost/plains/plate/plate_3/base_1"), 1)), StructureTemplatePool.Projection.TERRAIN_MATCHING));
