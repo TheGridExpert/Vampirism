@@ -59,6 +59,7 @@ public class HunterCampPieces {
                 getClosestRotation(Math.toDegrees(campfireAngle))
         ));
 
+        int poleHeight = random.nextInt(12, 16);
         StructureTemplate template = templateManager.getOrCreate(FLAGPOLE);
         for (StructureTemplate.StructureBlockInfo info : template.filterBlocks(pole.templatePosition(), pole.placeSettings(), Blocks.STRUCTURE_BLOCK)) {
             if (info.nbt() != null && "attach:flag".equals(info.nbt().getString("metadata"))) {
@@ -66,7 +67,8 @@ public class HunterCampPieces {
                         templateManager,
                         FLAG,
                         info.pos(),
-                        Rotation.COUNTERCLOCKWISE_90 // west
+                        Rotation.COUNTERCLOCKWISE_90, // the flag always faces west for consistency
+                        poleHeight
                 ));
             }
         }
@@ -140,8 +142,12 @@ public class HunterCampPieces {
 
     public static class FlagPiece extends TemplateStructurePiece {
 
-        public FlagPiece(StructureTemplateManager templateManager, ResourceLocation location, BlockPos poleAttachPos, Rotation rotation) {
+        private int poleHeight;
+
+        public FlagPiece(StructureTemplateManager templateManager, ResourceLocation location, BlockPos poleAttachPos, Rotation rotation, int poleHeight) {
             super(ModStructures.HUNTER_CAMP_PIECE.get(), 0, templateManager, location, location.toString(), makeSettings(rotation), calculateAlignedPosition(templateManager, location, poleAttachPos, rotation));
+
+            this.poleHeight = poleHeight;
         }
 
         private static BlockPos calculateAlignedPosition(StructureTemplateManager templateManager, ResourceLocation location, BlockPos poleAttachPos, Rotation rotation) {
@@ -165,6 +171,7 @@ public class HunterCampPieces {
         protected void addAdditionalSaveData(@NotNull StructurePieceSerializationContext context, @NotNull CompoundTag tag) {
             super.addAdditionalSaveData(context, tag);
             tag.putString("Rot", placeSettings.getRotation().name());
+            tag.putInt("PoleHeight", poleHeight);
         }
 
         @Override
@@ -194,7 +201,6 @@ public class HunterCampPieces {
         @Override
         public void postProcess(WorldGenLevel level, @NotNull StructureManager structureManager, @NotNull ChunkGenerator chunkGen, @NotNull RandomSource random, @NotNull BoundingBox box, @NotNull ChunkPos chunkPos, @NotNull BlockPos refPos) {
             int surfaceY = level.getHeight(Heightmap.Types.WORLD_SURFACE_WG, templatePosition.getX(), templatePosition.getZ());
-            int poleHeight = level.getRandom().nextInt(12, 16);
             templatePosition = new BlockPos(templatePosition.getX(), surfaceY + poleHeight, templatePosition.getZ());
 
             super.postProcess(level, structureManager, chunkGen, random, box, chunkPos, refPos);
