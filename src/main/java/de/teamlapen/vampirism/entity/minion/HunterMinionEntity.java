@@ -15,9 +15,8 @@ import de.teamlapen.vampirism.config.BalanceMobProps;
 import de.teamlapen.vampirism.core.ModFactions;
 import de.teamlapen.vampirism.core.ModItems;
 import de.teamlapen.vampirism.entity.VampirismEntity;
-import de.teamlapen.vampirism.entity.ai.goals.OpenGateGoal;
 import de.teamlapen.vampirism.entity.ai.goals.RangedHunterCrossbowAttackGoal;
-import de.teamlapen.vampirism.entity.hunter.BasicHunterEntity;
+import de.teamlapen.vampirism.entity.oldhunter.OldBasicHunterEntity;
 import de.teamlapen.vampirism.entity.minion.management.MinionData;
 import de.teamlapen.vampirism.entity.minion.management.MinionTasks;
 import de.teamlapen.vampirism.entity.player.hunter.HunterPlayer;
@@ -65,7 +64,7 @@ public class HunterMinionEntity extends MinionEntity<HunterMinionEntity.HunterMi
 
 
     public static AttributeSupplier.@NotNull Builder getAttributeBuilder() {
-        return BasicHunterEntity.getAttributeBuilder();
+        return OldBasicHunterEntity.getAttributeBuilder();
     }
 
     public HunterMinionEntity(EntityType<? extends VampirismEntity> type, Level world) {

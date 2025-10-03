@@ -13,7 +13,7 @@ import de.teamlapen.vampirism.config.BalanceMobProps;
 import de.teamlapen.vampirism.core.ModEffects;
 import de.teamlapen.vampirism.core.ModEntities;
 import de.teamlapen.vampirism.entity.ai.goals.*;
-import de.teamlapen.vampirism.entity.hunter.HunterBaseEntity;
+import de.teamlapen.vampirism.entity.oldhunter.OldHunterBaseEntity;
 import de.teamlapen.vampirism.util.IPlayerOverlay;
 import de.teamlapen.vampirism.util.PlayerModelType;
 import de.teamlapen.vampirism.util.SupporterManager;
@@ -40,7 +40,6 @@ import net.minecraft.world.entity.ai.goal.BreakDoorGoal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
-import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.monster.PatrollingMonster;
 import net.minecraft.world.entity.player.Player;
@@ -348,7 +347,7 @@ public class AdvancedVampireEntity extends VampireBaseEntity implements IAdvance
         this.goalSelector.addGoal(4, new AttackMeleeNoSunGoal(this, 1.0, false));
         this.goalSelector.addGoal(8, new RandomStrollGoal(this, 0.9, 25));
         this.goalSelector.addGoal(9, new LookAtClosestVisibleGoal(this, Player.class, 13F));
-        this.goalSelector.addGoal(10, new LookAtPlayerGoal(this, HunterBaseEntity.class, 17F));
+        this.goalSelector.addGoal(10, new LookAtPlayerGoal(this, OldHunterBaseEntity.class, 17F));
         this.goalSelector.addGoal(11, new RandomLookAroundGoal(this));
 
         this.targetSelector.addGoal(1, new VampireHurtByTargetGoal(this).setAlertOthers());

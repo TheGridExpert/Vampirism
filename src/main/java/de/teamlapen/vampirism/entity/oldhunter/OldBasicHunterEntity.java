@@ -1,4 +1,4 @@
-package de.teamlapen.vampirism.entity.hunter;
+package de.teamlapen.vampirism.entity.oldhunter;
 
 import de.teamlapen.lib.lib.util.UtilLib;
 import de.teamlapen.vampirism.api.VampirismAPI;
@@ -65,13 +65,13 @@ import javax.annotation.Nonnull;
 import java.util.Optional;
 
 /**
- * Exists in {@link BasicHunterEntity#MAX_LEVEL}+1 different levels
+ * Exists in {@link OldBasicHunterEntity#MAX_LEVEL}+1 different levels
  */
-public class BasicHunterEntity extends HunterBaseEntity implements IBasicHunter, ForceLookEntityGoal.TaskOwner, IVampirismCrossbowUser {
-    private static final EntityDataAccessor<Integer> LEVEL = SynchedEntityData.defineId(BasicHunterEntity.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Integer> WATCHED_ID = SynchedEntityData.defineId(BasicHunterEntity.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Integer> TYPE = SynchedEntityData.defineId(BasicHunterEntity.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Boolean> IS_CHARGING_CROSSBOW = SynchedEntityData.defineId(BasicHunterEntity.class, EntityDataSerializers.BOOLEAN);
+public class OldBasicHunterEntity extends OldHunterBaseEntity implements IBasicHunter, ForceLookEntityGoal.TaskOwner, IVampirismCrossbowUser {
+    private static final EntityDataAccessor<Integer> LEVEL = SynchedEntityData.defineId(OldBasicHunterEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> WATCHED_ID = SynchedEntityData.defineId(OldBasicHunterEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> TYPE = SynchedEntityData.defineId(OldBasicHunterEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Boolean> IS_CHARGING_CROSSBOW = SynchedEntityData.defineId(OldBasicHunterEntity.class, EntityDataSerializers.BOOLEAN);
 
 
     private static final Logger LOGGER = LogManager.getLogger();
@@ -97,7 +97,7 @@ public class BasicHunterEntity extends HunterBaseEntity implements IBasicHunter,
     //Village capture --------------------------------------------------------------------------------------------------
     private boolean attack;
 
-    public BasicHunterEntity(EntityType<? extends BasicHunterEntity> type, Level world) {
+    public OldBasicHunterEntity(EntityType<? extends OldBasicHunterEntity> type, Level world) {
         super(type, world, true);
         saveHome = true;
         ((GroundPathNavigation) this.getNavigation()).setCanOpenDoors(true);
@@ -501,9 +501,9 @@ public class BasicHunterEntity extends HunterBaseEntity implements IBasicHunter,
         getEntityData().set(WATCHED_ID, id);
     }
 
-    public static class IMob extends BasicHunterEntity implements net.minecraft.world.entity.monster.Enemy {
+    public static class IMob extends OldBasicHunterEntity implements net.minecraft.world.entity.monster.Enemy {
 
-        public IMob(EntityType<? extends BasicHunterEntity> type, Level world) {
+        public IMob(EntityType<? extends OldBasicHunterEntity> type, Level world) {
             super(type, world);
         }
 

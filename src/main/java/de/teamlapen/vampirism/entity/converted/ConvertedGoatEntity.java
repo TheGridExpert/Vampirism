@@ -35,7 +35,7 @@ public class ConvertedGoatEntity extends Goat implements CurableConvertedCreatur
         super(pEntityType, pLevel);
     }
 
-    public static AttributeSupplier.@NotNull Builder createAttributes() {
+    public static AttributeSupplier.@NotNull Builder getAttributeBuilder() {
         return Goat.createAttributes().add(Attributes.ATTACK_DAMAGE, BalanceMobProps.mobProps.CONVERTED_MOB_DEFAULT_DMG).add(ModAttributes.SUNDAMAGE, BalanceMobProps.mobProps.VAMPIRE_MOB_SUN_DAMAGE);
     }
 

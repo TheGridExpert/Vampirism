@@ -5,7 +5,7 @@ import de.teamlapen.vampirism.client.core.ModEntitiesRender;
 import de.teamlapen.vampirism.client.model.BasicHunterModel;
 import de.teamlapen.vampirism.client.renderer.entity.layers.CloakLayer;
 import de.teamlapen.vampirism.client.renderer.entity.state.BasicHunterRenderState;
-import de.teamlapen.vampirism.entity.hunter.BasicHunterEntity;
+import de.teamlapen.vampirism.entity.oldhunter.OldBasicHunterEntity;
 import net.minecraft.client.model.HumanoidArmorModel;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelLayers;
@@ -19,7 +19,7 @@ import org.jetbrains.annotations.NotNull;
  * There are differently looking level 0 hunters.
  * Hunter as of level 1 look all the same, but have different weapons
  */
-public class BasicHunterRenderer extends DualBipedRenderer<BasicHunterEntity, BasicHunterRenderState, BasicHunterModel<BasicHunterRenderState>> {
+public class BasicHunterRenderer extends DualBipedRenderer<OldBasicHunterEntity, BasicHunterRenderState, BasicHunterModel<BasicHunterRenderState>> {
 
     private static final ResourceLocation textureCloak = VResourceLocation.mod("textures/entity/hunter_cloak.png");
 
@@ -44,7 +44,7 @@ public class BasicHunterRenderer extends DualBipedRenderer<BasicHunterEntity, Ba
     }
 
     @Override
-    public void extractRenderState(BasicHunterEntity entity, BasicHunterRenderState state, float p_363123_) {
+    public void extractRenderState(OldBasicHunterEntity entity, BasicHunterRenderState state, float p_363123_) {
         super.extractRenderState(entity, state, p_363123_);
         state.skin = textures[entity.getEntityTextureType() % textures.length];
         state.entityLevel = entity.getEntityLevel();

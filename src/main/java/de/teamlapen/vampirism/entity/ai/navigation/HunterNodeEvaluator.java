@@ -10,6 +10,7 @@ import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
 import org.jetbrains.annotations.NotNull;
 
 public class HunterNodeEvaluator extends WalkNodeEvaluator {
+
     @Override
     public @NotNull PathType getPathTypeOfMob(@NotNull PathfindingContext context, int x, int y, int z, @NotNull Mob mob) {
         PathType pathType = super.getPathTypeOfMob(context, x, y, z, mob);

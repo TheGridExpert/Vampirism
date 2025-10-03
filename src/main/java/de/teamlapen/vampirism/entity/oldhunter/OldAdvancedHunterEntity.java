@@ -1,4 +1,4 @@
-package de.teamlapen.vampirism.entity.hunter;
+package de.teamlapen.vampirism.entity.oldhunter;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.logging.LogUtils;
@@ -70,13 +70,13 @@ import java.util.Optional;
 /**
  * Advanced hunter. Is strong. Represents supporters
  */
-public class AdvancedHunterEntity extends HunterBaseEntity implements IAdvancedHunter, IPlayerOverlay, VampireBookLootProvider, IVampirismCrossbowUser {
-    private static final EntityDataAccessor<Integer> LEVEL = SynchedEntityData.defineId(AdvancedHunterEntity.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Integer> TYPE = SynchedEntityData.defineId(AdvancedHunterEntity.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<String> NAME = SynchedEntityData.defineId(AdvancedHunterEntity.class, EntityDataSerializers.STRING);
-    private static final EntityDataAccessor<String> TEXTURE = SynchedEntityData.defineId(AdvancedHunterEntity.class, EntityDataSerializers.STRING);
-    private static final EntityDataAccessor<Boolean> IS_CHARGING_CROSSBOW = SynchedEntityData.defineId(AdvancedHunterEntity.class, EntityDataSerializers.BOOLEAN);
-    public static final EntityDataAccessor<Item> SPECIAL_ARROW = SynchedEntityData.defineId(AdvancedHunterEntity.class, ModEntities.ITEM_DATA.get());
+public class OldAdvancedHunterEntity extends OldHunterBaseEntity implements IAdvancedHunter, IPlayerOverlay, VampireBookLootProvider, IVampirismCrossbowUser {
+    private static final EntityDataAccessor<Integer> LEVEL = SynchedEntityData.defineId(OldAdvancedHunterEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> TYPE = SynchedEntityData.defineId(OldAdvancedHunterEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<String> NAME = SynchedEntityData.defineId(OldAdvancedHunterEntity.class, EntityDataSerializers.STRING);
+    private static final EntityDataAccessor<String> TEXTURE = SynchedEntityData.defineId(OldAdvancedHunterEntity.class, EntityDataSerializers.STRING);
+    private static final EntityDataAccessor<Boolean> IS_CHARGING_CROSSBOW = SynchedEntityData.defineId(OldAdvancedHunterEntity.class, EntityDataSerializers.BOOLEAN);
+    public static final EntityDataAccessor<Item> SPECIAL_ARROW = SynchedEntityData.defineId(OldAdvancedHunterEntity.class, ModEntities.ITEM_DATA.get());
 
     private static final int MAX_LEVEL = 1;
     private static final int MOVE_TO_RESTRICT_PRIO = 3;
@@ -105,7 +105,7 @@ public class AdvancedHunterEntity extends HunterBaseEntity implements IAdvancedH
     @Nullable
     private ICaptureAttributes villageAttributes;
 
-    public AdvancedHunterEntity(EntityType<? extends AdvancedHunterEntity> type, Level world) {
+    public OldAdvancedHunterEntity(EntityType<? extends OldAdvancedHunterEntity> type, Level world) {
         super(type, world, true);
         saveHome = true;
         ((GroundPathNavigation) this.getNavigation()).setCanOpenDoors(true);
@@ -459,9 +459,9 @@ public class AdvancedHunterEntity extends HunterBaseEntity implements IAdvancedH
         this.performCrossbowAttack(this, 1.6f);
     }
 
-    public static class IMob extends AdvancedHunterEntity implements net.minecraft.world.entity.monster.Enemy {
+    public static class IMob extends OldAdvancedHunterEntity implements net.minecraft.world.entity.monster.Enemy {
 
-        public IMob(EntityType<? extends AdvancedHunterEntity> type, Level world) {
+        public IMob(EntityType<? extends OldAdvancedHunterEntity> type, Level world) {
             super(type, world);
         }
     }

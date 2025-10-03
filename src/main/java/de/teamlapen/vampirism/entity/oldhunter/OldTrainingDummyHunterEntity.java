@@ -1,4 +1,4 @@
-package de.teamlapen.vampirism.entity.hunter;
+package de.teamlapen.vampirism.entity.oldhunter;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -12,13 +12,13 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
-public class TrainingDummyHunterEntity extends BasicHunterEntity {
+public class OldTrainingDummyHunterEntity extends OldBasicHunterEntity {
 
     private final TargetingConditions PREDICATE = TargetingConditions.forNonCombat().ignoreLineOfSight();
     private int startTicks = 0;
     private float damageTaken = 0;
 
-    public TrainingDummyHunterEntity(EntityType<? extends BasicHunterEntity> type, Level world) {
+    public OldTrainingDummyHunterEntity(EntityType<? extends OldBasicHunterEntity> type, Level world) {
         super(type, world);
         this.disableImobConversion();
     }

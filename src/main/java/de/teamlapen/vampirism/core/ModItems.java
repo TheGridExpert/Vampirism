@@ -291,7 +291,7 @@ public class ModItems {
     public static final DeferredItem<SpawnEggItem> VAMPIRE_BARON_SPAWN_EGG = ITEMS.registerItem("vampire_baron_spawn_egg",  props -> new SpawnEggItem(ModEntities.VAMPIRE_BARON.get(), props));
     public static final DeferredItem<SpawnEggItem> TASK_MASTER_VAMPIRE_SPAWN_EGG = ITEMS.registerItem("task_master_vampire_spawn_egg",  props -> new SpawnEggItem(ModEntities.TASK_MASTER_VAMPIRE.get(), props));
 
-    public static final DeferredItem<SpawnEggItem> VAMPIRE_HUNTER_SPAWN_EGG = ITEMS.registerItem("vampire_hunter_spawn_egg",  props -> new SpawnEggItem(ModEntities.HUNTER.get(), props));
+    public static final DeferredItem<SpawnEggItem> VAMPIRE_HUNTER_SPAWN_EGG = ITEMS.registerItem("vampire_hunter_spawn_egg",  props -> new SpawnEggItem(ModEntities.NEW_HUNTER.get(), props));
     public static final DeferredItem<SpawnEggItem> ADVANCED_VAMPIRE_HUNTER_SPAWN_EGG = ITEMS.registerItem("advanced_vampire_hunter_spawn_egg",  props -> new SpawnEggItem(ModEntities.ADVANCED_HUNTER.get(), props));
     public static final DeferredItem<SpawnEggItem> HUNTER_TRAINER_SPAWN_EGG = ITEMS.registerItem("hunter_trainer_spawn_egg",  props -> new SpawnEggItem(ModEntities.HUNTER_TRAINER.get(), props));
     public static final DeferredItem<SpawnEggItem> TASK_MASTER_HUNTER_SPAWN_EGG = ITEMS.registerItem("task_master_hunter_spawn_egg",  props -> new SpawnEggItem(ModEntities.TASK_MASTER_HUNTER.get(), props));

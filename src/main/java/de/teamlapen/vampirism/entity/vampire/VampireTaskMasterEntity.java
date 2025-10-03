@@ -1,6 +1,5 @@
 package de.teamlapen.vampirism.entity.vampire;
 
-import de.teamlapen.vampirism.api.VReference;
 import de.teamlapen.vampirism.api.VampirismAPI;
 import de.teamlapen.vampirism.config.BalanceMobProps;
 import de.teamlapen.vampirism.core.ModFactions;
@@ -9,10 +8,9 @@ import de.teamlapen.vampirism.entity.ai.goals.FleeSunVampireGoal;
 import de.teamlapen.vampirism.entity.ai.goals.ForceLookEntityGoal;
 import de.teamlapen.vampirism.entity.ai.goals.LookAtClosestVisibleGoal;
 import de.teamlapen.vampirism.entity.ai.goals.RestrictSunVampireGoal;
-import de.teamlapen.vampirism.entity.hunter.HunterBaseEntity;
+import de.teamlapen.vampirism.entity.oldhunter.OldHunterBaseEntity;
 import de.teamlapen.vampirism.inventory.TaskBoardMenu;
 import de.teamlapen.vampirism.util.Helper;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -128,7 +126,7 @@ public class VampireTaskMasterEntity extends VampireBaseEntity implements IDefau
         this.goalSelector.addGoal(8, new MoveThroughVillageGoal(this, 0.6, true, 600, () -> false));
         this.goalSelector.addGoal(9, new RandomStrollGoal(this, 0.7));
         this.goalSelector.addGoal(10, new LookAtClosestVisibleGoal(this, Player.class, 20F, 0.6F));
-        this.goalSelector.addGoal(10, new LookAtPlayerGoal(this, HunterBaseEntity.class, 17F));
+        this.goalSelector.addGoal(10, new LookAtPlayerGoal(this, OldHunterBaseEntity.class, 17F));
         this.goalSelector.addGoal(10, new RandomLookAroundGoal(this));
 
         this.targetSelector.addGoal(3, new HurtByTargetGoal(this));

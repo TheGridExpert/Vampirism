@@ -8,7 +8,7 @@ import de.teamlapen.vampirism.client.renderer.entity.layers.CloakLayer;
 import de.teamlapen.vampirism.client.renderer.entity.layers.PlayerFaceOverlayLayer;
 import de.teamlapen.vampirism.client.renderer.entity.state.AdvancedHunterRenderState;
 import de.teamlapen.vampirism.config.VampirismConfig;
-import de.teamlapen.vampirism.entity.hunter.AdvancedHunterEntity;
+import de.teamlapen.vampirism.entity.oldhunter.OldAdvancedHunterEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidArmorModel;
 import net.minecraft.client.model.HumanoidModel;
@@ -28,7 +28,7 @@ import org.jetbrains.annotations.NotNull;
  * Similar to {@link BasicHunterRenderer}
  */
 @OnlyIn(Dist.CLIENT)
-public class AdvancedHunterRenderer extends DualBipedRenderer<AdvancedHunterEntity, AdvancedHunterRenderState, BasicHunterModel<AdvancedHunterRenderState>> {
+public class AdvancedHunterRenderer extends DualBipedRenderer<OldAdvancedHunterEntity, AdvancedHunterRenderState, BasicHunterModel<AdvancedHunterRenderState>> {
     private static final ResourceLocation textureCloak = VResourceLocation.mod("textures/entity/hunter_cloak.png");
     private static final PlayerSkin FALLBACK = new PlayerSkin(VResourceLocation.mod("textures/entity/hunter_base1.png"), null, null, null, PlayerSkin.Model.WIDE, false);
     private final @NotNull PlayerSkin[] textures;
@@ -66,7 +66,7 @@ public class AdvancedHunterRenderer extends DualBipedRenderer<AdvancedHunterEnti
     }
 
     @Override
-    public void extractRenderState(@NotNull AdvancedHunterEntity entity, @NotNull AdvancedHunterRenderState state, float p_363123_) {
+    public void extractRenderState(@NotNull OldAdvancedHunterEntity entity, @NotNull AdvancedHunterRenderState state, float p_363123_) {
         super.extractRenderState(entity, state, p_363123_);
         state.skin = this.textures.length == 0 ? FALLBACK : textures[entity.getBodyTexture() % textures.length];
         state.hasCloak = entity.hasCloak();

@@ -1,4 +1,4 @@
-package de.teamlapen.vampirism.entity.hunter;
+package de.teamlapen.vampirism.entity.oldhunter;
 
 import de.teamlapen.vampirism.advancements.critereon.VampireActionCriterionTrigger;
 import de.teamlapen.vampirism.api.entity.hunter.IHunterMob;
@@ -32,16 +32,16 @@ import java.util.function.Supplier;
 /**
  * Base class for all vampire hunter
  */
-public abstract class HunterBaseEntity extends VampirismEntity implements IHunterMob, Npc/*mainly for JourneyMap*/ {
+public abstract class OldHunterBaseEntity extends VampirismEntity implements IHunterMob, Npc/*mainly for JourneyMap*/ {
 
-    public static boolean spawnPredicateHunter(@NotNull EntityType<? extends HunterBaseEntity> entityType, @NotNull ServerLevelAccessor world, EntitySpawnReason spawnReason, @NotNull BlockPos blockPos, RandomSource random) {
+    public static boolean spawnPredicateHunter(@NotNull EntityType<? extends OldHunterBaseEntity> entityType, @NotNull ServerLevelAccessor world, EntitySpawnReason spawnReason, @NotNull BlockPos blockPos, RandomSource random) {
         return world.getDifficulty() != Difficulty.PEACEFUL && Mob.checkMobSpawnRules(entityType, world, spawnReason, blockPos, random);
     }
 
     protected final int MOVE_TO_RESTRICT_PRIO = 3;
     private final boolean countAsMonster;
 
-    public HunterBaseEntity(EntityType<? extends HunterBaseEntity> type, Level world, boolean countAsMonster) {
+    public OldHunterBaseEntity(EntityType<? extends OldHunterBaseEntity> type, Level world, boolean countAsMonster) {
         super(type, world);
         this.countAsMonster = countAsMonster;
     }

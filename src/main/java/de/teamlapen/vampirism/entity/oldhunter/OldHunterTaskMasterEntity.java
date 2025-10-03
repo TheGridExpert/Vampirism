@@ -1,4 +1,4 @@
-package de.teamlapen.vampirism.entity.hunter;
+package de.teamlapen.vampirism.entity.oldhunter;
 
 import de.teamlapen.vampirism.config.BalanceMobProps;
 import de.teamlapen.vampirism.core.ModItems;
@@ -33,9 +33,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
-public class HunterTaskMasterEntity extends HunterBaseEntity implements IDefaultTaskMasterEntity {
+public class OldHunterTaskMasterEntity extends OldHunterBaseEntity implements IDefaultTaskMasterEntity {
 
-    private static final EntityDataAccessor<String> BIOME_TYPE = SynchedEntityData.defineId(HunterTaskMasterEntity.class, EntityDataSerializers.STRING);
+    private static final EntityDataAccessor<String> BIOME_TYPE = SynchedEntityData.defineId(OldHunterTaskMasterEntity.class, EntityDataSerializers.STRING);
 
     public static AttributeSupplier.@NotNull Builder getAttributeBuilder() {
         return VampirismEntity.getAttributeBuilder()
@@ -47,7 +47,7 @@ public class HunterTaskMasterEntity extends HunterBaseEntity implements IDefault
     @Nullable
     private Player interactor;
 
-    public HunterTaskMasterEntity(EntityType<? extends HunterBaseEntity> type, Level world) {
+    public OldHunterTaskMasterEntity(EntityType<? extends OldHunterBaseEntity> type, Level world) {
         super(type, world, false);
         this.peaceful = true;
     }

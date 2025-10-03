@@ -1,4 +1,4 @@
-package de.teamlapen.vampirism.entity.hunter;
+package de.teamlapen.vampirism.entity.oldhunter;
 
 import de.teamlapen.vampirism.api.entity.ICaptureIgnore;
 import de.teamlapen.vampirism.entity.VampirismEntity;
@@ -22,10 +22,10 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Hunter Trainer which allows Hunter players to level up
  */
-public class DummyHunterTrainerEntity extends VampirismEntity implements ICaptureIgnore {
+public class OldDummyHunterTrainerEntity extends VampirismEntity implements ICaptureIgnore {
     private static final int MOVE_TO_RESTRICT_PRIO = 3;
 
-    public DummyHunterTrainerEntity(EntityType<? extends DummyHunterTrainerEntity> type, Level world) {
+    public OldDummyHunterTrainerEntity(EntityType<? extends OldDummyHunterTrainerEntity> type, Level world) {
         super(type, world);
         saveHome = true;
         hasArms = true;

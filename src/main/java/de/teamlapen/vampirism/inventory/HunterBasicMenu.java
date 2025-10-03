@@ -6,7 +6,7 @@ import de.teamlapen.vampirism.core.ModFactions;
 import de.teamlapen.vampirism.core.ModItems;
 import de.teamlapen.vampirism.core.ModMenus;
 import de.teamlapen.vampirism.entity.factions.FactionPlayerHandler;
-import de.teamlapen.vampirism.entity.hunter.BasicHunterEntity;
+import de.teamlapen.vampirism.entity.oldhunter.OldBasicHunterEntity;
 import de.teamlapen.vampirism.entity.player.hunter.HunterLeveling;
 import de.teamlapen.vampirism.entity.player.hunter.HunterPlayer;
 import net.minecraft.network.chat.Component;
@@ -26,7 +26,7 @@ public class HunterBasicMenu extends InventoryContainerMenu {
     private static final SelectorInfo[] SELECTOR_INFOS = new SelectorInfo[] {new SelectorInfo(ModItems.VAMPIRE_BLOOD_BOTTLE.get(), 27, 32)};
     private final @NotNull IHunterPlayer player;
     @Nullable
-    private final BasicHunterEntity entity;
+    private final OldBasicHunterEntity entity;
 
     @SuppressWarnings("DeprecatedIsStillUsed")
     @Deprecated
@@ -34,7 +34,7 @@ public class HunterBasicMenu extends InventoryContainerMenu {
         this(id, playerInventory, null);
     }
 
-    public HunterBasicMenu(int id, @NotNull Inventory playerInventory, @Nullable BasicHunterEntity hunter) {
+    public HunterBasicMenu(int id, @NotNull Inventory playerInventory, @Nullable OldBasicHunterEntity hunter) {
         super(ModMenus.HUNTER_BASIC.get(), id, playerInventory, hunter == null ? ContainerLevelAccess.NULL : ContainerLevelAccess.create(hunter.level(), hunter.blockPosition()), new SimpleContainer(SELECTOR_INFOS.length), SELECTOR_INFOS);
         player = HunterPlayer.get(playerInventory.player);
         this.addPlayerSlots(playerInventory);

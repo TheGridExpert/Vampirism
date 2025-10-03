@@ -1,12 +1,11 @@
 package de.teamlapen.vampirism.inventory;
 
 import de.teamlapen.lib.lib.inventory.InventoryHelper;
-import de.teamlapen.vampirism.api.VReference;
 import de.teamlapen.vampirism.core.ModFactions;
 import de.teamlapen.vampirism.core.ModMenus;
 import de.teamlapen.vampirism.core.ModEffects;
 import de.teamlapen.vampirism.entity.factions.FactionPlayerHandler;
-import de.teamlapen.vampirism.entity.hunter.HunterTrainerEntity;
+import de.teamlapen.vampirism.entity.oldhunter.OldHunterTrainerEntity;
 import de.teamlapen.vampirism.entity.player.hunter.HunterLeveling;
 import de.teamlapen.vampirism.mixin.accessor.ItemCombinerMenuAccessor;
 import net.minecraft.world.Container;
@@ -31,7 +30,7 @@ import java.util.Optional;
 public class HunterTrainerMenu extends ItemCombinerMenu {
 
     private final @NotNull Player player;
-    private final @Nullable HunterTrainerEntity entity;
+    private final @Nullable OldHunterTrainerEntity entity;
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     private @NotNull Optional<HunterLeveling.HunterTrainerRequirement> lvlRequirement;
 
@@ -41,7 +40,7 @@ public class HunterTrainerMenu extends ItemCombinerMenu {
         this(id, playerInventory, null);
     }
 
-    public HunterTrainerMenu(int id, @NotNull Inventory playerInventory, @Nullable HunterTrainerEntity trainer) {
+    public HunterTrainerMenu(int id, @NotNull Inventory playerInventory, @Nullable OldHunterTrainerEntity trainer) {
         super(ModMenus.HUNTER_TRAINER.get(), id, playerInventory, trainer == null ? ContainerLevelAccess.NULL : ContainerLevelAccess.create(trainer.level(), trainer.blockPosition()), createInputSlotDefinitions(playerInventory.player));
         this.player = playerInventory.player;
         this.entity = trainer;

@@ -4,7 +4,7 @@ import com.mojang.brigadier.builder.ArgumentBuilder;
 import de.teamlapen.lib.lib.util.BasicCommand;
 import de.teamlapen.vampirism.core.ModEntities;
 import de.teamlapen.vampirism.entity.VampirismEntity;
-import de.teamlapen.vampirism.entity.hunter.TrainingDummyHunterEntity;
+import de.teamlapen.vampirism.entity.oldhunter.OldTrainingDummyHunterEntity;
 import de.teamlapen.vampirism.entity.vampire.TrainingDummyVampireEntity;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -23,7 +23,7 @@ public class SummonDummy extends BasicCommand {
 
     @SuppressWarnings("SameReturnValue")
     private static int summon(@NotNull ServerPlayer p, boolean b) {
-        VampirismEntity t = b ? new TrainingDummyVampireEntity(ModEntities.VAMPIRE.get(), p.level()) : new TrainingDummyHunterEntity(ModEntities.HUNTER.get(), p.level());
+        VampirismEntity t = b ? new TrainingDummyVampireEntity(ModEntities.VAMPIRE.get(), p.level()) : new OldTrainingDummyHunterEntity(ModEntities.HUNTER.get(), p.level());
         t.copyPosition(p);
         p.level().addFreshEntity(t);
         return 0;

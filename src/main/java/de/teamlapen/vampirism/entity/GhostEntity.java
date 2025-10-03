@@ -49,7 +49,7 @@ public class GhostEntity extends VampirismEntity implements IRemainsEntity, IEnt
         this.moveControl = new FlyingMoveControl(this, 20, true);
     }
 
-    public static AttributeSupplier.Builder createAttributes() {
+    public static AttributeSupplier.Builder getAttributeBuilder() {
         return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 20.0D).add(Attributes.ARMOR, 15).add(Attributes.ARMOR_TOUGHNESS, 5).add(Attributes.ATTACK_DAMAGE, 6).add(Attributes.MOVEMENT_SPEED, 0.3).add(Attributes.FLYING_SPEED, 0.3).add(Attributes.ENTITY_INTERACTION_RANGE, 1);
     }
 

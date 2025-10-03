@@ -16,7 +16,7 @@ import de.teamlapen.vampirism.effects.VampirismBadOmenMobEffect;
 import de.teamlapen.vampirism.entity.IEntityFollower;
 import de.teamlapen.vampirism.entity.ai.goals.*;
 import de.teamlapen.vampirism.entity.factions.FactionPlayerHandler;
-import de.teamlapen.vampirism.entity.hunter.HunterBaseEntity;
+import de.teamlapen.vampirism.entity.oldhunter.OldHunterBaseEntity;
 import de.teamlapen.vampirism.entity.minion.VampireMinionEntity;
 import de.teamlapen.vampirism.entity.minion.management.MinionTasks;
 import de.teamlapen.vampirism.entity.player.vampire.skills.VampireSkills;
@@ -452,7 +452,7 @@ public class BasicVampireEntity extends VampireBaseEntity implements IBasicVampi
         this.goalSelector.addGoal(8, new MoveThroughVillageGoal(this, 0.6, true, 600, () -> false));
         this.goalSelector.addGoal(9, new RandomStrollGoal(this, 0.7));
         this.goalSelector.addGoal(10, new LookAtClosestVisibleGoal(this, Player.class, 20F, 0.6F));
-        this.goalSelector.addGoal(10, new LookAtPlayerGoal(this, HunterBaseEntity.class, 17F));
+        this.goalSelector.addGoal(10, new LookAtPlayerGoal(this, OldHunterBaseEntity.class, 17F));
         this.goalSelector.addGoal(10, new RandomLookAroundGoal(this));
 
         this.targetSelector.addGoal(3, new VampireHurtByTargetGoal(this).setAlertOthers());

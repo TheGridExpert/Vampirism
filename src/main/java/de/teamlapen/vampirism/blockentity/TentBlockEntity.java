@@ -6,8 +6,8 @@ import de.teamlapen.vampirism.api.VEnums;
 import de.teamlapen.vampirism.config.VampirismConfig;
 import de.teamlapen.vampirism.core.ModEntities;
 import de.teamlapen.vampirism.core.ModBlockEntities;
-import de.teamlapen.vampirism.entity.hunter.AdvancedHunterEntity;
-import de.teamlapen.vampirism.entity.hunter.BasicHunterEntity;
+import de.teamlapen.vampirism.entity.oldhunter.OldAdvancedHunterEntity;
+import de.teamlapen.vampirism.entity.oldhunter.OldBasicHunterEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -23,8 +23,8 @@ import org.jetbrains.annotations.NotNull;
 public class TentBlockEntity extends BlockEntity {
 
 
-    private final @NotNull SimpleSpawnerLogic<BasicHunterEntity> spawnerLogicHunter;
-    private final @NotNull SimpleSpawnerLogic<AdvancedHunterEntity> spawnerLogicAdvancedHunter;
+    private final @NotNull SimpleSpawnerLogic<OldBasicHunterEntity> spawnerLogicHunter;
+    private final @NotNull SimpleSpawnerLogic<OldAdvancedHunterEntity> spawnerLogicAdvancedHunter;
     private boolean spawn = false;
     private boolean advanced = false;
 

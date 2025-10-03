@@ -1,4 +1,4 @@
-package de.teamlapen.vampirism.entity.hunter;
+package de.teamlapen.vampirism.entity.oldhunter;
 
 import de.teamlapen.vampirism.api.VampirismAPI;
 import de.teamlapen.vampirism.api.entity.ICaptureIgnore;
@@ -39,7 +39,7 @@ import java.util.Optional;
 /**
  * Hunter Trainer which allows Hunter players to level up
  */
-public class HunterTrainerEntity extends HunterBaseEntity implements ForceLookEntityGoal.TaskOwner, ICaptureIgnore {
+public class OldHunterTrainerEntity extends OldHunterBaseEntity implements ForceLookEntityGoal.TaskOwner, ICaptureIgnore {
     private static final Component name = Component.translatable("container.huntertrainer");
     private static final int MOVE_TO_RESTRICT_PRIO = 3;
 
@@ -54,7 +54,7 @@ public class HunterTrainerEntity extends HunterBaseEntity implements ForceLookEn
     private @Nullable Player trainee;
     private boolean shouldCreateHome;
 
-    public HunterTrainerEntity(EntityType<? extends HunterTrainerEntity> type, Level world) {
+    public OldHunterTrainerEntity(EntityType<? extends OldHunterTrainerEntity> type, Level world) {
         super(type, world, false);
         saveHome = true;
         hasArms = true;

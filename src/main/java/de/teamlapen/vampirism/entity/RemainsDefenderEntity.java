@@ -42,7 +42,7 @@ public class RemainsDefenderEntity extends Mob implements IRemainsEntity {
     private static final EntityDataAccessor<Integer> DATA_LIGHT_TICKS_REMAINING = SynchedEntityData.defineId(RemainsDefenderEntity.class, EntityDataSerializers.INT);
 
 
-    public static AttributeSupplier.Builder createAttributes() {
+    public static AttributeSupplier.Builder getAttributeBuilder() {
         return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 20.0D).add(Attributes.ARMOR, 15).add(Attributes.ATTACK_DAMAGE, 10).add(Attributes.ARMOR_TOUGHNESS, 6);
     }
 

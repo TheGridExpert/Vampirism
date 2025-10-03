@@ -29,7 +29,7 @@ public class ConvertedCatEntity extends Cat implements CurableConvertedCreature<
     private static final EntityDataAccessor<Boolean> CONVERTING = SynchedEntityData.defineId(ConvertedCatEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<String> OVERLAY_TEXTURE = SynchedEntityData.defineId(ConvertedCatEntity.class, EntityDataSerializers.STRING);
 
-    public static AttributeSupplier.@NotNull Builder createAttributes() {
+    public static AttributeSupplier.@NotNull Builder getAttributeBuilder() {
         return Cat.createAttributes().add(Attributes.ATTACK_DAMAGE, BalanceMobProps.mobProps.CONVERTED_MOB_DEFAULT_DMG).add(ModAttributes.SUNDAMAGE, BalanceMobProps.mobProps.VAMPIRE_MOB_SUN_DAMAGE);
     }
 

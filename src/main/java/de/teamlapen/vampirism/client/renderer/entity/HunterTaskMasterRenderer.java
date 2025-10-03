@@ -5,30 +5,24 @@ import de.teamlapen.vampirism.api.util.VResourceLocation;
 import de.teamlapen.vampirism.client.core.ModEntitiesRender;
 import de.teamlapen.vampirism.client.renderer.entity.layers.TaskMasterTypeLayer;
 import de.teamlapen.vampirism.client.renderer.entity.state.HunterTaskMasterRenderState;
-import de.teamlapen.vampirism.client.renderer.entity.state.HunterTrainerRenderState;
-import de.teamlapen.vampirism.entity.hunter.HunterTaskMasterEntity;
+import de.teamlapen.vampirism.entity.oldhunter.OldHunterTaskMasterEntity;
 import de.teamlapen.vampirism.util.Helper;
 import net.minecraft.client.model.VillagerModel;
-import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
-import net.minecraft.client.renderer.entity.VillagerRenderer;
 import net.minecraft.client.renderer.entity.layers.CustomHeadLayer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.item.ItemDisplayContext;
-import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * Render the advanced vampire with overlays
  */
-public class HunterTaskMasterRenderer extends MobRenderer<HunterTaskMasterEntity, HunterTaskMasterRenderState, VillagerModel> {
+public class HunterTaskMasterRenderer extends MobRenderer<OldHunterTaskMasterEntity, HunterTaskMasterRenderState, VillagerModel> {
     private final static ResourceLocation texture = VResourceLocation.mc("textures/entity/villager/villager.png");
     private final static ResourceLocation overlay = VResourceLocation.mod("textures/entity/hunter_task_master_overlay.png");
 
@@ -56,7 +50,7 @@ public class HunterTaskMasterRenderer extends MobRenderer<HunterTaskMasterEntity
     }
 
     @Override
-    protected boolean shouldShowName(@NotNull HunterTaskMasterEntity entity, double distance) {
+    protected boolean shouldShowName(@NotNull OldHunterTaskMasterEntity entity, double distance) {
         return Helper.isHunter(entity) && super.shouldShowName(entity, distance);
     }
 

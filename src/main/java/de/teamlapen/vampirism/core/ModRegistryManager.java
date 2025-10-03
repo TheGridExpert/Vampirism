@@ -32,6 +32,8 @@ public class ModRegistryManager {
 
     public void setupRegistries() {
         ModAttributes.register(eventBus);
+        ModMemoryModuleTypes.register(eventBus);
+        ModActivities.register(eventBus);
         ModBiomes.register(eventBus);
         ModBlocks.register(eventBus);
         ModMenus.register(eventBus);
@@ -52,7 +54,7 @@ public class ModRegistryManager {
         ModSounds.register(eventBus);
         ModTasks.register(eventBus);
         ModBlockEntities.register(eventBus);
-        ModAi.register(eventBus);
+        ModSensorTypes.register(eventBus);
         ModVillage.register(eventBus);
         VampireActions.register(eventBus);
         HunterActions.register(eventBus);

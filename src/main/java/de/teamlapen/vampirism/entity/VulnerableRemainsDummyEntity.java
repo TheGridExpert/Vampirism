@@ -39,7 +39,7 @@ public class VulnerableRemainsDummyEntity extends LivingEntity implements IEntit
         super(type, pLevel);
     }
 
-    public static AttributeSupplier.@NotNull Builder createAttributes() {
+    public static AttributeSupplier.@NotNull Builder getAttributeBuilder() {
         return LivingEntity.createLivingAttributes();
     }
 

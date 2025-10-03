@@ -7,6 +7,7 @@ import net.minecraft.world.level.pathfinder.PathFinder;
 import org.jetbrains.annotations.NotNull;
 
 public class HunterPathNavigation extends GroundPathNavigation {
+
     public HunterPathNavigation(Mob mob, Level level) {
         super(mob, level);
     }

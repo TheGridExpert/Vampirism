@@ -9,7 +9,7 @@ import de.teamlapen.vampirism.api.entity.player.vampire.IDrinkBloodContext;
 import de.teamlapen.vampirism.api.event.BloodDrinkEvent;
 import de.teamlapen.vampirism.blockentity.TotemBlockEntity;
 import de.teamlapen.vampirism.core.ModAdvancements;
-import de.teamlapen.vampirism.core.ModAi;
+import de.teamlapen.vampirism.core.ModSensorTypes;
 import de.teamlapen.vampirism.core.ModAttributes;
 import de.teamlapen.vampirism.core.ModVillage;
 import de.teamlapen.vampirism.entity.VampirismVillagerEntity;
@@ -66,7 +66,7 @@ public class ConvertedVillagerEntity extends VampirismVillagerEntity implements 
     static {
         SENSOR_TYPES = Lists.newArrayList(VillagerAccessor.getSensorTypes());
         SENSOR_TYPES.remove(SensorType.VILLAGER_HOSTILES);
-        SENSOR_TYPES.add(ModAi.VAMPIRE_VILLAGER_HOSTILES.get());
+        SENSOR_TYPES.add(ModSensorTypes.VAMPIRE_VILLAGER_HOSTILES.get());
     }
 
     public static AttributeSupplier.@NotNull Builder getAttributeBuilder() {
@@ -250,7 +250,7 @@ public class ConvertedVillagerEntity extends VampirismVillagerEntity implements 
     }
 
     /**
-     * copied from {@link Villager#makeBrain(Dynamic)} but with {@link #SENSOR_TYPES}, where {@link SensorType#VILLAGER_HOSTILES} is replaced by {@link de.teamlapen.vampirism.core.ModAi#VAMPIRE_VILLAGER_HOSTILES}
+     * copied from {@link Villager#makeBrain(Dynamic)} but with {@link #SENSOR_TYPES}, where {@link SensorType#VILLAGER_HOSTILES} is replaced by {@link ModSensorTypes#VAMPIRE_VILLAGER_HOSTILES}
      */
     @NotNull
     @Override

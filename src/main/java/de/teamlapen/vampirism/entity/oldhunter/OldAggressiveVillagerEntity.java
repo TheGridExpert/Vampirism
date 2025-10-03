@@ -1,4 +1,4 @@
-package de.teamlapen.vampirism.entity.hunter;
+package de.teamlapen.vampirism.entity.oldhunter;
 
 import de.teamlapen.lib.lib.util.UtilLib;
 import de.teamlapen.vampirism.api.VampirismAPI;
@@ -38,14 +38,14 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Villager that is equipped with a fork and hunts vampires
  */
-public class AggressiveVillagerEntity extends VampirismVillagerEntity implements IHunterMob, IAggressiveVillager, IVillageCaptureEntity {
+public class OldAggressiveVillagerEntity extends VampirismVillagerEntity implements IHunterMob, IAggressiveVillager, IVillageCaptureEntity {
     /**
      * Creates a hunter villager as a copy to the given villager
      *
      * @param villager Is not modified or removed
      */
-    public static @NotNull AggressiveVillagerEntity makeHunter(@NotNull Villager villager) {
-        AggressiveVillagerEntity hunter = ModEntities.VILLAGER_ANGRY.get().create(villager.level(), EntitySpawnReason.EVENT);
+    public static @NotNull OldAggressiveVillagerEntity makeHunter(@NotNull Villager villager) {
+        OldAggressiveVillagerEntity hunter = ModEntities.VILLAGER_ANGRY.get().create(villager.level(), EntitySpawnReason.EVENT);
         assert hunter != null;
         CompoundTag nbt = new CompoundTag();
         if (villager.isSleeping()) {
@@ -69,7 +69,7 @@ public class AggressiveVillagerEntity extends VampirismVillagerEntity implements
     @Nullable
     private ICaptureAttributes villageAttributes;
 
-    public AggressiveVillagerEntity(EntityType<? extends AggressiveVillagerEntity> type, Level worldIn) {
+    public OldAggressiveVillagerEntity(EntityType<? extends OldAggressiveVillagerEntity> type, Level worldIn) {
         super(type, worldIn);
         ((GroundPathNavigation) getNavigation()).setCanOpenDoors(true);
     }

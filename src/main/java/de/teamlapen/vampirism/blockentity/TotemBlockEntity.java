@@ -28,10 +28,10 @@ import de.teamlapen.vampirism.entity.ExtendedCreature;
 import de.teamlapen.vampirism.entity.VampirismEntity;
 import de.teamlapen.vampirism.entity.converted.ConvertedVillagerEntity;
 import de.teamlapen.vampirism.entity.factions.FactionPlayerHandler;
-import de.teamlapen.vampirism.entity.hunter.AggressiveVillagerEntity;
-import de.teamlapen.vampirism.entity.hunter.DummyHunterTrainerEntity;
-import de.teamlapen.vampirism.entity.hunter.HunterBaseEntity;
-import de.teamlapen.vampirism.entity.hunter.HunterTrainerEntity;
+import de.teamlapen.vampirism.entity.oldhunter.OldAggressiveVillagerEntity;
+import de.teamlapen.vampirism.entity.oldhunter.OldDummyHunterTrainerEntity;
+import de.teamlapen.vampirism.entity.oldhunter.OldHunterBaseEntity;
+import de.teamlapen.vampirism.entity.oldhunter.OldHunterTrainerEntity;
 import de.teamlapen.vampirism.entity.player.VampirismPlayerAttributes;
 import de.teamlapen.vampirism.entity.vampire.VampireBaseEntity;
 import de.teamlapen.vampirism.network.ClientboundPlaySoundEventPacket;
@@ -105,7 +105,7 @@ public class TotemBlockEntity extends BlockEntity implements ITotem {
     private static final ResourceLocation nonFactionTotem = VResourceLocation.mc("none");
 
     public static void makeAgressive(@NotNull Villager villager) {
-        AggressiveVillagerEntity hunter = AggressiveVillagerEntity.makeHunter(villager);
+        OldAggressiveVillagerEntity hunter = OldAggressiveVillagerEntity.makeHunter(villager);
         UtilLib.replaceEntity(villager, hunter);
     }
 
@@ -826,10 +826,10 @@ public class TotemBlockEntity extends BlockEntity implements ITotem {
         List<? extends VampirismEntity> trainer;
         EntityType<? extends VampirismEntity> entityType;
         if (toDummy) {
-            trainer = this.level.getEntitiesOfClass(HunterTrainerEntity.class, this.getVillageArea());
+            trainer = this.level.getEntitiesOfClass(OldHunterTrainerEntity.class, this.getVillageArea());
             entityType = ModEntities.HUNTER_TRAINER_DUMMY.get();
         } else {
-            trainer = this.level.getEntitiesOfClass(DummyHunterTrainerEntity.class, this.getVillageArea());
+            trainer = this.level.getEntitiesOfClass(OldDummyHunterTrainerEntity.class, this.getVillageArea());
             entityType = ModEntities.HUNTER_TRAINER.get();
         }
         for (VampirismEntity oldEntity : trainer) {
@@ -1186,9 +1186,9 @@ public class TotemBlockEntity extends BlockEntity implements ITotem {
             return;
         }
         if (IFaction.is(ModFactions.HUNTER, this.capturingFaction)) {
-            List<HunterBaseEntity> hunterEntities = this.level.getEntitiesOfClass(HunterBaseEntity.class, getVillageArea());
+            List<OldHunterBaseEntity> hunterEntities = this.level.getEntitiesOfClass(OldHunterBaseEntity.class, getVillageArea());
             int i = Math.max(2, hunterEntities.size() / 2);
-            for (HunterBaseEntity hunter : hunterEntities) {
+            for (OldHunterBaseEntity hunter : hunterEntities) {
                 if (hunter instanceof ICaptureIgnore) {
                     continue;
                 }
@@ -1211,8 +1211,8 @@ public class TotemBlockEntity extends BlockEntity implements ITotem {
             }
 
             if (fullConvert) {
-                List<HunterBaseEntity> hunterEntities = this.level.getEntitiesOfClass(HunterBaseEntity.class, getVillageArea());
-                for (HunterBaseEntity hunter : hunterEntities) {
+                List<OldHunterBaseEntity> hunterEntities = this.level.getEntitiesOfClass(OldHunterBaseEntity.class, getVillageArea());
+                for (OldHunterBaseEntity hunter : hunterEntities) {
                     if (hunter instanceof ICaptureIgnore) {
                         continue;
                     }

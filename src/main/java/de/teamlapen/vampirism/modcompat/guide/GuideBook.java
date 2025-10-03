@@ -25,7 +25,7 @@ import de.teamlapen.vampirism.blocks.AltarPillarBlock;
 import de.teamlapen.vampirism.client.core.ModKeys;
 import de.teamlapen.vampirism.config.VampirismConfig;
 import de.teamlapen.vampirism.core.*;
-import de.teamlapen.vampirism.entity.hunter.BasicHunterEntity;
+import de.teamlapen.vampirism.entity.oldhunter.OldBasicHunterEntity;
 import de.teamlapen.vampirism.entity.player.hunter.HunterLeveling;
 import de.teamlapen.vampirism.entity.player.hunter.actions.HunterActions;
 import de.teamlapen.vampirism.entity.player.hunter.skills.HunterSkills;
@@ -373,12 +373,12 @@ public class GuideBook implements IGuideBook {
 
         ArrayList<IPage> hunterPages = new ArrayList<>();
         hunterPages.add(new PageEntity((world) -> {
-            BasicHunterEntity entity = ModEntities.HUNTER.get().create(world);
+            OldBasicHunterEntity entity = ModEntities.HUNTER.get().create(world);
             entity.setEntityLevel(1);
             return entity;
         }));
         hunterPages.add(new PageEntity((world) -> {
-            BasicHunterEntity entity = ModEntities.HUNTER.get().create(world);
+            OldBasicHunterEntity entity = ModEntities.HUNTER.get().create(world);
             entity.setEntityLevel(0);
             return entity;
         }));
