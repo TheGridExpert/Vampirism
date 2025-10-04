@@ -33,6 +33,7 @@ public class ModRegistryManager {
     public void setupRegistries() {
         ModAttributes.register(eventBus);
         ModMemoryModuleTypes.register(eventBus);
+        ModHunterVariants.register(eventBus);
         ModActivities.register(eventBus);
         ModBiomes.register(eventBus);
         ModBlocks.register(eventBus);

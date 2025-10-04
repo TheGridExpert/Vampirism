@@ -1,10 +1,21 @@
 package de.teamlapen.vampirism.entity.hunter;
 
 import com.mojang.serialization.Dynamic;
+import de.teamlapen.vampirism.api.VampirismRegistries;
+import de.teamlapen.vampirism.api.entity.hunter.IHunterVariant;
+import de.teamlapen.vampirism.core.ModEntities;
+import de.teamlapen.vampirism.core.ModHunterVariants;
+import de.teamlapen.vampirism.core.ModRegistries;
 import de.teamlapen.vampirism.entity.ai.navigation.HunterPathNavigation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.DebugPackets;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.RandomSource;
@@ -25,9 +36,16 @@ import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.common.NeoForgeMod;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Stream;
 
-public class Hunter extends PathfinderMob {
+public class Hunter extends PathfinderMob implements VariantHolder<Holder<IHunterVariant>> {
+
+    private static final EntityDataAccessor<Holder<IHunterVariant>> DATA_VARIANT_ID = SynchedEntityData.defineId(Hunter.class, ModEntities.HUNTER_VARIANT.get());
+    public static final Holder<IHunterVariant> DEFAULT_VARIANT = ModHunterVariants.HUNTER_5_SLIM;
+
+    public static final String VARIANT_KEY = "variant";
 
     public Hunter(EntityType<? extends PathfinderMob> entityType, Level level) {
         super(entityType, level);
@@ -81,14 +99,6 @@ public class Hunter extends PathfinderMob {
         DebugPackets.sendEntityBrain(this);
     }
 
-    @Nullable
-    @Override
-    @SuppressWarnings("deprecation")
-    public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, EntitySpawnReason spawnReason, @Nullable SpawnGroupData spawnGroupData) {
-        HunterAi.initMemories(this);
-        return super.finalizeSpawn(level, difficulty, spawnReason, spawnGroupData);
-    }
-
     @Override
     protected PathNavigation createNavigation(Level level) {
         return new HunterPathNavigation(this, level);
@@ -123,5 +133,45 @@ public class Hunter extends PathfinderMob {
 
     public boolean shouldTryExitWater() {
         return level().getBlockState(blockPosition().relative(getDirection())).isSolid();
+    }
+
+    @Override
+    public void setVariant(Holder<IHunterVariant> variant) {
+        this.entityData.set(DATA_VARIANT_ID, variant);
+    }
+
+    @Override
+    public Holder<IHunterVariant> getVariant() {
+        return this.entityData.get(DATA_VARIANT_ID);
+    }
+
+    @Override
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(DATA_VARIANT_ID, DEFAULT_VARIANT);
+    }
+
+    @Override
+    public void addAdditionalSaveData(CompoundTag compound) {
+        super.addAdditionalSaveData(compound);
+        compound.putString(VARIANT_KEY, Objects.requireNonNull(this.getVariant().unwrapKey().orElse(DEFAULT_VARIANT.getKey())).location().toString());
+    }
+
+    @Override
+    public void readAdditionalSaveData(CompoundTag compound) {
+        super.readAdditionalSaveData(compound);
+        Optional.ofNullable(ResourceLocation.tryParse(compound.getString(VARIANT_KEY)))
+                .map(key -> ResourceKey.create(VampirismRegistries.Keys.HUNTER_VARIANT, key))
+                .flatMap(ModRegistries.HUNTER_VARIANT::get)
+                .ifPresent(this::setVariant);
+    }
+
+    @Nullable
+    @Override
+    @SuppressWarnings("deprecation")
+    public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, EntitySpawnReason spawnReason, @Nullable SpawnGroupData spawnGroupData) {
+        this.setVariant(HunterVariant.getRandomVariant(DEFAULT_VARIANT, level.getRandom()));
+        HunterAi.initMemories(this);
+        return super.finalizeSpawn(level, difficulty, spawnReason, spawnGroupData);
     }
 }

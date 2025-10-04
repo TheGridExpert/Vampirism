@@ -7,18 +7,21 @@ import de.teamlapen.vampirism.advancements.critereon.PlayerFactionSubPredicate;
 import de.teamlapen.vampirism.api.VEnums;
 import de.teamlapen.vampirism.api.VampirismRegistries;
 import de.teamlapen.vampirism.api.entity.convertible.Converter;
+import de.teamlapen.vampirism.api.entity.hunter.IHunterVariant;
 import de.teamlapen.vampirism.datamaps.EntityExistsCondition;
 import de.teamlapen.vampirism.entity.*;
 import de.teamlapen.vampirism.entity.converted.*;
 import de.teamlapen.vampirism.entity.converted.converter.DefaultConverter;
 import de.teamlapen.vampirism.entity.converted.converter.SpecialConverter;
 import de.teamlapen.vampirism.entity.hunter.Hunter;
+import de.teamlapen.vampirism.entity.hunter.HunterVariant;
 import de.teamlapen.vampirism.entity.oldhunter.*;
 import de.teamlapen.vampirism.entity.minion.HunterMinionEntity;
 import de.teamlapen.vampirism.entity.minion.VampireMinionEntity;
 import de.teamlapen.vampirism.entity.vampire.*;
 import de.teamlapen.vampirism.sit.SitEntity;
 import net.minecraft.advancements.critereon.EntitySubPredicate;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.syncher.EntityDataSerializer;
@@ -110,6 +113,7 @@ public class ModEntities {
     public static final DeferredHolder<MapCodec<? extends ICondition>, MapCodec<? extends ICondition>> ENTITY_EXISTS = CONDITIONS.register("entity_exists", () -> EntityExistsCondition.CODEC);
 
     public static final DeferredHolder<EntityDataSerializer<?>, EntityDataSerializer<Item>> ITEM_DATA = DATA_SERIALIZER.register("item", () -> (EntityDataSerializer.ForValueType<Item>) (() -> ByteBufCodecs.registry(Registries.ITEM)));
+    public static final DeferredHolder<EntityDataSerializer<?>, EntityDataSerializer<Holder<IHunterVariant>>> HUNTER_VARIANT = DATA_SERIALIZER.register("hunter_variant", () -> EntityDataSerializer.forValueType(HunterVariant.STREAM_CODEC));
 
     static void register(IEventBus bus) {
         ENTITY_TYPES.register(bus);

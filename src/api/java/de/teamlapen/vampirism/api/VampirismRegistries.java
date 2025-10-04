@@ -6,6 +6,7 @@ import de.teamlapen.vampirism.api.entity.convertible.Converter;
 import de.teamlapen.vampirism.api.entity.factions.IFaction;
 import de.teamlapen.vampirism.api.entity.factions.ISkillNode;
 import de.teamlapen.vampirism.api.entity.factions.ISkillTree;
+import de.teamlapen.vampirism.api.entity.hunter.IHunterVariant;
 import de.teamlapen.vampirism.api.entity.minion.IMinionEntry;
 import de.teamlapen.vampirism.api.entity.minion.IMinionTask;
 import de.teamlapen.vampirism.api.entity.player.actions.IAction;
@@ -42,6 +43,7 @@ public class VampirismRegistries {
     public static final Supplier<Registry<MapCodec<? extends Converter>>> ENTITY_CONVERTER = supplyRegistry(Keys.ENTITY_CONVERTER);
     public static final Supplier<Registry<IFaction<?>>> FACTION = supplyRegistry(Keys.FACTION);
     public static final Supplier<Registry<IMinionEntry<?, ?>>> MINION = supplyRegistry(Keys.MINION);
+    public static final Supplier<Registry<IHunterVariant>> HUNTER_VARIANT = supplyRegistry(Keys.HUNTER_VARIANT);
 
     public static class Keys {
 
@@ -59,6 +61,7 @@ public class VampirismRegistries {
         public static final ResourceKey<Registry<MapCodec<? extends Converter>>> ENTITY_CONVERTER = registryKey("converting_handler");
         public static final ResourceKey<Registry<IFaction<?>>> FACTION = registryKey("faction");
         public static final ResourceKey<Registry<IMinionEntry<?, ?>>> MINION = registryKey("minion");
+        public static final ResourceKey<Registry<IHunterVariant>> HUNTER_VARIANT = registryKey("hunter_variant");
 
         // data pack registries
         public static final ResourceKey<Registry<Task>> TASK = registryKey("tasks");

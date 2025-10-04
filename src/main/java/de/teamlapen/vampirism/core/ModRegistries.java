@@ -6,6 +6,7 @@ import de.teamlapen.vampirism.api.VampirismFactions;
 import de.teamlapen.vampirism.api.VampirismRegistries;
 import de.teamlapen.vampirism.api.entity.convertible.Converter;
 import de.teamlapen.vampirism.api.entity.factions.IFaction;
+import de.teamlapen.vampirism.api.entity.hunter.IHunterVariant;
 import de.teamlapen.vampirism.api.entity.minion.IMinionEntry;
 import de.teamlapen.vampirism.api.entity.minion.IMinionTask;
 import de.teamlapen.vampirism.api.entity.player.actions.IAction;
@@ -45,6 +46,7 @@ public class ModRegistries {
     public static final Registry<MapCodec<? extends Converter>> ENTITY_CONVERTER = new RegistryBuilder<>(VampirismRegistries.Keys.ENTITY_CONVERTER).create();
     public static final Registry<IFaction<?>> FACTIONS = new RegistryBuilder<>(VampirismRegistries.Keys.FACTION).sync(true).defaultKey(VampirismFactions.NEUTRAL.getRawKey()).create();
     public static final Registry<IMinionEntry<?, ?>> MINIONS = new RegistryBuilder<>(VampirismRegistries.Keys.MINION).callback(((FactionRegistry) VampirismAPI.factionRegistry()).getMinionCallback()).sync(true).create();
+    public static final Registry<IHunterVariant> HUNTER_VARIANT = new RegistryBuilder<>(VampirismRegistries.Keys.HUNTER_VARIANT).sync(true).create();
 
     public static final RegistrySetBuilder DATA_BUILDER = new RegistrySetBuilder()
             .add(Registries.BIOME, ModBiomes::createBiomes)
@@ -76,6 +78,7 @@ public class ModRegistries {
         event.register(ENTITY_CONVERTER);
         event.register(FACTIONS);
         event.register(MINIONS);
+        event.register(HUNTER_VARIANT);
     }
 
     static void registerDatapackRegistries(DataPackRegistryEvent.NewRegistry event) {

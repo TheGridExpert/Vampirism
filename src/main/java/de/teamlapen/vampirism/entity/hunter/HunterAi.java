@@ -140,6 +140,7 @@ public class HunterAi {
                 Activity.AVOID,
                 15,
                 ImmutableList.of(
+                        // TODO: Finding a spot to retreat is still pretty broken, requires fixing
                         RetreatFromEnemies.create(ModMemoryModuleTypes.NEAREST_VISIBLE_HOSTILES.get(), SPEED_MULTIPLIER_WHEN_RETREATING, 5),
                         new CheckIfSafeToStopRetreating(SAFE_HEALTH_PERCENT)
                 ),
