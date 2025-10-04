@@ -36,7 +36,7 @@ public class HunterAi {
     private static final int MELEE_ATTACK_COOLDOWN = 20;
 
     private static final float SPEED_MULTIPLIER_WHEN_RETREATING = 0.7F;
-    private static final float RETREAT_HEALTH_PERCENT = 0.25F;
+    private static final float RETREAT_HEALTH_PERCENT = 0.35F;
     private static final float SAFE_HEALTH_PERCENT = 0.75F;
     private static final int MAX_RETREAT_DURATION = 700;
 
@@ -93,7 +93,7 @@ public class HunterAi {
                 Activity.CORE,
                 0,
                 ImmutableList.of(
-                        new Swim<>(0.8F),
+                        new FordLikeSwim(0.4F),
                         InteractWithDoor.create(),
                         InteractWithGate.create(),
                         new LookAtTargetSink(45, 90),

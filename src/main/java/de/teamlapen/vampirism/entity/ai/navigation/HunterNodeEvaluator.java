@@ -1,5 +1,6 @@
 package de.teamlapen.vampirism.entity.ai.navigation;
 
+import de.teamlapen.vampirism.entity.hunter.Hunter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.block.FenceGateBlock;
@@ -25,12 +26,16 @@ public class HunterNodeEvaluator extends WalkNodeEvaluator {
             }
         }
 
+        if (pathType == PathType.WATER && Hunter.isShallowWater(mob.level(), new BlockPos(x, y + 1, z))) {
+            return PathType.WALKABLE;
+        }
+
         return pathType;
     }
 
     @Override
     public @NotNull PathType getPathType(@NotNull PathfindingContext context, int x, int y, int z) {
-        PathType pathType = super.getPathType(context, x, y, z);
+        PathType type = super.getPathType(context, x, y, z);
 
         BlockState blockState = context.level().getBlockState(new BlockPos(x, y, z));
         if (blockState.getBlock() instanceof FenceGateBlock) {
@@ -38,6 +43,10 @@ public class HunterNodeEvaluator extends WalkNodeEvaluator {
             return isOpen ? PathType.WALKABLE_DOOR : PathType.DOOR_WOOD_CLOSED;
         }
 
-        return pathType;
+        if (type == PathType.WATER && Hunter.isShallowWater(mob.level(), new BlockPos(x, y + 1, z))) {
+            return PathType.WALKABLE;
+        }
+
+        return type;
     }
 }

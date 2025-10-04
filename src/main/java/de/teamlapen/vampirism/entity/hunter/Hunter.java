@@ -3,8 +3,10 @@ package de.teamlapen.vampirism.entity.hunter;
 import com.mojang.serialization.Dynamic;
 import de.teamlapen.vampirism.entity.ai.navigation.HunterPathNavigation;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.protocol.game.DebugPackets;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.profiling.Profiler;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -19,7 +21,11 @@ import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.block.Blocks;
+import net.neoforged.neoforge.common.NeoForgeMod;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.stream.Stream;
 
 public class Hunter extends PathfinderMob {
 
@@ -38,6 +44,7 @@ public class Hunter extends PathfinderMob {
         return LivingEntity.createLivingAttributes()
                 .add(Attributes.FOLLOW_RANGE, 16.0)
                 .add(Attributes.MOVEMENT_SPEED, 0.55F)
+                .add(NeoForgeMod.SWIM_SPEED, 2.5F)
                 .add(Attributes.ATTACK_DAMAGE, 3.0);
     }
 
@@ -87,7 +94,34 @@ public class Hunter extends PathfinderMob {
         return new HunterPathNavigation(this, level);
     }
 
-    public boolean isEnemy(LivingEntity target) {
-        return HunterAi.isEnemy(target, this);
+    public boolean isNearGround() {
+        return Stream.of(Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST).map(direction -> level().getBlockState(blockPosition().below().relative(direction))).anyMatch(state -> !(state.is(Blocks.WATER)));
+    }
+
+    public boolean isShallowWater() {
+        return isShallowWater(level(), blockPosition());
+    }
+
+    public static boolean isShallowWater(Level level, BlockPos pos) {
+        BlockPos.MutableBlockPos cursor = pos.above().mutable();
+        while (level.isEmptyBlock(cursor) && level.isInsideBuildHeight(pos.getY())) {
+            cursor.move(Direction.DOWN);
+        }
+
+        if (!level.getBlockState(cursor).getFluidState().is(FluidTags.WATER)) {
+            return false;
+        }
+
+        BlockPos below = cursor.below();
+        if (!level.getBlockState(below).isSolid()) {
+            return false;
+        }
+
+        BlockPos aboveWater = cursor.above();
+        return level.isEmptyBlock(aboveWater);
+    }
+
+    public boolean shouldTryExitWater() {
+        return level().getBlockState(blockPosition().relative(getDirection())).isSolid();
     }
 }
