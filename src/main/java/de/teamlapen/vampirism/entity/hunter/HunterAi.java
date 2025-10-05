@@ -97,6 +97,7 @@ public class HunterAi {
                         InteractWithDoor.create(),
                         InteractWithGate.create(),
                         new LookAtTargetSink(45, 90),
+                        AvoidBumpingIntoOthers.create(0.4F),
                         new MoveToPatrolTarget(MIN_PATROL_COOLDOWN, MAX_PATROL_COOLDOWN)
                 )
         );
@@ -142,6 +143,14 @@ public class HunterAi {
                 ImmutableList.of(
                         // TODO: Finding a spot to retreat is still pretty broken, requires fixing
                         RetreatFromEnemies.create(ModMemoryModuleTypes.NEAREST_VISIBLE_HOSTILES.get(), SPEED_MULTIPLIER_WHEN_RETREATING, 5),
+                        new RunOne<>(
+                                ImmutableList.of(
+                                        Pair.of(SetEntityLookClosestOfRange.create(ModMemoryModuleTypes.NEAREST_VISIBLE_HOSTILES.get(), 12.0F), 3),
+                                        Pair.of(SetEntityLookTarget.create(ModEntities.NEW_HUNTER.get(), 8.0F), 2),
+                                        Pair.of(new RandomLookAround(TimeUtil.rangeOfSeconds(2, 4), 45.0F, -10.0F, 10.0F), 1),
+                                        Pair.of(new DoNothing(80, 120), 1)
+                                )
+                        ),
                         new CheckIfSafeToStopRetreating(SAFE_HEALTH_PERCENT)
                 ),
                 ModMemoryModuleTypes.SHOULD_RETREAT.get()

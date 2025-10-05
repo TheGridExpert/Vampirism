@@ -15,7 +15,7 @@ public class RetreatFromEnemies {
 
     public static OneShot<PathfinderMob> create(MemoryModuleType<List<LivingEntity>> enemiesMemory, float speedModifier, int desiredDistance) {
         return BehaviorBuilder.create(instance -> instance.group(
-                instance.registered(MemoryModuleType.WALK_TARGET),
+                instance.absent(MemoryModuleType.WALK_TARGET),
                 instance.present(enemiesMemory)
         ).apply(instance, (walkTargetAccessor, enemiesAccessor) ->
                 (level, mob, gameTime) -> {
