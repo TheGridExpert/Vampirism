@@ -32,13 +32,13 @@ public class HunterAi {
     private static final int MIN_PATROL_COOLDOWN = 40;
     private static final int MAX_PATROL_COOLDOWN = 120;
 
-    private static final float SPEED_MULTIPLIER_WHEN_CHASING_TARGET = 0.6F;
+    private static final float SPEED_MULTIPLIER_WHEN_CHASING_TARGET = 0.7F;
     private static final int MELEE_ATTACK_COOLDOWN = 20;
     private static final double PREFERRED_ATTACK_DISTANCE = 2.0D;
     private static final double TOO_CLOSE_ATTACK_DISTANCE = 1.0D;
 
     private static final float SPEED_MULTIPLIER_WHEN_RETREATING = 0.7F;
-    private static final float RETREAT_HEALTH_PERCENT = 0.35F;
+    private static final float RETREAT_HEALTH_PERCENT = 0.25F;
     private static final float SAFE_HEALTH_PERCENT = 0.75F;
     private static final int MAX_RETREAT_DURATION = 700;
 
@@ -193,5 +193,54 @@ public class HunterAi {
         }
 
         return Optional.empty();
+    }
+
+    public static void wasHurtBy(ServerLevel level, Hunter hunter, LivingEntity entity) {
+        if (entity instanceof Hunter) return;
+
+        maybeRetaliate(level, hunter, entity);
+    }
+
+    public static void maybeRetaliate(ServerLevel level, Hunter hunter, LivingEntity entity) {
+        if (!isRetreating(hunter)) {
+            if (Sensor.isEntityAttackableIgnoringLineOfSight(level, hunter, entity)) {
+                if (!BehaviorUtils.isOtherTargetMuchFurtherAwayThanCurrentAttackTarget(hunter, entity, 4.0)) {
+                    setAngerTarget(level, hunter, entity);
+                    broadcastAngerTarget(level, hunter, entity);
+                }
+            }
+        }
+    }
+
+    public static void setAngerTarget(ServerLevel level, Hunter hunter, LivingEntity angerTarget) {
+        if (Sensor.isEntityAttackableIgnoringLineOfSight(level, hunter, angerTarget)) {
+            Brain<Hunter> brain = hunter.getBrain();
+            brain.eraseMemory(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);
+            brain.setMemoryWithExpiry(MemoryModuleType.ANGRY_AT, angerTarget.getUUID(), 600L);
+        }
+    }
+
+    public static void broadcastAngerTarget(ServerLevel level, Hunter hunter, LivingEntity angerTarget) {
+        hunter.getBrain().getMemory(ModMemoryModuleTypes.NEAREST_VISIBLE_HUNTERS.get()).orElse(ImmutableList.of()).forEach(ally -> {
+            if (ally instanceof Hunter allyHunter) {
+                setAngerTargetIfCloserThanCurrent(level, allyHunter, angerTarget);
+            }
+        });
+    }
+
+    public static void setAngerTargetIfCloserThanCurrent(ServerLevel level, Hunter hunter, LivingEntity angerTarget) {
+        Optional<LivingEntity> currentAngerTarget = getAngerTarget(hunter);
+        LivingEntity entity = BehaviorUtils.getNearestTarget(hunter, currentAngerTarget, angerTarget);
+        if (currentAngerTarget.isEmpty() || currentAngerTarget.get() != entity) {
+            setAngerTarget(level, hunter, entity);
+        }
+    }
+
+    public static Optional<LivingEntity> getAngerTarget(LivingEntity entity) {
+        return BehaviorUtils.getLivingEntityFromUUIDMemory(entity, MemoryModuleType.ANGRY_AT);
+    }
+
+    public static boolean isRetreating(Hunter hunter) {
+        return hunter.getBrain().isActive(Activity.AVOID);
     }
 }

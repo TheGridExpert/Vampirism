@@ -29,6 +29,7 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -235,6 +236,8 @@ public class Hunter extends PathfinderMob implements VariantHolder<Holder<IHunte
         return super.finalizeSpawn(level, difficulty, spawnReason, spawnGroupData);
     }
 
+    // TODO: FactionRestriction only works for humans and thence npc hunters may not use all of their weapons' potential
+
     private void assignRandomEquipment(RandomSource random) {
         ItemStack axe = ModItems.HUNTER_AXE_NORMAL.toStack();
         ItemStack crossbow = ModItems.BASIC_CROSSBOW.toStack();
@@ -274,6 +277,16 @@ public class Hunter extends PathfinderMob implements VariantHolder<Holder<IHunte
 
         this.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
         this.setItemInHand(InteractionHand.OFF_HAND, ItemStack.EMPTY);
+    }
+
+    @Override
+    public boolean hurtServer(ServerLevel level, DamageSource damageSource, float amount) {
+        boolean wasHurt = super.hurtServer(level, damageSource, amount);
+        if (wasHurt && damageSource.getEntity() instanceof LivingEntity entity) {
+            HunterAi.wasHurtBy(level, this, entity);
+        }
+
+        return wasHurt;
     }
 
     public enum ClassType implements StringRepresentable {
