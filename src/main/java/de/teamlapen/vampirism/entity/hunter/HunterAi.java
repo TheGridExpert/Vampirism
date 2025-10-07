@@ -34,6 +34,8 @@ public class HunterAi {
 
     private static final float SPEED_MULTIPLIER_WHEN_CHASING_TARGET = 0.6F;
     private static final int MELEE_ATTACK_COOLDOWN = 20;
+    private static final double PREFERRED_ATTACK_DISTANCE = 2.0D;
+    private static final double TOO_CLOSE_ATTACK_DISTANCE = 1.0D;
 
     private static final float SPEED_MULTIPLIER_WHEN_RETREATING = 0.7F;
     private static final float RETREAT_HEALTH_PERCENT = 0.35F;
@@ -61,6 +63,8 @@ public class HunterAi {
             ModMemoryModuleTypes.PATROL_COOLDOWN.get(),
             ModMemoryModuleTypes.RETREAT_COOLDOWN.get(),
             ModMemoryModuleTypes.SHOULD_RETREAT.get(),
+            ModMemoryModuleTypes.WEAPONS_UNSHEATHED.get(),
+            ModMemoryModuleTypes.WEAPON_SHEATH_COOLDOWN.get(),
             ModMemoryModuleTypes.GATES_TO_CLOSE.get(),
             ModMemoryModuleTypes.NEAREST_VISIBLE_HUNTERS.get(),
             ModMemoryModuleTypes.NEAREST_VISIBLE_HOSTILES.get()
@@ -98,6 +102,7 @@ public class HunterAi {
                         InteractWithGate.create(),
                         new LookAtTargetSink(45, 90),
                         AvoidBumpingIntoOthers.create(0.4F),
+                        new HandleHunterWeapons.Sheathe(),
                         new MoveToPatrolTarget(MIN_PATROL_COOLDOWN, MAX_PATROL_COOLDOWN)
                 )
         );
@@ -127,9 +132,10 @@ public class HunterAi {
                 Activity.FIGHT,
                 10,
                 ImmutableList.of(
+                        new HandleHunterWeapons.Unsheathe(),
                         SwitchAttackTargetIfCloser.create(ModMemoryModuleTypes.NEAREST_VISIBLE_HOSTILES.get()),
                         SetWalkTargetFromAttackTargetIfTargetOutOfReach.create(SPEED_MULTIPLIER_WHEN_CHASING_TARGET),
-                        MeleeAttack.create(MELEE_ATTACK_COOLDOWN),
+                        DistanceMeleeAttack.create(MELEE_ATTACK_COOLDOWN, PREFERRED_ATTACK_DISTANCE, TOO_CLOSE_ATTACK_DISTANCE),
                         new CheckHealthAndRetreat(RETREAT_HEALTH_PERCENT, MAX_RETREAT_DURATION)
                 ),
                 MemoryModuleType.ATTACK_TARGET

@@ -5,47 +5,64 @@ import de.teamlapen.vampirism.api.VampirismRegistries;
 import de.teamlapen.vampirism.api.entity.hunter.IHunterVariant;
 import de.teamlapen.vampirism.core.ModEntities;
 import de.teamlapen.vampirism.core.ModHunterVariants;
+import de.teamlapen.vampirism.core.ModItems;
 import de.teamlapen.vampirism.core.ModRegistries;
 import de.teamlapen.vampirism.entity.ai.navigation.HunterPathNavigation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
+import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.network.protocol.game.DebugPackets;
 import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.RandomSource;
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.util.profiling.Profiler;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.common.NeoForgeMod;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 public class Hunter extends PathfinderMob implements VariantHolder<Holder<IHunterVariant>> {
 
+    private static final EntityDataAccessor<String> DATA_CLASS_TYPE_ID = SynchedEntityData.defineId(Hunter.class, EntityDataSerializers.STRING);
     private static final EntityDataAccessor<Holder<IHunterVariant>> DATA_VARIANT_ID = SynchedEntityData.defineId(Hunter.class, ModEntities.HUNTER_VARIANT.get());
+
+    public static final ClassType DEFAULT_CLASS_TYPE = ClassType.MELEE;
     public static final Holder<IHunterVariant> DEFAULT_VARIANT = ModHunterVariants.HUNTER_5_SLIM;
 
-    public static final String VARIANT_KEY = "variant";
+    public static final String TAG_CLASS_TYPE = "ClassType";
+    public static final String TAG_VARIANT = "Variant";
+    public static final String TAG_SHEATHED_WEAPONS = "SheathedWeapons";
+
+    private final NonNullList<ItemStack> sheathedWeapons = NonNullList.withSize(2, ItemStack.EMPTY);
 
     public Hunter(EntityType<? extends PathfinderMob> entityType, Level level) {
         super(entityType, level);
@@ -135,6 +152,14 @@ public class Hunter extends PathfinderMob implements VariantHolder<Holder<IHunte
         return level().getBlockState(blockPosition().relative(getDirection())).isSolid();
     }
 
+    public void setHunterClass(ClassType hunterClass) {
+        this.entityData.set(DATA_CLASS_TYPE_ID, hunterClass.getSerializedName());
+    }
+
+    public ClassType getHunterClass() {
+        return ClassType.get(this.entityData.get(DATA_CLASS_TYPE_ID));
+    }
+
     @Override
     public void setVariant(Holder<IHunterVariant> variant) {
         this.entityData.set(DATA_VARIANT_ID, variant);
@@ -148,22 +173,52 @@ public class Hunter extends PathfinderMob implements VariantHolder<Holder<IHunte
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
+        builder.define(DATA_CLASS_TYPE_ID, DEFAULT_CLASS_TYPE.getSerializedName());
         builder.define(DATA_VARIANT_ID, DEFAULT_VARIANT);
     }
 
     @Override
     public void addAdditionalSaveData(CompoundTag compound) {
         super.addAdditionalSaveData(compound);
-        compound.putString(VARIANT_KEY, Objects.requireNonNull(this.getVariant().unwrapKey().orElse(DEFAULT_VARIANT.getKey())).location().toString());
+
+        compound.putString(TAG_CLASS_TYPE, getHunterClass().getSerializedName());
+        compound.putString(TAG_VARIANT, Objects.requireNonNull(this.getVariant().unwrapKey().orElse(DEFAULT_VARIANT.getKey())).location().toString());
+
+        ListTag weaponsTag = new ListTag();
+
+        for (ItemStack stack : this.sheathedWeapons) {
+            if (!stack.isEmpty()) {
+                weaponsTag.add(stack.save(this.registryAccess()));
+            } else {
+                weaponsTag.add(new CompoundTag());
+            }
+        }
+
+        compound.put(TAG_SHEATHED_WEAPONS, weaponsTag);
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
-        Optional.ofNullable(ResourceLocation.tryParse(compound.getString(VARIANT_KEY)))
+
+        if (compound.contains(TAG_CLASS_TYPE)) {
+            setHunterClass(ClassType.get(compound.getString(TAG_CLASS_TYPE)));
+        }
+        Optional.ofNullable(ResourceLocation.tryParse(compound.getString(TAG_VARIANT)))
                 .map(key -> ResourceKey.create(VampirismRegistries.Keys.HUNTER_VARIANT, key))
                 .flatMap(ModRegistries.HUNTER_VARIANT::get)
                 .ifPresent(this::setVariant);
+
+        if (compound.contains(TAG_SHEATHED_WEAPONS, CompoundTag.TAG_LIST)) {
+            ListTag weaponsTag = compound.getList(TAG_SHEATHED_WEAPONS, CompoundTag.TAG_COMPOUND);
+
+            for (int i = 0; i < this.sheathedWeapons.size(); i++) {
+                CompoundTag weaponUnitTag = weaponsTag.getCompound(i);
+                this.sheathedWeapons.set(i, ItemStack.parseOptional(this.registryAccess(), weaponUnitTag));
+            }
+        } else {
+            Collections.fill(this.sheathedWeapons, ItemStack.EMPTY);
+        }
     }
 
     @Nullable
@@ -171,7 +226,105 @@ public class Hunter extends PathfinderMob implements VariantHolder<Holder<IHunte
     @SuppressWarnings("deprecation")
     public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, EntitySpawnReason spawnReason, @Nullable SpawnGroupData spawnGroupData) {
         this.setVariant(HunterVariant.getRandomVariant(DEFAULT_VARIANT, level.getRandom()));
+        this.setHunterClass(ClassType.getRandom(level.getRandom()));
+
+        assignRandomEquipment(level.getRandom());
+
         HunterAi.initMemories(this);
+
         return super.finalizeSpawn(level, difficulty, spawnReason, spawnGroupData);
+    }
+
+    private void assignRandomEquipment(RandomSource random) {
+        ItemStack axe = ModItems.HUNTER_AXE_NORMAL.toStack();
+        ItemStack crossbow = ModItems.BASIC_CROSSBOW.toStack();
+
+        Hunter.ClassType classType = getHunterClass();
+
+        if (classType == ClassType.MELEE) {
+            this.sheathedWeapons.set(0, axe.copy());
+            this.sheathedWeapons.set(1, random.nextDouble() < 0.2 ? axe.copy() : ItemStack.EMPTY);
+        } else if (classType == ClassType.RANGED) {
+            this.sheathedWeapons.set(0, crossbow.copy());
+        }
+    }
+
+    public void unsheatheWeapons() {
+        if (!this.sheathedWeapons.isEmpty()) {
+            ItemStack main = this.sheathedWeapons.get(0);
+            if (!main.isEmpty()) {
+                this.setItemInHand(InteractionHand.MAIN_HAND, main.copy());
+            }
+
+            if (this.sheathedWeapons.size() > 1) {
+                ItemStack off = this.sheathedWeapons.get(1);
+                if (!off.isEmpty()) {
+                    this.setItemInHand(InteractionHand.OFF_HAND, off.copy());
+                }
+            }
+        }
+    }
+
+    public void sheatheWeapons() {
+        ItemStack main = this.getMainHandItem();
+        ItemStack off = this.getOffhandItem();
+
+        if (!main.isEmpty()) this.sheathedWeapons.set(0, main.copy());
+        if (!off.isEmpty()) this.sheathedWeapons.set(1, off.copy());
+
+        this.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+        this.setItemInHand(InteractionHand.OFF_HAND, ItemStack.EMPTY);
+    }
+
+    public enum ClassType implements StringRepresentable {
+        MELEE("melee", 6),
+        RANGED("ranged", 4);
+
+        private final String name;
+        private final int weight;
+
+        ClassType(String name, int weight) {
+            this.name = name;
+            this.weight = weight;
+        }
+
+        public static ClassType getRandom(RandomSource random) {
+            int totalWeight = 0;
+            for (ClassType classType : values()) {
+                totalWeight += classType.weight;
+            }
+
+            int roll = random.nextInt(totalWeight);
+            for (ClassType classType : values()) {
+                roll -= classType.weight;
+                if (roll < 0) {
+                    return classType;
+                }
+            }
+
+            return MELEE;
+        }
+
+        public static @NotNull Hunter.ClassType get(String value) {
+            try {
+                return ClassType.valueOf(value.toUpperCase(Locale.ROOT));
+            } catch (IllegalArgumentException e) {
+                return MELEE;
+            }
+        }
+
+        public int getWeight() {
+            return weight;
+        }
+
+        @Override
+        public String toString() {
+            return this.name;
+        }
+
+        @Override
+        public String getSerializedName() {
+            return name;
+        }
     }
 }
