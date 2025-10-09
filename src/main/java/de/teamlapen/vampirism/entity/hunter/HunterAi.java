@@ -33,9 +33,12 @@ public class HunterAi {
     private static final int MAX_PATROL_COOLDOWN = 120;
 
     private static final float SPEED_MULTIPLIER_WHEN_CHASING_TARGET = 0.7F;
+    private static final float SPEED_MULTIPLIER_WHEN_DISTANCING_RANGED = 0.85F;
     private static final int MELEE_ATTACK_COOLDOWN = 20;
     private static final double PREFERRED_ATTACK_DISTANCE = 2.0D;
     private static final double TOO_CLOSE_ATTACK_DISTANCE = 1.0D;
+    private static final double MIN_RANGE_ATTACK_DISTANCE = 7.5D;
+    private static final double MAX_RANGE_ATTACK_DISTANCE = 13.0D;
 
     private static final float SPEED_MULTIPLIER_WHEN_RETREATING = 0.7F;
     private static final float RETREAT_HEALTH_PERCENT = 0.25F;
@@ -77,7 +80,11 @@ public class HunterAi {
     protected static Brain<Hunter> makeBrain(Hunter hunter, Brain<Hunter> brain) {
         initCoreActivity(brain);
         initPatrolActivity(brain);
-        initFightActivity(brain);
+        if (hunter.isRangedClass()) {
+            initRangedFightActivity(brain);
+        } else {
+            initMeleeFightActivity(brain);
+        }
         initRetreatActivity(brain);
 
         brain.setCoreActivities(ImmutableSet.of(Activity.CORE));
@@ -127,7 +134,7 @@ public class HunterAi {
         );
     }
 
-    private static void initFightActivity(Brain<Hunter> brain) {
+    private static void initMeleeFightActivity(Brain<Hunter> brain) {
         brain.addActivityAndRemoveMemoryWhenStopped(
                 Activity.FIGHT,
                 10,
@@ -136,6 +143,21 @@ public class HunterAi {
                         SwitchAttackTargetIfCloser.create(ModMemoryModuleTypes.NEAREST_VISIBLE_HOSTILES.get()),
                         SetWalkTargetFromAttackTargetIfTargetOutOfReach.create(SPEED_MULTIPLIER_WHEN_CHASING_TARGET),
                         DistanceMeleeAttack.create(MELEE_ATTACK_COOLDOWN, PREFERRED_ATTACK_DISTANCE, TOO_CLOSE_ATTACK_DISTANCE),
+                        new CheckHealthAndRetreat(RETREAT_HEALTH_PERCENT, MAX_RETREAT_DURATION)
+                ),
+                MemoryModuleType.ATTACK_TARGET
+        );
+    }
+
+    private static void initRangedFightActivity(Brain<Hunter> brain) {
+        brain.addActivityAndRemoveMemoryWhenStopped(
+                Activity.FIGHT,
+                10,
+                ImmutableList.of(
+                        new HandleHunterWeapons.Unsheathe(),
+                        SwitchAttackTargetIfCloser.create(ModMemoryModuleTypes.NEAREST_VISIBLE_HOSTILES.get()),
+                        new SimpleCrossbowAttack<Hunter, Hunter>(),
+                        MaintainDistanceFrom.entity(MemoryModuleType.ATTACK_TARGET, SPEED_MULTIPLIER_WHEN_DISTANCING_RANGED, MIN_RANGE_ATTACK_DISTANCE, MAX_RANGE_ATTACK_DISTANCE),
                         new CheckHealthAndRetreat(RETREAT_HEALTH_PERCENT, MAX_RETREAT_DURATION)
                 ),
                 MemoryModuleType.ATTACK_TARGET
@@ -198,6 +220,7 @@ public class HunterAi {
     public static void wasHurtBy(ServerLevel level, Hunter hunter, LivingEntity entity) {
         if (entity instanceof Hunter) return;
 
+        // TODO: Make hunters also support players if neutral or hunter
         maybeRetaliate(level, hunter, entity);
     }
 

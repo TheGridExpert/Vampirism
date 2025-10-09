@@ -4,8 +4,10 @@ import de.teamlapen.vampirism.api.items.IEntityCrossbowArrow;
 import de.teamlapen.vampirism.api.items.IVampirismCrossbowArrow;
 import de.teamlapen.vampirism.core.ModEntities;
 import de.teamlapen.vampirism.core.ModItems;
+import de.teamlapen.vampirism.entity.hunter.Hunter;
 import de.teamlapen.vampirism.items.CrossbowArrowItem;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.AbstractArrow;
@@ -96,5 +98,14 @@ public class CrossbowArrowEntity extends AbstractArrow implements IEntityCrossbo
     @Override
     public void shoot(double pX, double pY, double pZ, float pVelocity, float pInaccuracy) {
         super.shoot(pX, pY, pZ, pVelocity, pInaccuracy);
+    }
+
+    @Override
+    protected boolean canHitEntity(@NotNull Entity target) {
+        if (getOwner() instanceof Hunter && target instanceof Hunter) {
+            return false;
+        }
+
+        return super.canHitEntity(target);
     }
 }

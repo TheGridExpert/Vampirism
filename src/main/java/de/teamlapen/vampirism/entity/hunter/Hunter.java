@@ -3,6 +3,7 @@ package de.teamlapen.vampirism.entity.hunter;
 import com.mojang.serialization.Dynamic;
 import de.teamlapen.vampirism.api.VampirismRegistries;
 import de.teamlapen.vampirism.api.entity.hunter.IHunterVariant;
+import de.teamlapen.vampirism.api.items.IHunterCrossbow;
 import de.teamlapen.vampirism.core.ModEntities;
 import de.teamlapen.vampirism.core.ModHunterVariants;
 import de.teamlapen.vampirism.core.ModItems;
@@ -36,11 +37,15 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
+import net.minecraft.world.entity.monster.CrossbowAttackMob;
+import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ProjectileWeaponItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Blocks;
+import net.neoforged.neoforge.common.CommonHooks;
 import net.neoforged.neoforge.common.NeoForgeMod;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -51,10 +56,11 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-public class Hunter extends PathfinderMob implements VariantHolder<Holder<IHunterVariant>> {
+public class Hunter extends PathfinderMob implements VariantHolder<Holder<IHunterVariant>>, CrossbowAttackMob {
 
     private static final EntityDataAccessor<String> DATA_CLASS_TYPE_ID = SynchedEntityData.defineId(Hunter.class, EntityDataSerializers.STRING);
     private static final EntityDataAccessor<Holder<IHunterVariant>> DATA_VARIANT_ID = SynchedEntityData.defineId(Hunter.class, ModEntities.HUNTER_VARIANT.get());
+    private static final EntityDataAccessor<Boolean> DATA_IS_CHARGING_CROSSBOW = SynchedEntityData.defineId(Hunter.class, EntityDataSerializers.BOOLEAN);
 
     public static final ClassType DEFAULT_CLASS_TYPE = ClassType.MELEE;
     public static final Holder<IHunterVariant> DEFAULT_VARIANT = ModHunterVariants.HUNTER_5_SLIM;
@@ -97,6 +103,7 @@ public class Hunter extends PathfinderMob implements VariantHolder<Holder<IHunte
 
     @Override
     protected Brain<Hunter> makeBrain(Dynamic<?> dynamic) {
+        this.setHunterClass(ClassType.getRandom(this.random));
         return HunterAi.makeBrain(this, this.brainProvider().makeBrain(dynamic));
     }
 
@@ -176,6 +183,7 @@ public class Hunter extends PathfinderMob implements VariantHolder<Holder<IHunte
         super.defineSynchedData(builder);
         builder.define(DATA_CLASS_TYPE_ID, DEFAULT_CLASS_TYPE.getSerializedName());
         builder.define(DATA_VARIANT_ID, DEFAULT_VARIANT);
+        builder.define(DATA_IS_CHARGING_CROSSBOW, false);
     }
 
     @Override
@@ -227,7 +235,6 @@ public class Hunter extends PathfinderMob implements VariantHolder<Holder<IHunte
     @SuppressWarnings("deprecation")
     public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, EntitySpawnReason spawnReason, @Nullable SpawnGroupData spawnGroupData) {
         this.setVariant(HunterVariant.getRandomVariant(DEFAULT_VARIANT, level.getRandom()));
-        this.setHunterClass(ClassType.getRandom(level.getRandom()));
 
         assignRandomEquipment(level.getRandom());
 
@@ -289,9 +296,46 @@ public class Hunter extends PathfinderMob implements VariantHolder<Holder<IHunte
         return wasHurt;
     }
 
+    @Override
+    public void setChargingCrossbow(boolean chargingCrossbow) {
+        this.entityData.set(DATA_IS_CHARGING_CROSSBOW, chargingCrossbow);
+    }
+
+    @Override
+    public void onCrossbowAttackPerformed() {
+        this.noActionTime = 0;
+    }
+
+    @Override
+    public void performRangedAttack(LivingEntity target, float velocity) {
+        this.performCrossbowAttack(this, 2.0F);
+    }
+
+    @Override
+    public ItemStack getProjectile(ItemStack weaponStack) {
+        if (weaponStack.getItem() instanceof IHunterCrossbow) {
+            return CommonHooks.getProjectile(this, weaponStack, ModItems.CROSSBOW_ARROW_NORMAL.get().getDefaultInstance());
+        }
+
+        return super.getProjectile(weaponStack);
+    }
+
+    @Override
+    public boolean canFireProjectileWeapon(ProjectileWeaponItem projectileWeapon) {
+        return projectileWeapon instanceof CrossbowItem;
+    }
+
+    public boolean isMeleeClass() {
+        return getHunterClass() == ClassType.MELEE;
+    }
+
+    public boolean isRangedClass() {
+        return getHunterClass() == ClassType.RANGED;
+    }
+
     public enum ClassType implements StringRepresentable {
-        MELEE("melee", 6),
-        RANGED("ranged", 4);
+        MELEE("melee", 0), // 6
+        RANGED("ranged", 10); // 4
 
         private final String name;
         private final int weight;
