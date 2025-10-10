@@ -29,6 +29,7 @@
     "accessor.AttributeInstanceAccessor",
     "accessor.BeaconBeamSectionMixin",
     "accessor.BlockFamiliesAccessor",
+    "accessor.CrossbowAttackAccessor",
     "accessor.EntityAccessor",
     "accessor.FoodDataAccessor",
     "accessor.GoalSelectorAccessor",

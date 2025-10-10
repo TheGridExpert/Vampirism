@@ -69,6 +69,8 @@ public class Hunter extends PathfinderMob implements VariantHolder<Holder<IHunte
     public static final String TAG_VARIANT = "Variant";
     public static final String TAG_SHEATHED_WEAPONS = "SheathedWeapons";
 
+    public static final float ARROW_VELOCITY = 2.0F;
+
     private final NonNullList<ItemStack> sheathedWeapons = NonNullList.withSize(2, ItemStack.EMPTY);
 
     public Hunter(EntityType<? extends PathfinderMob> entityType, Level level) {
@@ -113,7 +115,7 @@ public class Hunter extends PathfinderMob implements VariantHolder<Holder<IHunte
         profilerFiller.push("hunterBrain");
         this.getBrain().tick(level, this);
         profilerFiller.pop();
-        HunterAi.updateActivity(getBrain());
+        HunterAi.updateActivity(this);
 
         super.customServerAiStep(level);
     }
@@ -308,7 +310,7 @@ public class Hunter extends PathfinderMob implements VariantHolder<Holder<IHunte
 
     @Override
     public void performRangedAttack(LivingEntity target, float velocity) {
-        this.performCrossbowAttack(this, 2.0F);
+        this.performCrossbowAttack(this, ARROW_VELOCITY);
     }
 
     @Override

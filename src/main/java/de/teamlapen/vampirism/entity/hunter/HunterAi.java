@@ -89,7 +89,7 @@ public class HunterAi {
 
         brain.setCoreActivities(ImmutableSet.of(Activity.CORE));
         brain.setDefaultActivity(Activity.IDLE);
-        updateActivity(brain);
+        brain.useDefaultActivity();
 
         return brain;
     }
@@ -185,12 +185,20 @@ public class HunterAi {
         );
     }
 
-    public static void updateActivity(Brain<Hunter> brain) {
+    public static void updateActivity(Hunter hunter) {
+        Brain<Hunter> brain = hunter.getBrain();
+        Activity previousActivity = brain.getActiveNonCoreActivity().orElse(null);
+
         brain.setActiveActivityToFirstValid(ImmutableList.of(
                 Activity.AVOID,
                 Activity.FIGHT,
                 Activity.IDLE
         ));
+
+        Activity newActivity = brain.getActiveNonCoreActivity().orElse(null);
+        if (previousActivity != Activity.FIGHT && newActivity == Activity.FIGHT) {
+            stopWalking(hunter);
+        }
     }
 
     public static boolean isEnemy(LivingEntity target, LivingEntity hunter) {
@@ -261,6 +269,11 @@ public class HunterAi {
 
     public static Optional<LivingEntity> getAngerTarget(LivingEntity entity) {
         return BehaviorUtils.getLivingEntityFromUUIDMemory(entity, MemoryModuleType.ANGRY_AT);
+    }
+
+    private static void stopWalking(Hunter hunter) {
+        hunter.getBrain().eraseMemory(MemoryModuleType.WALK_TARGET);
+        hunter.getNavigation().stop();
     }
 
     public static boolean isRetreating(Hunter hunter) {
