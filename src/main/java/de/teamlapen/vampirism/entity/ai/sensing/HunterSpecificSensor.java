@@ -26,7 +26,9 @@ public class HunterSpecificSensor extends Sensor<LivingEntity> {
     }
 
     @Override
-    protected void doTick(ServerLevel level, LivingEntity hunter) {
+    protected void doTick(ServerLevel level, LivingEntity entity) {
+        if (!(entity instanceof Hunter hunter)) return;
+
         Brain<?> brain = hunter.getBrain();
 
         List<LivingEntity> hunters = Lists.newArrayList();
@@ -45,5 +47,19 @@ public class HunterSpecificSensor extends Sensor<LivingEntity> {
 
         brain.setMemory(ModMemoryModuleTypes.NEAREST_VISIBLE_HUNTERS.get(), hunters);
         brain.setMemory(ModMemoryModuleTypes.NEAREST_VISIBLE_HOSTILES.get(), hostiles);
+
+        for (LivingEntity ally : hunters) {
+            if (ally instanceof Hunter allyHunter && allyHunter.isAlive()) {
+                Brain<Hunter> allyBrain = allyHunter.getBrain();
+
+                allyBrain.getMemory(MemoryModuleType.ATTACK_TARGET).ifPresent(target -> {
+                    if (!brain.hasMemoryValue(MemoryModuleType.ATTACK_TARGET)) {
+                        if (HunterAi.isEnemy(target, hunter) && hunter.distanceToSqr(target) < 400.0D && level.random.nextFloat() < 0.8F) {
+                            HunterAi.setAngerTarget(level, hunter, target);
+                        }
+                    }
+                });
+            }
+        }
     }
 }

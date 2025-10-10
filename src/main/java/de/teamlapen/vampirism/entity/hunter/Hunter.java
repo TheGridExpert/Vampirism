@@ -86,7 +86,7 @@ public class Hunter extends PathfinderMob implements VariantHolder<Holder<IHunte
 
     public static AttributeSupplier.Builder getAttributeBuilder() {
         return LivingEntity.createLivingAttributes()
-                .add(Attributes.FOLLOW_RANGE, 16.0)
+                .add(Attributes.FOLLOW_RANGE, 32.0)
                 .add(Attributes.MOVEMENT_SPEED, 0.55F)
                 .add(NeoForgeMod.SWIM_SPEED, 2.5F)
                 .add(Attributes.ATTACK_DAMAGE, 3.0);
