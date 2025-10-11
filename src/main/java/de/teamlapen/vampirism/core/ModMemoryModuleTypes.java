@@ -20,6 +20,7 @@ public class ModMemoryModuleTypes {
 
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Unit>> PATROL_COOLDOWN = registerMemory("patrol_cooldown", Unit.CODEC);
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Unit>> RETREAT_COOLDOWN = registerMemory("retreat_cooldown", Unit.CODEC);
+    public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Unit>> REPOSITIONING_COOLDOWN = registerMemory("repositioning_cooldown", Unit.CODEC);
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Unit>> SHOULD_RETREAT = registerMemory("should_retreat", Unit.CODEC);
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Unit>> WEAPONS_UNSHEATHED = registerMemory("weapons_unsheathed", Unit.CODEC);
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Long>> WEAPON_SHEATH_COOLDOWN = registerMemory("weapon_sheath_cooldown");

@@ -65,6 +65,7 @@ public class HunterAi {
             MemoryModuleType.ATTACK_COOLING_DOWN,
             ModMemoryModuleTypes.PATROL_COOLDOWN.get(),
             ModMemoryModuleTypes.RETREAT_COOLDOWN.get(),
+            ModMemoryModuleTypes.REPOSITIONING_COOLDOWN.get(),
             ModMemoryModuleTypes.SHOULD_RETREAT.get(),
             ModMemoryModuleTypes.WEAPONS_UNSHEATHED.get(),
             ModMemoryModuleTypes.WEAPON_SHEATH_COOLDOWN.get(),
