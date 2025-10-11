@@ -50,9 +50,7 @@ public class HunterSpecificSensor extends Sensor<LivingEntity> {
 
         for (LivingEntity ally : hunters) {
             if (ally instanceof Hunter allyHunter && allyHunter.isAlive()) {
-                Brain<Hunter> allyBrain = allyHunter.getBrain();
-
-                allyBrain.getMemory(MemoryModuleType.ATTACK_TARGET).ifPresent(target -> {
+                allyHunter.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).ifPresent(target -> {
                     if (!brain.hasMemoryValue(MemoryModuleType.ATTACK_TARGET)) {
                         if (HunterAi.isEnemy(target, hunter) && hunter.distanceToSqr(target) < 400.0D && level.random.nextFloat() < 0.8F) {
                             HunterAi.setAngerTarget(level, hunter, target);

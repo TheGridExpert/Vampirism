@@ -38,7 +38,7 @@ public class HunterAi {
     private static final double PREFERRED_ATTACK_DISTANCE = 2.0D;
     private static final double TOO_CLOSE_ATTACK_DISTANCE = 1.0D;
     private static final double MIN_RANGE_ATTACK_DISTANCE = 7.5D;
-    private static final double MAX_RANGE_ATTACK_DISTANCE = 13.0D;
+    private static final double MAX_RANGE_ATTACK_DISTANCE = 15.0D;
 
     private static final float SPEED_MULTIPLIER_WHEN_RETREATING = 0.7F;
     private static final float RETREAT_HEALTH_PERCENT = 0.25F;
@@ -157,7 +157,7 @@ public class HunterAi {
                         new HandleHunterWeapons.Unsheathe(),
                         SwitchAttackTargetIfCloser.create(ModMemoryModuleTypes.NEAREST_VISIBLE_HOSTILES.get()),
                         new SimpleCrossbowAttack<Hunter, Hunter>(),
-                        MaintainDistanceFrom.entity(MemoryModuleType.ATTACK_TARGET, SPEED_MULTIPLIER_WHEN_DISTANCING_RANGED, MIN_RANGE_ATTACK_DISTANCE, MAX_RANGE_ATTACK_DISTANCE),
+                        MaintainDistanceFrom.create(SPEED_MULTIPLIER_WHEN_DISTANCING_RANGED, MIN_RANGE_ATTACK_DISTANCE, MAX_RANGE_ATTACK_DISTANCE),
                         new CheckHealthAndRetreat(RETREAT_HEALTH_PERCENT, MAX_RETREAT_DURATION)
                 ),
                 MemoryModuleType.ATTACK_TARGET

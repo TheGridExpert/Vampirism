@@ -31,16 +31,25 @@ public class SimpleCrossbowAttack<E extends Mob & CrossbowAttackMob, T extends L
         LivingEntity target = shooter.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).orElse(null);
         if (target == null || !target.isAlive()) return;
 
+        Vec3 aimPos = calculateAimPosition(shooter, target);
+        shooter.getLookControl().setLookAt(aimPos.x, aimPos.y, aimPos.z, 45.0F, 45.0F);
+
+        if (shooter.getBrain().hasMemoryValue(MemoryModuleType.WALK_TARGET)) return;
+
+        ((CrossbowAttackAccessor) this).invokeCrossbowAttack(shooter, target);
+    }
+
+    private Vec3 calculateAimPosition(E shooter, LivingEntity target) {
         Vec3 shooterPos = shooter.position().add(0, shooter.getEyeHeight(), 0);
         Vec3 targetPos = target.position().add(0, target.getBbHeight(), 0);
         Vec3 targetVel = target.getDeltaMovement();
 
-        Vec3 delta = targetPos.subtract(shooterPos);
-        double horizontalDist = Math.sqrt(delta.x * delta.x + delta.z * delta.z);
         double arrowVelocity = Hunter.ARROW_VELOCITY;
         double gravity = getArrowGravity(shooter.getProjectile(shooter.getMainHandItem()).getItem());
-        double travelTime = horizontalDist / arrowVelocity;
 
+        Vec3 delta = targetPos.subtract(shooterPos);
+        double horizontalDist = Math.sqrt(delta.x * delta.x + delta.z * delta.z);
+        double travelTime = horizontalDist / arrowVelocity;
         Vec3 futurePos = targetPos.add(targetVel.scale(travelTime));
 
         Vec3 diff = futurePos.subtract(shooterPos);
@@ -63,13 +72,8 @@ public class SimpleCrossbowAttack<E extends Mob & CrossbowAttackMob, T extends L
             double heightOffset = arrowVelocity * Math.sin(angle) * t - 0.5 * gravity * t * t;
             aimY = shooterPos.y + heightOffset;
         }
-        Vec3 aimPos = new Vec3(futurePos.x, aimY, futurePos.z);
 
-        shooter.getLookControl().setLookAt(aimPos.x, aimPos.y, aimPos.z, 45.0F, 45.0F);
-
-        if (shooter.getBrain().hasMemoryValue(MemoryModuleType.WALK_TARGET)) return;
-
-        ((CrossbowAttackAccessor) this).invokeCrossbowAttack(shooter, target);
+        return new Vec3(futurePos.x, aimY, futurePos.z);
     }
 
     public static double getArrowGravity(Item arrowItem) {

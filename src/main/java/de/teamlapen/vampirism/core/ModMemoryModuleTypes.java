@@ -23,7 +23,6 @@ public class ModMemoryModuleTypes {
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Unit>> SHOULD_RETREAT = registerMemory("should_retreat", Unit.CODEC);
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Unit>> WEAPONS_UNSHEATHED = registerMemory("weapons_unsheathed", Unit.CODEC);
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Long>> WEAPON_SHEATH_COOLDOWN = registerMemory("weapon_sheath_cooldown");
-    public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Unit>> REPOSITIONING_COOLDOWN = registerMemory("repositioning_cooldown", Unit.CODEC);
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Set<GlobalPos>>> GATES_TO_CLOSE = registerMemory("gates_to_close");
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<List<LivingEntity>>> NEAREST_VISIBLE_HUNTERS = registerMemory("nearest_visible_hunters");
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<List<LivingEntity>>> NEAREST_VISIBLE_HOSTILES = registerMemory("nearest_visible_hostiles");
