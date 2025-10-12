@@ -44,6 +44,8 @@ public class HunterAi {
     private static final float RETREAT_HEALTH_PERCENT = 0.25F;
     private static final float SAFE_HEALTH_PERCENT = 0.75F;
     private static final int MAX_RETREAT_DURATION = 700;
+    private static final double RETREAT_DISTANCE = 5.0D;
+    private static final double RETREAT_SAFE_DISTANCE = 15.0D;
 
     private static final ImmutableList<SensorType<? extends Sensor<? super Hunter>>> SENSOR_TYPES = ImmutableList.of(
             SensorType.NEAREST_LIVING_ENTITIES,
@@ -172,7 +174,7 @@ public class HunterAi {
                 15,
                 ImmutableList.of(
                         // TODO: Finding a spot to retreat is still pretty broken, requires fixing
-                        RetreatFromEnemies.create(ModMemoryModuleTypes.NEAREST_VISIBLE_HOSTILES.get(), SPEED_MULTIPLIER_WHEN_RETREATING, 5),
+                        RetreatFromEnemies.create(ModMemoryModuleTypes.NEAREST_VISIBLE_HOSTILES.get(), SPEED_MULTIPLIER_WHEN_RETREATING, RETREAT_DISTANCE, RETREAT_SAFE_DISTANCE),
                         new RunOne<>(
                                 ImmutableList.of(
                                         Pair.of(SetEntityLookClosestOfRange.create(ModMemoryModuleTypes.NEAREST_VISIBLE_HOSTILES.get(), 12.0F), 3),
@@ -235,7 +237,7 @@ public class HunterAi {
     }
 
     public static void maybeRetaliate(ServerLevel level, Hunter hunter, LivingEntity entity) {
-        if (!isRetreating(hunter)) {
+        if (!hunter.isRetreating()) {
             if (Sensor.isEntityAttackableIgnoringLineOfSight(level, hunter, entity)) {
                 if (!BehaviorUtils.isOtherTargetMuchFurtherAwayThanCurrentAttackTarget(hunter, entity, 4.0)) {
                     setAngerTarget(level, hunter, entity);
@@ -276,9 +278,5 @@ public class HunterAi {
     private static void stopWalking(Hunter hunter) {
         hunter.getBrain().eraseMemory(MemoryModuleType.WALK_TARGET);
         hunter.getNavigation().stop();
-    }
-
-    public static boolean isRetreating(Hunter hunter) {
-        return hunter.getBrain().isActive(Activity.AVOID);
     }
 }

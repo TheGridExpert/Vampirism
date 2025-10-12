@@ -31,6 +31,7 @@ import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -38,6 +39,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.monster.CrossbowAttackMob;
+import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ProjectileWeaponItem;
@@ -116,6 +118,8 @@ public class Hunter extends PathfinderMob implements VariantHolder<Holder<IHunte
         this.getBrain().tick(level, this);
         profilerFiller.pop();
         HunterAi.updateActivity(this);
+
+        handleNaturalRegeneration(level);
 
         super.customServerAiStep(level);
     }
@@ -325,6 +329,31 @@ public class Hunter extends PathfinderMob implements VariantHolder<Holder<IHunte
     @Override
     public boolean canFireProjectileWeapon(ProjectileWeaponItem projectileWeapon) {
         return projectileWeapon instanceof CrossbowItem;
+    }
+
+    private void handleNaturalRegeneration(ServerLevel level) {
+        if (level.getDifficulty() == Difficulty.PEACEFUL) return;
+        if (this.isFighting()) return;
+        if (!this.isAlive() || this.getMaxHealth() == this.getHealth()) return;
+        if (this.hasEffect(MobEffects.HUNGER)) return;
+
+        int regenDelay = switch (level.getDifficulty()) {
+            case EASY -> 300;
+            case HARD -> 80;
+            default -> 180;
+        };
+
+        if (this.tickCount % regenDelay == 0) {
+            this.heal(1.0F);
+        }
+    }
+
+    public boolean isFighting() {
+        return this.getBrain().isActive(Activity.FIGHT);
+    }
+
+    public boolean isRetreating() {
+        return this.getBrain().isActive(Activity.AVOID);
     }
 
     public boolean isMeleeClass() {
