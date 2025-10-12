@@ -336,8 +336,8 @@ public class Hunter extends PathfinderMob implements VariantHolder<Holder<IHunte
     }
 
     public enum ClassType implements StringRepresentable {
-        MELEE("melee", 0), // 6
-        RANGED("ranged", 10); // 4
+        MELEE("melee", 6),
+        RANGED("ranged", 4);
 
         private final String name;
         private final int weight;

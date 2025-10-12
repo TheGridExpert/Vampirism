@@ -24,7 +24,7 @@ import java.util.Comparator;
 public class MaintainDistanceFrom {
 
     private static final double MIN_MOVE_DISTANCE = 4.0;
-    private static final int MOVE_COOLDOWN_TICKS = 60;
+    private static final int MOVE_COOLDOWN_TICKS = 40;
 
     public static <T> OneShot<PathfinderMob> create(float speedModifier, double minDistance, double maxDistance) {
         return BehaviorBuilder.create(instance -> instance.group(

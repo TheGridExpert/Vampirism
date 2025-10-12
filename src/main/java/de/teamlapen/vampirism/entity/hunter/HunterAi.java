@@ -69,6 +69,7 @@ public class HunterAi {
             ModMemoryModuleTypes.SHOULD_RETREAT.get(),
             ModMemoryModuleTypes.WEAPONS_UNSHEATHED.get(),
             ModMemoryModuleTypes.WEAPON_SHEATH_COOLDOWN.get(),
+            ModMemoryModuleTypes.AIM_TARGET.get(),
             ModMemoryModuleTypes.GATES_TO_CLOSE.get(),
             ModMemoryModuleTypes.NEAREST_VISIBLE_HUNTERS.get(),
             ModMemoryModuleTypes.NEAREST_VISIBLE_HOSTILES.get()
@@ -157,7 +158,7 @@ public class HunterAi {
                 ImmutableList.of(
                         new HandleHunterWeapons.Unsheathe(),
                         SwitchAttackTargetIfCloser.create(ModMemoryModuleTypes.NEAREST_VISIBLE_HOSTILES.get()),
-                        new SimpleCrossbowAttack<Hunter, Hunter>(),
+                        new PreciseCrossbowAttack<Hunter, Hunter>(),
                         MaintainDistanceFrom.create(SPEED_MULTIPLIER_WHEN_DISTANCING_RANGED, MIN_RANGE_ATTACK_DISTANCE, MAX_RANGE_ATTACK_DISTANCE),
                         new CheckHealthAndRetreat(RETREAT_HEALTH_PERCENT, MAX_RETREAT_DURATION)
                 ),

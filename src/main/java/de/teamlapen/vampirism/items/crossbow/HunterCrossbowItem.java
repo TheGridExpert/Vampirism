@@ -6,6 +6,7 @@ import de.teamlapen.vampirism.api.items.IHunterCrossbow;
 import de.teamlapen.vampirism.api.items.IVampirismCrossbowArrow;
 import de.teamlapen.vampirism.core.ModDataComponents;
 import de.teamlapen.vampirism.core.tags.ModItemTags;
+import de.teamlapen.vampirism.entity.ai.behaviour.PreciseCrossbowAttack;
 import de.teamlapen.vampirism.entity.player.hunter.HunterPlayer;
 import de.teamlapen.vampirism.entity.player.hunter.skills.HunterSkills;
 import de.teamlapen.vampirism.items.QuarrelPouch;
@@ -297,4 +298,10 @@ public abstract class HunterCrossbowItem extends CrossbowItem implements IHunter
         return getAmmunition(crossbow).map(quarrel::is).orElse(true);
     }
 
+    @Override
+    protected void shootProjectile(LivingEntity shooter, Projectile projectile, int index, float velocity, float inaccuracy, float angle, @Nullable LivingEntity targetEntity) {
+        if (!PreciseCrossbowAttack.shootAimedProjectile(this, shooter, projectile, index, velocity, inaccuracy, angle)) {
+            super.shootProjectile(shooter, projectile, index, velocity, inaccuracy, angle, targetEntity);
+        }
+    }
 }
