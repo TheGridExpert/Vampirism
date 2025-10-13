@@ -15,6 +15,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.behavior.*;
+import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.sensing.Sensor;
 import net.minecraft.world.entity.ai.sensing.SensorType;
@@ -35,7 +36,7 @@ public class HunterAi {
     private static final float SPEED_MULTIPLIER_WHEN_CHASING_TARGET = 0.7F;
     private static final float SPEED_MULTIPLIER_WHEN_DISTANCING_RANGED = 0.85F;
     private static final int MELEE_ATTACK_COOLDOWN = 20;
-    private static final double PREFERRED_ATTACK_DISTANCE = 2.0D;
+    private static final double PREFERRED_ATTACK_DISTANCE = 2.5D;
     private static final double TOO_CLOSE_ATTACK_DISTANCE = 1.0D;
     private static final double MIN_RANGE_ATTACK_DISTANCE = 7.5D;
     private static final double MAX_RANGE_ATTACK_DISTANCE = 15.0D;
@@ -84,11 +85,7 @@ public class HunterAi {
     protected static Brain<Hunter> makeBrain(Hunter hunter, Brain<Hunter> brain) {
         initCoreActivity(brain);
         initPatrolActivity(brain);
-        if (hunter.isRangedClass()) {
-            initRangedFightActivity(brain);
-        } else {
-            initMeleeFightActivity(brain);
-        }
+        initFightActivity(brain);
         initRetreatActivity(brain);
 
         brain.setCoreActivities(ImmutableSet.of(Activity.CORE));
@@ -138,31 +135,20 @@ public class HunterAi {
         );
     }
 
-    private static void initMeleeFightActivity(Brain<Hunter> brain) {
+    private static void initFightActivity(Brain<Hunter> brain) {
         brain.addActivityAndRemoveMemoryWhenStopped(
                 Activity.FIGHT,
                 10,
                 ImmutableList.of(
                         new HandleHunterWeapons.Unsheathe(),
                         SwitchAttackTargetIfCloser.create(ModMemoryModuleTypes.NEAREST_VISIBLE_HOSTILES.get()),
-                        SetWalkTargetFromAttackTargetIfTargetOutOfReach.create(SPEED_MULTIPLIER_WHEN_CHASING_TARGET),
-                        DistanceMeleeAttack.create(MELEE_ATTACK_COOLDOWN, PREFERRED_ATTACK_DISTANCE, TOO_CLOSE_ATTACK_DISTANCE),
-                        new CheckHealthAndRetreat(RETREAT_HEALTH_PERCENT, MAX_RETREAT_DURATION)
-                ),
-                MemoryModuleType.ATTACK_TARGET
-        );
-    }
-
-    private static void initRangedFightActivity(Brain<Hunter> brain) {
-        brain.addActivityAndRemoveMemoryWhenStopped(
-                Activity.FIGHT,
-                10,
-                ImmutableList.of(
-                        new HandleHunterWeapons.Unsheathe(),
-                        SwitchAttackTargetIfCloser.create(ModMemoryModuleTypes.NEAREST_VISIBLE_HOSTILES.get()),
-                        new PreciseCrossbowAttack<Hunter, Hunter>(),
-                        MaintainDistanceFrom.create(SPEED_MULTIPLIER_WHEN_DISTANCING_RANGED, MIN_RANGE_ATTACK_DISTANCE, MAX_RANGE_ATTACK_DISTANCE),
-                        new CheckHealthAndRetreat(RETREAT_HEALTH_PERCENT, MAX_RETREAT_DURATION)
+                        new CheckHealthAndRetreat(RETREAT_HEALTH_PERCENT, MAX_RETREAT_DURATION),
+                        // Melee
+                        ifMelee(DistanceMeleeAttack.create(MELEE_ATTACK_COOLDOWN, PREFERRED_ATTACK_DISTANCE, TOO_CLOSE_ATTACK_DISTANCE)),
+                        ifMelee(SetWalkTargetFromAttackTargetIfTargetOutOfReach.create(SPEED_MULTIPLIER_WHEN_CHASING_TARGET)),
+                        // Ranged
+                        new PreciseCrossbowAttack(),
+                        ifRanged(MaintainDistanceFrom.create(SPEED_MULTIPLIER_WHEN_DISTANCING_RANGED, MIN_RANGE_ATTACK_DISTANCE, MAX_RANGE_ATTACK_DISTANCE))
                 ),
                 MemoryModuleType.ATTACK_TARGET
         );
@@ -173,7 +159,6 @@ public class HunterAi {
                 Activity.AVOID,
                 15,
                 ImmutableList.of(
-                        // TODO: Finding a spot to retreat is still pretty broken, requires fixing
                         RetreatFromEnemies.create(ModMemoryModuleTypes.NEAREST_VISIBLE_HOSTILES.get(), SPEED_MULTIPLIER_WHEN_RETREATING, RETREAT_DISTANCE, RETREAT_SAFE_DISTANCE),
                         new RunOne<>(
                                 ImmutableList.of(
@@ -251,7 +236,7 @@ public class HunterAi {
         if (Sensor.isEntityAttackableIgnoringLineOfSight(level, hunter, angerTarget)) {
             Brain<Hunter> brain = hunter.getBrain();
             brain.eraseMemory(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);
-            brain.setMemoryWithExpiry(MemoryModuleType.ANGRY_AT, angerTarget.getUUID(), 600L);
+            brain.setMemoryWithExpiry(MemoryModuleType.ANGRY_AT, angerTarget.getUUID(), 2000L);
         }
     }
 
@@ -278,5 +263,23 @@ public class HunterAi {
     private static void stopWalking(Hunter hunter) {
         hunter.getBrain().eraseMemory(MemoryModuleType.WALK_TARGET);
         hunter.getNavigation().stop();
+    }
+
+    public static OneShot<Hunter> ifMelee(OneShot<Hunter> trigger) {
+        return BehaviorBuilder.triggerIf(Hunter::isMeleeClass, trigger);
+    }
+
+    public static OneShot<Hunter> ifRanged(OneShot<Hunter> trigger) {
+        return BehaviorBuilder.triggerIf(Hunter::isRangedClass, trigger);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <E extends LivingEntity> OneShot<E> ifMelee(BehaviorControl<? extends E> trigger) {
+        return BehaviorBuilder.triggerIf(entity -> entity instanceof Hunter hunter && hunter.isMeleeClass(), (OneShot<E>) trigger);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <E extends LivingEntity> OneShot<E> ifRanged(BehaviorControl<? extends E> trigger) {
+        return BehaviorBuilder.triggerIf(entity -> entity instanceof Hunter hunter && hunter.isRangedClass(), (OneShot<E>) trigger);
     }
 }

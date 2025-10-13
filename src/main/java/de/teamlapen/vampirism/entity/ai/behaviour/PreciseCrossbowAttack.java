@@ -8,11 +8,9 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.behavior.Behavior;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
-import net.minecraft.world.entity.monster.CrossbowAttackMob;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.CrossbowItem;
@@ -24,7 +22,7 @@ import org.joml.Vector3f;
 
 import java.util.Optional;
 
-public class PreciseCrossbowAttack<E extends Mob & CrossbowAttackMob, T extends LivingEntity> extends Behavior<E> {
+public class PreciseCrossbowAttack extends Behavior<Hunter> {
 
     private static final int TIMEOUT = 1200;
     private int attackDelay;
@@ -42,19 +40,19 @@ public class PreciseCrossbowAttack<E extends Mob & CrossbowAttackMob, T extends 
     }
 
     @Override
-    protected boolean checkExtraStartConditions(ServerLevel level, E shooter) {
+    protected boolean checkExtraStartConditions(ServerLevel level, Hunter shooter) {
         LivingEntity target = shooter.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).orElse(null);
-        return target != null && target.isAlive() && shooter.isHolding(item -> item.getItem() instanceof CrossbowItem);
+        return target != null && target.isAlive() && shooter.isHolding(item -> item.getItem() instanceof CrossbowItem) && shooter.isRangedClass();
     }
 
     @Override
-    protected boolean canStillUse(ServerLevel level, E shooter, long gameTime) {
+    protected boolean canStillUse(ServerLevel level, Hunter shooter, long gameTime) {
         LivingEntity target = shooter.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).orElse(null);
         return target != null && target.isAlive();
     }
 
     @Override
-    protected void tick(ServerLevel level, E shooter, long gameTime) {
+    protected void tick(ServerLevel level, Hunter shooter, long gameTime) {
         LivingEntity target = shooter.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).orElse(null);
         if (target == null || !target.isAlive()) return;
 
@@ -71,7 +69,7 @@ public class PreciseCrossbowAttack<E extends Mob & CrossbowAttackMob, T extends 
     }
 
     @Override
-    protected void stop(ServerLevel level, E entity, long gameTime) {
+    protected void stop(ServerLevel level, Hunter entity, long gameTime) {
         if (entity.isUsingItem()) {
             entity.stopUsingItem();
         }
@@ -82,7 +80,7 @@ public class PreciseCrossbowAttack<E extends Mob & CrossbowAttackMob, T extends 
         }
     }
 
-    private void crossbowAttack(E shooter, LivingEntity target, boolean seesTarget) {
+    private void crossbowAttack(Hunter shooter, LivingEntity target, boolean seesTarget) {
         switch (this.crossbowState) {
             case UNCHARGED -> {
                 shooter.startUsingItem(ProjectileUtil.getWeaponHoldingHand(shooter, item -> item instanceof CrossbowItem));
@@ -114,12 +112,13 @@ public class PreciseCrossbowAttack<E extends Mob & CrossbowAttackMob, T extends 
                 if (seesTarget && shooter.hasLineOfSight(target)) {
                     shooter.performRangedAttack(target, 1.0F);
                     this.crossbowState = CrossbowState.UNCHARGED;
+                    shooter.getBrain().eraseMemory(ModMemoryModuleTypes.REPOSITIONING_COOLDOWN.get());
                 }
             }
         }
     }
 
-    private Vec3 calculateAimPosition(E shooter, LivingEntity target) {
+    private Vec3 calculateAimPosition(Hunter shooter, LivingEntity target) {
         Vec3 shooterEye = shooter.position().add(0, shooter.getEyeHeight(), 0);
         Vec3 targetEye = target.position().add(0, target.getEyeHeight(), 0);
 

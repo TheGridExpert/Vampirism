@@ -107,7 +107,6 @@ public class Hunter extends PathfinderMob implements VariantHolder<Holder<IHunte
 
     @Override
     protected Brain<Hunter> makeBrain(Dynamic<?> dynamic) {
-        this.setHunterClass(ClassType.getRandom(this.random));
         return HunterAi.makeBrain(this, this.brainProvider().makeBrain(dynamic));
     }
 
@@ -215,6 +214,7 @@ public class Hunter extends PathfinderMob implements VariantHolder<Holder<IHunte
     @Override
     public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
+        this.reevaluateHunterClass();
 
         if (compound.contains(TAG_CLASS_TYPE)) {
             setHunterClass(ClassType.get(compound.getString(TAG_CLASS_TYPE)));
@@ -240,6 +240,7 @@ public class Hunter extends PathfinderMob implements VariantHolder<Holder<IHunte
     @Override
     @SuppressWarnings("deprecation")
     public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, EntitySpawnReason spawnReason, @Nullable SpawnGroupData spawnGroupData) {
+        this.setHunterClass(ClassType.getRandom(this.random));
         this.setVariant(HunterVariant.getRandomVariant(DEFAULT_VARIANT, level.getRandom()));
 
         assignRandomEquipment(level.getRandom());
@@ -270,12 +271,14 @@ public class Hunter extends PathfinderMob implements VariantHolder<Holder<IHunte
             ItemStack main = this.sheathedWeapons.get(0);
             if (!main.isEmpty()) {
                 this.setItemInHand(InteractionHand.MAIN_HAND, main.copy());
+                this.sheathedWeapons.set(0, ItemStack.EMPTY);
             }
 
             if (this.sheathedWeapons.size() > 1) {
                 ItemStack off = this.sheathedWeapons.get(1);
                 if (!off.isEmpty()) {
                     this.setItemInHand(InteractionHand.OFF_HAND, off.copy());
+                    this.sheathedWeapons.set(1, ItemStack.EMPTY);
                 }
             }
         }
@@ -345,6 +348,30 @@ public class Hunter extends PathfinderMob implements VariantHolder<Holder<IHunte
 
         if (this.tickCount % regenDelay == 0) {
             this.heal(1.0F);
+        }
+    }
+
+    public void reevaluateHunterClass() {
+        boolean hasRangedWeapon = isRangedHunterWeapon(this.getMainHandItem()) || isRangedHunterWeapon(this.getOffhandItem()) || this.sheathedWeapons.stream().anyMatch(this::isRangedHunterWeapon);
+
+        ClassType currentClass = this.getHunterClass();
+        ClassType evaluatedClass = hasRangedWeapon ? ClassType.RANGED : ClassType.MELEE;
+
+        if (currentClass != evaluatedClass) {
+            this.setHunterClass(evaluatedClass);
+            HunterAi.updateActivity(this);
+        }
+    }
+
+    private boolean isRangedHunterWeapon(ItemStack stack) {
+        return stack.getItem() instanceof CrossbowItem;
+    }
+
+    @Override
+    public void setItemSlot(EquipmentSlot slot, ItemStack stack) {
+        super.setItemSlot(slot, stack);
+        if (!this.level().isClientSide) {
+            this.reevaluateHunterClass();
         }
     }
 
