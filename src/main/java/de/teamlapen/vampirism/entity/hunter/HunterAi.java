@@ -73,6 +73,7 @@ public class HunterAi {
             ModMemoryModuleTypes.WEAPONS_UNSHEATHED.get(),
             ModMemoryModuleTypes.WEAPON_SHEATH_COOLDOWN.get(),
             ModMemoryModuleTypes.AIM_TARGET.get(),
+            ModMemoryModuleTypes.SEE_TIME.get(),
             ModMemoryModuleTypes.GATES_TO_CLOSE.get(),
             ModMemoryModuleTypes.NEAREST_VISIBLE_HUNTERS.get(),
             ModMemoryModuleTypes.NEAREST_VISIBLE_HOSTILES.get()
@@ -148,7 +149,7 @@ public class HunterAi {
                         ifMelee(SetWalkTargetFromAttackTargetIfTargetOutOfReach.create(SPEED_MULTIPLIER_WHEN_CHASING_TARGET)),
                         // Ranged
                         new PreciseCrossbowAttack(),
-                        ifRanged(MaintainDistanceFrom.create(SPEED_MULTIPLIER_WHEN_DISTANCING_RANGED, MIN_RANGE_ATTACK_DISTANCE, MAX_RANGE_ATTACK_DISTANCE))
+                        ifRanged(MaintainDistanceFromTarget.create(SPEED_MULTIPLIER_WHEN_DISTANCING_RANGED, MIN_RANGE_ATTACK_DISTANCE, MAX_RANGE_ATTACK_DISTANCE))
                 ),
                 MemoryModuleType.ATTACK_TARGET
         );

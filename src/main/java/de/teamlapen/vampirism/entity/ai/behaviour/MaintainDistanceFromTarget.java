@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Comparator;
 
-public class MaintainDistanceFrom {
+public class MaintainDistanceFromTarget {
 
     private static final double MIN_MOVE_DISTANCE = 4.0;
     private static final int MOVE_COOLDOWN_TICKS = 40;
@@ -60,6 +60,7 @@ public class MaintainDistanceFrom {
             if (desiredPos != null && desiredPos.distanceToSqr(shooterPos) >= MIN_MOVE_DISTANCE * MIN_MOVE_DISTANCE) {
                 walkTargetAcc.set(new WalkTarget(new BlockPosTracker(BlockPos.containing(desiredPos)), speedModifier, 0));
                 shooter.getBrain().setMemoryWithExpiry(ModMemoryModuleTypes.REPOSITIONING_COOLDOWN.get(), Unit.INSTANCE, MOVE_COOLDOWN_TICKS);
+                shooter.getBrain().eraseMemory(ModMemoryModuleTypes.SEE_TIME.get());
                 return true;
             }
 

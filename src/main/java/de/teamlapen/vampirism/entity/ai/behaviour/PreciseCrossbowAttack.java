@@ -65,7 +65,9 @@ public class PreciseCrossbowAttack extends Behavior<Hunter> {
             shooter.getBrain().setMemory(ModMemoryModuleTypes.AIM_TARGET.get(), aimPos);
         }
 
-        crossbowAttack(shooter, target, seesTarget);
+        if (seesTarget && !shooter.getBrain().hasMemoryValue(MemoryModuleType.PATH)) {
+            crossbowAttack(shooter, target);
+        }
     }
 
     @Override
@@ -80,7 +82,7 @@ public class PreciseCrossbowAttack extends Behavior<Hunter> {
         }
     }
 
-    private void crossbowAttack(Hunter shooter, LivingEntity target, boolean seesTarget) {
+    private void crossbowAttack(Hunter shooter, LivingEntity target) {
         switch (this.crossbowState) {
             case UNCHARGED -> {
                 shooter.startUsingItem(ProjectileUtil.getWeaponHoldingHand(shooter, item -> item instanceof CrossbowItem));
@@ -109,11 +111,16 @@ public class PreciseCrossbowAttack extends Behavior<Hunter> {
                 }
             }
             case READY_TO_ATTACK -> {
-                if (seesTarget && shooter.hasLineOfSight(target)) {
-                    shooter.performRangedAttack(target, 1.0F);
-                    this.crossbowState = CrossbowState.UNCHARGED;
-                    shooter.getBrain().eraseMemory(ModMemoryModuleTypes.REPOSITIONING_COOLDOWN.get());
+                int seeTime = shooter.getBrain().getMemory(ModMemoryModuleTypes.SEE_TIME.get()).orElse(0);
+                if (seeTime < 20) {
+                    shooter.getBrain().setMemory(ModMemoryModuleTypes.SEE_TIME.get(), seeTime + 1);
+                    return;
                 }
+
+                shooter.performRangedAttack(target, 1.0F);
+                this.crossbowState = CrossbowState.UNCHARGED;
+                shooter.getBrain().eraseMemory(ModMemoryModuleTypes.REPOSITIONING_COOLDOWN.get());
+                shooter.getBrain().eraseMemory(ModMemoryModuleTypes.SEE_TIME.get());
             }
         }
     }
