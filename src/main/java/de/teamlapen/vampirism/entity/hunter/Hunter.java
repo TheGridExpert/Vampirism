@@ -4,17 +4,22 @@ import com.mojang.serialization.Dynamic;
 import de.teamlapen.vampirism.api.VampirismRegistries;
 import de.teamlapen.vampirism.api.entity.hunter.IHunterVariant;
 import de.teamlapen.vampirism.api.items.IHunterCrossbow;
+import de.teamlapen.vampirism.client.gui.screens.DialogScreen;
 import de.teamlapen.vampirism.core.ModEntities;
 import de.teamlapen.vampirism.core.ModHunterVariants;
 import de.teamlapen.vampirism.core.ModItems;
 import de.teamlapen.vampirism.core.ModRegistries;
 import de.teamlapen.vampirism.entity.ai.navigation.HunterPathNavigation;
+import de.teamlapen.vampirism.inventory.dialog.DialogNode;
+import de.teamlapen.vampirism.inventory.dialog.DialogOption;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.DebugPackets;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -27,9 +32,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.util.profiling.Profiler;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraft.world.Difficulty;
-import net.minecraft.world.DifficultyInstance;
-import net.minecraft.world.InteractionHand;
+import net.minecraft.world.*;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
@@ -39,6 +42,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.monster.CrossbowAttackMob;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.ItemStack;
@@ -373,6 +377,25 @@ public class Hunter extends PathfinderMob implements VariantHolder<Holder<IHunte
         if (!this.level().isClientSide) {
             this.reevaluateHunterClass();
         }
+    }
+
+    @Override
+    protected InteractionResult mobInteract(Player player, InteractionHand hand) {
+        if (level().isClientSide) {
+            DialogNode start = new DialogNode(Component.literal("[Hunter]: Hello sir, how was your day?"));
+            DialogNode node2 = new DialogNode(Component.literal("[Hunter]: Good to hear! Stay safe out there."));
+            DialogNode node3 = new DialogNode(Component.literal("[Hunter]: Maybe next time."));
+            DialogNode node4 = new DialogNode(Component.literal("[Hunter]: Try visiting me later, if you can, of course..."));
+
+            start.addOption(new DialogOption(Component.literal("Pretty good, actually."), node2));
+            start.addOption(new DialogOption(Component.literal("Could be better."), node3));
+            node2.setNextNode(node4);
+            node3.setNextNode(node4);
+
+            Minecraft.getInstance().setScreen(new DialogScreen(player, this, start));
+        }
+
+        return super.mobInteract(player, hand);
     }
 
     public boolean isFighting() {
