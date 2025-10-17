@@ -34,7 +34,7 @@ public class HunterSpecificSensor extends Sensor<LivingEntity> {
 
         List<LivingEntity> hunters = Lists.newArrayList();
         List<LivingEntity> hostiles = Lists.newArrayList();
-        List<LivingEntity> sickEntities = Lists.newArrayList();
+        List<LivingEntity> infectedEntities = Lists.newArrayList();
 
         NearestVisibleLivingEntities nearestVisibleEntities = brain.getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES).orElse(NearestVisibleLivingEntities.empty());
 
@@ -47,13 +47,13 @@ public class HunterSpecificSensor extends Sensor<LivingEntity> {
             if (HunterAi.isEnemy(target, hunter)) {
                 hostiles.add(target);
             } else if (target.hasEffect(ModEffects.SANGUINARE)) {
-                sickEntities.add(target);
+                infectedEntities.add(target);
             }
         }
 
         brain.setMemory(ModMemoryModuleTypes.NEAREST_VISIBLE_HUNTERS.get(), hunters);
         brain.setMemory(ModMemoryModuleTypes.NEAREST_VISIBLE_HOSTILES.get(), hostiles);
-        brain.setMemory(ModMemoryModuleTypes.NEAREST_VISIBLE_SICK_ENTITIES.get(), sickEntities);
+        brain.setMemory(ModMemoryModuleTypes.NEAREST_VISIBLE_INFECTED_ENTITIES.get(), infectedEntities);
 
         for (LivingEntity ally : hunters) {
             if (ally instanceof Hunter allyHunter && allyHunter.isAlive()) {

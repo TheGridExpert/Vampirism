@@ -84,7 +84,7 @@ public class HunterAi {
             ModMemoryModuleTypes.GATES_TO_CLOSE.get(),
             ModMemoryModuleTypes.NEAREST_VISIBLE_HUNTERS.get(),
             ModMemoryModuleTypes.NEAREST_VISIBLE_HOSTILES.get(),
-            ModMemoryModuleTypes.NEAREST_VISIBLE_SICK_ENTITIES.get()
+            ModMemoryModuleTypes.NEAREST_VISIBLE_INFECTED_ENTITIES.get()
     );
 
     public static Brain.Provider<Hunter> brainProvider() {

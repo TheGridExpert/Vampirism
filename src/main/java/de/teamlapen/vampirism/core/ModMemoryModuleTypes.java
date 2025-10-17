@@ -2,7 +2,6 @@ package de.teamlapen.vampirism.core;
 
 import com.mojang.serialization.Codec;
 import de.teamlapen.vampirism.REFERENCE;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.util.Unit;
@@ -32,7 +31,7 @@ public class ModMemoryModuleTypes {
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Set<GlobalPos>>> GATES_TO_CLOSE = registerMemory("gates_to_close");
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<List<LivingEntity>>> NEAREST_VISIBLE_HUNTERS = registerMemory("nearest_visible_hunters");
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<List<LivingEntity>>> NEAREST_VISIBLE_HOSTILES = registerMemory("nearest_visible_hostiles");
-    public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<List<LivingEntity>>> NEAREST_VISIBLE_SICK_ENTITIES = registerMemory("nearest_visible_sick_entities");
+    public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<List<LivingEntity>>> NEAREST_VISIBLE_INFECTED_ENTITIES = registerMemory("nearest_visible_infected_entities");
 
     private static <U> DeferredHolder<MemoryModuleType<?>, MemoryModuleType<U>> registerMemory(String name, Codec<U> codec) {
         return MEMORY_MODULE_TYPES.register(name, () -> new MemoryModuleType<>(Optional.of(codec)));

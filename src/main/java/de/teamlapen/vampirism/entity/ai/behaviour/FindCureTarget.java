@@ -20,8 +20,8 @@ public class FindCureTarget {
                 instance.registered(ModMemoryModuleTypes.CURE_TARGET.get()),
                 instance.registered(ModMemoryModuleTypes.NEAREST_VISIBLE_HUNTERS.get()),
                 instance.registered(ModMemoryModuleTypes.NEAREST_VISIBLE_HOSTILES.get()),
-                instance.present(ModMemoryModuleTypes.NEAREST_VISIBLE_SICK_ENTITIES.get())
-        ).apply(instance, (walkTargetAcc, lookTargetAcc, cureTargetAcc, nearestAlliesAcc, nearestHostilesAcc, nearestSickEntitiesAcc) -> ((level, hunter, gameTime) -> {
+                instance.present(ModMemoryModuleTypes.NEAREST_VISIBLE_INFECTED_ENTITIES.get())
+        ).apply(instance, (walkTargetAcc, lookTargetAcc, cureTargetAcc, nearestAlliesAcc, nearestHostilesAcc, nearestInfectedEntitiesAcc) -> ((level, hunter, gameTime) -> {
             if (hunter.isFighting() || hunter.isRetreating()) return false;
 
             boolean hostilesNearby = instance.tryGet(nearestHostilesAcc)
@@ -46,7 +46,7 @@ public class FindCureTarget {
                     .filter(Objects::nonNull)
                     .toList();
 
-            Optional<LivingEntity> nearestTargetOpt = instance.get(nearestSickEntitiesAcc).stream()
+            Optional<LivingEntity> nearestTargetOpt = instance.get(nearestInfectedEntitiesAcc).stream()
                     .filter(e -> e.isAlive() && !allyCureTargets.contains(e) && e.distanceTo(hunter) <= cureRadius)
                     .min(Comparator.comparingDouble(e -> e.distanceToSqr(hunter)));
 
