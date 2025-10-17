@@ -33,6 +33,12 @@ public class HunterAi {
     private static final int MIN_PATROL_COOLDOWN = 40;
     private static final int MAX_PATROL_COOLDOWN = 120;
 
+    private static final double CURING_RANGE = 1.5D;
+    private static final double CURING_RADIUS = 12.0D;
+    private static final double MAX_HOSTILE_RADIUS_TO_CURE = 14.0D;
+    private static final float SPEED_MULTIPLIER_WHEN_CHASING_CURE_TARGET = 0.7F;
+    private static final int STARE_TICKS_AFTER_CURING = 100;
+
     private static final float SPEED_MULTIPLIER_WHEN_CHASING_TARGET = 0.7F;
     private static final float SPEED_MULTIPLIER_WHEN_DISTANCING_RANGED = 0.85F;
     private static final int MELEE_ATTACK_COOLDOWN = 20;
@@ -72,11 +78,13 @@ public class HunterAi {
             ModMemoryModuleTypes.SHOULD_RETREAT.get(),
             ModMemoryModuleTypes.WEAPONS_UNSHEATHED.get(),
             ModMemoryModuleTypes.WEAPON_SHEATH_COOLDOWN.get(),
+            ModMemoryModuleTypes.CURE_TARGET.get(),
             ModMemoryModuleTypes.AIM_TARGET.get(),
             ModMemoryModuleTypes.SEE_TIME.get(),
             ModMemoryModuleTypes.GATES_TO_CLOSE.get(),
             ModMemoryModuleTypes.NEAREST_VISIBLE_HUNTERS.get(),
-            ModMemoryModuleTypes.NEAREST_VISIBLE_HOSTILES.get()
+            ModMemoryModuleTypes.NEAREST_VISIBLE_HOSTILES.get(),
+            ModMemoryModuleTypes.NEAREST_VISIBLE_SICK_ENTITIES.get()
     );
 
     public static Brain.Provider<Hunter> brainProvider() {
@@ -122,7 +130,7 @@ public class HunterAi {
                 Activity.IDLE,
                 5,
                 ImmutableList.of(
-                        new PatrolAroundHome(PATROL_RADIUS, SPEED_MULTIPLIER_WHEN_PATROLLING),
+                        PatrolAroundHome.create(PATROL_RADIUS, SPEED_MULTIPLIER_WHEN_PATROLLING),
                         new RunOne<>(
                                 ImmutableList.of(
                                         Pair.of(SetEntityLookTarget.create(EntityType.PLAYER, 10.0F), 2),
@@ -131,6 +139,8 @@ public class HunterAi {
                                         Pair.of(new DoNothing(80, 120), 1)
                                 )
                         ),
+                        FindCureTarget.create(CURING_RADIUS, MAX_HOSTILE_RADIUS_TO_CURE, SPEED_MULTIPLIER_WHEN_CHASING_CURE_TARGET),
+                        CureTargetIfClose.create(CURING_RANGE, STARE_TICKS_AFTER_CURING),
                         StartAttacking.create((level, hunter) -> true, HunterAi::findNearestValidAttackTarget)
                 )
         );

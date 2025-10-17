@@ -1,6 +1,7 @@
 package de.teamlapen.vampirism.entity.ai.sensing;
 
 import com.google.common.collect.Lists;
+import de.teamlapen.vampirism.core.ModEffects;
 import de.teamlapen.vampirism.core.ModMemoryModuleTypes;
 import de.teamlapen.vampirism.entity.hunter.Hunter;
 import de.teamlapen.vampirism.entity.hunter.HunterAi;
@@ -33,6 +34,7 @@ public class HunterSpecificSensor extends Sensor<LivingEntity> {
 
         List<LivingEntity> hunters = Lists.newArrayList();
         List<LivingEntity> hostiles = Lists.newArrayList();
+        List<LivingEntity> sickEntities = Lists.newArrayList();
 
         NearestVisibleLivingEntities nearestVisibleEntities = brain.getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES).orElse(NearestVisibleLivingEntities.empty());
 
@@ -42,11 +44,16 @@ public class HunterSpecificSensor extends Sensor<LivingEntity> {
                 continue;
             }
 
-            if (HunterAi.isEnemy(target, hunter)) hostiles.add(target);
+            if (HunterAi.isEnemy(target, hunter)) {
+                hostiles.add(target);
+            } else if (target.hasEffect(ModEffects.SANGUINARE)) {
+                sickEntities.add(target);
+            }
         }
 
         brain.setMemory(ModMemoryModuleTypes.NEAREST_VISIBLE_HUNTERS.get(), hunters);
         brain.setMemory(ModMemoryModuleTypes.NEAREST_VISIBLE_HOSTILES.get(), hostiles);
+        brain.setMemory(ModMemoryModuleTypes.NEAREST_VISIBLE_SICK_ENTITIES.get(), sickEntities);
 
         for (LivingEntity ally : hunters) {
             if (ally instanceof Hunter allyHunter && allyHunter.isAlive()) {

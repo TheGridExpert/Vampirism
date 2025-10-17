@@ -23,8 +23,8 @@ public class RetreatFromEnemies {
         return BehaviorBuilder.create(instance -> instance.group(
                 instance.present(enemiesMemory),
                 instance.absent(MemoryModuleType.WALK_TARGET)
-        ).apply(instance, (enemiesAccessor, walkTargetAccessor) -> (ServerLevel level, PathfinderMob mob, long gameTime) -> {
-            List<LivingEntity> aliveEnemies = instance.get(enemiesAccessor).stream().filter(LivingEntity::isAlive).collect(Collectors.toList());
+        ).apply(instance, (enemiesAcc, walkTargetAcc) -> (ServerLevel level, PathfinderMob mob, long gameTime) -> {
+            List<LivingEntity> aliveEnemies = instance.get(enemiesAcc).stream().filter(LivingEntity::isAlive).collect(Collectors.toList());
 
             if (aliveEnemies.isEmpty()) return false;
 
@@ -51,7 +51,7 @@ public class RetreatFromEnemies {
             Vec3 targetPos = mobPos.add(fleeDir.scale(retreatDistance));
 
             if (mobPos.distanceToSqr(targetPos) >= MIN_MOVE_DISTANCE * MIN_MOVE_DISTANCE) {
-                walkTargetAccessor.set(new WalkTarget(targetPos, speedModifier, 0));
+                walkTargetAcc.set(new WalkTarget(targetPos, speedModifier, 0));
                 return true;
             }
 
