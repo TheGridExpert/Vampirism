@@ -23,6 +23,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.util.profiling.Profiler;
@@ -60,15 +61,21 @@ public class Hunter extends PathfinderMob implements VariantHolder<Holder<IHunte
 
     private static final EntityDataAccessor<String> DATA_CLASS_TYPE_ID = SynchedEntityData.defineId(Hunter.class, EntityDataSerializers.STRING);
     private static final EntityDataAccessor<Holder<IHunterVariant>> DATA_VARIANT_ID = SynchedEntityData.defineId(Hunter.class, ModEntities.HUNTER_VARIANT.get());
+    private static final EntityDataAccessor<Integer> DATA_FACTION_LEVEL_ID = SynchedEntityData.defineId(Hunter.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> DATA_IS_CHARGING_CROSSBOW = SynchedEntityData.defineId(Hunter.class, EntityDataSerializers.BOOLEAN);
 
     public static final ClassType DEFAULT_CLASS_TYPE = ClassType.MELEE;
     public static final Holder<IHunterVariant> DEFAULT_VARIANT = ModHunterVariants.HUNTER_5_SLIM;
+    public static final int DEFAULT_FACTION_LEVEL = 1;
+    public static final boolean DEFAULT_IS_CHARGING_CROSSBOW = false;
 
     public static final String TAG_CLASS_TYPE = "ClassType";
     public static final String TAG_VARIANT = "Variant";
+    public static final String TAG_FACTION_LEVEL = "FactionLevel";
     public static final String TAG_SHEATHED_WEAPONS = "SheathedWeapons";
 
+    private static final int MIN_LEVEL = 1;
+    private static final int MAX_LEVEL = 14;
     public static final float ARROW_VELOCITY = 2.0F;
 
     private final NonNullList<ItemStack> sheathedWeapons = NonNullList.withSize(2, ItemStack.EMPTY);
@@ -181,12 +188,21 @@ public class Hunter extends PathfinderMob implements VariantHolder<Holder<IHunte
         return this.entityData.get(DATA_VARIANT_ID);
     }
 
+    public void setFactionLevel(int level) {
+        this.entityData.set(DATA_FACTION_LEVEL_ID, level);
+    }
+
+    public int getFactionLevel() {
+        return this.entityData.get(DATA_FACTION_LEVEL_ID);
+    }
+
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
         builder.define(DATA_CLASS_TYPE_ID, DEFAULT_CLASS_TYPE.getSerializedName());
         builder.define(DATA_VARIANT_ID, DEFAULT_VARIANT);
-        builder.define(DATA_IS_CHARGING_CROSSBOW, false);
+        builder.define(DATA_FACTION_LEVEL_ID, DEFAULT_FACTION_LEVEL);
+        builder.define(DATA_IS_CHARGING_CROSSBOW, DEFAULT_IS_CHARGING_CROSSBOW);
     }
 
     @Override
@@ -194,7 +210,8 @@ public class Hunter extends PathfinderMob implements VariantHolder<Holder<IHunte
         super.addAdditionalSaveData(compound);
 
         compound.putString(TAG_CLASS_TYPE, getHunterClass().getSerializedName());
-        compound.putString(TAG_VARIANT, Objects.requireNonNull(this.getVariant().unwrapKey().orElse(DEFAULT_VARIANT.getKey())).location().toString());
+        compound.putString(TAG_VARIANT, Objects.requireNonNull(getVariant().unwrapKey().orElse(DEFAULT_VARIANT.getKey())).location().toString());
+        compound.putInt(TAG_FACTION_LEVEL, getFactionLevel());
 
         ListTag weaponsTag = new ListTag();
 
@@ -221,6 +238,9 @@ public class Hunter extends PathfinderMob implements VariantHolder<Holder<IHunte
                 .map(key -> ResourceKey.create(VampirismRegistries.Keys.HUNTER_VARIANT, key))
                 .flatMap(ModRegistries.HUNTER_VARIANT::get)
                 .ifPresent(this::setVariant);
+        if (compound.contains(TAG_FACTION_LEVEL)) {
+            setFactionLevel(compound.getInt(TAG_FACTION_LEVEL));
+        }
 
         if (compound.contains(TAG_SHEATHED_WEAPONS, CompoundTag.TAG_LIST)) {
             ListTag weaponsTag = compound.getList(TAG_SHEATHED_WEAPONS, CompoundTag.TAG_COMPOUND);
@@ -238,14 +258,30 @@ public class Hunter extends PathfinderMob implements VariantHolder<Holder<IHunte
     @Override
     @SuppressWarnings("deprecation")
     public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, EntitySpawnReason spawnReason, @Nullable SpawnGroupData spawnGroupData) {
-        this.setHunterClass(ClassType.getRandom(this.random));
-        this.setVariant(HunterVariant.getRandomVariant(DEFAULT_VARIANT, level.getRandom()));
+        setHunterClass(ClassType.getRandom(this.random));
+        setVariant(HunterVariant.getRandomVariant(DEFAULT_VARIANT, level.getRandom()));
+        assignRandomFactionLevel(level);
 
         assignRandomEquipment(level.getRandom());
 
         HunterAi.initMemories(this);
 
         return super.finalizeSpawn(level, difficulty, spawnReason, spawnGroupData);
+    }
+
+    private void assignRandomFactionLevel(ServerLevelAccessor level) {
+        float difficultyFactor = switch (level.getDifficulty()) {
+            case PEACEFUL -> 2.25f;
+            case EASY -> 1.75f;
+            case NORMAL -> 1.0f;
+            case HARD -> 0.5f;
+        };
+
+        float randomFactor = random.nextFloat();
+        float difficultyModifier = (float) Math.pow(randomFactor, difficultyFactor);
+
+        int levelValue = MIN_LEVEL + Math.round(difficultyModifier * (MAX_LEVEL - MIN_LEVEL));
+        setFactionLevel(Mth.clamp(levelValue, MIN_LEVEL, MAX_LEVEL));
     }
 
     // TODO: FactionRestriction only works for humans and thence npc hunters may not use all of their weapons' potential
@@ -334,7 +370,7 @@ public class Hunter extends PathfinderMob implements VariantHolder<Holder<IHunte
 
     private void handleNaturalRegeneration(ServerLevel level) {
         if (level.getDifficulty() == Difficulty.PEACEFUL) return;
-        if (this.isFighting()) return;
+        if (isFighting()) return;
         if (!this.isAlive() || this.getMaxHealth() == this.getHealth()) return;
         if (this.hasEffect(MobEffects.HUNGER)) return;
 
@@ -352,11 +388,11 @@ public class Hunter extends PathfinderMob implements VariantHolder<Holder<IHunte
     public void reevaluateHunterClass() {
         boolean hasRangedWeapon = isRangedHunterWeapon(this.getMainHandItem()) || isRangedHunterWeapon(this.getOffhandItem()) || this.sheathedWeapons.stream().anyMatch(this::isRangedHunterWeapon);
 
-        ClassType currentClass = this.getHunterClass();
+        ClassType currentClass = getHunterClass();
         ClassType evaluatedClass = hasRangedWeapon ? ClassType.RANGED : ClassType.MELEE;
 
         if (currentClass != evaluatedClass) {
-            this.setHunterClass(evaluatedClass);
+            setHunterClass(evaluatedClass);
             HunterAi.updateActivity(this);
         }
     }
@@ -369,7 +405,7 @@ public class Hunter extends PathfinderMob implements VariantHolder<Holder<IHunte
     public void setItemSlot(EquipmentSlot slot, ItemStack stack) {
         super.setItemSlot(slot, stack);
         if (!this.level().isClientSide) {
-            this.reevaluateHunterClass();
+            reevaluateHunterClass();
         }
     }
 
