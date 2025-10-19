@@ -17,20 +17,20 @@ public class HunterEquipmentAssigner {
     private static final Pair<ItemLike, Integer>[] MELEE_MAIN_WEAPONS = new Pair[]{
             Pair.of(ModItems.HUNTER_AXE_NORMAL.get(), 2),
             Pair.of(ModItems.HUNTER_AXE_ENHANCED.get(), 4),
-            Pair.of(ModItems.HUNTER_AXE_ULTIMATE.get(), 6)
+            Pair.of(ModItems.HUNTER_AXE_ULTIMATE.get(), 10)
     };
 
     private static final Pair<ItemLike, Integer>[] RANGED_MAIN_WEAPONS = new Pair[]{
             Pair.of(ModItems.BASIC_CROSSBOW.get(), 2),
             Pair.of(ModItems.BASIC_DOUBLE_CROSSBOW.get(), 3),
             Pair.of(ModItems.ENHANCED_CROSSBOW.get(), 5),
-            Pair.of(ModItems.ENHANCED_DOUBLE_CROSSBOW.get(), 6)
+            Pair.of(ModItems.ENHANCED_DOUBLE_CROSSBOW.get(), 7)
     };
 
     private static final Pair<ItemLike, Integer>[] SECONDARY_WEAPONS = new Pair[]{
             Pair.of(ModItems.CRUCIFIX_NORMAL.get(), 2),
             Pair.of(ModItems.CRUCIFIX_ENHANCED.get(), 3),
-            Pair.of(ModItems.CRUCIFIX_ULTIMATE.get(), 4)
+            Pair.of(ModItems.CRUCIFIX_ULTIMATE.get(), 5)
     };
 
     private static final ItemLike[] RANGED_SPECIAL_ARROWS = {
@@ -85,17 +85,15 @@ public class HunterEquipmentAssigner {
     };
 
     public static void assignRandomEquipment(@NotNull Hunter hunter, ServerLevelAccessor level, RandomSource random) {
-        int tokens = hunter.calculateTokens(hunter.getFactionLevel(), random);
-
         boolean isMelee = hunter.isMeleeClass();
         Pair<ItemLike, Integer>[][] armorSet = isMelee ? MELEE_ARMOR : RANGED_ARMOR;
         Pair<ItemLike, Integer>[] mainWeapons = isMelee ? MELEE_MAIN_WEAPONS : RANGED_MAIN_WEAPONS;
 
-        int armorTokens = (int) (tokens * 0.66f);
-        int weaponTokens = (int) (tokens * 0.17f);
-        int secondaryTokens = tokens - armorTokens - weaponTokens;
+        int armorTokens = hunter.calculateTokens(random, level.getDifficulty().ordinal() * 2, 20);
+        int weaponTokens = hunter.calculateTokens(random, 0, 10);
+        int secondaryTokens = hunter.calculateTokens(random, 0, 5);
 
-        float[] armorWeights = {0.3f, 0.25f, 0.25f, 0.2f};
+        float[] armorWeights = {0.3f, 0.2f, 0.25f, 0.25f};
 
         for (int i = 0; i < armorSet.length; i++) {
             Pair<ItemLike, Integer>[] slotTiers = armorSet[i];
@@ -123,14 +121,14 @@ public class HunterEquipmentAssigner {
 
         for (int i = SECONDARY_WEAPONS.length - 1; i >= 0; i--) {
             if (secondaryTokens >= SECONDARY_WEAPONS[i].getSecond()) {
-                // Optionally set offhand item here
+
                 break;
             }
         }
 
-        if (!isMelee && random.nextFloat() < 0.4f) {
+        if (hunter.isRangedClass() && random.nextFloat() <= 0.3f) {
             Item arrow = chooseRandomArrow(level.getDifficulty(), random);
-            // Apply arrows if needed
+            hunter.setArrowType(arrow);
         }
     }
 

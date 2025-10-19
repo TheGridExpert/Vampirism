@@ -3,12 +3,9 @@ package de.teamlapen.vampirism.entity.hunter;
 import com.mojang.serialization.Dynamic;
 import de.teamlapen.vampirism.api.VampirismRegistries;
 import de.teamlapen.vampirism.api.entity.hunter.IHunterVariant;
-import de.teamlapen.vampirism.api.items.IHunterCrossbow;
-import de.teamlapen.vampirism.core.ModEntities;
-import de.teamlapen.vampirism.core.ModHunterVariants;
-import de.teamlapen.vampirism.core.ModItems;
-import de.teamlapen.vampirism.core.ModRegistries;
+import de.teamlapen.vampirism.core.*;
 import de.teamlapen.vampirism.entity.ai.navigation.HunterPathNavigation;
+import de.teamlapen.vampirism.util.RegUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -25,7 +22,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
-import net.minecraft.util.StringRepresentable;
 import net.minecraft.util.profiling.Profiler;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.*;
@@ -33,6 +29,8 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.Brain;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
@@ -41,14 +39,15 @@ import net.minecraft.world.entity.monster.CrossbowAttackMob;
 import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ProjectileWeaponItem;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.common.CommonHooks;
 import net.neoforged.neoforge.common.NeoForgeMod;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -60,16 +59,19 @@ public class Hunter extends PathfinderMob implements VariantHolder<Holder<IHunte
     private static final EntityDataAccessor<Holder<IHunterVariant>> DATA_VARIANT_ID = SynchedEntityData.defineId(Hunter.class, ModEntities.HUNTER_VARIANT.get());
     private static final EntityDataAccessor<Integer> DATA_FACTION_LEVEL_ID = SynchedEntityData.defineId(Hunter.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> DATA_IS_CHARGING_CROSSBOW = SynchedEntityData.defineId(Hunter.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<String> DATA_ARROW_TYPE_ID = SynchedEntityData.defineId(Hunter.class, EntityDataSerializers.STRING);
 
-    public static final ClassType DEFAULT_CLASS_TYPE = ClassType.MELEE;
+    public static final HunterClassType DEFAULT_CLASS_TYPE = HunterClassType.MELEE;
     public static final Holder<IHunterVariant> DEFAULT_VARIANT = ModHunterVariants.HUNTER_5_SLIM;
     public static final int DEFAULT_FACTION_LEVEL = 1;
     public static final boolean DEFAULT_IS_CHARGING_CROSSBOW = false;
+    public static final ItemLike DEFAULT_ARROW_TYPE = ModItems.CROSSBOW_ARROW_NORMAL;
 
-    public static final String TAG_CLASS_TYPE = "ClassType";
+    public static final String TAG_CLASS_TYPE = "HunterClassType";
     public static final String TAG_VARIANT = "Variant";
     public static final String TAG_FACTION_LEVEL = "FactionLevel";
     public static final String TAG_SHEATHED_WEAPONS = "SheathedWeapons";
+    public static final String TAG_ARROW_TYPE = "ArrowType";
 
     private static final int MIN_LEVEL = 1;
     private static final int MAX_LEVEL = 14;
@@ -93,7 +95,9 @@ public class Hunter extends PathfinderMob implements VariantHolder<Holder<IHunte
                 .add(Attributes.FOLLOW_RANGE, 32.0)
                 .add(Attributes.MOVEMENT_SPEED, 0.55F)
                 .add(NeoForgeMod.SWIM_SPEED, 2.5F)
-                .add(Attributes.ATTACK_DAMAGE, 3.0);
+                .add(Attributes.ATTACK_DAMAGE, 3.0)
+                .add(Attributes.MAX_HEALTH, 20.0)
+                .add(ModAttributes.ACCURACY, 1.0D);
     }
 
     @Override
@@ -167,12 +171,12 @@ public class Hunter extends PathfinderMob implements VariantHolder<Holder<IHunte
         return level().getBlockState(blockPosition().relative(getDirection())).isSolid();
     }
 
-    public void setHunterClass(ClassType hunterClass) {
+    public void setHunterClass(HunterClassType hunterClass) {
         this.entityData.set(DATA_CLASS_TYPE_ID, hunterClass.getSerializedName());
     }
 
-    public ClassType getHunterClass() {
-        return ClassType.get(this.entityData.get(DATA_CLASS_TYPE_ID));
+    public HunterClassType getHunterClass() {
+        return HunterClassType.get(this.entityData.get(DATA_CLASS_TYPE_ID));
     }
 
     @Override
@@ -200,6 +204,7 @@ public class Hunter extends PathfinderMob implements VariantHolder<Holder<IHunte
         builder.define(DATA_VARIANT_ID, DEFAULT_VARIANT);
         builder.define(DATA_FACTION_LEVEL_ID, DEFAULT_FACTION_LEVEL);
         builder.define(DATA_IS_CHARGING_CROSSBOW, DEFAULT_IS_CHARGING_CROSSBOW);
+        builder.define(DATA_ARROW_TYPE_ID, RegUtil.id(DEFAULT_ARROW_TYPE).toString());
     }
 
     @Override
@@ -221,6 +226,7 @@ public class Hunter extends PathfinderMob implements VariantHolder<Holder<IHunte
         }
 
         compound.put(TAG_SHEATHED_WEAPONS, weaponsTag);
+        compound.putString(TAG_ARROW_TYPE, RegUtil.id(getArrowType()).toString());
     }
 
     @Override
@@ -229,7 +235,7 @@ public class Hunter extends PathfinderMob implements VariantHolder<Holder<IHunte
         this.reevaluateHunterClass();
 
         if (compound.contains(TAG_CLASS_TYPE)) {
-            setHunterClass(ClassType.get(compound.getString(TAG_CLASS_TYPE)));
+            setHunterClass(HunterClassType.get(compound.getString(TAG_CLASS_TYPE)));
         }
         Optional.ofNullable(ResourceLocation.tryParse(compound.getString(TAG_VARIANT)))
                 .map(key -> ResourceKey.create(VampirismRegistries.Keys.HUNTER_VARIANT, key))
@@ -238,7 +244,6 @@ public class Hunter extends PathfinderMob implements VariantHolder<Holder<IHunte
         if (compound.contains(TAG_FACTION_LEVEL)) {
             setFactionLevel(compound.getInt(TAG_FACTION_LEVEL));
         }
-
         if (compound.contains(TAG_SHEATHED_WEAPONS, CompoundTag.TAG_LIST)) {
             ListTag weaponsTag = compound.getList(TAG_SHEATHED_WEAPONS, CompoundTag.TAG_COMPOUND);
 
@@ -249,6 +254,9 @@ public class Hunter extends PathfinderMob implements VariantHolder<Holder<IHunte
         } else {
             Collections.fill(this.sheathedWeapons, ItemStack.EMPTY);
         }
+        if (compound.contains(TAG_ARROW_TYPE)) {
+            this.entityData.set(DATA_ARROW_TYPE_ID, compound.getString(TAG_ARROW_TYPE));
+        }
     }
 
     @Nullable
@@ -257,10 +265,11 @@ public class Hunter extends PathfinderMob implements VariantHolder<Holder<IHunte
     public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, EntitySpawnReason spawnReason, @Nullable SpawnGroupData spawnGroupData) {
         RandomSource random = level.getRandom();
 
-        setHunterClass(ClassType.getRandom(random));
+        setHunterClass(HunterClassType.getRandom(random));
         setVariant(HunterVariant.getRandomVariant(DEFAULT_VARIANT, level.getRandom()));
         assignRandomFactionLevel(level, random);
 
+        randomizeAttributes(difficulty, random);
         HunterEquipmentAssigner.assignRandomEquipment(this, level, random);
 
         HunterAi.initMemories(this);
@@ -283,10 +292,70 @@ public class Hunter extends PathfinderMob implements VariantHolder<Holder<IHunte
         setFactionLevel(Mth.clamp(levelValue, MIN_LEVEL, MAX_LEVEL));
     }
 
-    public int calculateTokens(int factionLevel, RandomSource random) {
-        float baseTokens = 3.5f + (float) Math.pow(factionLevel, 0.9f) * 1.9f;
-        float randomVariance = 0.85f + random.nextFloat() * 0.3f;
-        return Math.max(2, Math.round(baseTokens * randomVariance));
+    private void randomizeAttributes(DifficultyInstance difficulty, RandomSource random) {
+        float followRangeFactor = 0.9f + random.nextFloat() * 0.25f;
+        float speedFactor = 0.9f + random.nextFloat() * 0.2f;
+        float damageFactor = 0.8f + random.nextFloat() * 0.4f;
+        float healthFactor = 0.9f + random.nextFloat() * 0.25f;
+
+        int factionLevel = getFactionLevel();
+        float levelFactor = 1.0f + (factionLevel - 1.0f) / MAX_LEVEL * 0.5f;
+
+        if (isRangedClass()) followRangeFactor *= 1.0f + random.nextFloat() * 0.5f;
+
+        multiplyAttributeIfPresent(Attributes.FOLLOW_RANGE, followRangeFactor, 0);
+        multiplyAttributeIfPresent(Attributes.MOVEMENT_SPEED, speedFactor * levelFactor);
+        multiplyAttributeIfPresent(Attributes.ATTACK_DAMAGE, damageFactor * levelFactor);
+        multiplyAttributeIfPresent(Attributes.MAX_HEALTH, healthFactor * levelFactor, 0);
+
+        float accuracy = calculateBaseAccuracy(difficulty, factionLevel);
+        multiplyAttributeIfPresent(ModAttributes.ACCURACY, accuracy);
+
+        this.setHealth(this.getMaxHealth());
+    }
+
+    private float calculateBaseAccuracy(DifficultyInstance difficulty, int factionLevel) {
+        float difficultyFactor = switch (difficulty.getDifficulty()) {
+            case PEACEFUL -> 0.75f;
+            case EASY -> 0.9f;
+            case NORMAL -> 1.0f;
+            case HARD -> 1.3f;
+        };
+
+        float levelFactor = 0.6f + (float) Math.pow(factionLevel / 14f, 0.8f) * 1.4f;
+        float variance = 0.9f + random.nextFloat() * 0.2f;
+
+        return levelFactor * difficultyFactor * variance;
+    }
+
+    private void multiplyAttributeIfPresent(Holder<Attribute> attribute, double multiplier) {
+        multiplyAttributeIfPresent(attribute, multiplier, 2);
+    }
+
+    private void multiplyAttributeIfPresent(Holder<Attribute> attribute, double multiplier, int decimalPlaces) {
+        AttributeInstance instance = getAttribute(attribute);
+        if (instance != null) {
+            double scale = Math.pow(10, decimalPlaces);
+            double newValue = Math.round(instance.getBaseValue() * multiplier * scale) / scale;
+            instance.setBaseValue(newValue);
+        }
+    }
+
+    public int calculateTokens(RandomSource random, int min, int max) {
+        // How strongly level affects the token range (1.0 = linear, <1 = slower, >1 = faster)
+        float growthPower = 1.1f;
+
+        // At level 14 → progressFactor = around 1.0
+        float progressFactor = (float) Math.pow(getFactionLevel() / 14.0f, growthPower);
+        progressFactor = Mth.clamp(progressFactor, 0.0f, 1.0f);
+
+        float base = min + (max - min) * progressFactor;
+
+        // Random variance around ±25%
+        float variance = 0.75f + random.nextFloat() * 0.5f;
+        float result = base * variance;
+
+        return Mth.clamp(Math.round(result), min, max);
     }
 
     // TODO: FactionRestriction only works for humans and thence npc hunters may not use all of their weapons' potential
@@ -351,8 +420,8 @@ public class Hunter extends PathfinderMob implements VariantHolder<Holder<IHunte
 
     @Override
     public ItemStack getProjectile(ItemStack weaponStack) {
-        if (weaponStack.getItem() instanceof IHunterCrossbow) {
-            return CommonHooks.getProjectile(this, weaponStack, ModItems.CROSSBOW_ARROW_NORMAL.get().getDefaultInstance());
+        if (weaponStack.getItem() instanceof CrossbowItem) {
+            return CommonHooks.getProjectile(this, weaponStack, getArrowType().asItem().getDefaultInstance());
         }
 
         return super.getProjectile(weaponStack);
@@ -361,6 +430,19 @@ public class Hunter extends PathfinderMob implements VariantHolder<Holder<IHunte
     @Override
     public boolean canFireProjectileWeapon(ProjectileWeaponItem projectileWeapon) {
         return projectileWeapon instanceof CrossbowItem;
+    }
+
+    public void setArrowType(ItemLike arrowItem) {
+        this.entityData.set(DATA_ARROW_TYPE_ID, RegUtil.id(arrowItem).toString());
+    }
+
+    public ItemLike getArrowType() {
+        ResourceLocation id = ResourceLocation.tryParse(this.entityData.get(DATA_ARROW_TYPE_ID));
+        if (id == null) return DEFAULT_ARROW_TYPE;
+
+        ItemLike arrow = RegUtil.getItem(id);
+
+        return arrow == Items.AIR ? DEFAULT_ARROW_TYPE : arrow;
     }
 
     private void handleNaturalRegeneration(ServerLevel level) {
@@ -383,8 +465,8 @@ public class Hunter extends PathfinderMob implements VariantHolder<Holder<IHunte
     public void reevaluateHunterClass() {
         boolean hasRangedWeapon = isRangedHunterWeapon(this.getMainHandItem()) || isRangedHunterWeapon(this.getOffhandItem()) || this.sheathedWeapons.stream().anyMatch(this::isRangedHunterWeapon);
 
-        ClassType currentClass = getHunterClass();
-        ClassType evaluatedClass = hasRangedWeapon ? ClassType.RANGED : ClassType.MELEE;
+        HunterClassType currentClass = getHunterClass();
+        HunterClassType evaluatedClass = hasRangedWeapon ? HunterClassType.RANGED : HunterClassType.MELEE;
 
         if (currentClass != evaluatedClass) {
             setHunterClass(evaluatedClass);
@@ -413,62 +495,10 @@ public class Hunter extends PathfinderMob implements VariantHolder<Holder<IHunte
     }
 
     public boolean isMeleeClass() {
-        return getHunterClass() == ClassType.MELEE;
+        return getHunterClass() == HunterClassType.MELEE;
     }
 
     public boolean isRangedClass() {
-        return getHunterClass() == ClassType.RANGED;
-    }
-
-    public enum ClassType implements StringRepresentable {
-        MELEE("melee", 6),
-        RANGED("ranged", 4);
-
-        private final String name;
-        private final int weight;
-
-        ClassType(String name, int weight) {
-            this.name = name;
-            this.weight = weight;
-        }
-
-        public static ClassType getRandom(RandomSource random) {
-            int totalWeight = 0;
-            for (ClassType classType : values()) {
-                totalWeight += classType.weight;
-            }
-
-            int roll = random.nextInt(totalWeight);
-            for (ClassType classType : values()) {
-                roll -= classType.weight;
-                if (roll < 0) {
-                    return classType;
-                }
-            }
-
-            return MELEE;
-        }
-
-        public static @NotNull Hunter.ClassType get(String value) {
-            try {
-                return ClassType.valueOf(value.toUpperCase(Locale.ROOT));
-            } catch (IllegalArgumentException e) {
-                return MELEE;
-            }
-        }
-
-        public int getWeight() {
-            return weight;
-        }
-
-        @Override
-        public String toString() {
-            return this.name;
-        }
-
-        @Override
-        public String getSerializedName() {
-            return name;
-        }
+        return getHunterClass() == HunterClassType.RANGED;
     }
 }

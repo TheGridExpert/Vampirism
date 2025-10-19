@@ -32,9 +32,12 @@ public class ModAttributes {
      * Registered for EntityPlayer
      */
     public static final DeferredHolder<Attribute, RangedAttribute> DBNO_DURATION = ATTRIBUTES.register("dbno_duration", () -> (RangedAttribute) new RangedAttribute("vampirism.dbno_duration", 1.0, 0.0, Integer.MAX_VALUE).setSyncable(true));
+    /**
+     * Affects the accuracy of hunter npc shooting.
+     */
+    public static final DeferredHolder<Attribute, RangedAttribute> ACCURACY = ATTRIBUTES.register("accuracy", () -> new RangedAttribute("vampirism.accuracy", 1.0D, 0.1D, 5.0D));
 
     static void register(IEventBus bus) {
         ATTRIBUTES.register(bus);
     }
-
 }

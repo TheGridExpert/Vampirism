@@ -1,6 +1,7 @@
 package de.teamlapen.vampirism.entity.ai.behaviour;
 
 import com.google.common.collect.ImmutableMap;
+import de.teamlapen.vampirism.core.ModAttributes;
 import de.teamlapen.vampirism.core.ModMemoryModuleTypes;
 import de.teamlapen.vampirism.entity.hunter.Hunter;
 import de.teamlapen.vampirism.mixin.accessor.CrossbowItemAccessor;
@@ -151,7 +152,14 @@ public class PreciseCrossbowAttack extends Behavior<Hunter> {
         Vec3 delta = aimTarget.subtract(shooter.position().add(0, shooter.getEyeHeight(), 0));
         Vector3f shotVector = ((CrossbowItemAccessor) crossbowItem).invokeGetProjectileShotVector(shooter, delta, angle);
 
-        projectile.shoot(shotVector.x(), shotVector.y(), shotVector.z(), velocity, inaccuracy);
+        double accuracyMod = 1.0;
+        if (shooter.getAttributes().hasAttribute(ModAttributes.ACCURACY)) {
+            accuracyMod = shooter.getAttributeValue(ModAttributes.ACCURACY);
+        }
+
+        float adjustedInaccuracy = Math.max(0.0f, inaccuracy / (float) accuracyMod);
+
+        projectile.shoot(shotVector.x(), shotVector.y(), shotVector.z(), velocity, adjustedInaccuracy);
         float pitch = ((CrossbowItemAccessor) crossbowItem).invokeGetShotPitch(shooter.getRandom(), index);
         shooter.level().playSound(null, shooter.getX(), shooter.getY(), shooter.getZ(), SoundEvents.CROSSBOW_SHOOT, shooter.getSoundSource(), 1.0F, pitch);
 
