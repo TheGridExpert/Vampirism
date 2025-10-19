@@ -40,8 +40,10 @@ import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.monster.CrossbowAttackMob;
 import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.item.CrossbowItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ProjectileWeaponItem;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.ServerLevelAccessor;
@@ -51,13 +53,81 @@ import net.neoforged.neoforge.common.NeoForgeMod;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Stream;
 
 public class Hunter extends PathfinderMob implements VariantHolder<Holder<IHunterVariant>>, CrossbowAttackMob {
+
+    private static final EquipmentTier[] MELEE_MAIN_WEAPONS = {
+            new EquipmentTier(ModItems.HUNTER_AXE_NORMAL.get(), 2),
+            new EquipmentTier(ModItems.HUNTER_AXE_ENHANCED.get(), 4),
+            new EquipmentTier(ModItems.HUNTER_AXE_ULTIMATE.get(), 6)
+    };
+
+    private static final EquipmentTier[] RANGED_MAIN_WEAPONS = {
+            new EquipmentTier(ModItems.BASIC_CROSSBOW.get(), 2),
+            new EquipmentTier(ModItems.BASIC_DOUBLE_CROSSBOW.get(), 3),
+            new EquipmentTier(ModItems.ENHANCED_CROSSBOW.get(), 5),
+            new EquipmentTier(ModItems.ENHANCED_DOUBLE_CROSSBOW.get(), 6)
+    };
+
+    private static final ItemLike[] RANGED_SPECIAL_ARROWS = {
+            ModItems.CROSSBOW_ARROW_GARLIC.get(),
+            ModItems.CROSSBOW_ARROW_VAMPIRE_KILLER.get(),
+            ModItems.CROSSBOW_ARROW_BLEEDING.get()
+    };
+
+    private static final EquipmentTier[] SECONDARY_WEAPONS = {
+            new EquipmentTier(ModItems.CRUCIFIX_NORMAL.get(), 2),
+            new EquipmentTier(ModItems.CRUCIFIX_ENHANCED.get(), 3),
+            new EquipmentTier(ModItems.CRUCIFIX_ULTIMATE.get(), 4)
+    };
+
+    private static final EquipmentTier[][] MELEE_ARMOR = {
+            {
+                    new EquipmentTier(ModItems.HUNTER_COAT_CHEST_NORMAL.get(), 3),
+                    new EquipmentTier(ModItems.HUNTER_COAT_CHEST_ENHANCED.get(), 5),
+                    new EquipmentTier(ModItems.HUNTER_COAT_CHEST_ULTIMATE.get(), 7)
+            },
+            {
+                    new EquipmentTier(ModItems.HUNTER_COAT_FEET_NORMAL.get(), 2),
+                    new EquipmentTier(ModItems.HUNTER_COAT_FEET_ENHANCED.get(), 3),
+                    new EquipmentTier(ModItems.HUNTER_COAT_FEET_ULTIMATE.get(), 5)
+            },
+            {
+                    new EquipmentTier(ModItems.HUNTER_COAT_LEGS_NORMAL.get(), 2),
+                    new EquipmentTier(ModItems.HUNTER_COAT_LEGS_ENHANCED.get(), 4),
+                    new EquipmentTier(ModItems.HUNTER_COAT_LEGS_ULTIMATE.get(), 6)
+            },
+            {
+                    new EquipmentTier(ModItems.HUNTER_COAT_HEAD_NORMAL.get(), 2),
+                    new EquipmentTier(ModItems.HUNTER_COAT_HEAD_ENHANCED.get(), 4),
+                    new EquipmentTier(ModItems.HUNTER_COAT_HEAD_ULTIMATE.get(), 6)
+            }
+    };
+
+    private static final EquipmentTier[][] RANGED_ARMOR = {
+            {
+                    new EquipmentTier(ModItems.ARMOR_OF_SWIFTNESS_CHEST_NORMAL.get(), 3),
+                    new EquipmentTier(ModItems.ARMOR_OF_SWIFTNESS_CHEST_ENHANCED.get(), 5),
+                    new EquipmentTier(ModItems.ARMOR_OF_SWIFTNESS_CHEST_ULTIMATE.get(), 7)
+            },
+            {
+                    new EquipmentTier(ModItems.ARMOR_OF_SWIFTNESS_FEET_NORMAL.get(), 2),
+                    new EquipmentTier(ModItems.ARMOR_OF_SWIFTNESS_FEET_ENHANCED.get(), 3),
+                    new EquipmentTier(ModItems.ARMOR_OF_SWIFTNESS_FEET_ULTIMATE.get(), 5)
+            },
+            {
+                    new EquipmentTier(ModItems.ARMOR_OF_SWIFTNESS_LEGS_NORMAL.get(), 2),
+                    new EquipmentTier(ModItems.ARMOR_OF_SWIFTNESS_LEGS_ENHANCED.get(), 4),
+                    new EquipmentTier(ModItems.ARMOR_OF_SWIFTNESS_LEGS_ULTIMATE.get(), 6)
+            },
+            {
+                    new EquipmentTier(ModItems.ARMOR_OF_SWIFTNESS_HEAD_NORMAL.get(), 2),
+                    new EquipmentTier(ModItems.ARMOR_OF_SWIFTNESS_HEAD_ENHANCED.get(), 4),
+                    new EquipmentTier(ModItems.ARMOR_OF_SWIFTNESS_HEAD_ULTIMATE.get(), 6)
+            }
+    };
 
     private static final EntityDataAccessor<String> DATA_CLASS_TYPE_ID = SynchedEntityData.defineId(Hunter.class, EntityDataSerializers.STRING);
     private static final EntityDataAccessor<Holder<IHunterVariant>> DATA_VARIANT_ID = SynchedEntityData.defineId(Hunter.class, ModEntities.HUNTER_VARIANT.get());
@@ -258,18 +328,20 @@ public class Hunter extends PathfinderMob implements VariantHolder<Holder<IHunte
     @Override
     @SuppressWarnings("deprecation")
     public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, EntitySpawnReason spawnReason, @Nullable SpawnGroupData spawnGroupData) {
-        setHunterClass(ClassType.getRandom(this.random));
-        setVariant(HunterVariant.getRandomVariant(DEFAULT_VARIANT, level.getRandom()));
-        assignRandomFactionLevel(level);
+        RandomSource random = level.getRandom();
 
-        assignRandomEquipment(level.getRandom());
+        setHunterClass(ClassType.getRandom(random));
+        setVariant(HunterVariant.getRandomVariant(DEFAULT_VARIANT, level.getRandom()));
+        assignRandomFactionLevel(level, random);
+
+        assignRandomEquipment(level, random);
 
         HunterAi.initMemories(this);
 
         return super.finalizeSpawn(level, difficulty, spawnReason, spawnGroupData);
     }
 
-    private void assignRandomFactionLevel(ServerLevelAccessor level) {
+    private void assignRandomFactionLevel(ServerLevelAccessor level, RandomSource random) {
         float difficultyFactor = switch (level.getDifficulty()) {
             case PEACEFUL -> 2.25f;
             case EASY -> 1.75f;
@@ -284,20 +356,99 @@ public class Hunter extends PathfinderMob implements VariantHolder<Holder<IHunte
         setFactionLevel(Mth.clamp(levelValue, MIN_LEVEL, MAX_LEVEL));
     }
 
+    private int calculateTokens(RandomSource random) {
+        float baseTokens = 10.5f + (float) Math.pow(getFactionLevel(), 0.8f) * 5.0f;
+        float randomVariance = 0.85f + random.nextFloat() * 5f;
+        return Math.max(2, Math.round(baseTokens * randomVariance));
+    }
+
     // TODO: FactionRestriction only works for humans and thence npc hunters may not use all of their weapons' potential
 
-    private void assignRandomEquipment(RandomSource random) {
-        ItemStack axe = ModItems.HUNTER_AXE_NORMAL.toStack();
-        ItemStack crossbow = ModItems.BASIC_CROSSBOW.toStack();
+    private void assignRandomEquipment(ServerLevelAccessor level, RandomSource random) {
+        Difficulty difficulty = level.getDifficulty();
+        int tokens = calculateTokens(random);
 
-        Hunter.ClassType classType = getHunterClass();
+        boolean isMelee = isMeleeClass();
+        EquipmentTier[][] armorSet = isMelee ? MELEE_ARMOR : RANGED_ARMOR;
+        EquipmentTier[] mainWeapons = isMelee ? MELEE_MAIN_WEAPONS : RANGED_MAIN_WEAPONS;
 
-        if (classType == ClassType.MELEE) {
-            this.sheathedWeapons.set(0, axe.copy());
-            this.sheathedWeapons.set(1, random.nextDouble() < 0.2 ? axe.copy() : ItemStack.EMPTY);
-        } else if (classType == ClassType.RANGED) {
-            this.sheathedWeapons.set(0, crossbow.copy());
+        int armorTokens = (int) (tokens * 0.66f);
+        int weaponTokens = (int) (tokens * 0.17f);
+        int secondaryTokens = tokens - armorTokens - weaponTokens;
+
+        float[] armorWeights = {0.3f, 0.25f, 0.25f, 0.2f};
+
+        for (int i = 0; i < armorSet.length; i++) {
+            EquipmentTier[] slotTiers = armorSet[i];
+            int slotBudget = Math.max(1, (int) (armorTokens * armorWeights[i]));
+
+            for (int t = slotTiers.length - 1; t >= 0; t--) {
+                if (slotBudget >= slotTiers[t].cost) {
+                    setArmorSlot(i, new ItemStack(slotTiers[t].item));
+                    armorTokens -= slotTiers[t].cost;
+                    break;
+                }
+            }
         }
+
+        boolean weaponEquipped = false;
+        for (int i = mainWeapons.length - 1; i >= 0; i--) {
+            if (weaponTokens >= mainWeapons[i].cost) {
+                this.sheathedWeapons.set(0, new ItemStack(mainWeapons[i].item));
+                if (random.nextFloat() <= 0.2f) {
+                    this.sheathedWeapons.set(1, new ItemStack(mainWeapons[i].item));
+                }
+                weaponEquipped = true;
+                break;
+            }
+        }
+
+        if (!weaponEquipped) {
+            this.sheathedWeapons.set(0, new ItemStack(mainWeapons[0].item));
+        }
+
+        boolean secondaryEquipped = false;
+        for (int i = SECONDARY_WEAPONS.length - 1; i >= 0; i--) {
+            if (secondaryTokens >= SECONDARY_WEAPONS[i].cost) {
+                //this.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(SECONDARY_WEAPONS[i].item));
+                secondaryEquipped = true;
+                break;
+            }
+        }
+        if (!secondaryEquipped && random.nextFloat() < 0.25f) {
+            // fallback: sometimes basic crucifix
+            //this.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(SECONDARY_WEAPONS[0].item));
+        }
+
+        // --- Arrows for ranged ---
+        if (!isMelee && random.nextFloat() < 0.4f) {
+            Item arrow = chooseRandomArrow(difficulty, random);
+            // this.sheathedWeapons.set(1, new ItemStack(arrow));
+        }
+    }
+
+    private void setArmorSlot(int index, ItemStack item) {
+        switch (index) {
+            case 0 -> this.setItemSlot(EquipmentSlot.CHEST, item);
+            case 1 -> this.setItemSlot(EquipmentSlot.FEET, item);
+            case 2 -> this.setItemSlot(EquipmentSlot.LEGS, item);
+            case 3 -> this.setItemSlot(EquipmentSlot.HEAD, item);
+        }
+    }
+
+    private Item chooseRandomArrow(Difficulty difficulty, RandomSource random) {
+        float baseChance = switch (difficulty) {
+            case PEACEFUL -> 0.02f;
+            case EASY -> 0.05f;
+            case NORMAL -> 0.15f;
+            case HARD -> 0.3f;
+        };
+
+        if (random.nextFloat() >= baseChance) {
+            return ModItems.CROSSBOW_ARROW_NORMAL.get();
+        }
+
+        return RANGED_SPECIAL_ARROWS[random.nextInt(RANGED_SPECIAL_ARROWS.length)].asItem();
     }
 
     public void unsheatheWeapons() {
@@ -474,6 +625,13 @@ public class Hunter extends PathfinderMob implements VariantHolder<Holder<IHunte
         @Override
         public String getSerializedName() {
             return name;
+        }
+    }
+
+    private record EquipmentTier(ItemLike item, int cost) {
+
+        public ItemLike getEquipmentItem() {
+            return item;
         }
     }
 }
