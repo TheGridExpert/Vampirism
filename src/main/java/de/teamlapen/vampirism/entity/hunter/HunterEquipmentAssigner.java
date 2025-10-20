@@ -89,7 +89,7 @@ public class HunterEquipmentAssigner {
         Pair<ItemLike, Integer>[][] armorSet = isMelee ? MELEE_ARMOR : RANGED_ARMOR;
         Pair<ItemLike, Integer>[] mainWeapons = isMelee ? MELEE_MAIN_WEAPONS : RANGED_MAIN_WEAPONS;
 
-        int armorTokens = hunter.calculateTokens(random, level.getDifficulty().ordinal() * 2, 20);
+        int armorTokens = hunter.calculateTokens(random, level.getDifficulty().ordinal() * 2, 24);
         int weaponTokens = hunter.calculateTokens(random, 0, 10);
         int secondaryTokens = hunter.calculateTokens(random, 0, 5);
 

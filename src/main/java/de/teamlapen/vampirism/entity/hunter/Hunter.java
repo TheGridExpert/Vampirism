@@ -293,25 +293,33 @@ public class Hunter extends PathfinderMob implements VariantHolder<Holder<IHunte
     }
 
     private void randomizeAttributes(DifficultyInstance difficulty, RandomSource random) {
-        float followRangeFactor = 0.9f + random.nextFloat() * 0.25f;
-        float speedFactor = 0.9f + random.nextFloat() * 0.2f;
-        float damageFactor = 0.8f + random.nextFloat() * 0.4f;
-        float healthFactor = 0.9f + random.nextFloat() * 0.25f;
-
         int factionLevel = getFactionLevel();
-        float levelFactor = 1.0f + (factionLevel - 1.0f) / MAX_LEVEL * 0.5f;
+        float levelFactor = (factionLevel - 1.0f) / MAX_LEVEL;
 
-        if (isRangedClass()) followRangeFactor *= 1.0f + random.nextFloat() * 0.5f;
+        float followRangeFactor = gaussianFactor(random, 1.0f + levelFactor * 0.4f, 0.2f);
+        float speedFactor = gaussianFactor(random, 1.0f + levelFactor * 0.15f, 0.08f);
+        float damageFactor = gaussianFactor(random, 1.0f + levelFactor * 0.85f, 0.2f);
+        float healthFactor = gaussianFactor(random, 1.0f + levelFactor * 0.75f, 0.2f);
+
+        if (isRangedClass()) {
+            followRangeFactor *= gaussianFactor(random, 1.15f, 0.1f);
+        }
 
         multiplyAttributeIfPresent(Attributes.FOLLOW_RANGE, followRangeFactor, 0);
-        multiplyAttributeIfPresent(Attributes.MOVEMENT_SPEED, speedFactor * levelFactor);
-        multiplyAttributeIfPresent(Attributes.ATTACK_DAMAGE, damageFactor * levelFactor);
-        multiplyAttributeIfPresent(Attributes.MAX_HEALTH, healthFactor * levelFactor, 0);
+        multiplyAttributeIfPresent(Attributes.MOVEMENT_SPEED, speedFactor);
+        multiplyAttributeIfPresent(Attributes.ATTACK_DAMAGE, damageFactor);
+        multiplyAttributeIfPresent(Attributes.MAX_HEALTH, healthFactor, 0);
 
         float accuracy = calculateBaseAccuracy(difficulty, factionLevel);
-        multiplyAttributeIfPresent(ModAttributes.ACCURACY, accuracy);
+        multiplyAttributeIfPresent(ModAttributes.ACCURACY, gaussianFactor(random, accuracy, 0.05f));
 
         this.setHealth(this.getMaxHealth());
+    }
+
+    private float gaussianFactor(RandomSource random, float mean, float deviation) {
+        float gaussian = (random.nextFloat() + random.nextFloat() + random.nextFloat()) / 3.0f;
+        gaussian = (gaussian - 0.5f) * 2.0f;
+        return Math.max(0.1f, mean + gaussian * deviation);
     }
 
     private float calculateBaseAccuracy(DifficultyInstance difficulty, int factionLevel) {
