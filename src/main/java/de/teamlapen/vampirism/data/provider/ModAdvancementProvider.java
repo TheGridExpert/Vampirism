@@ -30,6 +30,7 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Blocks;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -178,19 +179,21 @@ public class ModAdvancementProvider extends AdvancementProvider {
         builder.requirements(AdvancementRequirements.Strategy.AND);
 
         Optional<? extends HolderLookup.RegistryLookup<IVampireBook>> registryLookup = holderProvider.lookup(VampirismRegistries.Keys.VAMPIRE_BOOK);
-        registryLookup.ifPresent(registry -> registry.listElements().forEach(vampireBook -> {
-            builder.addCriterion(
-                    "has_" + vampireBook.value().id().getPath(),
-                    InventoryChangeTrigger.TriggerInstance.hasItems(
-                            ItemPredicate.Builder.item()
-                                    .of(BuiltInRegistries.ITEM, ModItems.VAMPIRE_BOOK)
-                                    .hasComponents(DataComponentPredicate.builder().expect(
-                                            ModDataComponents.VAMPIRE_BOOK.get(),
-                                            vampireBook.value()
-                                    ).build())
+        registryLookup.ifPresent(registry -> registry.listElements()
+                .sorted(Comparator.comparing(vampireBook -> vampireBook.value().id().getPath()))
+                .forEach(vampireBook ->
+                    builder.addCriterion(
+                            "has_" + vampireBook.value().id().getPath(),
+                            InventoryChangeTrigger.TriggerInstance.hasItems(
+                                    ItemPredicate.Builder.item()
+                                            .of(BuiltInRegistries.ITEM, ModItems.VAMPIRE_BOOK)
+                                            .hasComponents(DataComponentPredicate.builder().expect(
+                                                    ModDataComponents.VAMPIRE_BOOK.get(),
+                                                    vampireBook.value()
+                                            ).build())
+                            )
                     )
-            );
-        }));
+        ));
 
         return builder;
     }
