@@ -53,7 +53,7 @@ public class ModItemModelGenerators extends ItemModelGenerators {
     }
 
     protected void createDefaultModels() {
-        Stream.of(ModItems.STAKE, ModItems.HUNTER_HAT_TALL, ModItems.HUNTER_HAT_BROAD, ModItems.GARLIC_DIFFUSER_CORE, ModItems.PITCHFORK, ModItems.UMBRELLA).map(DeferredHolder::get).forEach(this::createDefaultModel);
+        Stream.of(ModItems.STAKE, ModItems.GARLIC_DIFFUSER_CORE, ModItems.PITCHFORK, ModItems.UMBRELLA).map(DeferredHolder::get).forEach(this::createDefaultModel);
     }
 
     protected void createDefaultModel(Item item) {
@@ -261,6 +261,8 @@ public class ModItemModelGenerators extends ItemModelGenerators {
                 ModItems.HUNTER_MINION_UPGRADE_ENHANCED,
                 ModItems.HUNTER_MINION_UPGRADE_SPECIAL,
                 ModItems.OBLIVION_POTION,
+                ModItems.HUNTER_HAT_TALL,
+                ModItems.HUNTER_HAT_BROAD,
                 ModItems.VAMPIRE_CLOTHING_HAT,
                 ModItems.VAMPIRE_CLOTHING_BOOTS,
                 ModItems.VAMPIRE_CLOTHING_LEGS,
