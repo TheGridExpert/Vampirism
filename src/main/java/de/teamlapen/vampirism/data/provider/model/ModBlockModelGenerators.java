@@ -60,7 +60,7 @@ public class ModBlockModelGenerators extends VBlockModelGenerators {
         createNonTemplateBlocks();
         createTrivialBlocks();
         createMotherTrophy();
-        createAltarPillar();
+        createAltarPillars();
         createTent();
         createMedChair();
         createTotem();
@@ -143,18 +143,25 @@ public class ModBlockModelGenerators extends VBlockModelGenerators {
         createDefaultBlockItem(ModBlocks.GARLIC_DIFFUSER_IMPROVED.get(), improvedModel);
     }
 
-    protected void createAltarPillar() {
-        ResourceLocation model = decorateBlockModelLocation(modString("altar_pillar"));
-        this.blockStateOutput.accept(MultiVariantGenerator.multiVariant(ModBlocks.ALTAR_PILLAR.get())
-                .with(PropertyDispatch.property(AltarPillarBlock.PILLAR_TYPE)
-                        .select(AltarPillarBlock.EnumPillarType.NONE, Variant.variant().with(VariantProperties.MODEL, model))
-                        .select(AltarPillarBlock.EnumPillarType.STONE, Variant.variant().with(VariantProperties.MODEL, ModModelTemplates.ALTAR_PILLAR_FILLED.createWithSuffix(ModBlocks.ALTAR_PILLAR.get(), "_stone", new TextureMapping().put(ModTextureSlots.FILLER, VResourceLocation.mc("block/stone_bricks")), this.modelOutput)))
-                        .select(AltarPillarBlock.EnumPillarType.IRON, Variant.variant().with(VariantProperties.MODEL, ModModelTemplates.ALTAR_PILLAR_FILLED.createWithSuffix(ModBlocks.ALTAR_PILLAR.get(), "_iron", new TextureMapping().put(ModTextureSlots.FILLER, VResourceLocation.mc("block/iron_block")), this.modelOutput)))
-                        .select(AltarPillarBlock.EnumPillarType.GOLD, Variant.variant().with(VariantProperties.MODEL, ModModelTemplates.ALTAR_PILLAR_FILLED.createWithSuffix(ModBlocks.ALTAR_PILLAR.get(), "_gold", new TextureMapping().put(ModTextureSlots.FILLER, VResourceLocation.mc("block/gold_block")), this.modelOutput)))
-                        .select(AltarPillarBlock.EnumPillarType.BONE, Variant.variant().with(VariantProperties.MODEL, ModModelTemplates.ALTAR_PILLAR_FILLED.createWithSuffix(ModBlocks.ALTAR_PILLAR.get(), "_bone", new TextureMapping().put(ModTextureSlots.FILLER, VResourceLocation.mc("block/bone_block_side")), this.modelOutput)))
-                ))
-        ;
-        createDefaultBlockItem(ModBlocks.ALTAR_PILLAR.get(), model);
+    protected void createAltarPillars() {
+        AltarPillarBlock block = ModBlocks.ALTAR_PILLAR.get();
+        ResourceLocation baseModel = decorateBlockModelLocation(modString("altar_pillar"));
+        PropertyDispatch.C1<AltarPillarBlock.EnumPillarType> dispatch = PropertyDispatch.property(AltarPillarBlock.PILLAR_TYPE);
+
+        dispatch.select(AltarPillarBlock.EnumPillarType.NONE, Variant.variant().with(VariantProperties.MODEL, baseModel));
+
+        for (AltarPillarBlock.EnumPillarType type : AltarPillarBlock.EnumPillarType.values()) {
+            if (type == AltarPillarBlock.EnumPillarType.NONE) continue;
+
+            ResourceLocation sideTexture = mod("block/altar_pillar_" + type.getSerializedName());
+            ResourceLocation model = ModModelTemplates.ALTAR_PILLAR_FILLED.createWithSuffix(block, "_" + type.getSerializedName(), new TextureMapping().put(TextureSlot.SIDE, sideTexture), this.modelOutput);
+
+            dispatch.select(type, Variant.variant().with(VariantProperties.MODEL, model));
+        }
+
+        this.blockStateOutput.accept(MultiVariantGenerator.multiVariant(block).with(dispatch));
+
+        createDefaultBlockItem(block, baseModel);
     }
 
     protected void createAlchemicalCauldron() {
