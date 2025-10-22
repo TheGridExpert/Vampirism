@@ -1,8 +1,10 @@
 package de.teamlapen.vampirism.blocks;
 
+import de.teamlapen.vampirism.core.ModFactions;
 import de.teamlapen.vampirism.entity.player.hunter.HunterPlayer;
 import de.teamlapen.vampirism.entity.player.hunter.skills.HunterSkills;
 import de.teamlapen.vampirism.inventory.WeaponTableMenu;
+import de.teamlapen.vampirism.items.component.FactionRestriction;
 import de.teamlapen.vampirism.util.Helper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -59,7 +61,7 @@ public class WeaponTableBlock extends VampirismHorizontalBlock {
         if (FluidUtil.getFluidHandler(heldItem).stream().flatMap(handler -> IntStream.range(0, handler.getTanks()).mapToObj(handler::getFluidInTank)).anyMatch(fluid -> fluid.is(Fluids.LAVA))) {
             if (level instanceof ServerLevel) {
                 if (!Helper.isHunter(player)) {
-                    player.displayClientMessage(Component.translatable("text.vampirism.unfamiliar"), true);
+                    player.displayClientMessage(FactionRestriction.getFactionRestrictionMessage(ModFactions.HUNTER.get()), true);
                     return InteractionResult.CONSUME;
                 }
 
@@ -105,7 +107,7 @@ public class WeaponTableBlock extends VampirismHorizontalBlock {
             if (canUse(player)) {
                 player.openMenu(new SimpleMenuProvider((id, playerInventory, playerIn) -> new WeaponTableMenu(id, playerInventory, ContainerLevelAccess.create(playerIn.level(), pos)), NAME), pos);
             } else {
-                player.displayClientMessage(Component.translatable("text.vampirism.not_learned"), true);
+                player.displayClientMessage(Helper.isHunter(player) ? FactionRestriction.MESSAGE_MISSING_SKILLS : FactionRestriction.getFactionRestrictionMessage(ModFactions.HUNTER.get()), true);
             }
         }
 

@@ -4,6 +4,7 @@ import de.teamlapen.vampirism.core.ModEffects;
 import de.teamlapen.vampirism.core.tags.ModFactionTags;
 import de.teamlapen.vampirism.items.component.FactionRestriction;
 import de.teamlapen.vampirism.util.Helper;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -16,8 +17,10 @@ import net.minecraft.world.level.Level;
 
 public class VampireClothingItem extends ArmorItem {
 
+    public static final Component MASSAGE_CAN_NOT_USE = Component.translatable("text.vampirism.can_not_use.vampire_clothing");
+
     public VampireClothingItem(ArmorType type, ArmorMaterial material, Properties properties) {
-        super(material, type, FactionRestriction.builder(ModFactionTags.IS_VAMPIRE).apply(properties));
+        super(material, type, FactionRestriction.builder(ModFactionTags.IS_VAMPIRE).message(MASSAGE_CAN_NOT_USE).apply(properties));
     }
 
     @Override

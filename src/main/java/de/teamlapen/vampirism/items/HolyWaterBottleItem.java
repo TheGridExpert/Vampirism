@@ -20,10 +20,13 @@ import java.util.List;
  * Exists in different tiers and as splash versions.
  */
 public class HolyWaterBottleItem extends Item implements IItemWithTier {
+
+    public static final Component MASSAGE_CAN_NOT_USE_HOLY = Component.translatable("text.vampirism.can_not_use.holy");
+
     private final Tier tier;
 
     public HolyWaterBottleItem(Tier tier, Properties props) {
-        super(FactionRestriction.apply(ModFactionTags.IS_HUNTER, ItemPropertiesExtension.descriptionWithout(props, "_normal|_enhanced|_ultimate")));
+        super(FactionRestriction.builder(ModFactionTags.IS_HUNTER).message(MASSAGE_CAN_NOT_USE_HOLY).apply(ItemPropertiesExtension.descriptionWithout(props, "_normal|_enhanced|_ultimate")));
         this.tier = tier;
     }
 

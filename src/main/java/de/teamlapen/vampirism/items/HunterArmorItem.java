@@ -7,6 +7,7 @@ import de.teamlapen.vampirism.core.ModFactions;
 import de.teamlapen.vampirism.core.tags.ModFactionTags;
 import de.teamlapen.vampirism.entity.player.VampirismPlayerAttributes;
 import de.teamlapen.vampirism.items.component.FactionRestriction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -24,11 +25,14 @@ import org.jetbrains.annotations.Nullable;
  */
 public class HunterArmorItem extends ModArmorItem {
 
-    public HunterArmorItem(ArmorMaterial materialIn, ArmorType type, Properties props) {
-        super(materialIn, type, FactionRestriction.builder(ModFactionTags.IS_HUNTER).apply(ItemPropertiesExtension.descriptionWithout(props, "_normal|_enhanced|_ultimate")));
+    public static final Component MASSAGE_CAN_NOT_USE = Component.translatable("text.vampirism.can_not_use.hunter_clothing");
+
+    public HunterArmorItem(ArmorMaterial material, ArmorType armorType, Properties props) {
+        super(material, armorType, FactionRestriction.builder(ModFactionTags.IS_HUNTER).message(MASSAGE_CAN_NOT_USE).apply(ItemPropertiesExtension.descriptionWithout(props, "_normal|_enhanced|_ultimate")));
     }
-    public HunterArmorItem(ArmorMaterial materialIn, ArmorType type, Properties props, ItemAttributeModifiers attributeModifiers) {
-        super(materialIn, type, FactionRestriction.builder(ModFactionTags.IS_HUNTER).apply(ItemPropertiesExtension.descriptionWithout(props, "_normal|_enhanced|_ultimate")), attributeModifiers);
+
+    public HunterArmorItem(ArmorMaterial material, ArmorType armorType, Properties props, ItemAttributeModifiers attributeModifiers) {
+        super(material, armorType, FactionRestriction.builder(ModFactionTags.IS_HUNTER).message(MASSAGE_CAN_NOT_USE).apply(ItemPropertiesExtension.descriptionWithout(props, "_normal|_enhanced|_ultimate")), attributeModifiers);
     }
 
     @Override

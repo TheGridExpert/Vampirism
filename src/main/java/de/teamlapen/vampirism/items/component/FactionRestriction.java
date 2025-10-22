@@ -3,22 +3,25 @@ package de.teamlapen.vampirism.items.component;
 import com.google.common.base.Preconditions;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import de.teamlapen.vampirism.VampirismMod;
 import de.teamlapen.vampirism.api.VampirismAPI;
 import de.teamlapen.vampirism.api.VampirismRegistries;
 import de.teamlapen.vampirism.api.entity.factions.IFaction;
 import de.teamlapen.vampirism.api.entity.player.skills.ISkill;
 import de.teamlapen.vampirism.core.ModDataComponents;
+import de.teamlapen.vampirism.core.ModFactions;
 import de.teamlapen.vampirism.core.ModRegistries;
 import de.teamlapen.vampirism.core.tags.ModFactionTags;
 import de.teamlapen.vampirism.entity.factions.FactionPlayerHandler;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.*;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -29,19 +32,25 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.stream.Stream;
 
-public record FactionRestriction(HolderSet<IFaction<?>> factions, Optional<HolderSet<ISkill<?>>> skills, Optional<Integer> minLevel) {
+public record FactionRestriction(HolderSet<IFaction<?>> factions, Optional<HolderSet<ISkill<?>>> skills, Optional<Integer> minLevel, Optional<Component> customMessage) {
+
+    private static final Component MESSAGE_WRONG_FACTION = Component.translatable("text.vampirism.can_not_use.faction");
+    public static final Component MESSAGE_MISSING_SKILLS = Component.translatable("text.vampirism.can_not_use.skill");
+    public static final Component MESSAGE_MISSING_LEVEL = Component.translatable("text.vampirism.can_not_use.level");
 
     public static final FactionRestriction ALL = FactionRestriction.builder(ModFactionTags.ALL_FACTIONS).build();
     public static final Codec<FactionRestriction> CODEC = RecordCodecBuilder.create(inst ->
             inst.group(
                     RegistryCodecs.homogeneousList(VampirismRegistries.Keys.FACTION).fieldOf("factions").forGetter(FactionRestriction::factions),
                     RegistryCodecs.homogeneousList(VampirismRegistries.Keys.SKILL).optionalFieldOf("skills").forGetter(FactionRestriction::skills),
-                    Codec.INT.optionalFieldOf("min_level").forGetter(FactionRestriction::minLevel)
+                    Codec.INT.optionalFieldOf("min_level").forGetter(FactionRestriction::minLevel),
+                    ComponentSerialization.CODEC.optionalFieldOf("custom_message").forGetter(FactionRestriction::customMessage)
             ).apply(inst, FactionRestriction::new));
     public static final StreamCodec<RegistryFriendlyByteBuf, FactionRestriction> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.holderSet(VampirismRegistries.Keys.FACTION), FactionRestriction::factions,
             ByteBufCodecs.optional(ByteBufCodecs.holderSet(VampirismRegistries.Keys.SKILL)), FactionRestriction::skills,
             ByteBufCodecs.optional(ByteBufCodecs.INT), FactionRestriction::minLevel,
+            ByteBufCodecs.optional(ComponentSerialization.STREAM_CODEC), FactionRestriction::customMessage,
             FactionRestriction::new
     );
 
@@ -50,11 +59,11 @@ public record FactionRestriction(HolderSet<IFaction<?>> factions, Optional<Holde
     }
 
     public FactionRestriction(HolderSet<IFaction<?>> factions) {
-        this(factions, Optional.empty(), Optional.empty());
+        this(factions, Optional.empty(), Optional.empty(), Optional.empty());
     }
 
     public FactionRestriction(Holder<IFaction<?>> faction) {
-        this(HolderSet.direct(faction));
+        this(HolderSet.direct(faction), Optional.empty(), Optional.empty(), Optional.empty());
     }
 
     public static <T extends IFaction<?>, Z extends Holder<T>> boolean matchFaction(ItemStack stack, Z faction) {
@@ -116,10 +125,6 @@ public record FactionRestriction(HolderSet<IFaction<?>> factions, Optional<Holde
         }
     }
 
-    public static void addTooltipIfExist(ItemStack stack, List<Component> tooltip) {
-        addTooltipIfExist(VampirismMod.proxy.getClientPlayer(), stack, tooltip);
-    }
-
     public static void addTooltipIfExist(@Nullable Player player, ItemStack stack, List<Component> tooltip) {
         Stream<FactionRestriction> factionRestrictionStream = Stream.of(stack.get(ModDataComponents.FACTION_RESTRICTION));
         if (stack.has(ModDataComponents.APPLIED_OIL)) {
@@ -133,15 +138,42 @@ public record FactionRestriction(HolderSet<IFaction<?>> factions, Optional<Holde
 
     public Result canUse(FactionPlayerHandler player) {
         if (!IFaction.contains(factions, player.getFaction())) {
-            return Result.WRONG_FACTION;
+            return new Result(customMessage.or(() -> Optional.of(getFactionRestrictionMessage(factions))), false);
         }
         if (skills().isPresent() && player.getSkillHandler().map(s -> !s.areSkillsEnabled(skills().get().stream().toList())).orElse(true)) {
-            return Result.MISSING_SKILLS;
+            return new Result(customMessage.or(() -> Optional.of(MESSAGE_MISSING_SKILLS)), false);
         }
         if (minLevel().isPresent() && player.getCurrentLevel() < minLevel().get()) {
-            return Result.MISSING_LEVEL;
+            return new Result(customMessage.or(() -> Optional.of(MESSAGE_MISSING_LEVEL)), false);
         }
-        return Result.SUCCESS;
+        return new Result(Optional.empty(), true);
+    }
+
+    public static Component getFactionRestrictionMessage(IFaction<?> faction) {
+        return getFactionRestrictionMessage(List.of(faction));
+    }
+
+    public static Component getFactionRestrictionMessage(HolderSet<IFaction<?>> factions) {
+        return getFactionRestrictionMessage(factions.stream().map(Holder::value).toList());
+    }
+
+    public static Component getFactionRestrictionMessage(List<? extends IFaction<?>> factions) {
+        IFaction<?> faction = factions.contains(ModFactions.NEUTRAL.get()) ? ModFactions.NEUTRAL.get() : factions.getFirst();
+        ResourceLocation factionLocation = ModRegistries.FACTIONS.getKey(faction);
+
+        if (factionLocation != null) {
+            String messageKey = getFactionMessageKey(factionLocation.getPath());
+
+            if (I18n.exists(messageKey)) {
+                return Component.translatable(messageKey);
+            }
+        }
+
+        return MESSAGE_WRONG_FACTION;
+    }
+
+    public static String getFactionMessageKey(String factionId) {
+        return "text.vampirism.can_not_use.faction." + factionId;
     }
 
     public static void addTooltip(List<Component> tooltips, @Nullable FactionPlayerHandler player, List<FactionRestriction> restrictions) {
@@ -163,10 +195,6 @@ public record FactionRestriction(HolderSet<IFaction<?>> factions, Optional<Holde
     }
 
     public record Result(Optional<Component> message, boolean success) {
-        public static final Result SUCCESS = new Result(Optional.empty(), true);
-        public static final Result WRONG_FACTION = new Result(Optional.of(Component.translatable("text.vampirism.can_not_be_used_faction")), false);
-        public static final Result MISSING_SKILLS = new Result(Optional.of(Component.translatable("text.vampirism.can_not_be_used_skill")), false);
-        public static final Result MISSING_LEVEL = new Result(Optional.of(Component.translatable("text.vampirism.can_not_be_used_level")), false);
     }
 
     public static class Builder {
@@ -176,6 +204,7 @@ public record FactionRestriction(HolderSet<IFaction<?>> factions, Optional<Holde
         private TagKey<ISkill<?>> skillTag;
         private final List<Holder<ISkill<?>>> skillHolder = new ArrayList<>();
         private Integer minLevel;
+        private Optional<Component> customMessage = Optional.empty();
 
         public Builder(TagKey<IFaction<?>> tagKey) {
             this.factionTag = tagKey;
@@ -207,12 +236,17 @@ public record FactionRestriction(HolderSet<IFaction<?>> factions, Optional<Holde
             return this;
         }
 
+        public Builder message(Component message) {
+            this.customMessage = Optional.of(message);
+            return this;
+        }
+
         public FactionRestriction build() {
             HolderGetter<IFaction<?>> factions = BuiltInRegistries.acquireBootstrapRegistrationLookup(ModRegistries.FACTIONS);
             HolderGetter<ISkill<?>> skills = BuiltInRegistries.acquireBootstrapRegistrationLookup(ModRegistries.SKILLS);
             Preconditions.checkArgument((this.factionTag != null && this.factionHolder.isEmpty() )|| (this.factionTag == null && !this.factionHolder.isEmpty()), "You need to provide either a faction tag or a list of factions");
             Preconditions.checkArgument(!(this.skillTag != null && !this.skillHolder.isEmpty()), "You can only supply a skill tag or a list of skills or not skills at all");
-            return new FactionRestriction(factionTag != null ? factions.getOrThrow(factionTag) : HolderSet.direct(factionHolder), skillTag != null ? Optional.of(skillTag).map(skills::getOrThrow) : !skillHolder.isEmpty() ? Optional.of(HolderSet.direct(skillHolder)) : Optional.empty(), Optional.ofNullable(minLevel));
+            return new FactionRestriction(factionTag != null ? factions.getOrThrow(factionTag) : HolderSet.direct(factionHolder), skillTag != null ? Optional.of(skillTag).map(skills::getOrThrow) : !skillHolder.isEmpty() ? Optional.of(HolderSet.direct(skillHolder)) : Optional.empty(), Optional.ofNullable(minLevel), customMessage);
         }
 
         public Item.Properties apply(Item.Properties properties) {

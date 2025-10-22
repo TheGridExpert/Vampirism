@@ -5,11 +5,13 @@ import de.teamlapen.vampirism.VampirismMod;
 import de.teamlapen.vampirism.api.entity.player.skills.ISkillHandler;
 import de.teamlapen.vampirism.blocks.AlchemicalCauldronBlock;
 import de.teamlapen.vampirism.core.ModDataMaps;
+import de.teamlapen.vampirism.core.ModFactions;
 import de.teamlapen.vampirism.core.ModRecipes;
 import de.teamlapen.vampirism.core.ModBlockEntities;
 import de.teamlapen.vampirism.entity.player.hunter.HunterPlayer;
 import de.teamlapen.vampirism.entity.player.hunter.skills.HunterSkills;
 import de.teamlapen.vampirism.inventory.AlchemicalCauldronMenu;
+import de.teamlapen.vampirism.items.component.FactionRestriction;
 import de.teamlapen.vampirism.recipes.AlchemicalCauldronRecipe;
 import de.teamlapen.vampirism.recipes.AlchemicalCauldronRecipeInput;
 import de.teamlapen.vampirism.util.Helper;
@@ -143,7 +145,7 @@ public class AlchemicalCauldronBlockEntity extends BaseContainerBlockEntity impl
     public boolean canOpen(@NotNull Player player) {
         if (super.canOpen(player)) {
             if (!Helper.isHunter(player)) {
-                player.displayClientMessage(Component.translatable("text.vampirism.unfamiliar"), true);
+                player.displayClientMessage(FactionRestriction.getFactionRestrictionMessage(ModFactions.HUNTER.get()), true);
                 return false;
             }
             if (HunterPlayer.get(player).getSkillHandler().isSkillEnabled(HunterSkills.BASIC_ALCHEMY)) {
@@ -156,7 +158,7 @@ public class AlchemicalCauldronBlockEntity extends BaseContainerBlockEntity impl
                     player.displayClientMessage(Component.translatable("text.vampirism.alchemical_cauldron.other", getOwnerName()), true);
                 }
             } else {
-                player.displayClientMessage(Component.translatable("text.vampirism.not_learned"), true);
+                player.displayClientMessage(FactionRestriction.MESSAGE_MISSING_SKILLS, true);
             }
         }
         return false;

@@ -1,8 +1,10 @@
 package de.teamlapen.vampirism.blocks;
 
 import de.teamlapen.vampirism.core.ModBlocks;
+import de.teamlapen.vampirism.core.ModFactions;
 import de.teamlapen.vampirism.core.ModStats;
 import de.teamlapen.vampirism.inventory.HunterTableMenu;
+import de.teamlapen.vampirism.items.component.FactionRestriction;
 import de.teamlapen.vampirism.util.Helper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -71,7 +73,7 @@ public class HunterTableBlock extends VampirismHorizontalBlock {
                 if (Helper.isHunter(serverPlayer)) {
                     player.openMenu(new SimpleMenuProvider((id, playerInventory, playerIn) -> new HunterTableMenu(id, playerInventory, ContainerLevelAccess.create(playerIn.level(), pos)), Component.translatable("container.crafting")), pos);
                 } else {
-                    player.displayClientMessage(Component.translatable("text.vampirism.unfamiliar"), true);
+                    player.displayClientMessage(FactionRestriction.getFactionRestrictionMessage(ModFactions.HUNTER.get()), true);
                 }
             }
         }

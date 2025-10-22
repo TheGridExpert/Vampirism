@@ -2,12 +2,13 @@ package de.teamlapen.vampirism.blocks;
 
 import com.mojang.serialization.MapCodec;
 import de.teamlapen.vampirism.blockentity.VampireBeaconBlockEntity;
+import de.teamlapen.vampirism.core.ModFactions;
 import de.teamlapen.vampirism.core.ModStats;
 import de.teamlapen.vampirism.core.ModBlockEntities;
+import de.teamlapen.vampirism.items.component.FactionRestriction;
 import de.teamlapen.vampirism.util.Helper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
@@ -65,7 +66,7 @@ public class VampireBeaconBlock extends VampirismBlockContainer implements Beaco
                         player.openMenu(vampireBeaconBlockEntity);
                     }
                 } else {
-                    player.displayClientMessage(Component.translatable("text.vampirism.unfamiliar"), true);
+                    player.displayClientMessage(FactionRestriction.getFactionRestrictionMessage(ModFactions.HUNTER.get()), true);
                 }
                 return InteractionResult.CONSUME;
             }

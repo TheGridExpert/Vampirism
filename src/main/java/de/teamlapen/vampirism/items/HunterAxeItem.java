@@ -23,6 +23,8 @@ import java.util.List;
 
 public class HunterAxeItem extends VampirismSwordItem implements IItemWithTier, ModDisplayItemGenerator.CreativeTabItemProvider {
 
+    public static final Component MASSAGE_CAN_NOT_USE_HEAVY = Component.translatable("text.vampirism.can_not_use.heavy");
+
     public static final ToolMaterial NORMAL = new ToolMaterial(BlockTags.INCORRECT_FOR_IRON_TOOL, 250, 3.5f, 6.0F, 14, Tags.Items.INGOTS_IRON);
     public static final ToolMaterial ENHANCED = new ToolMaterial(BlockTags.INCORRECT_FOR_DIAMOND_TOOL, 1561, 3.4f, 7.0F, 14, Tags.Items.GEMS_DIAMOND);
     public static final ToolMaterial ULTIMATE = new ToolMaterial(BlockTags.INCORRECT_FOR_NETHERITE_TOOL, 2031, 3.3f, 8.0F, 14, Tags.Items.INGOTS_NETHERITE);
@@ -30,7 +32,7 @@ public class HunterAxeItem extends VampirismSwordItem implements IItemWithTier, 
     private final Tier tier;
 
     public HunterAxeItem(ToolMaterial material, Tier tier, Properties properties) {
-        super(material, 3, -2.9f, FactionRestriction.builder(ModFactionTags.IS_HUNTER).minLevel(getMinLevel(tier)).apply(properties).component(ModDataComponents.FACTION_SLAYER, FactionSlayer.create(ModFactionTags.IS_VAMPIRE, getVampireMult(tier))).component(ModDataComponents.DROP_VAMPIRE_SOUL, Unit.INSTANCE));
+        super(material, 3, -2.9f, FactionRestriction.builder(ModFactionTags.IS_HUNTER).minLevel(getMinLevel(tier)).message(MASSAGE_CAN_NOT_USE_HEAVY).apply(properties).component(ModDataComponents.FACTION_SLAYER, FactionSlayer.create(ModFactionTags.IS_VAMPIRE, getVampireMult(tier))).component(ModDataComponents.DROP_VAMPIRE_SOUL, Unit.INSTANCE));
         this.tier = tier;
     }
 
