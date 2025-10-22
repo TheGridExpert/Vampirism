@@ -13,7 +13,6 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.entity.state.BatRenderState;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.block.state.BlockState;
 
 public class BatCageRenderer implements BlockEntityRenderer<BatCageBlockEntity> {
 
@@ -27,11 +26,7 @@ public class BatCageRenderer implements BlockEntityRenderer<BatCageBlockEntity> 
 
     @Override
     public void render(BatCageBlockEntity blockEntity, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
-        BlockState blockState = blockEntity.getBlockState();
-
-        if (blockState.getValue(BatCageBlock.CONTAINS_BAT)) {
-            renderBat(poseStack, bufferSource, packedLight, packedOverlay, blockState.getValue(BatCageBlock.FACING));
-        }
+        renderBat(poseStack, bufferSource, packedLight, packedOverlay, blockEntity.getBlockState().getValue(BatCageBlock.FACING));
     }
 
     private void renderBat(PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay, Direction direction) {

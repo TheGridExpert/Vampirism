@@ -11,7 +11,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -24,13 +23,12 @@ public class BatCageBlock extends BaseEntityBlock {
     public static final MapCodec<BatCageBlock> CODEC = simpleCodec(BatCageBlock::new);
 
     public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
-    public static final BooleanProperty CONTAINS_BAT = BooleanProperty.create("contains_bat");
 
     private static final VoxelShape SHAPE = Shapes.join(Block.box(1, 0, 1, 15, 12, 15), Block.box(3, 12, 3, 13, 16, 13), BooleanOp.OR);
 
     public BatCageBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.defaultBlockState().setValue(FACING, Direction.NORTH).setValue(CONTAINS_BAT, true));
+        this.registerDefaultState(this.defaultBlockState().setValue(FACING, Direction.NORTH));
     }
 
     @Override
@@ -56,7 +54,7 @@ public class BatCageBlock extends BaseEntityBlock {
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, CONTAINS_BAT);
+        builder.add(FACING);
     }
 
     @Override
@@ -72,6 +70,6 @@ public class BatCageBlock extends BaseEntityBlock {
     @Nullable
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        return this.defaultBlockState().setValue(FACING, context.getHorizontalDirection()).setValue(CONTAINS_BAT, true);
+        return this.defaultBlockState().setValue(FACING, context.getHorizontalDirection());
     }
 }
