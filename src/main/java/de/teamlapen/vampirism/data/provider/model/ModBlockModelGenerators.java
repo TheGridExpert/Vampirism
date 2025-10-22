@@ -86,10 +86,6 @@ public class ModBlockModelGenerators extends VBlockModelGenerators {
         this.blockStateOutput.accept(createSimpleBlock(ModBlocks.INFESTED_DARK_STONE.get(), infestedDarkStoneModel));
         createDefaultBlockItem(ModBlocks.INFESTED_DARK_STONE.get(), VResourceLocation.mod("block/infested_dark_stone"));
 
-        ResourceLocation batCageModel = mod("block/bat_cage/block");
-        this.blockStateOutput.accept(createSimpleBlock(ModBlocks.BAT_CAGE.get(), batCageModel));
-        createDefaultBlockItem(ModBlocks.BAT_CAGE.get(), batCageModel);
-
         ResourceLocation bloodContainerModel = mod("block/blood_container/blood_container");
         this.blockStateOutput.accept(createSimpleBlock(ModBlocks.BLOOD_CONTAINER.get(), bloodContainerModel));
         this.itemModelOutput.accept(ModBlocks.BLOOD_CONTAINER.asItem(), ItemModelUtils.composite(ItemModelUtils.plainModel(bloodContainerModel), ItemModelUtils.specialModel(bloodContainerModel, new BloodContainerSpecialRenderer.Unbaked())));
@@ -341,6 +337,7 @@ public class ModBlockModelGenerators extends VBlockModelGenerators {
                 ModBlocks.ALTAR_CLEANSING,
                 ModBlocks.ALTAR_INFUSION,
                 ModBlocks.ALTAR_TIP,
+                ModBlocks.BAT_CAGE,
                 ModBlocks.BLOOD_PEDESTAL,
                 ModBlocks.POTION_TABLE,
                 ModBlocks.FIRE_PLACE,

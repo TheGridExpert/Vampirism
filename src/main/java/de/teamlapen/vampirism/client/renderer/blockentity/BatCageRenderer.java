@@ -36,8 +36,8 @@ public class BatCageRenderer implements BlockEntityRenderer<BatCageBlockEntity> 
 
     private void renderBat(PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay, Direction direction) {
         poseStack.pushPose();
-        poseStack.translate(0.5F, 1F, 0.5F);
-        //pPoseStack.mulPose(Axis.YN.rotationDegrees(90 * direction.get2DDataValue()));
+        poseStack.translate(0.5F, 1.0625F, 0.5F);
+        poseStack.mulPose(Axis.YN.rotationDegrees(90 * direction.get2DDataValue()));
         poseStack.scale(0.65F, 0.65F, 0.65F);
         poseStack.mulPose(Axis.XP.rotationDegrees(180));
         BatRenderState batRenderState = new BatRenderState();

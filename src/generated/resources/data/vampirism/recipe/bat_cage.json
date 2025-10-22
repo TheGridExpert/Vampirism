@@ -2,12 +2,13 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
+    "C": "minecraft:chain",
     "G": "#c:ingots/gold",
     "P": "#minecraft:planks"
   },
   "pattern": [
     "GGG",
-    "GPG",
+    "GCG",
     "PPP"
   ],
   "result": {

@@ -400,11 +400,13 @@ public class ModRecipeProvider extends VampirismRecipeProvider {
                 .save(output);
         shaped(RecipeCategory.DECORATIONS, ModBlocks.BAT_CAGE)
                 .pattern("GGG")
-                .pattern("GPG")
+                .pattern("GCG")
                 .pattern("PPP")
                 .define('G', GOLD_INGOT)
+                .define('C', Items.CHAIN)
                 .define('P', PLANKS)
                 .unlockedBy("has_gold", has(GOLD_INGOT))
+                .unlockedBy("has_chain", has(Items.CHAIN))
                 .unlockedBy("has_planks", has(PLANKS))
                 .save(output);
 
