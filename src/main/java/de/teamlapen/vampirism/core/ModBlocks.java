@@ -319,7 +319,7 @@ public class ModBlocks {
 
     public static final DeferredBlock<VampirismHorizontalBlock> VAMPIRE_RACK = registerWithItem("vampire_rack", props -> new VampirismHorizontalBlock(props.ignitedByLava().strength(2, 3), VampirismVoxelShapes.VAMPIRE_RACK));
     public static final DeferredBlock<ThroneBlock> THRONE = registerWithItem("throne", ThroneBlock::new, () -> basicProperties().mapColor(MapColor.WOOD).ignitedByLava().pushReaction(PushReaction.DESTROY).strength(2, 3));
-    public static final DeferredBlock<BatCageBlock> BAT_CAGE = registerWithItem("bat_cage", BatCageBlock::new, () -> basicProperties().strength(5.0F, 6.0F).sound(SoundType.METAL).noOcclusion());
+    public static final DeferredBlock<BatCageBlock> BAT_CAGE = registerWithItem("bat_cage", BatCageBlock::new, () -> basicProperties().strength(3.0F, 4.0F).sound(ModSoundTypes.BAT_CAGE).noOcclusion());
     public static final DeferredBlock<MotherTrophyBlock> MOTHER_TROPHY = registerWithItem("mother_trophy", MotherTrophyBlock::new, () -> basicProperties().mapColor(MapColor.COLOR_GRAY).strength(3, 9).lightLevel(s -> 1).noOcclusion(), itemProps -> itemProps.rarity(Rarity.EPIC).stacksTo(1));
 
     public static final DeferredBlock<TentBlock> TENT = registerBlock("tent", TentBlock::new, () -> basicProperties().mapColor(MapColor.WOOL).ignitedByLava().strength(0.6f).sound(SoundType.WOOL).noOcclusion());
