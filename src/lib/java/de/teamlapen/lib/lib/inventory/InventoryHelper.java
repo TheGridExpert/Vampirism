@@ -33,13 +33,27 @@ public class InventoryHelper {
         if (inventory.getContainerSize() < amounts.length || items.length != amounts.length) {
             throw new IllegalArgumentException("There has to be one itemstack and amount value for each item");
         }
-        for (int i = 0; i < items.length; i++) {
-            ItemStack stack = inventory.getItem(i);
-            int actual = (!stack.isEmpty() && compareFunction.test(stack.getItem(), items[i])) ? stack.getCount() : 0;
-            if (actual < amounts[i]) {
-                return new ItemStack(items[i], amounts[i] - actual);
+
+        int[] found = new int[items.length];
+
+        for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
+            ItemStack stack = inventory.getItem(slot);
+            if (stack.isEmpty()) continue;
+
+            for (int i = 0; i < items.length; i++) {
+                if (amounts[i] <= 0) continue;
+                if (compareFunction.test(stack.getItem(), items[i])) {
+                    found[i] += stack.getCount();
+                }
             }
         }
+
+        for (int i = 0; i < items.length; i++) {
+            if (amounts[i] > 0 && found[i] < amounts[i]) {
+                return new ItemStack(items[i], amounts[i] - found[i]);
+            }
+        }
+
         return ItemStack.EMPTY;
     }
 

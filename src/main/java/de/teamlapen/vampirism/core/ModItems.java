@@ -346,7 +346,8 @@ public class ModItems {
                 SYRINGE_EMPTY,
                 SYRINGE_BLOOD,
                 INJECTION_GARLIC,
-                INJECTION_SANGUINARE
+                INJECTION_SANGUINARE,
+                VAMPIRE_BLOOD_BOTTLE
         );
 
         if (descriptionItems.anyMatch(item -> stack.is(item.asItem()))) {

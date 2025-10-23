@@ -1,8 +1,6 @@
 package de.teamlapen.vampirism.blockentity;
 
-import de.teamlapen.lib.lib.blockentity.InventoryBlockEntity;
 import de.teamlapen.lib.lib.inventory.InventoryHelper;
-import de.teamlapen.lib.lib.util.ValuedObject;
 import de.teamlapen.vampirism.advancements.critereon.VampireActionCriterionTrigger;
 import de.teamlapen.vampirism.blocks.AltarPillarBlock;
 import de.teamlapen.vampirism.blocks.AltarTipBlock;
@@ -28,418 +26,404 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
+import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
-public class AltarInfusionBlockEntity extends InventoryBlockEntity {
+public class AltarInfusionBlockEntity extends BaseContainerBlockEntity {
 
-    private final static Logger LOGGER = LogManager.getLogger(AltarInfusionBlockEntity.class);
-    private static final int DURATION_TICK = 450;
-    /**
-     * Used to store a saved player UUID during read until world and player are available
-     */
-    private @Nullable UUID playerToLoadUUID;
-    /**
-     * Only available when running ({@link #runningTick}>0)
-     */
+    public static final String KEY_PLAYER_UUID = "PlayerUUID";
+    public static final String KEY_RUN_TIME = "RunTime";
+
+    public static final int DURATION_TICK = 450;
+    public static final int MAX_PILLARS = 9;
+
+    private NonNullList<ItemStack> items = NonNullList.withSize(3, ItemStack.EMPTY);
     private @Nullable Player player;
-    /**
-     * Only available when running ({@link #runningTick}>0)
-     */
-    private BlockPos @Nullable [] tips;
-    private int runningTick;
-    /**
-     * The level the player will be after the levelup.
-     * Only available when running ({@link #runningTick}>0)
-     */
+    private @Nullable UUID playerToLoadUUID;
+    private List<BlockPos> tips;
+    private int runTime;
     private int targetLevel;
 
-    public AltarInfusionBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
-        super(ModBlockEntities.ALTAR_INFUSION.get(), pos, state, AltarInfusionMenu.createInputSlotDefinition());
+    public AltarInfusionBlockEntity(BlockPos pos, BlockState state) {
+        super(ModBlockEntities.ALTAR_INFUSION.get(), pos, state);
     }
 
-    /**
-     * Checks all the requirements
-     *
-     * @param player trying to execute the ritual
-     */
-    public @NotNull Result canActivate(@NotNull Player player) {
-        if (runningTick > 0) {
-            return Result.ISRUNNING;
-        }
-        this.player = null;
-
-        targetLevel = VampirismPlayerAttributes.get(player).vampireLevel + 1;
-        int requiredLevel = checkRequiredLevel();
-        if (requiredLevel == -1) {
-            return Result.WRONGLEVEL;
-        } else if (player.getCommandSenderWorld().isDay()) {
-            return Result.NIGHTONLY;
-        } else if (!checkStructureLevel(requiredLevel)) {
-            tips = null;
-            return Result.STRUCTUREWRONG;
-        } else if (!checkItemRequirements()) {
-            tips = null;
-            return Result.INVMISSING;
-        }
-        return Result.OK;
-
-    }
-
-    /**
-     * Returns the phase the ritual is in
-     */
-    public @NotNull PHASE getCurrentPhase() {
-        if (runningTick < 1) {
-            return PHASE.NOT_RUNNING;
-        }
-        if (runningTick == 1) {
-            return PHASE.CLEAN_UP;
-        }
-        if (runningTick > (DURATION_TICK - 100)) {
-            return PHASE.PARTICLE_SPREAD;
-        }
-        if (runningTick < DURATION_TICK - 160 && runningTick >= (DURATION_TICK - 200)) {
-            return PHASE.BEAM1;
-        }
-        if (runningTick < (DURATION_TICK - 200) && (runningTick > 50)) {
-            return PHASE.BEAM2;
-        }
-        if (runningTick == 50) {
-            return PHASE.LEVELUP;
-        }
-        if (runningTick < 50) {
-            return PHASE.ENDING;
-        }
-        return PHASE.WAITING;
-    }
-
-    /**
-     * Returns the affected player. If the ritual isn't running it returns null
-     */
-    public @Nullable Player getPlayer() {
-        if (this.runningTick <= 1) {
-            return null;
-        }
-        return this.player;
-    }
-
-    public int getRunningTick() {
-        return runningTick;
-    }
-
-    /**
-     * Returns the position of the tips. If the ritual isn't running it returns null
-     */
-    public BlockPos @Nullable [] getTips() {
-        if (this.runningTick <= 1) {
-            return null;
-        }
-        return this.tips;
-    }
-
-    @Nullable
-    @Override
-    public ClientboundBlockEntityDataPacket getUpdatePacket() {
-        return ClientboundBlockEntityDataPacket.create(this);
-    }
-
-    @NotNull
-    @Override
-    public CompoundTag getUpdateTag(HolderLookup.Provider lookupProvider) {
-        return this.saveWithoutMetadata(lookupProvider);
-    }
-
-    @Override
-    public void loadAdditional(@NotNull CompoundTag tagCompound, HolderLookup.Provider lookupProvider) {
-        super.loadAdditional(tagCompound, lookupProvider);
-        int tick = tagCompound.getInt("tick");
-        //This is used on both client and server side and has to be prepared for the world not being available yet
-        if (tick > 0 && player == null && tagCompound.hasUUID("playerUUID")) {
-            UUID playerID = tagCompound.getUUID("playerUUID");
-            if (!loadRitual(playerID)) {
-                this.playerToLoadUUID = playerID;
-            }
-            this.runningTick = tick;
-        }
-
-    }
-
-    @Override
-    public void onDataPacket(Connection net, @NotNull ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider lookupProvider) {
-        CompoundTag tag = pkt.getTag();
-        if (this.hasLevel()) {
-            this.loadCustomOnly(tag, lookupProvider);
-        }
-    }
-
-    @Override
-    public void saveAdditional(@NotNull CompoundTag compound, HolderLookup.Provider lookupProvider) {
-        super.saveAdditional(compound, lookupProvider);
-        compound.putInt("tick", runningTick);
-        if (player != null) {
-            compound.putUUID("playerUUID", player.getUUID());
-        }
-    }
-
-    /**
-     * Starts the ritual.
-     * ONLY call if {@link #canActivate(Player)} returned 1
-     */
-    public void startRitual(@NotNull Player player) {
-        if (level == null) return;
-        LOGGER.debug("Starting ritual for {}", player);
-        this.player = player;
-        runningTick = DURATION_TICK;
-
-        this.setChanged();
-        if (!this.level.isClientSide) {
-            for (BlockPos pTip : tips) {
-                ModParticles.spawnParticlesServer(level, new FlyingBloodParticleOptions(60, false, pTip.getX() + 0.5, pTip.getY() + 0.3, pTip.getZ() + 0.5), worldPosition.getX() + 0.5, worldPosition.getY() + 0.5, worldPosition.getZ() + 0.5, 3, 0.1, 0.1, 0.1, 0);
-            }
-            BlockState state = this.level.getBlockState(getBlockPos());
-            this.level.sendBlockUpdated(getBlockPos(), state, state, 3); //Notify client about started ritual
-        }
-        player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, DURATION_TICK, 10));
-        this.setChanged();
-    }
-
-    /**
-     * Called when the ritual is running
-     */
-    private void tickRitual() {
-        if (player == null || !player.isAlive()) {
-            runningTick = 1;
-        } else {
-            if (player.getDeltaMovement().y >= 0) {
-                player.setDeltaMovement(0D, 0D, 0D);
-            } else {
-                player.setDeltaMovement(0D, player.getDeltaMovement().y, 0D);
-                player.setDeltaMovement(player.getDeltaMovement().multiply(1D, 0.5D, 1D));
-            }
-        }
-
-        PHASE phase = getCurrentPhase();
-        if (this.level.isClientSide) {
-            if (phase.equals(PHASE.PARTICLE_SPREAD)) {
-                if (runningTick % 15 == 0) {
-                    BlockPos pos = getBlockPos();
-                    for (BlockPos pTip : tips) {
-                        ModParticles.spawnParticlesClient(level, new FlyingBloodParticleOptions(60, false, pTip.getX() + 0.5, pTip.getY() + 0.3, pTip.getZ() + 0.5), pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 0, 0, 0, 5, 0.1, RandomSource.create());
-                    }
-                }
-            }
-            if (runningTick == DURATION_TICK - 200) {
-                if (getPlayer().isLocalPlayer()) {
-                    VampirismModClient.getInstance().getOverlay().makeRenderFullColor(DURATION_TICK - 250, 50, 0xFF0000);
-                }
-            }
-        }
-        if (phase.equals(PHASE.CLEAN_UP)) {
-            player = null;
-            tips = null;
-            this.setChanged();
-            this.runningTick = 0;
-        }
-        if (phase.equals(PHASE.LEVELUP)) {
-            if (!level.isClientSide) {
-                assert player.isAlive();
-                FactionPlayerHandler handler = FactionPlayerHandler.get(player);
-                if (handler.getCurrentLevel(ModFactions.VAMPIRE) != targetLevel - 1) {
-                    LOGGER.warn("Player {} changed level while the ritual was running. Cannot levelup.", player);
-                    return;
-                }
-                handler.setFactionLevel(ModFactions.VAMPIRE, handler.getCurrentLevel(ModFactions.VAMPIRE) + 1);
-                VampirePlayer.get(player).drinkBlood(Integer.MAX_VALUE, 0, false, DrinkBloodContext.none());
-                if (player instanceof ServerPlayer serverPlayer) {
-                    ModAdvancements.TRIGGER_VAMPIRE_ACTION.get().trigger(serverPlayer, VampireActionCriterionTrigger.Action.PERFORM_RITUAL_INFUSION);
-                }
-            } else {
-                this.level.playLocalSound(player.getX(), player.getY(), player.getZ(), SoundEvents.GENERIC_EXPLODE.value(), SoundSource.BLOCKS, 4.0F, (1.0F + (this.level.random.nextFloat() - this.level.random.nextFloat()) * 0.2F) * 0.7F, true);
-                this.level.addParticle(ParticleTypes.EXPLOSION, player.getX(), player.getY(), player.getZ(), 1.0D, 0.0D, 0.0D);
-            }
-
-            player.addEffect(new MobEffectInstance(ModEffects.SATURATION, 400, 2));
-            player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 400, 2));
-            player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST, 400, 2));
-        }
-    }
-
-    public static void tick(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull AltarInfusionBlockEntity blockEntity) {
-        if (blockEntity.playerToLoadUUID != null) { //Restore loaded ritual
-            if (!blockEntity.loadRitual(blockEntity.playerToLoadUUID)) return;
-            blockEntity.playerToLoadUUID = null;
-            blockEntity.setChanged();
-            level.sendBlockUpdated(pos, state, state, 3); //Notify client about started ritual
-
-        }
-        if (blockEntity.runningTick == DURATION_TICK && !level.isClientSide) {
-            LOGGER.debug("Ritual started");
-            blockEntity.consumeItems();
-            blockEntity.setChanged();
-        }
-        if (blockEntity.runningTick > 0) {
-            blockEntity.runningTick--;
-            blockEntity.tickRitual();
-        }
-    }
-
-    @NotNull
-    @Override
-    protected AbstractContainerMenu createMenu(int id, @NotNull Inventory player) {
-        return new AltarInfusionMenu(id, player, this, level == null ? ContainerLevelAccess.NULL : ContainerLevelAccess.create(level, worldPosition));
-    }
-
-    @NotNull
     @Override
     protected Component getDefaultName() {
         return Component.translatable("tile.vampirism.altar_infusion");
     }
 
     @Override
-    protected @NotNull NonNullList<ItemStack> getItems() {
-        return this.inventorySlots;
+    public int getContainerSize() {
+        return this.items.size();
     }
 
     @Override
-    protected void setItems(@NotNull NonNullList<ItemStack> items) {
-        this.inventorySlots = items;
+    protected NonNullList<ItemStack> getItems() {
+        return this.items;
     }
 
-    /**
-     * Checks for the requirements for the give player to level up
-     */
-    private boolean checkItemRequirements() {
-        int newLevel = targetLevel;
-        ItemStack missing = VampireLeveling.getInfusionRequirement(newLevel).map(req -> InventoryHelper.checkItems(this, new Item[] {
-                        PureBloodItem.getBloodItemForLevel(req.pureBloodLevel()), ModItems.HUMAN_HEART.get(), ModItems.VAMPIRE_BOOK.get()},
-                new int[] {req.pureBloodQuantity(), req.humanHeartQuantity(), req.vampireBookQuantity()},
-                (supplied, required) -> supplied.equals(required) || (supplied instanceof PureBloodItem suppliedBlood && required instanceof PureBloodItem requiredBlood && suppliedBlood.getLevel(suppliedBlood.getDefaultInstance()) >= requiredBlood.getLevel(requiredBlood.getDefaultInstance())))).orElse(ItemStack.EMPTY);
-        return missing.isEmpty();
-
+    @Override
+    protected void setItems(NonNullList<ItemStack> items) {
+        this.items = items;
     }
 
-    /**
-     * Determines the structure required for leveling up.
-     * The current implementation returns a value between 4 two high stone pillars and 6 three high gold pillars.
-     */
+    public Result tryActivate(Player player) {
+        if (isRunning()) return Result.STILL_RUNNING;
+
+        this.player = null;
+        this.targetLevel = VampirismPlayerAttributes.get(player).vampireLevel + 1;
+
+        if (checkRequiredLevel() == -1) return Result.LEVEL_WRONG;
+        if (player.level().isDay()) return Result.NIGHT_ONLY;
+        if (!checkStructureLevel(checkRequiredLevel())) return Result.MISSING_PILLARS;
+        if (!checkItemRequirements()) return Result.MISSING_ITEMS;
+
+        return Result.SUCCESS;
+    }
+
     private int checkRequiredLevel() {
-        int newLevel = targetLevel;
-
-        return VampireLeveling.getInfusionRequirement(newLevel).map(VampireLeveling.AltarInfusionRequirements::getRequiredStructurePoints).orElse(-1);
+        return VampireLeveling.getInfusionRequirement(this.targetLevel).map(VampireLeveling.AltarInfusionRequirements::getRequiredStructurePoints).orElse(-1);
     }
 
-    /**
-     * Checks if the structure around the altar is at least the required one.
-     * Also determines which tips are used for that and stores them in {@link AltarInfusionBlockEntity#tips }
-     * Used at max the 8 most valued pillars
-     */
     private boolean checkStructureLevel(int required) {
-        if (level == null) return false;
-        BlockPos[] tips = findTips();
-        @SuppressWarnings("unchecked")
-        ValuedObject<BlockPos>[] valuedTips = new ValuedObject[tips.length];
-        for (int i = 0; i < tips.length; i++) {
-            BlockPos pPos = tips[i];
-            int j = 0;
-            AltarPillarBlock.EnumPillarType type = null;
-            BlockState temp;
-            while ((temp = level.getBlockState(pPos.offset(0, -j - 1, 0))).getBlock().equals(ModBlocks.ALTAR_PILLAR.get())) {
-                AltarPillarBlock.EnumPillarType t = temp.getValue(AltarPillarBlock.PILLAR_TYPE);
-                if (type == null) {
-                    type = t;
-                    j++;
-                } else if (type.equals(t)) {
-                    j++;
-                } else {
-                    break;
-                }
-            }
+        if (this.level == null) return false;
 
-            int value = (int) (10 * Math.min(j, 3) * (type == null ? 0 : type.getValue()));
-            valuedTips[i] = new ValuedObject<>(tips[i], value);
-        }
-        Arrays.sort(valuedTips, ValuedObject.getInvertedComparator());
-        int found = 0;
-        int i = 0;
-        //Valued tips are multiplied by 10, so have to multiply required with 10 as well
-        while (found < required * 10 && i < valuedTips.length && i < 9) {
-            int v = valuedTips[i].value;
-            if (v == 0) break;
-            found += v;
-            i++;
-        }
-        valuedTips = Arrays.copyOfRange(valuedTips, 0, i);
-        this.tips = ValuedObject.extract(BlockPos.class, valuedTips);
+        List<ValuedPos> valuedTips = Arrays.stream(findTips())
+                .map(tip -> {
+                    int height = 0;
+                    double totalValue = 0;
 
-        return found >= required * 10;
+                    while (height < 3) {
+                        BlockState stateBelow = this.level.getBlockState(tip.below(height + 1));
+                        if (!stateBelow.is(ModBlocks.ALTAR_PILLAR.get())) break;
 
+                        AltarPillarBlock.EnumPillarType type = stateBelow.getValue(AltarPillarBlock.PILLAR_TYPE);
+                        totalValue += type.getValue();
+                        height++;
+                    }
+
+                    int value = (int) (10 * totalValue);
+                    return new ValuedPos(tip, value);
+                })
+                .sorted(Comparator.comparingInt(ValuedPos::value).reversed())
+                .limit(MAX_PILLARS)
+                .toList();
+
+        int sum = valuedTips.stream().mapToInt(ValuedPos::value).sum();
+        this.tips = valuedTips.stream().sorted(Comparator.comparingInt(ValuedPos::value)).map(ValuedPos::pos).toList(); // Starts from the weakest pillars
+
+        return sum >= required * 10;
     }
 
-    /**
-     * Consume the required tileInventory
-     */
-    private void consumeItems() {
-        VampireLeveling.getInfusionRequirement(targetLevel).ifPresent(req -> InventoryHelper.removeItems(this, req.pureBloodQuantity(), req.humanHeartQuantity(), req.vampireBookQuantity()));
-    }
+    private BlockPos[] findTips() {
+        if (this.level == null) return new BlockPos[0];
 
-    /**
-     * Finds all {@link AltarTipBlock}'s in the area
-     */
-    private BlockPos @NotNull [] findTips() {
-        if (level == null) return new BlockPos[0];
-        List<BlockPos> list = new ArrayList<>();
+        List<BlockPos> tips = new ArrayList<>();
         BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
-        for (int x = getBlockPos().getX() - 4; x < getBlockPos().getX() + 5; x++) {
-            for (int y = getBlockPos().getY() + 1; y < getBlockPos().getY() + 4; y++) {
-                for (int z = getBlockPos().getZ() - 4; z < getBlockPos().getZ() + 5; z++) {
-                    if (level.getBlockState(pos.set(x, y, z)).getBlock().equals(ModBlocks.ALTAR_TIP.get())) {
-                        list.add(new BlockPos(x, y, z));
+
+        BlockPos origin = this.worldPosition;
+        for (int x = -5; x <= 5; x++) {
+            for (int y = 1; y <= 3; y++) {
+                for (int z = -5; z <= 5; z++) {
+                    pos.set(origin.getX() + x, origin.getY() + y, origin.getZ() + z);
+                    if (this.level.getBlockState(pos).getBlock() instanceof AltarTipBlock) {
+                        tips.add(pos.immutable());
                     }
                 }
             }
         }
-        return list.toArray(new BlockPos[0]);
+
+        return tips.toArray(BlockPos[]::new);
     }
 
-    private boolean loadRitual(@NotNull UUID playerID) {
-        if (this.level == null) return false;
-        if (this.level.players().isEmpty()) return false;
+    private boolean checkItemRequirements() {
+        return VampireLeveling.getInfusionRequirement(targetLevel)
+                .map(requirements -> {
+                    ItemStack missing = InventoryHelper.checkItems(this,
+                            new Item[] {
+                                    PureBloodItem.getBloodItemForLevel(requirements.pureBloodLevel()),
+                                    ModItems.HUMAN_HEART.get(),
+                                    ModItems.VAMPIRE_BOOK.get()
+                            },
+                            new int[] {
+                                    requirements.pureBloodQuantity(),
+                                    requirements.humanHeartQuantity(),
+                                    requirements.vampireBookQuantity()
+                            },
+                            (supplied, required) ->
+                                    supplied.equals(required)
+                                            || required == Items.AIR
+                                            || (supplied instanceof PureBloodItem suppliedItem && required instanceof PureBloodItem requiredItem && suppliedItem.getLevel(supplied.getDefaultInstance()) >= requiredItem.getLevel(required.getDefaultInstance()))
+                    );
+
+                    return missing.isEmpty();
+                })
+                .orElse(false);
+    }
+
+    public void startRitual(Player player) {
+        if (this.level == null) return;
+
+        this.player = player;
+        this.runTime = DURATION_TICK;
+        player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, DURATION_TICK, 255));
+
+        if (!this.tips.isEmpty()) {
+            for (BlockPos tip : this.tips) {
+                ModParticles.spawnParticlesServer(this.level, new FlyingBloodParticleOptions(60, false, tip.getX() + 0.5, tip.getY() + 0.3, tip.getZ() + 0.5), worldPosition.getX() + 0.5, worldPosition.getY() + 0.5, worldPosition.getZ() + 0.5, 3, 0.1, 0.1, 0.1, 0);
+            }
+            updateClient();
+        }
+        setChanged();
+    }
+
+    public static void tick(Level level, BlockPos pos, BlockState state, AltarInfusionBlockEntity blockEntity) {
+        if (blockEntity.playerToLoadUUID != null && blockEntity.loadRitual(blockEntity.playerToLoadUUID)) {
+            blockEntity.playerToLoadUUID = null;
+            blockEntity.updateClient();
+        }
+
+        if (blockEntity.runTime == DURATION_TICK && !level.isClientSide) {
+            blockEntity.consumeItems();
+            blockEntity.setChanged();
+        }
+
+        if (blockEntity.isRunning()) {
+            blockEntity.runTime--;
+            blockEntity.tickRitual();
+        }
+    }
+
+    private void tickRitual() {
+        if (this.player == null || !this.player.isAlive()) {
+            this.runTime = 1;
+            return;
+        }
+
+        stopPlayerMovement(this.player);
+
+        Phase phase = getCurrentPhase();
+
+        if (this.level != null && this.level.isClientSide) {
+            handleClientEffects(phase);
+        }
+        if (phase == Phase.LEVELUP) {
+            handleLevelUp();
+        }
+        if (phase == Phase.CLEAN_UP) {
+            endRitual();
+        }
+    }
+
+    private static void stopPlayerMovement(Player player) {
+        player.setDeltaMovement(0, 0, 0);
+    }
+
+    private void handleClientEffects(Phase phase) {
+        if (phase == Phase.PARTICLE_SPREAD && this.runTime % 15 == 0 && tips != null) {
+            BlockPos pos = this.worldPosition;
+            RandomSource random = RandomSource.create();
+
+            for (BlockPos tip : this.tips) {
+                ModParticles.spawnParticlesClient(this.level, new FlyingBloodParticleOptions(60, false, tip.getX() + 0.5, tip.getY() + 0.3, tip.getZ() + 0.5), pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 0, 0, 0, 5, 0.1, random);
+            }
+        }
+
+        if (this.runTime == DURATION_TICK - 200 && this.player != null && this.player.isLocalPlayer()) {
+            VampirismModClient.getInstance().getOverlay().makeRenderFullColor(DURATION_TICK - 250, 50, 0xFF0000);
+        }
+    }
+
+    private void handleLevelUp() {
+        if (this.level != null && this.level.isClientSide) {
+            playLevelUpEffects();
+            return;
+        }
+
+        if (this.player == null) return;
+
+        FactionPlayerHandler handler = FactionPlayerHandler.get(this.player);
+        if (handler.getCurrentLevel(ModFactions.VAMPIRE) != this.targetLevel - 1) return;
+
+        handler.setFactionLevel(ModFactions.VAMPIRE, this.targetLevel);
+        VampirePlayer.get(this.player).drinkBlood(Integer.MAX_VALUE, 0, false, DrinkBloodContext.none());
+
+        if (this.player instanceof ServerPlayer serverPlayer) {
+            ModAdvancements.TRIGGER_VAMPIRE_ACTION.get().trigger(serverPlayer, VampireActionCriterionTrigger.Action.PERFORM_RITUAL_INFUSION);
+        }
+
+        applyPostRitualEffects();
+    }
+
+    private void playLevelUpEffects() {
+        if (this.level == null || this.player == null) return;
+
+        this.level.playLocalSound(this.player.getX(), this.player.getY(), this.player.getZ(), SoundEvents.GENERIC_EXPLODE.value(), SoundSource.BLOCKS, 4.0F, (1.0F + (this.level.random.nextFloat() - this.level.random.nextFloat()) * 0.2F) * 0.7F, true);
+        this.level.addParticle(ParticleTypes.EXPLOSION, this.player.getX(), this.player.getY(), this.player.getZ(), 1, 0, 0);
+    }
+
+    private void applyPostRitualEffects() {
+        if (this.player == null) return;
+
+        this.player.addEffect(new MobEffectInstance(ModEffects.SATURATION, 400, 2));
+        this.player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 400, 2));
+        this.player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST, 400, 2));
+    }
+
+    private void endRitual() {
+        this.player = null;
+        this.tips = null;
+        this.runTime = 0;
+        setChanged();
+    }
+
+    private void consumeItems() {
+        VampireLeveling.getInfusionRequirement(targetLevel).ifPresent(requirements -> InventoryHelper.removeItems(this, requirements.pureBloodQuantity(), requirements.humanHeartQuantity(), requirements.vampireBookQuantity()));
+    }
+
+    private boolean loadRitual(UUID playerID) {
+        if (this.level == null || this.level.players().isEmpty()) return false;
+
         this.player = this.level.getPlayerByUUID(playerID);
-        if (this.player != null && player.isAlive()) {
+        if (this.player != null && this.player.isAlive()) {
             this.targetLevel = VampirismPlayerAttributes.get(player).vampireLevel + 1;
             checkStructureLevel(checkRequiredLevel());
-        } else {
-            runningTick = 0;
-            this.tips = null;
-            LOGGER.warn("Failed to find player {}", playerID);
 
+            return true;
         }
-        return true;
+
+        this.runTime = 0;
+        this.tips = null;
+
+        return false;
     }
 
-    public enum PHASE {
+    private void updateClient() {
+        if (this.level == null) return;
+
+        BlockState state = this.level.getBlockState(this.worldPosition);
+        this.level.sendBlockUpdated(this.worldPosition, state, state, Block.UPDATE_ALL);
+    }
+
+    public Phase getCurrentPhase() {
+        if (this.runTime < 1) return Phase.NOT_RUNNING;
+        if (this.runTime == 1) return Phase.CLEAN_UP;
+        if (this.runTime > DURATION_TICK - 100) return Phase.PARTICLE_SPREAD;
+        if (this.runTime >= DURATION_TICK - 200 && this.runTime < DURATION_TICK - 160) return Phase.BEAM1;
+        if (this.runTime <= DURATION_TICK - 200 && this.runTime > 50) return Phase.BEAM2;
+        if (this.runTime == 50) return Phase.LEVELUP;
+        if (this.runTime < 50) return Phase.ENDING;
+        return Phase.WAITING;
+    }
+
+    private boolean isRunning() {
+        return this.runTime > 0;
+    }
+
+    public Optional<Player> getPlayer() {
+        return Optional.ofNullable(isRunning() ? this.player : null);
+    }
+
+    public List<BlockPos> getTips() {
+        return tips == null ? List.of() : tips;
+    }
+
+    public int getRunTime() {
+        return this.runTime;
+    }
+
+    @Override
+    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider lookup) {
+        super.loadAdditional(tag, lookup);
+        this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
+        this.runTime = tag.getInt(KEY_RUN_TIME);
+        //This is used on both client and server side and has to be prepared for the world not being available yet
+        if (isRunning() && tag.hasUUID(KEY_PLAYER_UUID)) {
+            UUID id = tag.getUUID(KEY_PLAYER_UUID);
+            if (!loadRitual(id)) {
+                this.playerToLoadUUID = id;
+            }
+        }
+    }
+
+    @Override
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider lookup) {
+        super.saveAdditional(tag, lookup);
+        ContainerHelper.saveAllItems(tag, this.items, lookup);
+        tag.putInt(KEY_RUN_TIME, this.runTime);
+        if (this.player != null) {
+            tag.putUUID(KEY_PLAYER_UUID, this.player.getUUID());
+        }
+    }
+
+    @Override
+    public @Nullable ClientboundBlockEntityDataPacket getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    @Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider lookup) {
+        return this.saveWithoutMetadata(lookup);
+    }
+
+    @Override
+    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider lookupProvider) {
+        if (this.hasLevel()) this.loadCustomOnly(pkt.getTag(), lookupProvider);
+    }
+
+    @Override
+    public boolean canPlaceItem(int slot, ItemStack stack) {
+        return AltarInfusionMenu.SLOT_PREDICATES.get(slot).test(stack);
+    }
+
+    @Override
+    protected AbstractContainerMenu createMenu(int containerId, Inventory inventory) {
+        return new AltarInfusionMenu(containerId, inventory, this);
+    }
+
+    public enum Phase {
         NOT_RUNNING, PARTICLE_SPREAD, BEAM1, BEAM2, WAITING, LEVELUP, ENDING, CLEAN_UP
     }
 
-    public enum Result {
-        OK, ISRUNNING, WRONGLEVEL, NIGHTONLY, STRUCTUREWRONG, INVMISSING
+    public enum Result implements StringRepresentable {
+        SUCCESS("success"),
+        STILL_RUNNING("still_running"),
+        LEVEL_WRONG("level_wrong"),
+        NIGHT_ONLY("night_only"),
+        MISSING_PILLARS("missing_pillars"),
+        MISSING_ITEMS("missing_items");
+
+        public final String name;
+
+        Result(String name) {
+            this.name = name;
+        }
+
+        public Component getMessage() {
+            return Component.translatable("text.vampirism.altar_infusion.ritual." + name);
+        }
+
+        @Override
+        public String getSerializedName() {
+            return name;
+        }
     }
+
+    public record ValuedPos(BlockPos pos, int value) {}
 }

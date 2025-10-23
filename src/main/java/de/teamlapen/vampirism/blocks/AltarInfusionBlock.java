@@ -2,17 +2,16 @@ package de.teamlapen.vampirism.blocks;
 
 import com.mojang.serialization.MapCodec;
 import de.teamlapen.vampirism.blockentity.AltarInfusionBlockEntity;
+import de.teamlapen.vampirism.core.ModFactions;
 import de.teamlapen.vampirism.core.ModStats;
 import de.teamlapen.vampirism.core.ModBlockEntities;
+import de.teamlapen.vampirism.items.component.FactionRestriction;
 import de.teamlapen.vampirism.util.Helper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.chat.Component;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -103,46 +102,29 @@ public class AltarInfusionBlock extends VampirismBlockContainer implements Simpl
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-        ItemStack heldItem = player.getItemInHand(InteractionHand.MAIN_HAND);
-        AltarInfusionBlockEntity te = (AltarInfusionBlockEntity) level.getBlockEntity(pos);
-        //If empty hand and can start -> StartAdvanced
-        if (level.isClientSide || te == null) return InteractionResult.SUCCESS;
+        if (!(level.getBlockEntity(pos) instanceof AltarInfusionBlockEntity blockEntity) || level.isClientSide) return InteractionResult.SUCCESS;
+        
         if (!Helper.isVampire(player)) {
-            player.displayClientMessage(Component.translatable("text.vampirism.altar_infusion.ritual.wrong_faction"), true);
+            player.displayClientMessage(FactionRestriction.getFactionRestrictionMessage(ModFactions.VAMPIRE.get()), true);
             return InteractionResult.SUCCESS;
         }
+        
         if (!player.isShiftKeyDown()) {
-            AltarInfusionBlockEntity.Result result = te.canActivate(player);
-            switch (result) {
-                case ISRUNNING -> {
-                    player.displayClientMessage(Component.translatable("text.vampirism.altar_infusion.ritual_still_running"), true);
-                    return InteractionResult.SUCCESS;
-                }
-                case NIGHTONLY -> {
-                    player.displayClientMessage(Component.translatable("text.vampirism.altar_infusion.ritual_night_only"), true);
-                    return InteractionResult.SUCCESS;
-                }
-                case STRUCTUREWRONG -> {
-                    player.displayClientMessage(Component.translatable("text.vampirism.altar_infusion.ritual_missing_pillars"), true);
-                    return InteractionResult.SUCCESS;
-                }
-                case INVMISSING -> player.displayClientMessage(Component.translatable("text.vampirism.altar_infusion.ritual_missing_times"), true);
-                case OK -> {
-                    if (heldItem.isEmpty()) {
-                        player.awardStat(ModStats.ALTAR_OF_INFUSION_RITUALS_PERFORMED.get());
-                        te.startRitual(player);
-                        return InteractionResult.SUCCESS;
-                    }
-                }
-            }
+            AltarInfusionBlockEntity.Result result = blockEntity.tryActivate(player);
 
-            if (te.getCurrentPhase() != AltarInfusionBlockEntity.PHASE.NOT_RUNNING) {
-                player.displayClientMessage(Component.translatable("text.vampirism.altar_infusion.ritual_still_running"), true);
+            if (result == AltarInfusionBlockEntity.Result.SUCCESS) {
+                player.awardStat(ModStats.ALTAR_OF_INFUSION_RITUALS_PERFORMED.get());
+                blockEntity.startRitual(player);
+                return InteractionResult.SUCCESS;
+            } else if (result != AltarInfusionBlockEntity.Result.MISSING_ITEMS) {
+                player.displayClientMessage(result.getMessage(), true);
                 return InteractionResult.SUCCESS;
             }
         }
-        player.openMenu(te);
+
+        player.openMenu(blockEntity);
         player.awardStat(ModStats.INTERACT_WITH_ALTAR_OF_INFUSION.get());
+
         return InteractionResult.SUCCESS;
     }
 
