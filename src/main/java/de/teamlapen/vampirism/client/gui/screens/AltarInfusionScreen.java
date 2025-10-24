@@ -1,7 +1,6 @@
 package de.teamlapen.vampirism.client.gui.screens;
 
 import de.teamlapen.vampirism.api.util.VResourceLocation;
-import de.teamlapen.vampirism.core.ModItems;
 import de.teamlapen.vampirism.inventory.AltarInfusionMenu;
 import de.teamlapen.vampirism.items.PureBloodItem;
 import net.minecraft.client.gui.GuiGraphics;
@@ -14,7 +13,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
-import java.util.Optional;
 
 public class AltarInfusionScreen extends AbstractContainerScreen<AltarInfusionMenu> {
 
@@ -56,44 +54,41 @@ public class AltarInfusionScreen extends AbstractContainerScreen<AltarInfusionMe
 
     @Override
     protected void renderTooltip(GuiGraphics graphics, int mouseX, int mouseY) {
-        if (this.hoveredSlot != null && this.hoveredSlot.index < 3) {
-            ItemStack stack = this.hoveredSlot.getItem();
+        if (this.hoveredSlot != null && hoveredSlot.index >= 0 && this.hoveredSlot.index < 3) {
             var requirementsOpt = this.menu.getRequirements();
             if (requirementsOpt.isPresent()) {
                 var requirements = requirementsOpt.get();
+                int slot = this.hoveredSlot.index;
+                ItemStack stack = this.hoveredSlot.getItem();
 
-                ItemStack expected = ItemStack.EMPTY;
-                String expectedName = "";
                 int requiredCount = 0;
+                String requiredId = "";
 
-                switch (this.hoveredSlot.index) {
+                switch (slot) {
                     case 0 -> {
-                        expected = PureBloodItem.getBloodItemForLevel(requirements.pureBloodLevel()).getDefaultInstance();
-                        expectedName = expected.getHoverName().getString() + " " + (requirements.pureBloodLevel() + 1);
                         requiredCount = requirements.pureBloodQuantity();
+                        requiredId = "pure_blood";
                     }
                     case 1 -> {
-                        expected = ModItems.HUMAN_HEART.get().getDefaultInstance();
-                        expectedName = expected.getHoverName().getString();
                         requiredCount = requirements.humanHeartQuantity();
+                        requiredId = "human_heart";
                     }
                     case 2 -> {
-                        expected = ModItems.VAMPIRE_BOOK.get().getDefaultInstance();
-                        expectedName = expected.getHoverName().getString();
                         requiredCount = requirements.vampireBookQuantity();
+                        requiredId = "vampire_book";
                     }
                 }
 
-                Optional<Component> tooltip = Optional.empty();
+                Component tooltip = null;
 
-                if (!stack.isEmpty() && !stack.is(expected.getItem())) {
-                    tooltip = Optional.of(Component.translatable("text.vampirism.altar_infusion.ritual_wrong_item", expectedName));
+                if (slot == 0 && !stack.isEmpty() && stack.getItem() instanceof PureBloodItem pureBloodItem && pureBloodItem.getLevel(stack) != requirements.pureBloodLevel()) {
+                    tooltip = Component.translatable("text.vampirism.altar_infusion.ritual_wrong_purity", requirements.pureBloodLevel() + 1);
                 } else if (stack.isEmpty() || stack.getCount() < requiredCount) {
-                    tooltip = Optional.of(Component.translatable("text.vampirism.altar_infusion.ritual_missing_items", requiredCount - stack.getCount(), expectedName));
+                    tooltip = Component.translatable("text.vampirism.altar_infusion.ritual_missing_" + requiredId, requiredCount - stack.getCount(), requirements.pureBloodLevel() + 1);
                 }
 
-                if (tooltip.isPresent() && requiredCount > 0) {
-                    graphics.renderTooltip(this.font, tooltip.get(), mouseX, mouseY);
+                if (tooltip != null && requiredCount> 0) {
+                    graphics.renderTooltip(font, tooltip, mouseX, mouseY);
                     return;
                 }
             }
