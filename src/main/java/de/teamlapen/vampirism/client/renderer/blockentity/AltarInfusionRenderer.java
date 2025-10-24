@@ -5,6 +5,8 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import de.teamlapen.vampirism.api.util.VResourceLocation;
 import de.teamlapen.vampirism.blockentity.AltarInfusionBlockEntity;
+import de.teamlapen.vampirism.client.core.ModEntitiesRender;
+import de.teamlapen.vampirism.client.model.BloodSphereModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
@@ -23,14 +25,20 @@ import java.util.List;
  */
 public class AltarInfusionRenderer implements BlockEntityRenderer<AltarInfusionBlockEntity> {
 
-    private final ResourceLocation INFUSION_BEAM_LOCATION = VResourceLocation.mod("textures/entity/infusion_beam.png");
-    private final ResourceLocation BEACON_BEAM_LOCATION = VResourceLocation.mc("textures/entity/beacon_beam.png");
-    
+    private static final ResourceLocation SPHERE_TEXTURE = VResourceLocation.mod("textures/entity/blood_sphere.png");
+    private static final ResourceLocation INFUSION_BEAM_LOCATION = VResourceLocation.mod("textures/entity/infusion_beam.png");
+    private static final ResourceLocation BEACON_BEAM_LOCATION = VResourceLocation.mc("textures/entity/beacon_beam.png");
+
+    private final BloodSphereModel sphereModel;
+
     public AltarInfusionRenderer(BlockEntityRendererProvider.Context context) {
+        this.sphereModel = new BloodSphereModel(context.bakeLayer(ModEntitiesRender.BLOOD_SPHERE));
     }
     
     @Override
     public void render(AltarInfusionBlockEntity blockEntity, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
+        renderSphere(blockEntity, partialTick, poseStack, bufferSource);
+
         AltarInfusionBlockEntity.Phase phase = blockEntity.getCurrentPhase();
         if (phase != AltarInfusionBlockEntity.Phase.BEAM1 && phase != AltarInfusionBlockEntity.Phase.BEAM2) {
             return; // Render the beam only when the ritual is running
@@ -64,6 +72,30 @@ public class AltarInfusionRenderer implements BlockEntityRenderer<AltarInfusionB
                 renderBeam(poseStack, bufferSource, animationOffset, dx, dy, dz, packedLight, false);
             });
         }
+
+        poseStack.popPose();
+    }
+
+    public void renderSphere(AltarInfusionBlockEntity blockEntity, float partialTick, PoseStack poseStack, MultiBufferSource buffer) {
+        poseStack.pushPose();
+
+        float bobbing = blockEntity.verticalOffset;
+        poseStack.translate(0.5F, 0.75F + bobbing, 0.5F);
+
+        float rotDelta = blockEntity.rotation - blockEntity.prevRotation;
+        while (rotDelta >= Math.PI) {
+            rotDelta -= (float)(Math.PI * 2);
+        }
+        while (rotDelta < -Math.PI) {
+            rotDelta += (float)(Math.PI * 2);
+        }
+
+        float interpolatedRot = blockEntity.prevRotation + rotDelta * partialTick;
+
+        poseStack.mulPose(Axis.YP.rotation(-interpolatedRot));
+
+        VertexConsumer vertex = buffer.getBuffer(RenderType.entitySolid(SPHERE_TEXTURE));
+        this.sphereModel.renderToBuffer(poseStack, vertex, 0xF000F0, OverlayTexture.NO_OVERLAY);
 
         poseStack.popPose();
     }

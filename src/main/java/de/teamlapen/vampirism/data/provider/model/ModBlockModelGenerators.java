@@ -90,9 +90,13 @@ public class ModBlockModelGenerators extends VBlockModelGenerators {
         this.blockStateOutput.accept(createSimpleBlock(ModBlocks.BLOOD_CONTAINER.get(), bloodContainerModel));
         this.itemModelOutput.accept(ModBlocks.BLOOD_CONTAINER.asItem(), ItemModelUtils.composite(ItemModelUtils.plainModel(bloodContainerModel), ItemModelUtils.specialModel(bloodContainerModel, new BloodContainerSpecialRenderer.Unbaked())));
 
-        ResourceLocation inspirationModel = mod("block/altar_inspiration/altar_inspiration");
-        this.blockStateOutput.accept(createSimpleBlock(ModBlocks.ALTAR_INSPIRATION.get(), inspirationModel));
-        createDefaultBlockItem(ModBlocks.ALTAR_INSPIRATION.get(), inspirationModel);
+        ResourceLocation altarInspirationModel = mod("block/altar_inspiration/altar_inspiration");
+        this.blockStateOutput.accept(createSimpleBlock(ModBlocks.ALTAR_INSPIRATION.get(), altarInspirationModel));
+        createDefaultBlockItem(ModBlocks.ALTAR_INSPIRATION.get(), altarInspirationModel);
+
+        createNonTemplateModelBlock(ModBlocks.ALTAR_INFUSION.get());
+        ResourceLocation altarInfusionInventory = mod("block/altar_infusion_inventory");
+        createDefaultBlockItem(ModBlocks.ALTAR_INFUSION.get(), altarInfusionInventory);
 
         createNonTemplateModelBlock(ModBlocks.BLOOD.get());
     }
@@ -342,7 +346,6 @@ public class ModBlockModelGenerators extends VBlockModelGenerators {
     protected void createNonTemplateBlocks() {
         Stream.of(
                 ModBlocks.ALTAR_CLEANSING,
-                ModBlocks.ALTAR_INFUSION,
                 ModBlocks.ALTAR_TIP,
                 ModBlocks.BAT_CAGE,
                 ModBlocks.BLOOD_PEDESTAL,

@@ -58,6 +58,11 @@ public class AltarInfusionBlockEntity extends BaseContainerBlockEntity {
     private List<BlockPos> tips;
     private int runTime;
     private int targetLevel;
+    public int animationTime;
+    public float rotation;
+    public float prevRotation;
+    public float targetRotation;
+    public float verticalOffset;
 
     public AltarInfusionBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.ALTAR_INFUSION.get(), pos, state);
@@ -199,7 +204,7 @@ public class AltarInfusionBlockEntity extends BaseContainerBlockEntity {
             blockEntity.updateClient();
         }
 
-        if (blockEntity.runTime == DURATION_TICK && !level.isClientSide) {
+        if (blockEntity.runTime == DURATION_TICK) {
             blockEntity.consumeItems();
             blockEntity.setChanged();
         }
@@ -312,6 +317,42 @@ public class AltarInfusionBlockEntity extends BaseContainerBlockEntity {
         this.tips = null;
 
         return false;
+    }
+
+    public static void clientTick(Level level, BlockPos pos, BlockState state, AltarInfusionBlockEntity blockEntity) {
+        blockEntity.prevRotation = blockEntity.rotation;
+        blockEntity.targetRotation += 0.02F;
+
+        while (blockEntity.rotation >= (float) Math.PI) {
+            blockEntity.rotation -= (float) (Math.PI * 2);
+        }
+
+        while (blockEntity.rotation < (float) -Math.PI) {
+            blockEntity.rotation += (float) (Math.PI * 2);
+        }
+
+        while (blockEntity.targetRotation >= (float) Math.PI) {
+            blockEntity.targetRotation -= (float) (Math.PI * 2);
+        }
+
+        while (blockEntity.targetRotation < (float) -Math.PI) {
+            blockEntity.targetRotation += (float) (Math.PI * 2);
+        }
+
+        float rotationDifference = blockEntity.targetRotation - blockEntity.rotation;
+
+        while (rotationDifference >= (float) Math.PI) {
+            rotationDifference -= (float) (Math.PI * 2);
+        }
+
+        while (rotationDifference < (float) -Math.PI) {
+            rotationDifference += (float) (Math.PI * 2);
+        }
+
+        blockEntity.rotation += rotationDifference * 0.4F;
+
+        blockEntity.animationTime++;
+        blockEntity.verticalOffset = (float) (Math.sin(blockEntity.animationTime * 0.1F) * 0.05F + 0.05F);
     }
 
     private void updateClient() {
