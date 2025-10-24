@@ -27,6 +27,7 @@ import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.fml.common.asm.enumextension.IExtensibleEnum;
 import org.jetbrains.annotations.Nullable;
 
 public class AltarPillarBlock extends Block implements SimpleWaterloggedBlock {
@@ -108,12 +109,12 @@ public class AltarPillarBlock extends Block implements SimpleWaterloggedBlock {
         return false;
     }
 
-    public enum EnumPillarType implements StringRepresentable {
+    public enum EnumPillarType implements StringRepresentable, IExtensibleEnum {
         NONE("none", 0, Blocks.AIR),
         STONE("stone", 1, Blocks.STONE_BRICKS),
+        BONE("bone", 1.5F, Blocks.BONE_BLOCK),
         IRON("iron", 2, Blocks.IRON_BLOCK),
-        GOLD("gold", 3, Blocks.GOLD_BLOCK),
-        BONE("bone", 1.5F, Blocks.BONE_BLOCK);
+        GOLD("gold", 3, Blocks.GOLD_BLOCK);
 
         public final String name;
         public final Block fillerBlock;

@@ -51,6 +51,8 @@ public class AltarInfusionBlockEntity extends BaseContainerBlockEntity {
 
     public static final int DURATION_TICK = 450;
     public static final int MAX_PILLARS = 9;
+    public static final int RISING_TICKS = 60;
+    public static final float MAX_SPHERE_RITUAL_HEIGHT = 2.25F;
 
     private NonNullList<ItemStack> items = NonNullList.withSize(3, ItemStack.EMPTY);
     private @Nullable Player player;
@@ -59,10 +61,13 @@ public class AltarInfusionBlockEntity extends BaseContainerBlockEntity {
     private int runTime;
     private int targetLevel;
     public int animationTime;
-    public float rotation;
-    public float prevRotation;
-    public float targetRotation;
-    public float verticalOffset;
+    public float rotation = 0.0F;
+    public float prevRotation = 0.0F;
+    public float targetRotation = 0.0F;
+    public float verticalOffset = 0.0F;
+    public int runningTicks = 0;
+    public int stoppingTicks = 0;
+    public float startHeight = 0.05F;
 
     public AltarInfusionBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.ALTAR_INFUSION.get(), pos, state);
@@ -131,7 +136,7 @@ public class AltarInfusionBlockEntity extends BaseContainerBlockEntity {
                 .toList();
 
         int sum = valuedTips.stream().mapToInt(ValuedPos::value).sum();
-        this.tips = valuedTips.stream().sorted(Comparator.comparingInt(ValuedPos::value)).map(ValuedPos::pos).toList(); // Starts from the weakest pillars
+        this.tips = valuedTips.stream().map(ValuedPos::pos).toList();
 
         return sum >= required * 10;
     }
@@ -187,14 +192,15 @@ public class AltarInfusionBlockEntity extends BaseContainerBlockEntity {
 
         this.player = player;
         this.runTime = DURATION_TICK;
-        player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, DURATION_TICK, 255));
+        player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, DURATION_TICK, MobEffectInstance.MAX_AMPLIFIER, false, false));
 
         if (!this.tips.isEmpty()) {
             for (BlockPos tip : this.tips) {
                 ModParticles.spawnParticlesServer(this.level, new FlyingBloodParticleOptions(60, false, tip.getX() + 0.5, tip.getY() + 0.3, tip.getZ() + 0.5), worldPosition.getX() + 0.5, worldPosition.getY() + 0.5, worldPosition.getZ() + 0.5, 3, 0.1, 0.1, 0.1, 0);
             }
-            updateClient();
         }
+
+        updateClient();
         setChanged();
     }
 
@@ -204,7 +210,7 @@ public class AltarInfusionBlockEntity extends BaseContainerBlockEntity {
             blockEntity.updateClient();
         }
 
-        if (blockEntity.runTime == DURATION_TICK) {
+        if (blockEntity.runTime == DURATION_TICK && !level.isClientSide) {
             blockEntity.consumeItems();
             blockEntity.setChanged();
         }
@@ -212,6 +218,14 @@ public class AltarInfusionBlockEntity extends BaseContainerBlockEntity {
         if (blockEntity.isRunning()) {
             blockEntity.runTime--;
             blockEntity.tickRitual();
+            if (!blockEntity.isRunning()) {
+                blockEntity.updateClient();
+                blockEntity.setChanged();
+            }
+        }
+
+        if (level.isClientSide) {
+            sphereAnimationTick(blockEntity);
         }
     }
 
@@ -295,6 +309,7 @@ public class AltarInfusionBlockEntity extends BaseContainerBlockEntity {
         this.player = null;
         this.tips = null;
         this.runTime = 0;
+        updateClient();
         setChanged();
     }
 
@@ -319,22 +334,23 @@ public class AltarInfusionBlockEntity extends BaseContainerBlockEntity {
         return false;
     }
 
-    public static void clientTick(Level level, BlockPos pos, BlockState state, AltarInfusionBlockEntity blockEntity) {
+    public static void sphereAnimationTick(AltarInfusionBlockEntity blockEntity) {
         blockEntity.prevRotation = blockEntity.rotation;
-        blockEntity.targetRotation += 0.02F;
+
+        boolean running = blockEntity.isRunning();
+
+        float spinSpeed = (running || blockEntity.stoppingTicks < RISING_TICKS) ? 0.3F : 0.025F;
+        blockEntity.targetRotation += spinSpeed;
 
         while (blockEntity.rotation >= (float) Math.PI) {
             blockEntity.rotation -= (float) (Math.PI * 2);
         }
-
         while (blockEntity.rotation < (float) -Math.PI) {
             blockEntity.rotation += (float) (Math.PI * 2);
         }
-
         while (blockEntity.targetRotation >= (float) Math.PI) {
             blockEntity.targetRotation -= (float) (Math.PI * 2);
         }
-
         while (blockEntity.targetRotation < (float) -Math.PI) {
             blockEntity.targetRotation += (float) (Math.PI * 2);
         }
@@ -344,7 +360,6 @@ public class AltarInfusionBlockEntity extends BaseContainerBlockEntity {
         while (rotationDifference >= (float) Math.PI) {
             rotationDifference -= (float) (Math.PI * 2);
         }
-
         while (rotationDifference < (float) -Math.PI) {
             rotationDifference += (float) (Math.PI * 2);
         }
@@ -352,7 +367,38 @@ public class AltarInfusionBlockEntity extends BaseContainerBlockEntity {
         blockEntity.rotation += rotationDifference * 0.4F;
 
         blockEntity.animationTime++;
-        blockEntity.verticalOffset = (float) (Math.sin(blockEntity.animationTime * 0.1F) * 0.05F + 0.05F);
+
+        float bobbingHeight = (float) (Math.sin(blockEntity.animationTime * 0.1F) * 0.05F + 0.05F);
+
+        if (running) {
+            blockEntity.stoppingTicks = 0;
+
+            if (blockEntity.runningTicks == 0) {
+                blockEntity.startHeight = bobbingHeight;
+            }
+
+            if (blockEntity.runningTicks < RISING_TICKS) {
+                blockEntity.runningTicks++;
+                float progress = (float) blockEntity.runningTicks / RISING_TICKS;
+                blockEntity.verticalOffset = blockEntity.startHeight + (MAX_SPHERE_RITUAL_HEIGHT - blockEntity.startHeight) * progress;
+            } else {
+                blockEntity.verticalOffset = MAX_SPHERE_RITUAL_HEIGHT;
+            }
+        } else {
+            blockEntity.runningTicks = 0;
+
+            if (blockEntity.stoppingTicks == 0) {
+                blockEntity.startHeight = blockEntity.verticalOffset;
+            }
+
+            if (blockEntity.stoppingTicks < RISING_TICKS) {
+                blockEntity.stoppingTicks++;
+                float progress = (float) blockEntity.stoppingTicks / RISING_TICKS;
+                blockEntity.verticalOffset = blockEntity.startHeight + (bobbingHeight - blockEntity.startHeight) * progress;
+            } else {
+                blockEntity.verticalOffset = bobbingHeight;
+            }
+        }
     }
 
     private void updateClient() {
@@ -366,8 +412,8 @@ public class AltarInfusionBlockEntity extends BaseContainerBlockEntity {
         if (this.runTime < 1) return Phase.NOT_RUNNING;
         if (this.runTime == 1) return Phase.CLEAN_UP;
         if (this.runTime > DURATION_TICK - 100) return Phase.PARTICLE_SPREAD;
-        if (this.runTime >= DURATION_TICK - 200 && this.runTime < DURATION_TICK - 160) return Phase.BEAM1;
-        if (this.runTime <= DURATION_TICK - 200 && this.runTime > 50) return Phase.BEAM2;
+        if (this.runTime >= DURATION_TICK - 200 && this.runTime < DURATION_TICK - 160) return Phase.BEAM_CONNECT;
+        if (this.runTime <= DURATION_TICK - 200 && this.runTime > 50) return Phase.BEAM_PLAYER;
         if (this.runTime == 50) return Phase.LEVELUP;
         if (this.runTime < 50) return Phase.ENDING;
         return Phase.WAITING;
@@ -392,7 +438,7 @@ public class AltarInfusionBlockEntity extends BaseContainerBlockEntity {
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider lookup) {
         super.loadAdditional(tag, lookup);
-        this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
+        ContainerHelper.loadAllItems(tag, this.items, lookup);
         this.runTime = tag.getInt(KEY_RUN_TIME);
         //This is used on both client and server side and has to be prepared for the world not being available yet
         if (isRunning() && tag.hasUUID(KEY_PLAYER_UUID)) {
@@ -439,7 +485,7 @@ public class AltarInfusionBlockEntity extends BaseContainerBlockEntity {
     }
 
     public enum Phase {
-        NOT_RUNNING, PARTICLE_SPREAD, BEAM1, BEAM2, WAITING, LEVELUP, ENDING, CLEAN_UP
+        NOT_RUNNING, PARTICLE_SPREAD, BEAM_CONNECT, BEAM_PLAYER, WAITING, LEVELUP, ENDING, CLEAN_UP
     }
 
     public enum Result implements StringRepresentable {

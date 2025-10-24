@@ -40,7 +40,7 @@ public class AltarInfusionRenderer implements BlockEntityRenderer<AltarInfusionB
         renderSphere(blockEntity, partialTick, poseStack, bufferSource);
 
         AltarInfusionBlockEntity.Phase phase = blockEntity.getCurrentPhase();
-        if (phase != AltarInfusionBlockEntity.Phase.BEAM1 && phase != AltarInfusionBlockEntity.Phase.BEAM2) {
+        if (phase != AltarInfusionBlockEntity.Phase.BEAM_CONNECT && phase != AltarInfusionBlockEntity.Phase.BEAM_PLAYER) {
             return; // Render the beam only when the ritual is running
         }
 
@@ -64,7 +64,7 @@ public class AltarInfusionRenderer implements BlockEntityRenderer<AltarInfusionB
             }
         }
 
-        if (phase == AltarInfusionBlockEntity.Phase.BEAM2) {
+        if (phase == AltarInfusionBlockEntity.Phase.BEAM_PLAYER) {
             blockEntity.getPlayer().ifPresent(player -> {
                 float dx = (float) player.getX() - centerX;
                 float dy = (float) player.getY() + 1.2f - centerY;
@@ -84,10 +84,10 @@ public class AltarInfusionRenderer implements BlockEntityRenderer<AltarInfusionB
 
         float rotDelta = blockEntity.rotation - blockEntity.prevRotation;
         while (rotDelta >= Math.PI) {
-            rotDelta -= (float)(Math.PI * 2);
+            rotDelta -= (float) (Math.PI * 2);
         }
         while (rotDelta < -Math.PI) {
-            rotDelta += (float)(Math.PI * 2);
+            rotDelta += (float) (Math.PI * 2);
         }
 
         float interpolatedRot = blockEntity.prevRotation + rotDelta * partialTick;
