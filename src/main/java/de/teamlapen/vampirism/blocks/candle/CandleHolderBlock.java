@@ -39,6 +39,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 public abstract class CandleHolderBlock extends AbstractCandleBlock implements SimpleWaterloggedBlock {
+
     public static final EnumProperty<Direction> FACING = HorizontalDirectionalBlock.FACING;
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     public static final BooleanProperty LIT = AbstractCandleBlock.LIT;

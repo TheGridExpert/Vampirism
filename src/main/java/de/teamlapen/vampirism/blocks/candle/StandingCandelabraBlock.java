@@ -27,6 +27,7 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 public class StandingCandelabraBlock extends CandleHolderBlock {
+
     public static final MapCodec<StandingCandelabraBlock> CODEC = RecordCodecBuilder.mapCodec(inst ->
             candleStickParts(inst).apply(inst, StandingCandelabraBlock::new)
     );

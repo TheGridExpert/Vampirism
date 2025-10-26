@@ -29,6 +29,7 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 public class WallCandleStickBlock extends CandleHolderBlock {
+
     public static final MapCodec<WallCandleStickBlock> CODEC = RecordCodecBuilder.mapCodec(inst ->
             candleStickParts(inst).apply(inst, WallCandleStickBlock::new)
     );
