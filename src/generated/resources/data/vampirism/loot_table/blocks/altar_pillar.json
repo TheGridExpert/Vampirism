@@ -44,6 +44,19 @@
               "block": "vampirism:altar_pillar",
               "condition": "minecraft:block_state_property",
               "properties": {
+                "type": "bone"
+              }
+            }
+          ],
+          "name": "minecraft:bone_block"
+        },
+        {
+          "type": "minecraft:item",
+          "conditions": [
+            {
+              "block": "vampirism:altar_pillar",
+              "condition": "minecraft:block_state_property",
+              "properties": {
                 "type": "iron"
               }
             }
@@ -62,19 +75,6 @@
             }
           ],
           "name": "minecraft:gold_block"
-        },
-        {
-          "type": "minecraft:item",
-          "conditions": [
-            {
-              "block": "vampirism:altar_pillar",
-              "condition": "minecraft:block_state_property",
-              "properties": {
-                "type": "bone"
-              }
-            }
-          ],
-          "name": "minecraft:bone_block"
         }
       ],
       "rolls": 1.0

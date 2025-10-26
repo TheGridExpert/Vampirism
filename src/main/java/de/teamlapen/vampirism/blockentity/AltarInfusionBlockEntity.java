@@ -17,13 +17,11 @@ import de.teamlapen.vampirism.particle.FlyingBloodParticleOptions;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.StringRepresentable;
@@ -194,6 +192,9 @@ public class AltarInfusionBlockEntity extends BaseContainerBlockEntity {
         this.runTime = DURATION_TICK;
         player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, DURATION_TICK, MobEffectInstance.MAX_AMPLIFIER, false, false));
 
+        // TODO: Currently, if the player exits the game, it just stops playing. Minecraft's sound engine is trash, think of some way to make this work
+        this.level.playSound(null, this.worldPosition, ModSounds.SPHERE_SPINNING.get(), SoundSource.BLOCKS, 0.5f, 1.0f);
+
         if (!this.tips.isEmpty()) {
             for (BlockPos tip : this.tips) {
                 ModParticles.spawnParticlesServer(this.level, new FlyingBloodParticleOptions(60, false, tip.getX() + 0.5, tip.getY() + 0.3, tip.getZ() + 0.5), worldPosition.getX() + 0.5, worldPosition.getY() + 0.5, worldPosition.getZ() + 0.5, 3, 0.1, 0.1, 0.1, 0);
@@ -293,8 +294,7 @@ public class AltarInfusionBlockEntity extends BaseContainerBlockEntity {
     private void playLevelUpEffects() {
         if (this.level == null || this.player == null) return;
 
-        this.level.playLocalSound(this.player.getX(), this.player.getY(), this.player.getZ(), SoundEvents.GENERIC_EXPLODE.value(), SoundSource.BLOCKS, 4.0F, (1.0F + (this.level.random.nextFloat() - this.level.random.nextFloat()) * 0.2F) * 0.7F, true);
-        this.level.addParticle(ParticleTypes.EXPLOSION, this.player.getX(), this.player.getY(), this.player.getZ(), 1, 0, 0);
+        this.player.playNotifySound(ModSounds.CHOIR_SHORT.get(), SoundSource.PLAYERS, 0.5f, 1.0f + (this.level.random.nextFloat() - 0.5f) / 5.0f);
     }
 
     private void applyPostRitualEffects() {
@@ -339,7 +339,7 @@ public class AltarInfusionBlockEntity extends BaseContainerBlockEntity {
 
         boolean running = blockEntity.isRunning();
 
-        float spinSpeed = (running || blockEntity.stoppingTicks < RISING_TICKS) ? 0.3F : 0.025F;
+        float spinSpeed = (running || blockEntity.stoppingTicks < RISING_TICKS) ? 0.4F : 0.025F;
         blockEntity.targetRotation += spinSpeed;
 
         while (blockEntity.rotation >= (float) Math.PI) {
