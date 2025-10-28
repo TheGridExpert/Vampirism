@@ -19,15 +19,12 @@ import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * Renderer for the advanced hunter.
  * Similar to {@link BasicHunterRenderer}
  */
-@OnlyIn(Dist.CLIENT)
 public class AdvancedHunterRenderer extends DualBipedRenderer<AdvancedHunterEntity, AdvancedHunterRenderState, BasicHunterModel<AdvancedHunterRenderState>> {
     private static final ResourceLocation textureCloak = VResourceLocation.mod("textures/entity/hunter_cloak.png");
     private static final PlayerSkin FALLBACK = new PlayerSkin(VResourceLocation.mod("textures/entity/hunter_base1.png"), null, null, null, PlayerSkin.Model.WIDE, false);

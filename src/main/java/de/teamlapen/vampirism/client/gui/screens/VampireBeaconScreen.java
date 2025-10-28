@@ -26,8 +26,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerListener;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -152,7 +150,6 @@ public class VampireBeaconScreen extends AbstractContainerScreen<VampireBeaconMe
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     class BeaconConfirmButton extends BeaconSpriteScreenButton {
         public BeaconConfirmButton(int pX, int pY) {
             super(pX, pY, CONFIRM_SPRITE, CommonComponents.GUI_DONE);
@@ -168,7 +165,6 @@ public class VampireBeaconScreen extends AbstractContainerScreen<VampireBeaconMe
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     class BeaconPowerButton extends BeaconScreenButton {
         protected final int tier;
         private Holder<MobEffect> effect;
@@ -227,7 +223,6 @@ public class VampireBeaconScreen extends AbstractContainerScreen<VampireBeaconMe
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     abstract static class BeaconScreenButton extends AbstractButton implements BeaconButton {
         private boolean selected;
 
@@ -270,7 +265,6 @@ public class VampireBeaconScreen extends AbstractContainerScreen<VampireBeaconMe
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     abstract static class BeaconSpriteScreenButton extends BeaconScreenButton {
         private final ResourceLocation sprite;
 

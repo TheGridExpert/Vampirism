@@ -21,8 +21,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.alchemy.Potion;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
@@ -36,7 +34,6 @@ import java.util.List;
 /**
  * Handle general client side events
  */
-@OnlyIn(Dist.CLIENT)
 public class ClientEventHandler {
     private final static Logger LOGGER = LogManager.getLogger();
 

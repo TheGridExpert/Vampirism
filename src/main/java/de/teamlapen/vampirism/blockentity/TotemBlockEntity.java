@@ -81,8 +81,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.common.NeoForge;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
@@ -541,7 +539,6 @@ public class TotemBlockEntity extends BlockEntity implements ITotem {
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float shouldRenderBeam() {
         if (!this.isComplete || isDisabled || !isInsideVillage) return 0f;
         if (this.capturingFaction == null) return 0f;

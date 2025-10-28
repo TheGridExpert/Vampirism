@@ -6,11 +6,8 @@ import de.teamlapen.vampirism.client.particle.OldFlyingBloodParticle;
 import de.teamlapen.vampirism.client.particle.GenericParticle;
 import de.teamlapen.vampirism.core.ModParticles;
 import net.minecraft.client.particle.SpellParticle;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 
-@OnlyIn(Dist.CLIENT)
 public class ModParticleFactories {
 
     static void registerFactories(RegisterParticleProvidersEvent event) {
