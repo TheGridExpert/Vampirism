@@ -192,7 +192,7 @@ public class PedestalBlockEntity extends BlockEntity {
         for (double[] offset : offsets) {
             Vec3 target = new Vec3(base.x + (1f - random.nextFloat()) * 0.1, base.y + (1f - random.nextFloat()) * 0.2, base.z + (1f - random.nextFloat()) * 0.1);
             int lifetime = (int) (4.0F / (random.nextFloat() * 0.9F + 0.1F));
-            ModParticles.spawnParticleClient(level, new FlyingBloodParticleOption(target, lifetime), pos.getX() + offset[0], pos.getY() + offset[1], pos.getZ() + offset[2]);
+            ModParticles.spawnParticleClient(level, new FlyingBloodParticleOption(target, lifetime, false), pos.getX() + offset[0], pos.getY() + offset[1], pos.getZ() + offset[2]);
         }
     }
 }

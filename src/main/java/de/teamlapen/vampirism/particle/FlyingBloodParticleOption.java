@@ -11,11 +11,12 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.phys.Vec3;
 
-public record FlyingBloodParticleOption(Vec3 destination, int arrivalInTicks) implements ParticleOptions {
+public record FlyingBloodParticleOption(Vec3 destination, int arrivalInTicks, boolean straight) implements ParticleOptions {
 
     public static final MapCodec<FlyingBloodParticleOption> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             Vec3.CODEC.fieldOf("destination").forGetter(FlyingBloodParticleOption::destination),
-            Codec.INT.fieldOf("arrivalInTicks").forGetter(FlyingBloodParticleOption::arrivalInTicks)
+            Codec.INT.fieldOf("arrivalInTicks").forGetter(FlyingBloodParticleOption::arrivalInTicks),
+            Codec.BOOL.fieldOf("straight").forGetter(FlyingBloodParticleOption::straight)
     ).apply(instance, FlyingBloodParticleOption::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, FlyingBloodParticleOption> STREAM_CODEC = StreamCodec.composite(
@@ -23,6 +24,8 @@ public record FlyingBloodParticleOption(Vec3 destination, int arrivalInTicks) im
             FlyingBloodParticleOption::destination,
             ByteBufCodecs.INT,
             FlyingBloodParticleOption::arrivalInTicks,
+            ByteBufCodecs.BOOL,
+            FlyingBloodParticleOption::straight,
             FlyingBloodParticleOption::new
     );
 

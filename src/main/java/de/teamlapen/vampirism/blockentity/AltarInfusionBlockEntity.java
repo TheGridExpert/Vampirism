@@ -208,7 +208,7 @@ public class AltarInfusionBlockEntity extends BaseContainerBlockEntity {
 
         if (!this.tips.isEmpty()) {
             for (BlockPos tip : this.tips) {
-                ModParticles.spawnParticlesServer(this.level, new FlyingBloodParticleOption(tip.getCenter(), 60), this.worldPosition.getX() + 0.5, this.worldPosition.getY() + 0.5, this.worldPosition.getZ() + 0.5, 5, 0.1, 0.1, 0.1, 0);
+                ModParticles.spawnParticlesServer(this.level, new FlyingBloodParticleOption(tip.getCenter(), 60, false), this.worldPosition.getX() + 0.5, this.worldPosition.getY() + 0.5, this.worldPosition.getZ() + 0.5, 5, 0.1, 0.1, 0.1, 0);
             }
         }
 
@@ -266,7 +266,7 @@ public class AltarInfusionBlockEntity extends BaseContainerBlockEntity {
             RandomSource random = RandomSource.create();
 
             for (BlockPos tip : this.tips) {
-                ModParticles.spawnParticlesClient(this.level, new FlyingBloodParticleOption(tip.getCenter(), 60), pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 0, 0, 0, 8, 0.1, random);
+                ModParticles.spawnParticlesClient(this.level, new FlyingBloodParticleOption(tip.getCenter(), 60, false), pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 0, 0, 0, 8, 0.1, random);
             }
         }
 

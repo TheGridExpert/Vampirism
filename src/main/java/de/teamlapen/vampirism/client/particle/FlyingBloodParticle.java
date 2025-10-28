@@ -11,17 +11,27 @@ public class FlyingBloodParticle extends TextureSheetParticle {
 
     private final Vec3 destination;
 
-    public FlyingBloodParticle(ClientLevel level, double x, double y, double z, Vec3 destination, SpriteSet sprites, int arrivalInTicks) {
+    public FlyingBloodParticle(ClientLevel level, double x, double y, double z, Vec3 destination, SpriteSet sprites, int arrivalInTicks, boolean straight) {
         super(level, x, y, z);
         this.destination = destination;
         this.lifetime = arrivalInTicks;
         this.hasPhysics = false;
         this.quadSize = 0.135f;
 
+        double deltaX = destination.x - this.x;
+        double deltaY = destination.y - this.y;
+        double deltaZ = destination.z - this.z;
+
         RandomSource random = this.level.random;
-        this.xd = (random.nextDouble() / 10 - 0.05) + (destination.x - this.x) / arrivalInTicks;
-        this.yd = (random.nextDouble() / 10 - 0.01) + (destination.y - this.y) / arrivalInTicks;
-        this.zd = (random.nextDouble() / 10 - 0.05) + (destination.z - this.z) / arrivalInTicks;
+        if (straight) {
+            this.xd = deltaX / arrivalInTicks;
+            this.yd = deltaY / arrivalInTicks;
+            this.zd = deltaZ / arrivalInTicks;
+        } else {
+            this.xd = (random.nextDouble() / 10 - 0.05) + deltaX / arrivalInTicks;
+            this.yd = (random.nextDouble() / 10 - 0.01) + deltaY / arrivalInTicks;
+            this.zd = (random.nextDouble() / 10 - 0.05) + deltaZ / arrivalInTicks;
+        }
 
         this.setSprite(sprites.get(random));
         this.setColor(148 / 255f, 4 / 255f, 36 / 255f);
@@ -68,7 +78,7 @@ public class FlyingBloodParticle extends TextureSheetParticle {
         @Nullable
         @Override
         public Particle createParticle(FlyingBloodParticleOption type, ClientLevel level, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
-            return new FlyingBloodParticle(level, x, y, z, type.destination(), this.sprites, type.arrivalInTicks());
+            return new FlyingBloodParticle(level, x, y, z, type.destination(), this.sprites, type.arrivalInTicks(), type.straight());
         }
     }
 }
