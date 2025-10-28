@@ -4,7 +4,7 @@ import de.teamlapen.vampirism.api.util.VResourceLocation;
 import de.teamlapen.vampirism.core.ModEntities;
 import de.teamlapen.vampirism.core.ModParticles;
 import de.teamlapen.vampirism.core.ModSounds;
-import de.teamlapen.vampirism.particle.GenericParticleOptions;
+import de.teamlapen.vampirism.particle.GenericParticleOption;
 import de.teamlapen.vampirism.util.DamageHandler;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
@@ -93,8 +93,8 @@ public class DarkBloodProjectileEntity extends AbstractHurtingProjectile {
                 }
             }
             if (!this.level().isClientSide) {
-                ModParticles.spawnParticlesServer(this.level(), new GenericParticleOptions(VResourceLocation.mc("spell_1"), 7, 0xA01010, 0.2F), this.getX(), this.getY(), this.getZ(), 40, 1, 1, 1, 0);
-                ModParticles.spawnParticlesServer(this.level(), new GenericParticleOptions(VResourceLocation.mc("spell_6"), 10, 0x700505), this.getX(), this.getY(), this.getZ(), 15, 1, 1, 1, 0);
+                ModParticles.spawnParticlesServer(this.level(), new GenericParticleOption(VResourceLocation.mc("spell_1"), 7, 0xA01010, 0.2F), this.getX(), this.getY(), this.getZ(), 40, 1, 1, 1, 0);
+                ModParticles.spawnParticlesServer(this.level(), new GenericParticleOption(VResourceLocation.mc("spell_6"), 10, 0x700505), this.getX(), this.getY(), this.getZ(), 15, 1, 1, 1, 0);
                 this.level().playSound(null, getX(), getY(), getZ(), ModSounds.BLOOD_PROJECTILE_HIT.get(), SoundSource.PLAYERS, 1f, 1f);
             }
             this.discard();
@@ -158,10 +158,10 @@ public class DarkBloodProjectileEntity extends AbstractHurtingProjectile {
         super.tick();
         if (this.level().isClientSide) {
             Vec3 center = this.position();
-            ModParticles.spawnParticlesClient(this.level(), new GenericParticleOptions(VResourceLocation.mc("spell_4"), 4, 0xA01010, 0f), center.x, center.y, center.z, 5, getPickRadius(), this.random);
+            ModParticles.spawnParticlesClient(this.level(), new GenericParticleOption(VResourceLocation.mc("spell_4"), 4, 0xA01010, 0f), center.x, center.y, center.z, 5, getPickRadius(), this.random);
 
             if (this.tickCount % 3 == 0) {
-                ModParticles.spawnParticleClient(this.level(), new GenericParticleOptions(VResourceLocation.mc("effect_4"), 12, 0xC01010, 0.4F), center.x, center.y, center.z);
+                ModParticles.spawnParticleClient(this.level(), new GenericParticleOption(VResourceLocation.mc("effect_4"), 12, 0xC01010, 0.4F), center.x, center.y, center.z);
             }
         }
 

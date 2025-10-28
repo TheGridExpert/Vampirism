@@ -1,6 +1,7 @@
 package de.teamlapen.vampirism.client.core;
 
 import de.teamlapen.vampirism.api.util.VResourceLocation;
+import de.teamlapen.vampirism.blockentity.AltarInfusionBlockEntity;
 import de.teamlapen.vampirism.client.VampirismModClient;
 import de.teamlapen.vampirism.config.VampirismConfig;
 import de.teamlapen.vampirism.core.tags.ModItemTags;
@@ -88,5 +89,13 @@ public class ClientEventHandler {
     @SubscribeEvent
     public void onJoined(ClientPlayerNetworkEvent.LoggingOut event) {
         ClientSkillTreeData.reset();
+    }
+
+    @SubscribeEvent
+    public void onFovComputation(ComputeFovModifierEvent event) {
+        AttributeInstance attribute = event.getPlayer().getAttribute(Attributes.MOVEMENT_SPEED);
+        if (attribute != null && attribute.hasModifier(AltarInfusionBlockEntity.ID_MOVEMENT_SLOWDOWN)) {
+            event.setNewFovModifier(1.0f);
+        }
     }
 }

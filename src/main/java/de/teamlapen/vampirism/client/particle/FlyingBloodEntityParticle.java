@@ -2,14 +2,13 @@ package de.teamlapen.vampirism.client.particle;
 
 import de.teamlapen.vampirism.api.util.VResourceLocation;
 import de.teamlapen.vampirism.mixin.client.accessor.ParticleEngineAccessor;
-import de.teamlapen.vampirism.particle.FlyingBloodEntityParticleOptions;
+import de.teamlapen.vampirism.particle.FlyingBloodEntityParticleOption;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.TextureSheetParticle;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -87,10 +86,10 @@ public class FlyingBloodEntityParticle extends TextureSheetParticle {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static class Factory implements ParticleProvider<FlyingBloodEntityParticleOptions> {
+    public static class Factory implements ParticleProvider<FlyingBloodEntityParticleOption> {
         @Nullable
         @Override
-        public Particle createParticle(@NotNull FlyingBloodEntityParticleOptions typeIn, @NotNull ClientLevel worldIn, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
+        public Particle createParticle(@NotNull FlyingBloodEntityParticleOption typeIn, @NotNull ClientLevel worldIn, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
             Entity e = worldIn.getEntity(typeIn.entity());
             if (e == null) {
                 LOGGER.warn("Could not find entity {} for flying blood particle", typeIn.entity());

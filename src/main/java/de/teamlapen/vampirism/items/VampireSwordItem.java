@@ -20,8 +20,8 @@ import de.teamlapen.vampirism.items.component.BloodCharged;
 import de.teamlapen.vampirism.items.component.FactionRestriction;
 import de.teamlapen.vampirism.items.component.PureLevel;
 import de.teamlapen.vampirism.items.component.SwordTraining;
-import de.teamlapen.vampirism.particle.FlyingBloodParticleOptions;
-import de.teamlapen.vampirism.particle.GenericParticleOptions;
+import de.teamlapen.vampirism.particle.OldFlyingBloodParticleOption;
+import de.teamlapen.vampirism.particle.GenericParticleOption;
 import de.teamlapen.vampirism.util.DamageHandler;
 import de.teamlapen.vampirism.util.Helper;
 import net.minecraft.ChatFormatting;
@@ -121,7 +121,7 @@ public abstract class VampireSwordItem extends VampirismSwordItem implements IBl
                 }
                 Vec3 center = Vec3.atLowerCornerOf(target.blockPosition());
                 center.add(0, target.getBbHeight() / 2d, 0);
-                ModParticles.spawnParticlesServer(target.level(), new GenericParticleOptions(VResourceLocation.mc("effect_4"), 12, 0xE02020), center.x, center.y, center.z, 15, 0.5, 0.5, 0.5, 0);
+                ModParticles.spawnParticlesServer(target.level(), new GenericParticleOption(VResourceLocation.mc("effect_4"), 12, 0xE02020), center.x, center.y, center.z, 15, 0.5, 0.5, 0.5, 0);
             }
         }
         //Update training on kill
@@ -303,7 +303,7 @@ public abstract class VampireSwordItem extends VampirismSwordItem implements IBl
         Vec3 mainPos = UtilLib.getItemPosition(player, mainHand);
         for (int j = 0; j < 3; ++j) {
             Vec3 pos = mainPos.add((player.getRandom().nextFloat() - 0.5f) * 0.1f, (player.getRandom().nextFloat() - 0.3f) * 0.9f, (player.getRandom().nextFloat() - 0.5f) * 0.1f);
-            ModParticles.spawnParticleClient(player.getCommandSenderWorld(), new FlyingBloodParticleOptions((int) (4.0F / (player.getRandom().nextFloat() * 0.9F + 0.1F)), true, pos.x + (player.getRandom().nextFloat() - 0.5D) * 0.1D, pos.y + (player.getRandom().nextFloat() - 0.5D) * 0.1D, pos.z + (player.getRandom().nextFloat() - 0.5D) * 0.1D, VResourceLocation.mc("glitter_1")), pos.x, pos.y, pos.z);
+            ModParticles.spawnParticleClient(player.getCommandSenderWorld(), new OldFlyingBloodParticleOption((int) (4.0F / (player.getRandom().nextFloat() * 0.9F + 0.1F)), true, pos.x + (player.getRandom().nextFloat() - 0.5D) * 0.1D, pos.y + (player.getRandom().nextFloat() - 0.5D) * 0.1D, pos.z + (player.getRandom().nextFloat() - 0.5D) * 0.1D, VResourceLocation.mc("glitter_1")), pos.x, pos.y, pos.z);
         }
     }
 
@@ -312,7 +312,7 @@ public abstract class VampireSwordItem extends VampirismSwordItem implements IBl
         if (player.getAttackAnim(1f) > 0f) return;
         pos = pos.add((player.getRandom().nextFloat() - 0.5f) * 0.1f, (player.getRandom().nextFloat() - 0.3f) * 0.9f, (player.getRandom().nextFloat() - 0.5f) * 0.1f);
         Vec3 playerPos = new Vec3((player).getX(), (player).getY() + player.getEyeHeight() - 0.2f, (player).getZ());
-        ModParticles.spawnParticleClient(player.getCommandSenderWorld(), new FlyingBloodParticleOptions((int) (4.0F / (player.getRandom().nextFloat() * 0.6F + 0.1F)), true, pos.x, pos.y, pos.z), playerPos.x, playerPos.y, playerPos.z);
+        ModParticles.spawnParticleClient(player.getCommandSenderWorld(), new OldFlyingBloodParticleOption((int) (4.0F / (player.getRandom().nextFloat() * 0.6F + 0.1F)), true, pos.x, pos.y, pos.z), playerPos.x, playerPos.y, playerPos.z);
     }
 
     protected float getPurityChargeUsageModifier(ItemStack stack) {

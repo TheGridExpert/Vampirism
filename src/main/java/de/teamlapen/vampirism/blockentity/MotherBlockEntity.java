@@ -8,7 +8,7 @@ import de.teamlapen.vampirism.entity.GhostEntity;
 import de.teamlapen.vampirism.entity.factions.FactionPlayerHandler;
 import de.teamlapen.vampirism.network.ClientboundBossEventSoundPacket;
 import de.teamlapen.vampirism.network.ClientboundPlayEventPacket;
-import de.teamlapen.vampirism.particle.FlyingBloodParticleOptions;
+import de.teamlapen.vampirism.particle.OldFlyingBloodParticleOption;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.DustParticleOptions;
@@ -65,7 +65,7 @@ public class MotherBlockEntity extends BlockEntity {
                             }
                             BlockPos p = vuls.get(e.level.getRandom().nextInt(vuls.size())).getLeft();
                             player.addEffect(new MobEffectInstance(MobEffects.HUNGER, 5 * 20, 2));
-                            ModParticles.spawnParticlesServer(player.level(), new FlyingBloodParticleOptions(100, false, p.getX() + 0.5, p.getY() + 0.5, p.getZ() + 0.5, 0.5f), player.getX(), player.getY() + player.getEyeHeight() / 2, player.getZ(), 5, 0.1f, 0.1f, 0.1f, 0);
+                            ModParticles.spawnParticlesServer(player.level(), new OldFlyingBloodParticleOption(100, false, p.getX() + 0.5, p.getY() + 0.5, p.getZ() + 0.5, 0.5f), player.getX(), player.getY() + player.getEyeHeight() / 2, player.getZ(), 5, 0.1f, 0.1f, 0.1f, 0);
                         }
                     }
                 }

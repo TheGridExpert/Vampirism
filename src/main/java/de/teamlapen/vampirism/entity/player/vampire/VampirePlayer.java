@@ -48,8 +48,8 @@ import de.teamlapen.vampirism.items.HunterArmorItem;
 import de.teamlapen.vampirism.mixin.accessor.AttributeInstanceAccessor;
 import de.teamlapen.vampirism.modcompat.PlayerReviveHelper;
 import de.teamlapen.vampirism.network.ServerboundSimpleInputEvent;
-import de.teamlapen.vampirism.particle.FlyingBloodEntityParticleOptions;
-import de.teamlapen.vampirism.particle.GenericParticleOptions;
+import de.teamlapen.vampirism.particle.FlyingBloodEntityParticleOption;
+import de.teamlapen.vampirism.particle.GenericParticleOption;
 import de.teamlapen.vampirism.util.*;
 import de.teamlapen.vampirism.world.MinionWorldData;
 import de.teamlapen.vampirism.world.ModDamageSources;
@@ -888,7 +888,7 @@ public class VampirePlayer extends CommonFactionPlayer<IVampirePlayer> implement
             if (event.getEntity().level().isClientSide && getTicksInSun() > 0 && !event.getEntity().hasEffect(ModEffects.SUNSCREEN)) {
                 int i = event.getEntity().isInvisible() ? 15 : 4;
                 if (event.getEntity().getRandom().nextInt(i) == 0) {
-                    event.getEntity().level().addParticle(new GenericParticleOptions(VResourceLocation.mc("drip_hang"),20,9145227, 0.2f), event.getEntity().getRandomX(0.5), event.getEntity().getRandomY(), event.getEntity().getRandomZ(0.5), 0, -3, 0);
+                    event.getEntity().level().addParticle(new GenericParticleOption(VResourceLocation.mc("drip_hang"),20,9145227, 0.2f), event.getEntity().getRandomX(0.5), event.getEntity().getRandomY(), event.getEntity().getRandomZ(0.5), 0, -3, 0);
                 }
             }
         }
@@ -1365,7 +1365,7 @@ public class VampirePlayer extends CommonFactionPlayer<IVampirePlayer> implement
         e.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 20, 7, false, false));
         player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 25, 4, false, false));
 
-        ModParticles.spawnParticlesServer(player.level(), new FlyingBloodEntityParticleOptions(player.getId(), true), e.getX(), e.getY() + e.getEyeHeight() / 2, e.getZ(), 10, 0.1f, 0.1f, 0.1f, 0);
+        ModParticles.spawnParticlesServer(player.level(), new FlyingBloodEntityParticleOption(player.getId(), true), e.getX(), e.getY() + e.getEyeHeight() / 2, e.getZ(), 10, 0.1f, 0.1f, 0.1f, 0);
 
         if (!biteFeed(e)) {
             endFeeding(true);

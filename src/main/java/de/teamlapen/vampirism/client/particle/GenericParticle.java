@@ -1,7 +1,7 @@
 package de.teamlapen.vampirism.client.particle;
 
 import de.teamlapen.vampirism.mixin.client.accessor.ParticleEngineAccessor;
-import de.teamlapen.vampirism.particle.GenericParticleOptions;
+import de.teamlapen.vampirism.particle.GenericParticleOption;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
@@ -38,10 +38,10 @@ public class GenericParticle extends TextureSheetParticle {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static class Factory implements ParticleProvider<GenericParticleOptions> {
+    public static class Factory implements ParticleProvider<GenericParticleOption> {
         @Nullable
         @Override
-        public Particle createParticle(@NotNull GenericParticleOptions typeIn, @NotNull ClientLevel worldIn, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
+        public Particle createParticle(@NotNull GenericParticleOption typeIn, @NotNull ClientLevel worldIn, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
             return new GenericParticle(worldIn, x, y, z, xSpeed, ySpeed, zSpeed, typeIn.texture(), typeIn.maxAge(), typeIn.color(), typeIn.speed());
         }
     }

@@ -46,6 +46,7 @@ public class ModDataProvider {
         generator.addProvider(true, new ModDataMapProvider(packOutput, lookupProviderFuture));
         generator.addProvider(true, new ModLootModifierProvider(packOutput, lookupProviderFuture));
         generator.addProvider(true, new ModSoundDefinitionsProvider(packOutput));
+        generator.addProvider(true, new ModParticleDescriptionProvider(packOutput));
         generator.addProvider(true, new ModEquipmentAssetProvider(packOutput));
         generator.addProvider(true, new ModBookBackgroundsProvider(packOutput));
         generator.addProvider(true, new PackMetadataGenerator(packOutput).add(PackMetadataSection.TYPE, new PackMetadataSection(Component.literal("Vampirism resources"), DetectedVersion.BUILT_IN.getPackVersion(PackType.CLIENT_RESOURCES))));

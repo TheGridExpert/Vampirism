@@ -35,7 +35,7 @@ import de.teamlapen.vampirism.entity.hunter.HunterTrainerEntity;
 import de.teamlapen.vampirism.entity.player.VampirismPlayerAttributes;
 import de.teamlapen.vampirism.entity.vampire.VampireBaseEntity;
 import de.teamlapen.vampirism.network.ClientboundPlaySoundEventPacket;
-import de.teamlapen.vampirism.particle.GenericParticleOptions;
+import de.teamlapen.vampirism.particle.GenericParticleOption;
 import de.teamlapen.vampirism.util.RegUtil;
 import de.teamlapen.vampirism.util.TotemHelper;
 import de.teamlapen.vampirism.util.VampirismEventFactory;
@@ -563,7 +563,7 @@ public class TotemBlockEntity extends BlockEntity implements ITotem {
 
     public static void clientTick(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull TotemBlockEntity blockEntity) {
         if (level.getGameTime() % 10 == 7 && !IFaction.isNeutral(blockEntity.controllingFaction)) {
-            ModParticles.spawnParticlesClient(level, new GenericParticleOptions(VResourceLocation.mc("generic_4"), 20, blockEntity.controllingFaction.value().getColor(), 0.2F), pos.getX(), pos.getY(), pos.getZ(), 3, 30, level.random);
+            ModParticles.spawnParticlesClient(level, new GenericParticleOption(VResourceLocation.mc("generic_4"), 20, blockEntity.controllingFaction.value().getColor(), 0.2F), pos.getX(), pos.getY(), pos.getZ(), 3, 30, level.random);
         }
     }
 

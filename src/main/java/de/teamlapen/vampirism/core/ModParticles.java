@@ -2,9 +2,10 @@ package de.teamlapen.vampirism.core;
 
 import com.mojang.serialization.MapCodec;
 import de.teamlapen.vampirism.REFERENCE;
-import de.teamlapen.vampirism.particle.FlyingBloodEntityParticleOptions;
-import de.teamlapen.vampirism.particle.FlyingBloodParticleOptions;
-import de.teamlapen.vampirism.particle.GenericParticleOptions;
+import de.teamlapen.vampirism.particle.FlyingBloodEntityParticleOption;
+import de.teamlapen.vampirism.particle.FlyingBloodParticleOption;
+import de.teamlapen.vampirism.particle.OldFlyingBloodParticleOption;
+import de.teamlapen.vampirism.particle.GenericParticleOption;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.SimpleParticleType;
@@ -19,30 +20,40 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.function.Function;
+
 public class ModParticles {
     public static final DeferredRegister<ParticleType<?>> PARTICLE_TYPES = DeferredRegister.create(Registries.PARTICLE_TYPE, REFERENCE.MODID);
 
-    public static final DeferredHolder<ParticleType<?>, ParticleType<FlyingBloodParticleOptions>> FLYING_BLOOD = PARTICLE_TYPES.register("flying_blood", () -> create(FlyingBloodParticleOptions.CODEC,  FlyingBloodParticleOptions.STREAM_CODEC));
-    public static final DeferredHolder<ParticleType<?>, ParticleType<FlyingBloodEntityParticleOptions>> FLYING_BLOOD_ENTITY = PARTICLE_TYPES.register("flying_blood_entity", () -> create(FlyingBloodEntityParticleOptions.CODEC,FlyingBloodEntityParticleOptions.STREAM_CODEC));
-    public static final DeferredHolder<ParticleType<?>, ParticleType<GenericParticleOptions>> GENERIC = PARTICLE_TYPES.register("generic", () -> create(GenericParticleOptions.CODEC, GenericParticleOptions.STREAM_CODEC));
-    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> SANGUINARE = PARTICLE_TYPES.register("sanguinare", () -> new SimpleParticleType(false));
+    public static final DeferredHolder<ParticleType<?>, ParticleType<OldFlyingBloodParticleOption>> OLD_FLYING_BLOOD = registerParticle("old_flying_blood", false, type -> OldFlyingBloodParticleOption.CODEC, type -> OldFlyingBloodParticleOption.STREAM_CODEC);
+    public static final DeferredHolder<ParticleType<?>, ParticleType<FlyingBloodParticleOption>> FLYING_BLOOD = registerParticle("flying_blood", false, type -> FlyingBloodParticleOption.CODEC, type -> FlyingBloodParticleOption.STREAM_CODEC);
+    public static final DeferredHolder<ParticleType<?>, ParticleType<FlyingBloodEntityParticleOption>> FLYING_BLOOD_ENTITY = registerParticle("flying_blood_entity", false, type -> FlyingBloodEntityParticleOption.CODEC, type -> FlyingBloodEntityParticleOption.STREAM_CODEC);
+    public static final DeferredHolder<ParticleType<?>, ParticleType<GenericParticleOption>> GENERIC = registerParticle("generic", false, type -> GenericParticleOption.CODEC, type -> GenericParticleOption.STREAM_CODEC);
+    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> SANGUINARE = registerParticle("sanguinare", false);
 
     static void register(IEventBus bus) {
         PARTICLE_TYPES.register(bus);
     }
 
-    private static <T extends ParticleOptions> ParticleType<T> create(MapCodec<T> codec, StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec) {
-        return new ParticleType<T>(false) {
+    /**
+     * Note: overrideLimiter determines whether the particle should override particle quantity settings. Set to false if it is not too important to render all the particles, the game may reduce the amount if needed. If it's something vital like, for example, Warden's vibrations, set to true, then they will render at all costs.
+     */
+    private static DeferredHolder<ParticleType<?>, SimpleParticleType> registerParticle(String name, boolean overrideLimiter) {
+        return PARTICLE_TYPES.register(name, () -> new SimpleParticleType(overrideLimiter));
+    }
+
+    private static <T extends ParticleOptions> DeferredHolder<ParticleType<?>, ParticleType<T>> registerParticle(String name, boolean overrideLimitter, final Function<ParticleType<T>, MapCodec<T>> codecGetter, final Function<ParticleType<T>, StreamCodec<? super RegistryFriendlyByteBuf, T>> streamCodecGetter) {
+        return PARTICLE_TYPES.register(name, () -> new ParticleType<T>(overrideLimitter) {
             @Override
-            public @NotNull MapCodec<T> codec() {
-                return codec;
+            public MapCodec<T> codec() {
+                return codecGetter.apply(this);
             }
 
             @Override
-            public @NotNull StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec() {
-                return streamCodec;
+            public StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec() {
+                return streamCodecGetter.apply(this);
             }
-        };
+        });
     }
 
     public static void spawnParticlesClient(Level worldIn, @NotNull ParticleOptions particle, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed, int count, double maxDist, @NotNull RandomSource rand) {

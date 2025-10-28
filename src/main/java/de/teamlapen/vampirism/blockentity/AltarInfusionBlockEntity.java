@@ -2,6 +2,7 @@ package de.teamlapen.vampirism.blockentity;
 
 import de.teamlapen.lib.lib.inventory.InventoryHelper;
 import de.teamlapen.vampirism.advancements.critereon.VampireActionCriterionTrigger;
+import de.teamlapen.vampirism.api.util.VResourceLocation;
 import de.teamlapen.vampirism.blocks.AltarPillarBlock;
 import de.teamlapen.vampirism.blocks.AltarTipBlock;
 import de.teamlapen.vampirism.client.VampirismModClient;
@@ -13,7 +14,7 @@ import de.teamlapen.vampirism.entity.player.vampire.VampirePlayer;
 import de.teamlapen.vampirism.entity.vampire.DrinkBloodContext;
 import de.teamlapen.vampirism.inventory.AltarInfusionMenu;
 import de.teamlapen.vampirism.items.PureBloodItem;
-import de.teamlapen.vampirism.particle.FlyingBloodParticleOptions;
+import de.teamlapen.vampirism.particle.FlyingBloodParticleOption;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
@@ -21,6 +22,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
@@ -28,6 +30,9 @@ import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -46,6 +51,8 @@ public class AltarInfusionBlockEntity extends BaseContainerBlockEntity {
 
     public static final String KEY_PLAYER_UUID = "PlayerUUID";
     public static final String KEY_RUN_TIME = "RunTime";
+
+    public static final ResourceLocation ID_MOVEMENT_SLOWDOWN = VResourceLocation.mod("altar_infusion_slowdown");
 
     public static final int DURATION_TICK = 450;
     public static final int MAX_PILLARS = 9;
@@ -192,12 +199,17 @@ public class AltarInfusionBlockEntity extends BaseContainerBlockEntity {
         this.runTime = DURATION_TICK;
         player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, DURATION_TICK, MobEffectInstance.MAX_AMPLIFIER, false, false));
 
+        AttributeInstance movementSpeedAttribute = player.getAttribute(Attributes.MOVEMENT_SPEED);
+        if (movementSpeedAttribute != null && !movementSpeedAttribute.hasModifier(ID_MOVEMENT_SLOWDOWN)) {
+            movementSpeedAttribute.addPermanentModifier(new AttributeModifier(ID_MOVEMENT_SLOWDOWN, -1, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+        }
+
         // TODO: Currently, if the player exits the game, it just stops playing. Minecraft's sound engine is trash, think of some way to make this work
         this.level.playSound(null, this.worldPosition, ModSounds.SPHERE_SPINNING.get(), SoundSource.BLOCKS, 0.5f, 1.0f);
 
         if (!this.tips.isEmpty()) {
             for (BlockPos tip : this.tips) {
-                ModParticles.spawnParticlesServer(this.level, new FlyingBloodParticleOptions(60, false, tip.getX() + 0.5, tip.getY() + 0.3, tip.getZ() + 0.5), worldPosition.getX() + 0.5, worldPosition.getY() + 0.5, worldPosition.getZ() + 0.5, 3, 0.1, 0.1, 0.1, 0);
+                ModParticles.spawnParticlesServer(this.level, new FlyingBloodParticleOption(tip.getCenter(), 60), this.worldPosition.getX() + 0.5, this.worldPosition.getY() + 0.5, this.worldPosition.getZ() + 0.5, 5, 0.1, 0.1, 0.1, 0);
             }
         }
 
@@ -236,8 +248,6 @@ public class AltarInfusionBlockEntity extends BaseContainerBlockEntity {
             return;
         }
 
-        stopPlayerMovement(this.player);
-
         Phase phase = getCurrentPhase();
 
         if (this.level != null && this.level.isClientSide) {
@@ -251,17 +261,13 @@ public class AltarInfusionBlockEntity extends BaseContainerBlockEntity {
         }
     }
 
-    private static void stopPlayerMovement(Player player) {
-        player.setDeltaMovement(0, 0, 0);
-    }
-
     private void handleClientEffects(Phase phase) {
-        if (phase == Phase.PARTICLE_SPREAD && this.runTime % 15 == 0 && tips != null) {
+        if (phase == Phase.PARTICLE_SPREAD && this.runTime % 15 == 0 && this.level != null && tips != null) {
             BlockPos pos = this.worldPosition;
             RandomSource random = RandomSource.create();
 
             for (BlockPos tip : this.tips) {
-                ModParticles.spawnParticlesClient(this.level, new FlyingBloodParticleOptions(60, false, tip.getX() + 0.5, tip.getY() + 0.3, tip.getZ() + 0.5), pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 0, 0, 0, 5, 0.1, random);
+                ModParticles.spawnParticlesClient(this.level, new FlyingBloodParticleOption(tip.getCenter(), 60), pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 0, 0, 0, 8, 0.1, random);
             }
         }
 
@@ -306,9 +312,17 @@ public class AltarInfusionBlockEntity extends BaseContainerBlockEntity {
     }
 
     private void endRitual() {
+        if (this.player != null) {
+            AttributeInstance movementSpeedAttribute = this.player.getAttribute(Attributes.MOVEMENT_SPEED);
+            if (movementSpeedAttribute != null) {
+                movementSpeedAttribute.removeModifier(ID_MOVEMENT_SLOWDOWN);
+            }
+        }
+
         this.player = null;
         this.tips = null;
         this.runTime = 0;
+
         updateClient();
         setChanged();
     }
