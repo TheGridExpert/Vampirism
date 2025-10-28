@@ -25,6 +25,7 @@ import java.util.function.Function;
 public class ModParticles {
     public static final DeferredRegister<ParticleType<?>> PARTICLE_TYPES = DeferredRegister.create(Registries.PARTICLE_TYPE, REFERENCE.MODID);
 
+    @Deprecated(forRemoval = true)
     public static final DeferredHolder<ParticleType<?>, ParticleType<OldFlyingBloodParticleOption>> OLD_FLYING_BLOOD = registerParticle("old_flying_blood", false, type -> OldFlyingBloodParticleOption.CODEC, type -> OldFlyingBloodParticleOption.STREAM_CODEC);
     public static final DeferredHolder<ParticleType<?>, ParticleType<FlyingBloodParticleOption>> FLYING_BLOOD = registerParticle("flying_blood", false, type -> FlyingBloodParticleOption.CODEC, type -> FlyingBloodParticleOption.STREAM_CODEC);
     public static final DeferredHolder<ParticleType<?>, ParticleType<FlyingBloodEntityParticleOption>> FLYING_BLOOD_ENTITY = registerParticle("flying_blood_entity", false, type -> FlyingBloodEntityParticleOption.CODEC, type -> FlyingBloodEntityParticleOption.STREAM_CODEC);

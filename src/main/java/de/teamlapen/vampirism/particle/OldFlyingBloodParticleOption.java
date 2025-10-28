@@ -15,6 +15,7 @@ import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3d;
 
+@Deprecated(forRemoval = true)
 public record OldFlyingBloodParticleOption(int maxAge, boolean direct, double targetX, double targetY, double targetZ, ResourceLocation texture, float scale) implements ParticleOptions {
 
     public OldFlyingBloodParticleOption(int maxAge, boolean direct, Vector3d target, ResourceLocation texture, float scale) {

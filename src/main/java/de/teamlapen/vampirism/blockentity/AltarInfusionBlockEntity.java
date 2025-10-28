@@ -204,7 +204,6 @@ public class AltarInfusionBlockEntity extends BaseContainerBlockEntity {
             movementSpeedAttribute.addPermanentModifier(new AttributeModifier(ID_MOVEMENT_SLOWDOWN, -1, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
         }
 
-        // TODO: Currently, if the player exits the game, it just stops playing. Minecraft's sound engine is trash, think of some way to make this work
         this.level.playSound(null, this.worldPosition, ModSounds.SPHERE_SPINNING.get(), SoundSource.BLOCKS, 0.5f, 1.0f);
 
         if (!this.tips.isEmpty()) {

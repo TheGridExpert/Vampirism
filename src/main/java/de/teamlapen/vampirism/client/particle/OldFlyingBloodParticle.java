@@ -17,6 +17,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * @author maxanier
  */
+@Deprecated(forRemoval = true)
 public class OldFlyingBloodParticle extends TextureSheetParticle {
     private final String TAG = "FlyingBloodParticle";
     private final double destX, destY, destZ;
