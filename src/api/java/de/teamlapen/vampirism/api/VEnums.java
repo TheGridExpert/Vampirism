@@ -19,5 +19,5 @@ public class VEnums {
      */
     public static final EnumProxy<MobCategory> VAMPIRE_CATEGORY = new EnumProxy<>(MobCategory.class, "vampirism:vampire", 30, false, false, 128);
 
-    public static final EnumProxy<ItemDisplayContext> PEDESTAL = new EnumProxy<>(ItemDisplayContext.class, 9, "vampirism:pedestal", "GROUND");
+    public static final EnumProxy<ItemDisplayContext> PEDESTAL = new EnumProxy<>(ItemDisplayContext.class, -1, "vampirism:pedestal", "GROUND");
 }

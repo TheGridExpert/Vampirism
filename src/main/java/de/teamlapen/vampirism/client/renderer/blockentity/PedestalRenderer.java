@@ -17,11 +17,11 @@ public class PedestalRenderer implements BlockEntityRenderer<PedestalBlockEntity
 
     @Override
     public void render(PedestalBlockEntity blockEntity, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
-        ItemStack stack = blockEntity.getStackForRender();
+        ItemStack stack = blockEntity.stackInside;
         if (!stack.isEmpty()) {
             poseStack.pushPose();
             poseStack.translate(0.5, 0.8, 0.5);
-            float rotation = (blockEntity.getTickForRender() % 512 + partialTick) / 512f;
+            float rotation = (blockEntity.clientTicks % 512 + partialTick) / 512f;
             poseStack.mulPose(Axis.YP.rotationDegrees(rotation * 360));
             Minecraft.getInstance().getItemRenderer().renderStatic(stack, VEnums.PEDESTAL.getValue(), packedLight, packedOverlay, poseStack, bufferSource, blockEntity.getLevel(), 0);
             poseStack.popPose();

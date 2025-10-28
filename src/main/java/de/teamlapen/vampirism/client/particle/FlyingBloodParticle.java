@@ -16,6 +16,7 @@ public class FlyingBloodParticle extends TextureSheetParticle {
         this.destination = destination;
         this.lifetime = arrivalInTicks;
         this.hasPhysics = false;
+        this.quadSize = 0.135f;
 
         RandomSource random = this.level.random;
         this.xd = (random.nextDouble() / 10 - 0.05) + (destination.x - this.x) / arrivalInTicks;
