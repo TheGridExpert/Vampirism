@@ -4,17 +4,13 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import de.teamlapen.vampirism.api.EnumStrength;
-import de.teamlapen.vampirism.api.entity.vampire.IVampire;
 import de.teamlapen.vampirism.core.ModItems;
-import de.teamlapen.vampirism.entity.player.vampire.VampirePlayer;
 import de.teamlapen.vampirism.util.DamageHandler;
-import de.teamlapen.vampirism.util.Helper;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.consume_effects.ConsumeEffect;
 import net.minecraft.world.level.Level;
@@ -46,17 +42,6 @@ public record AffectGarlic(EnumStrength strength, float multiplier, boolean ambi
 
     @Override
     public boolean apply(Level level, ItemStack stack, LivingEntity entity) {
-        if (Helper.isVampire(entity)) {
-            IVampire vampire = null;
-            if (entity instanceof IVampire) {
-                vampire = (IVampire) entity;
-            } else if (entity instanceof Player player) {
-                vampire = VampirePlayer.get(player);
-            }
-            if (vampire != null) {
-                DamageHandler.affectVampireGarlic(vampire, strength, multiplier, ambient);
-            }
-        }
-        return false;
+        return DamageHandler.tryAffectEntityGarlic(entity, strength, multiplier, ambient);
     }
 }

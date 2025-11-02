@@ -43,17 +43,12 @@ public class ModItemModelGenerators extends ItemModelGenerators {
         generateCrossbows();
         generateOilBottle();
         generateCrucifix();
-        generateNonTemplateItems();
         createDefaultModels();
         createAlchemicalFire();
     }
 
-    protected void generateNonTemplateItems() {
-        this.itemModelOutput.accept(ModItems.GARLIC_DIFFUSER_CORE_IMPROVED.asItem(), ItemModelUtils.plainModel(ModModelTemplates.GARLIC_DIFFUSER_CORE.create(ModItems.GARLIC_DIFFUSER_CORE_IMPROVED.get(), new TextureMapping().put(TextureSlot.TEXTURE, VResourceLocation.mod("block/garlic_diffuser_inside_improved")), this.modelOutput)));
-    }
-
     protected void createDefaultModels() {
-        Stream.of(ModItems.STAKE, ModItems.GARLIC_DIFFUSER_CORE, ModItems.PITCHFORK, ModItems.UMBRELLA).map(DeferredHolder::get).forEach(this::createDefaultModel);
+        Stream.of(ModItems.STAKE, ModItems.PITCHFORK, ModItems.UMBRELLA).map(DeferredHolder::get).forEach(this::createDefaultModel);
     }
 
     protected void createDefaultModel(Item item) {
@@ -311,6 +306,4 @@ public class ModItemModelGenerators extends ItemModelGenerators {
             put(ModItems.ARMOR_OF_SWIFTNESS_FEET_ULTIMATE.asItem(), mod("item/armor_of_swiftness_feet_ultimate"));
         }};
     }
-
-
 }

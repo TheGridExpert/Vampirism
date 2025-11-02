@@ -5,6 +5,7 @@ import net.minecraft.client.data.models.model.TextureSlot;
 public class ModTextureSlots {
 
     public static final TextureSlot GARLIC = TextureSlot.create("garlic");
+    public static final TextureSlot CORE = TextureSlot.create("core");
     public static final TextureSlot CANDLE = TextureSlot.create("candle");
     public static final TextureSlot TEXTURE0 = TextureSlot.create("0");
     public static final TextureSlot FLOOR = TextureSlot.create("floor");

@@ -47,7 +47,7 @@ public class ModBlockModelGenerators extends VBlockModelGenerators {
     public void run() {
         createFamilies(ModBlockFamilies.getFamilies());
 
-        createGarlicDiffuser();
+        createGarlicDiffusers();
         createCandleHolders();
         createVampireSoulLantern();
         createBloodGrinder();
@@ -135,16 +135,25 @@ public class ModBlockModelGenerators extends VBlockModelGenerators {
         this.createHangingSign(ModBlocks.CURSED_SPRUCE_LOG.get(), ModBlocks.CURSED_SPRUCE_HANGING_SIGN.get(), ModBlocks.CURSED_SPRUCE_WALL_HANGING_SIGN.get());
     }
 
-    protected void createGarlicDiffuser() {
-        ResourceLocation normalModel = ModModelTemplates.GARLIC_DIFFUSER.create(ModBlocks.GARLIC_DIFFUSER_NORMAL.get(), new TextureMapping().put(ModTextureSlots.GARLIC, mod("block/garlic_diffuser_inside")), this.modelOutput);
-        this.blockStateOutput.accept(createSimpleBlock(ModBlocks.GARLIC_DIFFUSER_NORMAL.get(), normalModel));
-        createDefaultBlockItem(ModBlocks.GARLIC_DIFFUSER_NORMAL.get(), normalModel);
-        ResourceLocation weakModel = ModModelTemplates.GARLIC_DIFFUSER.create(ModBlocks.GARLIC_DIFFUSER_WEAK.get(), new TextureMapping().put(ModTextureSlots.GARLIC, mod("block/garlic_diffuser_inside")), this.modelOutput);
-        this.blockStateOutput.accept(createSimpleBlock(ModBlocks.GARLIC_DIFFUSER_WEAK.get(), weakModel));
-        createDefaultBlockItem(ModBlocks.GARLIC_DIFFUSER_WEAK.get(), weakModel);
-        ResourceLocation improvedModel = ModModelTemplates.GARLIC_DIFFUSER.create(ModBlocks.GARLIC_DIFFUSER_IMPROVED.get(), new TextureMapping().put(ModTextureSlots.GARLIC, mod("block/garlic_diffuser_inside_improved")), this.modelOutput);
+    protected void createGarlicDiffusers() {
+        ResourceLocation defaultModel = mod("block/garlic_diffuser");
+        this.blockStateOutput.accept(createSimpleBlock(ModBlocks.GARLIC_DIFFUSER_NORMAL.get(), defaultModel));
+        createDefaultBlockItem(ModBlocks.GARLIC_DIFFUSER_NORMAL.get(), defaultModel);
+        this.blockStateOutput.accept(createSimpleBlock(ModBlocks.GARLIC_DIFFUSER_WEAK.get(), defaultModel));
+        createDefaultBlockItem(ModBlocks.GARLIC_DIFFUSER_WEAK.get(), defaultModel);
+
+        ResourceLocation improvedModel = ModModelTemplates.GARLIC_DIFFUSER.create(ModBlocks.GARLIC_DIFFUSER_IMPROVED.get(), new TextureMapping().put(ModTextureSlots.CORE, mod("block/garlic_diffuser_core_improved")), this.modelOutput);
         this.blockStateOutput.accept(createSimpleBlock(ModBlocks.GARLIC_DIFFUSER_IMPROVED.get(), improvedModel));
         createDefaultBlockItem(ModBlocks.GARLIC_DIFFUSER_IMPROVED.get(), improvedModel);
+
+        createNonTemplateModelBlock(ModBlocks.GARLIC_DIFFUSER_CORE.get());
+        registerSimpleItemModel(ModBlocks.GARLIC_DIFFUSER_CORE.get(), mod("item/garlic_diffuser_core"));
+        createFlatItemModel(ModBlocks.GARLIC_DIFFUSER_CORE.asItem());
+
+        ResourceLocation improvedCoreModel = ModModelTemplates.GARLIC_DIFFUSER_CORE.create(ModBlocks.GARLIC_DIFFUSER_CORE_IMPROVED.get(), new TextureMapping().put(ModTextureSlots.CORE, mod("block/garlic_diffuser_core_improved")), this.modelOutput);
+        this.blockStateOutput.accept(createSimpleBlock(ModBlocks.GARLIC_DIFFUSER_CORE_IMPROVED.get(), improvedCoreModel));
+        registerSimpleItemModel(ModBlocks.GARLIC_DIFFUSER_CORE_IMPROVED.get(), mod("item/garlic_diffuser_core_improved"));
+        createFlatItemModel(ModBlocks.GARLIC_DIFFUSER_CORE_IMPROVED.asItem());
     }
 
     protected void createAltarPillars() {

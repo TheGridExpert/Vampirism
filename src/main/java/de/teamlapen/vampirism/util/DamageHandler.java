@@ -80,6 +80,21 @@ public class DamageHandler {
         }
     }
 
+    public static boolean tryAffectEntityGarlic(@NotNull LivingEntity entity, @NotNull EnumStrength strength, float multiplier, boolean ambient) {
+        if (Helper.isVampire(entity)) {
+            IVampire vampire = null;
+            if (entity instanceof IVampire) {
+                vampire = (IVampire) entity;
+            } else if (entity instanceof Player player) {
+                vampire = VampirePlayer.get(player);
+            }
+            if (vampire != null) {
+                affectVampireGarlic(vampire, strength, multiplier, ambient);
+            }
+        }
+        return false;
+    }
+
     /**
      * @param vampire  The affected vampire
      * @param strength The strength of the ambient garlic
