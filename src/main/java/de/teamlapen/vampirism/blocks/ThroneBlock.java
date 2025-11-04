@@ -1,8 +1,8 @@
 package de.teamlapen.vampirism.blocks;
 
 import de.teamlapen.vampirism.core.ModStats;
+import de.teamlapen.vampirism.sit.ISittableBlock;
 import de.teamlapen.vampirism.sit.SitEntity;
-import de.teamlapen.vampirism.sit.SitHandler;
 import de.teamlapen.vampirism.sit.SitUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -11,10 +11,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.ScheduledTickAccess;
+import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -32,7 +29,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.stream.Stream;
 
-public class ThroneBlock extends VampirismSplitBlock implements SimpleWaterloggedBlock {
+public class ThroneBlock extends VampirismSplitBlock implements ISittableBlock, SimpleWaterloggedBlock {
 
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
@@ -87,16 +84,16 @@ public class ThroneBlock extends VampirismSplitBlock implements SimpleWaterlogge
         player.awardStat(ModStats.INTERACT_WITH_THRONE.get());
 
         Part part = state.getValue(PART);
-        Direction backDirection = state.getValue(FACING).getOpposite();
+        Direction backDirection = state.getValue(FACING);
         Direction hitDirection = hitResult.getDirection();
 
         if (part.isMain() && (hitDirection == Direction.UP || hitDirection == backDirection)) {
-            SitHandler.startSitting(player, level, pos, 0.5);
+            SitUtil.startSitting(player, level, pos, 0.625);
             return InteractionResult.SUCCESS;
         }
 
         if (part.isSub() && hitDirection == backDirection && level.getBlockState(pos.below()).is(this)) {
-            SitHandler.startSitting(player, level, pos.below(), 0.5);
+            SitUtil.startSitting(player, level, pos.below(), 0.625);
             return InteractionResult.SUCCESS;
         }
 
@@ -132,5 +129,21 @@ public class ThroneBlock extends VampirismSplitBlock implements SimpleWaterlogge
         if (vec3.y < 0.0) {
             entity.setDeltaMovement(vec3.x, -vec3.y * 0.35F, vec3.z);
         }
+    }
+
+    @Override
+    public Vec3 getStandUpLocation(Level level, BlockPos pos, Entity entity, Direction facing) {
+        Vec3 result = SitUtil.tryMultipleStandUpLocations(entity, level,
+                pos.relative(facing),
+                pos.above(),
+                pos.relative(facing.getCounterClockWise()),
+                pos.relative(facing.getClockWise())
+        );
+        return result != null ? result : Vec3.atBottomCenterOf(pos);
+    }
+
+    @Override
+    public float getSitRotation(BlockState state) {
+        return state.getValue(FACING).toYRot();
     }
 }

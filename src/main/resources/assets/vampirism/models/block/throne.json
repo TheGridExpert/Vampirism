@@ -2,6 +2,7 @@
 	"credit": "Designed by Zozozrob",
 	"parent": "block/block",
 	"render_type": "minecraft:cutout",
+	"ambientocclusion": false,
 	"texture_size": [64, 64],
 	"textures": {
 		"throne": "vampirism:block/throne",
