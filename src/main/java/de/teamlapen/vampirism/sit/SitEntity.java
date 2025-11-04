@@ -35,8 +35,6 @@ public class SitEntity extends Entity {
         float rotation = 0.0f;
         if (state.getBlock() instanceof ISittableBlock sittable) {
             rotation = sittable.getSitRotation(state);
-        } else if (state.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) {
-            rotation = state.getValue(BlockStateProperties.HORIZONTAL_FACING).toYRot();
         }
         entity.setYRot(rotation);
 

@@ -61,8 +61,9 @@ public abstract class VampirismRecipeProvider extends RecipeProvider {
     protected static final TagKey<Item> PURE_BLOOD = ModItemTags.PURE_BLOOD;
     protected static final TagKey<Item> HOLY_WATER = ModItemTags.HOLY_WATER;
     protected static final TagKey<Item> BUCKET = Tags.Items.BUCKETS_EMPTY;
-    protected static final TagKey<Item> PLANKS = ItemTags.PLANKS;
     protected static final TagKey<Item> LOG = ItemTags.LOGS;
+    protected static final TagKey<Item> PLANKS = ItemTags.PLANKS;
+    protected static final TagKey<Item> SLAB_WOODEN = ItemTags.WOODEN_SLABS;
     protected static final TagKey<Item> STICK = Tags.Items.RODS_WOODEN;
     protected static final TagKey<Item> LEATHER = Tags.Items.LEATHERS;
     protected static final TagKey<Item> STRING = Tags.Items.STRINGS;
