@@ -192,15 +192,18 @@ public class ModBlockModelGenerators extends VBlockModelGenerators {
     protected void createTotem() {
         createNonTemplateModelBlock(ModBlocks.TOTEM_BASE.get());
         createDefaultBlockItem(ModBlocks.TOTEM_BASE.get());
-        this.blockStateOutput.accept(createSimpleBlock(ModBlocks.TOTEM_TOP.get(), ModModelTemplates.TOTEM.getDefaultModelLocation(ModBlocks.TOTEM_TOP.get())));
-        createDefaultBlockItem(ModBlocks.TOTEM_TOP.get(), ModModelTemplates.TOTEM.getDefaultModelLocation(ModBlocks.TOTEM_TOP.get()));
-        this.blockStateOutput.accept(createSimpleBlock(ModBlocks.TOTEM_TOP_VAMPIRISM_HUNTER.get(), ModModelTemplates.TOTEM.create(ModBlocks.TOTEM_TOP_VAMPIRISM_HUNTER.get(), new TextureMapping().put(ModTextureSlots.OUTER, VResourceLocation.mc("block/glowstone")), this.modelOutput)));
-        this.blockStateOutput.accept(createSimpleBlock(ModBlocks.TOTEM_TOP_VAMPIRISM_VAMPIRE.get(), ModModelTemplates.TOTEM.create(ModBlocks.TOTEM_TOP_VAMPIRISM_VAMPIRE.get(), new TextureMapping().put(ModTextureSlots.OUTER, VResourceLocation.mc("block/glowstone")), this.modelOutput)));
-        ResourceLocation totemCraftedModel = ModModelTemplates.TOTEM.create(ModBlocks.TOTEM_TOP_CRAFTED.get(), new TextureMapping().put(ModTextureSlots.OUTER, VResourceLocation.mc("block/obsidian")), this.modelOutput);
+
+        createNonTemplateBlockWithItem(ModBlocks.TOTEM_TOP.get());
+
+        this.blockStateOutput.accept(createSimpleBlock(ModBlocks.TOTEM_TOP_VAMPIRISM_VAMPIRE.get(), ModModelTemplates.TOTEM_TOP.create(ModBlocks.TOTEM_TOP_VAMPIRISM_VAMPIRE.get(), new TextureMapping().putForced(ModTextureSlots.CORE, VResourceLocation.mod("block/totem_top_core_vampire")), this.modelOutput)));
+        this.blockStateOutput.accept(createSimpleBlock(ModBlocks.TOTEM_TOP_VAMPIRISM_HUNTER.get(), ModModelTemplates.TOTEM_TOP.create(ModBlocks.TOTEM_TOP_VAMPIRISM_HUNTER.get(), new TextureMapping().putForced(ModTextureSlots.CORE, VResourceLocation.mod("block/totem_top_core_hunter")), this.modelOutput)));
+
+        ResourceLocation totemCraftedModel = ModModelTemplates.TOTEM_TOP.create(ModBlocks.TOTEM_TOP_CRAFTED.get(), new TextureMapping().putForced(TextureSlot.BOTTOM, VResourceLocation.mod("block/totem_top_crafted_bottom")).putForced(TextureSlot.SIDE, VResourceLocation.mod("block/totem_top_crafted_side")).putForced(TextureSlot.PARTICLE, VResourceLocation.mc("block/obsidian")), this.modelOutput);
         this.blockStateOutput.accept(createSimpleBlock(ModBlocks.TOTEM_TOP_CRAFTED.get(), totemCraftedModel));
         createDefaultBlockItem(ModBlocks.TOTEM_TOP_CRAFTED.get(), totemCraftedModel);
-        this.blockStateOutput.accept(createSimpleBlock(ModBlocks.TOTEM_TOP_VAMPIRISM_HUNTER_CRAFTED.get(), ModModelTemplates.TOTEM.create(ModBlocks.TOTEM_TOP_VAMPIRISM_HUNTER_CRAFTED.get(), new TextureMapping().put(ModTextureSlots.OUTER, VResourceLocation.mc("block/obsidian")), this.modelOutput)));
-        this.blockStateOutput.accept(createSimpleBlock(ModBlocks.TOTEM_TOP_VAMPIRISM_VAMPIRE_CRAFTED.get(), ModModelTemplates.TOTEM.create(ModBlocks.TOTEM_TOP_VAMPIRISM_VAMPIRE_CRAFTED.get(), new TextureMapping().put(ModTextureSlots.OUTER, VResourceLocation.mc("block/obsidian")), this.modelOutput)));
+
+        this.blockStateOutput.accept(createSimpleBlock(ModBlocks.TOTEM_TOP_VAMPIRISM_VAMPIRE_CRAFTED.get(), ModModelTemplates.TOTEM_TOP_CRAFTED.create(ModBlocks.TOTEM_TOP_VAMPIRISM_VAMPIRE_CRAFTED.get(), new TextureMapping().putForced(ModTextureSlots.CORE, VResourceLocation.mod("block/totem_top_core_vampire")), this.modelOutput)));
+        this.blockStateOutput.accept(createSimpleBlock(ModBlocks.TOTEM_TOP_VAMPIRISM_HUNTER_CRAFTED.get(), ModModelTemplates.TOTEM_TOP_CRAFTED.create(ModBlocks.TOTEM_TOP_VAMPIRISM_HUNTER_CRAFTED.get(), new TextureMapping().putForced(ModTextureSlots.CORE, VResourceLocation.mod("block/totem_top_core_hunter")), this.modelOutput)));
     }
 
     protected void createCandleHolders() {

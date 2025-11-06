@@ -54,10 +54,7 @@ public class TotemTopBlock extends BaseEntityBlock {
             ).apply(inst, TotemTopBlock::new)
     );
 
-    private static final VoxelShape SHAPE = Shapes.or(
-            Block.box(3, 0, 3, 13, 10, 13),
-            Block.box(1, 1, 1, 15, 9, 15)
-    );
+    private static final VoxelShape SHAPE = Block.box(1, 0, 1, 15, 10, 15);
 
     private static final List<TotemTopBlock> blocks = new ArrayList<>();
 

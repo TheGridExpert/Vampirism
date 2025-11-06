@@ -60,7 +60,10 @@ public class ModFactions {
             .addTag(VampirismRegistries.Keys.VAMPIRE_BOOK, ModVampireBookTags.IS_VAMPIRE)
             .village(VampireVillage.vampireVillage().build())
             .lord(new LordPlayerBuilder<IVampirePlayer>()
-                    .lordTitle(new LordTitles.VampireTitles()).lordLevel(REFERENCE.HIGHEST_VAMPIRE_LORD).build())
+                    .lordTitle(new LordTitles.VampireTitles())
+                    .lordLevel(REFERENCE.HIGHEST_VAMPIRE_LORD)
+                    .build()
+            )
             .build());
 
     public static final DeferredFaction<IHunterPlayer, IPlayableFaction<IHunterPlayer>> HUNTER = FACTIONS.registerFaction(VampirismFactions.Keys.HUNTER.getPath(), () -> new PlayableFactionBuilder<>((Supplier<AttachmentType<IHunterPlayer>>) (Object) ModAttachments.HUNTER_PLAYER)
@@ -79,7 +82,10 @@ public class ModFactions {
             .addTag(VampirismRegistries.Keys.VAMPIRE_BOOK, ModVampireBookTags.IS_HUNTER)
             .village(HunterVillage.hunterVillage().build())
             .lord(new LordPlayerBuilder<IHunterPlayer>()
-                    .lordTitle(new LordTitles.HunterTitles()).lordLevel(REFERENCE.HIGHEST_HUNTER_LORD).build())
+                    .lordTitle(new LordTitles.HunterTitles())
+                    .lordLevel(REFERENCE.HIGHEST_HUNTER_LORD)
+                    .build()
+            )
             .build());
 
     public static final DeferredFaction<INeutralPlayer, IPlayableFaction<INeutralPlayer>> NEUTRAL = FACTIONS.registerFaction(VampirismFactions.Keys.NEUTRAL.getPath(), () -> new PlayableFactionBuilder<>((Supplier<AttachmentType<INeutralPlayer>>) (Object) ModAttachments.NEUTRAL_PLAYER)
