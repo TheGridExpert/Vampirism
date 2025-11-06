@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Use this class to manage sit entities correctly
+ * Use this class to manage sit entities correctly.
  */
 public class SitUtil {
     /**
@@ -39,7 +39,7 @@ public class SitUtil {
      * @param sit   The entity to add
      * @return true if the entity was added, false otherwise. This is always false on the client.
      */
-    public static boolean addSitEntity(Level level, BlockPos pos, SitEntity sit) {
+    public static boolean registerSitEntity(Level level, BlockPos pos, SitEntity sit) {
         if (level.isClientSide) return false;
 
         ResourceLocation dimension = getDimensionKey(level);
@@ -92,12 +92,12 @@ public class SitUtil {
     public static void startSitting(Player player, Level level, BlockPos pos, double offset) {
         if (level.isClientSide) return;
 
-        if (player.isShiftKeyDown() || SitUtil.isPlayerSitting(player)) return;
+        if (player.isShiftKeyDown() || isPlayerSitting(player)) return;
 
-        if (!isPlayerInRange(player, pos) || SitUtil.isOccupied(level, pos) || !player.getMainHandItem().isEmpty()) return;
+        if (!isPlayerInRange(player, pos) || isOccupied(level, pos) || !player.getMainHandItem().isEmpty()) return;
 
-        SitEntity sit = SitEntity.createEntity(level, pos, offset);
-        if (sit != null && SitUtil.addSitEntity(level, pos, sit)) {
+        SitEntity sit = SitEntity.createEntity(player, level, pos, offset);
+        if (sit != null && registerSitEntity(level, pos, sit)) {
             level.addFreshEntity(sit);
             player.startRiding(sit);
         }

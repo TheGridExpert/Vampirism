@@ -17,6 +17,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -25,7 +26,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class SitEntity extends Entity {
 
-    public static @Nullable SitEntity createEntity(Level level, BlockPos pos, double offset) {
+    public static @Nullable SitEntity createEntity(Player player, Level level, BlockPos pos, double offset) {
         SitEntity entity = ModEntities.SIT.get().create(level, EntitySpawnReason.MOB_SUMMONED);
 
         if (entity == null) return null;
@@ -34,7 +35,9 @@ public class SitEntity extends Entity {
 
         float rotation = 0.0f;
         if (state.getBlock() instanceof ISittableBlock sittable) {
-            rotation = sittable.getSitRotation(state);
+            rotation = sittable.getSitRotation(state, entity, player);
+            entity.maxRotationAngle = sittable.getMaxSitRotationAngle(state, entity, player);
+            entity.shouldLockRotation = sittable.shouldLockSittingPlayerRotation(state, entity, player);
         }
         entity.setYRot(rotation);
 
@@ -44,6 +47,12 @@ public class SitEntity extends Entity {
         return entity;
     }
 
+    public static final String KEY_MAX_ROTATION_ANGLE = "MaxRotationAngle";
+    public static final String KEY_SHOULD_LOCK_ROTATION = "ShouldLockRotation";
+
+    private float maxRotationAngle = ISittableBlock.DEFAULT_MAX_SIT_ROTATION_ANGLE;
+    private boolean shouldLockRotation = true;
+
     public SitEntity(EntityType<SitEntity> type, Level level) {
         super(type, level);
     }
@@ -52,7 +61,7 @@ public class SitEntity extends Entity {
     protected void positionRider(Entity passenger, MoveFunction callback) {
         super.positionRider(passenger, callback);
 
-        if (!passenger.getType().is(EntityTypeTags.CAN_TURN_IN_BOATS)) {
+        if (this.shouldLockRotation && !passenger.getType().is(EntityTypeTags.CAN_TURN_IN_BOATS)) {
             this.clampEntityRotation(passenger);
         }
     }
@@ -60,7 +69,7 @@ public class SitEntity extends Entity {
     protected void clampEntityRotation(Entity entity) {
         entity.setYBodyRot(this.getYRot());
         float yawDifference = Mth.wrapDegrees(entity.getYRot() - this.getYRot());
-        float clampedYaw = Mth.clamp(yawDifference, -120.0f, 120.0f);
+        float clampedYaw = Mth.clamp(yawDifference, -this.maxRotationAngle, this.maxRotationAngle);
         float correction = clampedYaw - yawDifference;
         entity.yRotO += correction;
         entity.setYRot(entity.getYRot() + correction);
@@ -81,11 +90,10 @@ public class SitEntity extends Entity {
         return result != null ? result : new Vec3(pos.getX() + 0.5, pos.getY() + 1.01, pos.getZ() + 0.5);
     }
 
-
     @Override
     public void onAddedToLevel() {
         super.onAddedToLevel();
-        SitUtil.addSitEntity(level(), blockPosition(), this);
+        SitUtil.registerSitEntity(level(), blockPosition(), this);
     }
 
     @Override
@@ -107,9 +115,13 @@ public class SitEntity extends Entity {
 
     @Override
     protected void readAdditionalSaveData(CompoundTag tag) {
+        this.maxRotationAngle = tag.getFloat(KEY_MAX_ROTATION_ANGLE);
+        this.shouldLockRotation = tag.getBoolean(KEY_SHOULD_LOCK_ROTATION);
     }
 
     @Override
     protected void addAdditionalSaveData(CompoundTag tag) {
+        tag.putFloat(KEY_MAX_ROTATION_ANGLE, this.maxRotationAngle);
+        tag.putBoolean(KEY_SHOULD_LOCK_ROTATION, this.shouldLockRotation);
     }
 }

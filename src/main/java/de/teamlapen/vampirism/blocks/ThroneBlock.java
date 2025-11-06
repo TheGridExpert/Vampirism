@@ -6,32 +6,22 @@ import de.teamlapen.vampirism.sit.SitEntity;
 import de.teamlapen.vampirism.sit.SitUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.stream.Stream;
 
-public class ThroneBlock extends VampirismSplitBlock implements ISittableBlock, SimpleWaterloggedBlock {
-
-    public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
+public class ThroneBlock extends WaterloggedSplitBlock implements ISittableBlock, SimpleWaterloggedBlock {
 
     public static final VoxelShape BOTTOM_SHAPE = Stream.of(
             Block.box(1, 0, 1, 15, 10, 16),
@@ -43,40 +33,6 @@ public class ThroneBlock extends VampirismSplitBlock implements ISittableBlock, 
 
     public ThroneBlock(Properties properties) {
         super(properties, BOTTOM_SHAPE, TOP_SHAPE, true);
-        this.registerDefaultState(this.getStateDefinition().any().setValue(WATERLOGGED, false));
-    }
-
-    // TODO: If the main part is placed inside water, while the top is not, it will flood the top one above water.
-    @Override
-    public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
-        FluidState fluidState = context.getLevel().getFluidState(context.getClickedPos());
-        BlockState state = super.getStateForPlacement(context);
-
-        if (state != null) {
-            state.setValue(WATERLOGGED, fluidState.getType() == Fluids.WATER);
-        }
-
-        return state;
-    }
-
-    @Override
-    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        super.createBlockStateDefinition(builder);
-        builder.add(WATERLOGGED);
-    }
-
-    @Override
-    protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess scheduledTickAccess, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, RandomSource random) {
-        if (state.getValue(WATERLOGGED)) {
-            scheduledTickAccess.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
-        }
-
-        return super.updateShape(state, level, scheduledTickAccess, pos, direction, neighborPos, neighborState, random);
-    }
-
-    @Override
-    protected FluidState getFluidState(BlockState state) {
-        return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
     }
 
     @Override
@@ -98,6 +54,22 @@ public class ThroneBlock extends VampirismSplitBlock implements ISittableBlock, 
         }
 
         return InteractionResult.PASS;
+    }
+
+    @Override
+    public Vec3 getStandUpLocation(Level level, BlockPos pos, Entity entity, Direction facing) {
+        Vec3 result = SitUtil.tryMultipleStandUpLocations(entity, level,
+                pos.relative(facing),
+                pos.above(),
+                pos.relative(facing.getCounterClockWise()),
+                pos.relative(facing.getClockWise())
+        );
+        return result != null ? result : Vec3.atBottomCenterOf(pos);
+    }
+
+    @Override
+    public float getSitRotation(BlockState state, SitEntity entity, Player player) {
+        return state.getValue(FACING).toYRot();
     }
 
     @Override
@@ -129,21 +101,5 @@ public class ThroneBlock extends VampirismSplitBlock implements ISittableBlock, 
         if (vec3.y < 0.0) {
             entity.setDeltaMovement(vec3.x, -vec3.y * 0.35F, vec3.z);
         }
-    }
-
-    @Override
-    public Vec3 getStandUpLocation(Level level, BlockPos pos, Entity entity, Direction facing) {
-        Vec3 result = SitUtil.tryMultipleStandUpLocations(entity, level,
-                pos.relative(facing),
-                pos.above(),
-                pos.relative(facing.getCounterClockWise()),
-                pos.relative(facing.getClockWise())
-        );
-        return result != null ? result : Vec3.atBottomCenterOf(pos);
-    }
-
-    @Override
-    public float getSitRotation(BlockState state) {
-        return state.getValue(FACING).toYRot();
     }
 }
