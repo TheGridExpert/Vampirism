@@ -7,13 +7,13 @@ import de.teamlapen.vampirism.recipes.AlchemicalCauldronRecipe;
 import de.teamlapen.vampirism.recipes.AlchemicalCauldronRecipeInput;
 import de.teamlapen.vampirism.recipes.ITestableRecipeInput;
 import net.minecraft.recipebook.ServerPlaceRecipe;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.player.StackedContents;
 import net.minecraft.world.entity.player.StackedItemContents;
 import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
@@ -27,147 +27,159 @@ import java.util.Optional;
 
 
 public class AlchemicalCauldronMenu extends RecipeBookMenu {
-    public static final int INGREDIENT_SLOT = 1;
+
+    static final ResourceLocation EMPTY_SLOT_BOTTLE = ResourceLocation.withDefaultNamespace("container/slot/potion");
+
     public static final int FLUID_SLOT = 0;
-    public static final int FUEL_SLOT = 3;
+    public static final int INGREDIENT_SLOT = 1;
     public static final int RESULT_SLOT = 2;
+    public static final int FUEL_SLOT = 3;
     public static final int SLOT_COUNT = 4;
     public static final int DATA_COUNT = 4;
-    private static final int INV_SLOT_START = 4;
-    private static final int INV_SLOT_END = 31;
+
+    private static final int INVENTORY_SLOT_START = 4;
+    private static final int INVENTORY_SLOT_END = 31;
     private static final int USE_ROW_SLOT_START = 31;
     private static final int USE_ROW_SLOT_END = 40;
+
     private final Container container;
-    protected final ContainerData data;
-    protected final Level level;
+    private final ContainerData data;
+    private final Level level;
     private final RecipeType<? extends AlchemicalCauldronRecipe> recipeType;
     private final RecipeBookType recipeBookType;
 
     @SuppressWarnings("DeprecatedIsStillUsed")
     @Deprecated
     public AlchemicalCauldronMenu(int id, @NotNull Inventory playerInventory) {
-        this(id, playerInventory, new SimpleContainer(4), new SimpleContainerData(4));
+        this(id, playerInventory, new SimpleContainer(SLOT_COUNT), new SimpleContainerData(DATA_COUNT));
     }
 
-    public AlchemicalCauldronMenu(int id, @NotNull Inventory playerInventory, @NotNull Container inv, @NotNull ContainerData pData) {
+    public AlchemicalCauldronMenu(int id, @NotNull Inventory playerInventory, @NotNull Container container, @NotNull ContainerData data) {
         super(ModMenus.ALCHEMICAL_CAULDRON.get(), id);
+
         this.recipeType = ModRecipes.ALCHEMICAL_CAULDRON_TYPE.get();
         this.recipeBookType = RecipeBookType.FURNACE;
-        checkContainerSize(inv, 3);
-        checkContainerDataCount(pData, 4);
-        this.container = inv;
-        this.data = pData;
-        this.level = playerInventory.player.level();
-        this.addSlot(new Slot(this.container, FLUID_SLOT, 44, 17));
-        this.addSlot(new Slot(this.container, INGREDIENT_SLOT, 68, 17));
-        this.addSlot(new FurnaceResultSlot(playerInventory.player, this.container, RESULT_SLOT, 116, 35));
-        this.addSlot(new FurnaceFuelSlot(this, this.container, FUEL_SLOT, 56, 53));
 
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 9; j++) {
-                this.addSlot(new Slot(playerInventory, j + i * 9 + 9, 8 + j * 18, 84 + i * 18));
+        checkContainerSize(container, SLOT_COUNT - 1);
+        checkContainerDataCount(data, DATA_COUNT);
+
+        this.container = container;
+        this.data = data;
+        this.level = playerInventory.player.level();
+
+        addSlot(new Slot(container, FLUID_SLOT, 44, 17) {
+            @Override
+            public ResourceLocation getNoItemIcon() {
+                return EMPTY_SLOT_BOTTLE;
+            }
+        });
+        addSlot(new Slot(container, INGREDIENT_SLOT, 68, 17));
+        addSlot(new FurnaceResultSlot(playerInventory.player, container, RESULT_SLOT, 116, 35));
+        addSlot(new FurnaceFuelSlot(this, container, FUEL_SLOT, 56, 53));
+
+        for (int row = 0; row < 3; row++) {
+            for (int col = 0; col < 9; col++) {
+                addSlot(new Slot(playerInventory, col + row * 9 + 9, 8 + col * 18, 84 + row * 18));
             }
         }
 
-        for (int k = 0; k < 9; k++) {
-            this.addSlot(new Slot(playerInventory, k, 8 + k * 18, 142));
+        for (int i = 0; i < 9; i++) {
+            addSlot(new Slot(playerInventory, i, 8 + i * 18, 142));
         }
 
-        this.addDataSlots(pData);
+        addDataSlots(data);
     }
 
     @Override
-    public PostPlaceAction handlePlacement(boolean p_40119_, boolean p_362739_, @NotNull RecipeHolder<?> recipeHolder, ServerLevel level, Inventory inventory) {
+    public PostPlaceAction handlePlacement(boolean useMaxItems, boolean isCreative, RecipeHolder<?> recipe, ServerLevel level, Inventory playerInventory) {
         List<Slot> slots = List.of(this.getSlot(FLUID_SLOT), this.getSlot(INGREDIENT_SLOT), this.getSlot(RESULT_SLOT));
         return ServerPlaceRecipe.placeRecipe(new ServerPlaceRecipe.CraftingMenuAccess<>() {
             @Override
-            public void fillCraftSlotsStackedContents(@NotNull StackedItemContents itemContents) {
-                AlchemicalCauldronMenu.this.fillCraftSlotsStackedContents(itemContents);
+            public void fillCraftSlotsStackedContents(StackedItemContents stackedItemContents) {
+                AlchemicalCauldronMenu.this.fillCraftSlotsStackedContents(stackedItemContents);
             }
 
             @Override
             public void clearCraftingContent() {
-                slots.forEach(s -> s.set(ItemStack.EMPTY));
+                slots.forEach(slot -> slot.set(ItemStack.EMPTY));
             }
 
             @Override
-            public boolean recipeMatches(@NotNull RecipeHolder<AlchemicalCauldronRecipe> recipeHolder) {
-                return recipeHolder.value().matches(new AlchemicalCauldronRecipeInput(AlchemicalCauldronMenu.this.container.getItem(INGREDIENT_SLOT), AlchemicalCauldronMenu.this.container.getItem(FLUID_SLOT)), level);
+            public boolean recipeMatches(RecipeHolder<AlchemicalCauldronRecipe> recipe) {
+                return recipe.value().matches(new AlchemicalCauldronRecipeInput(AlchemicalCauldronMenu.this.container.getItem(INGREDIENT_SLOT), AlchemicalCauldronMenu.this.container.getItem(FLUID_SLOT)), level);
             }
-        }, 1, 1, List.of(this.getSlot(FLUID_SLOT), this.getSlot(INGREDIENT_SLOT)), slots, inventory, (RecipeHolder<AlchemicalCauldronRecipe>) recipeHolder, p_40119_, p_362739_);
+        }, 1, 1, List.of(this.getSlot(FLUID_SLOT), this.getSlot(INGREDIENT_SLOT)), slots, playerInventory, (RecipeHolder<AlchemicalCauldronRecipe>) recipe, useMaxItems, isCreative);
     }
 
     @Override
-    public void fillCraftSlotsStackedContents(StackedItemContents stackedContents) {
+    public void fillCraftSlotsStackedContents(StackedItemContents stackedItemContents) {
         if (this.container instanceof StackedContentsCompatible) {
-            ((StackedContentsCompatible) this.container).fillStackedContents(stackedContents);
+            ((StackedContentsCompatible) this.container).fillStackedContents(stackedItemContents);
         }
     }
 
     public Optional<RecipeHolder<AlchemicalCauldronRecipe>> checkRecipeNoSkills() {
-        return this.level.recipeAccess() instanceof RecipeManager manager ? manager.getRecipeFor((RecipeType<AlchemicalCauldronRecipe>) this.recipeType, new AlchemicalCauldronRecipeInput(this.container.getItem(INGREDIENT_SLOT), this.container.getItem(FLUID_SLOT), ITestableRecipeInput.TestType.BOTH), this.level) : Optional.empty();
+        return this.level.recipeAccess() instanceof RecipeManager manager ? manager.getRecipeFor(getCastRecipeType(), new AlchemicalCauldronRecipeInput(this.container.getItem(INGREDIENT_SLOT), this.container.getItem(FLUID_SLOT), ITestableRecipeInput.TestType.BOTH), this.level) : Optional.empty();
     }
 
     @Override
-    public boolean stillValid(Player pPlayer) {
-        return this.container.stillValid(pPlayer);
+    public boolean stillValid(Player player) {
+        return this.container.stillValid(player);
     }
 
     @Override
-    public ItemStack quickMoveStack(Player pPlayer, int pIndex) {
-        ItemStack itemstack = ItemStack.EMPTY;
-        Slot slot = this.slots.get(pIndex);
-        if (slot != null && slot.hasItem()) {
-            ItemStack itemstack1 = slot.getItem();
-            itemstack = itemstack1.copy();
-            if (pIndex == FUEL_SLOT) {
-                if (!this.moveItemStackTo(itemstack1, INV_SLOT_START, USE_ROW_SLOT_END, true)) {
-                    return ItemStack.EMPTY;
-                }
+    public ItemStack quickMoveStack(Player player, int index) {
+        ItemStack result = ItemStack.EMPTY;
+        Slot slot = slots.get(index);
 
-                slot.onQuickCraft(itemstack1, itemstack);
-            } else if (pIndex != INGREDIENT_SLOT && pIndex != RESULT_SLOT && pIndex != FLUID_SLOT) {
-                var asFluid = this.canSmeltAsFluid(itemstack1) && !this.moveItemStackTo(itemstack1, FLUID_SLOT, FLUID_SLOT + 1, false);
-                var asIngredient = this.canSmeltAsIngredient(itemstack1) && !this.moveItemStackTo(itemstack1, INGREDIENT_SLOT, INGREDIENT_SLOT + 1, false);
-                if (asFluid || asIngredient) {
-                    return ItemStack.EMPTY;
-                } else if (this.isFuel(itemstack1)) {
-                    if (!this.moveItemStackTo(itemstack1, FUEL_SLOT, FUEL_SLOT + 1, false)) {
-                        return ItemStack.EMPTY;
-                    }
-                } else if (pIndex >= INV_SLOT_START && pIndex < INV_SLOT_END) {
-                    if (!this.moveItemStackTo(itemstack1, USE_ROW_SLOT_START, USE_ROW_SLOT_END, false)) {
-                        return ItemStack.EMPTY;
-                    }
-                } else if (pIndex >= INV_SLOT_END && pIndex < USE_ROW_SLOT_END && !this.moveItemStackTo(itemstack1, INV_SLOT_START, INV_SLOT_END, false)) {
+        if (slots.size() > index && slot.hasItem()) {
+            ItemStack stack = slot.getItem();
+            result = stack.copy();
+
+            if (index == FUEL_SLOT) {
+                if (!moveItemStackTo(stack, INVENTORY_SLOT_START, USE_ROW_SLOT_END, true)) {
                     return ItemStack.EMPTY;
                 }
-            } else if (!this.moveItemStackTo(itemstack1, INV_SLOT_START, USE_ROW_SLOT_END, false)) {
+                slot.onQuickCraft(stack, result);
+            } else if (index != FLUID_SLOT && index != INGREDIENT_SLOT && index != RESULT_SLOT) {
+                boolean asFluid = canSmeltAsFluid(stack) && !moveItemStackTo(stack, FLUID_SLOT, FLUID_SLOT + 1, false);
+                boolean asIngredient = canSmeltAsIngredient(stack) && !moveItemStackTo(stack, INGREDIENT_SLOT, INGREDIENT_SLOT + 1, false);
+
+                if (asFluid || asIngredient) return ItemStack.EMPTY;
+
+                if (isFuel(stack)) {
+                    if (!moveItemStackTo(stack, FUEL_SLOT, FUEL_SLOT + 1, false)) {
+                        return ItemStack.EMPTY;
+                    }
+                } else if (index >= INVENTORY_SLOT_START && index < INVENTORY_SLOT_END) {
+                    if (!moveItemStackTo(stack, USE_ROW_SLOT_START, USE_ROW_SLOT_END, false)) {
+                        return ItemStack.EMPTY;
+                    }
+                } else if (index >= INVENTORY_SLOT_END && index < USE_ROW_SLOT_END) {
+                    if (!moveItemStackTo(stack, INVENTORY_SLOT_START, INVENTORY_SLOT_END, false)) {
+                        return ItemStack.EMPTY;
+                    }
+                }
+            } else if (!moveItemStackTo(stack, INVENTORY_SLOT_START, USE_ROW_SLOT_END, false)) {
                 return ItemStack.EMPTY;
             }
 
-            if (itemstack1.isEmpty()) {
-                slot.setByPlayer(ItemStack.EMPTY);
-            } else {
-                slot.setChanged();
-            }
+            if (stack.isEmpty()) slot.setByPlayer(ItemStack.EMPTY);
+            else slot.setChanged();
 
-            if (itemstack1.getCount() == itemstack.getCount()) {
-                return ItemStack.EMPTY;
-            }
-
-            slot.onTake(pPlayer, itemstack1);
+            if (stack.getCount() == result.getCount()) return ItemStack.EMPTY;
+            slot.onTake(player, stack);
         }
 
-        return itemstack;
+        return result;
     }
 
     protected boolean canSmeltAsIngredient(ItemStack pStack) {
-        return VampirismMod.proxy.recipeMap(this.level).getRecipesFor((RecipeType<AlchemicalCauldronRecipe>) this.recipeType, new AlchemicalCauldronRecipeInput(pStack, this.container.getItem(FLUID_SLOT), ITestableRecipeInput.TestType.INPUT_1), this.level).findAny().isPresent();
+        return VampirismMod.proxy.recipeMap(this.level).getRecipesFor(getCastRecipeType(), new AlchemicalCauldronRecipeInput(pStack, this.container.getItem(FLUID_SLOT), ITestableRecipeInput.TestType.INPUT_1), this.level).findAny().isPresent();
     }
 
     protected boolean canSmeltAsFluid(ItemStack pStack) {
-        return VampirismMod.proxy.recipeMap(this.level).getRecipesFor((RecipeType<AlchemicalCauldronRecipe>) this.recipeType, new AlchemicalCauldronRecipeInput(this.container.getItem(INGREDIENT_SLOT), pStack, ITestableRecipeInput.TestType.INPUT_2), this.level).findAny().isPresent();
+        return VampirismMod.proxy.recipeMap(this.level).getRecipesFor(getCastRecipeType(), new AlchemicalCauldronRecipeInput(this.container.getItem(INGREDIENT_SLOT), pStack, ITestableRecipeInput.TestType.INPUT_2), this.level).findAny().isPresent();
     }
 
     protected boolean isFuel(ItemStack pStack) {
@@ -175,18 +187,15 @@ public class AlchemicalCauldronMenu extends RecipeBookMenu {
     }
 
     public float getBurnProgress() {
-        int i = this.data.get(2);
-        int j = this.data.get(3);
-        return j != 0 && i != 0 ? Mth.clamp((float) i / (float) j, 0.0F, 1.0F) : 0.0F;
+        int burnTime = data.get(2);
+        int totalBurnTime = data.get(3);
+        return totalBurnTime > 0 ? Mth.clamp((float) burnTime / totalBurnTime, 0.0F, 1.0F) : 0.0F;
     }
 
     public float getLitProgress() {
-        int i = this.data.get(1);
-        if (i == 0) {
-            i = 200;
-        }
-
-        return Mth.clamp((float) this.data.get(0) / (float) i, 0.0F, 1.0F);
+        int litTime = data.get(0);
+        int totalLitTime = data.get(1) == 0 ? 200 : data.get(1);
+        return Mth.clamp((float) litTime / totalLitTime, 0.0F, 1.0F);
     }
 
     public boolean isLit() {
@@ -198,29 +207,35 @@ public class AlchemicalCauldronMenu extends RecipeBookMenu {
         return this.recipeBookType;
     }
 
+    @SuppressWarnings("unchecked")
+    public RecipeType<AlchemicalCauldronRecipe> getCastRecipeType() {
+        return (RecipeType<AlchemicalCauldronRecipe>) recipeType;
+    }
+
     public static class FurnaceFuelSlot extends Slot {
+
         private final AlchemicalCauldronMenu menu;
 
-        public FurnaceFuelSlot(AlchemicalCauldronMenu pFurnaceMenu, Container pFurnaceContainer, int pSlot, int pXPosition, int pYPosition) {
-            super(pFurnaceContainer, pSlot, pXPosition, pYPosition);
-            this.menu = pFurnaceMenu;
+        public FurnaceFuelSlot(AlchemicalCauldronMenu cauldronMenu, Container container, int slot, int x, int y) {
+            super(container, slot, x, y);
+            this.menu = cauldronMenu;
         }
 
         /**
          * Check if the stack is allowed to be placed in this slot, used for armor slots as well as furnace fuel.
          */
         @Override
-        public boolean mayPlace(ItemStack pStack) {
-            return this.menu.isFuel(pStack) || isBucket(pStack);
+        public boolean mayPlace(ItemStack stack) {
+            return this.menu.isFuel(stack) || isBucket(stack);
         }
 
         @Override
-        public int getMaxStackSize(ItemStack pStack) {
-            return isBucket(pStack) ? 1 : super.getMaxStackSize(pStack);
+        public int getMaxStackSize(ItemStack stack) {
+            return isBucket(stack) ? 1 : super.getMaxStackSize(stack);
         }
 
-        public static boolean isBucket(ItemStack pStack) {
-            return pStack.is(Items.BUCKET);
+        public static boolean isBucket(ItemStack stack) {
+            return stack.is(Items.BUCKET);
         }
     }
 }

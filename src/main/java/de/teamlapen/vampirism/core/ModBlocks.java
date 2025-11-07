@@ -83,7 +83,7 @@ public class ModBlocks {
 
     public static final DeferredBlock<HunterTableBlock> HUNTER_TABLE = registerWithItem("hunter_table", HunterTableBlock::new, () -> basicProperties().mapColor(MapColor.WOOD).strength(0.5f).ignitedByLava().noOcclusion());
     public static final DeferredBlock<WeaponTableBlock> WEAPON_TABLE = registerWithItem("weapon_table", WeaponTableBlock::new, () -> basicProperties().mapColor(MapColor.METAL).strength(3).noOcclusion());
-    public static final DeferredBlock<AlchemicalCauldronBlock> ALCHEMICAL_CAULDRON = registerWithItem("alchemical_cauldron", (props) -> new AlchemicalCauldronBlock(props.mapColor(MapColor.METAL).strength(4f).lightLevel(state -> state.getValue(BlockStateProperties.LIT) ? 13 : 0).noOcclusion()));
+    public static final DeferredBlock<AlchemicalCauldronBlock> ALCHEMICAL_CAULDRON = registerWithItem("alchemical_cauldron", props -> new AlchemicalCauldronBlock(props.mapColor(MapColor.METAL).strength(4f).lightLevel(state -> state.getValue(BlockStateProperties.LIT) ? 13 : 0).noOcclusion()));
     public static final DeferredBlock<PotionTableBlock> POTION_TABLE = registerWithItem("potion_table", props -> new PotionTableBlock(props.mapColor(MapColor.METAL).strength(1f).noOcclusion()));
     public static final DeferredBlock<AlchemyTableBlock> ALCHEMY_TABLE = registerWithItem("alchemy_table", AlchemyTableBlock::new, () -> basicProperties().mapColor(MapColor.METAL).requiresCorrectToolForDrops().strength(0.5F).lightLevel(state -> 1).noOcclusion());
     public static final DeferredBlock<MedChairBlock> MED_CHAIR = registerWithItem("med_chair", MedChairBlock::new);

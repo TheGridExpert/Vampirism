@@ -163,10 +163,14 @@ public class PotionTableBlockEntity extends BaseContainerBlockEntity implements 
         return new SidedInvWrapper(this, context);
     }
 
-    @NotNull
+    @Override
+    protected Component getDefaultName() {
+        return Component.translatable("container.vampirism.potion_table");
+    }
+
     @Override
     public Component getDisplayName() {
-        return Component.translatable("tile.vampirism.potion_table.display", ownerName, Component.translatable("tile.vampirism.potion_table"));
+        return Component.translatable("container.vampirism.potion_table.owned", ownerName);
     }
 
     @NotNull
@@ -312,12 +316,6 @@ public class PotionTableBlockEntity extends BaseContainerBlockEntity implements 
     @Override
     protected AbstractContainerMenu createMenu(int id, @NotNull Inventory player) {
         return new PotionTableMenu(id, player, ContainerLevelAccess.create(this.level, this.getBlockPos()), this, this.config.multiTaskBrewing, syncedProperties);
-    }
-
-    @NotNull
-    @Override
-    protected Component getDefaultName() {
-        return Component.translatable("container.brewing");
     }
 
     private void brewPotions() {

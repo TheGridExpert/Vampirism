@@ -24,10 +24,13 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.stream.Stream;
 
 public class AlchemicalCauldronBlock extends AbstractFurnaceBlock {
 
@@ -35,11 +38,13 @@ public class AlchemicalCauldronBlock extends AbstractFurnaceBlock {
 
     public static final EnumProperty<LiquidState> LIQUID = EnumProperty.create("liquid", LiquidState.class);
 
-    private static final VoxelShape SHAPE = Shapes.or(
-            Block.box(2, 0, 2, 14, 9, 14),
-            Block.box(1, 9, 1, 15, 13, 15),
-            Block.box(2, 13, 2, 14, 14, 14)
-    );
+    private static final VoxelShape SHAPE = Stream.of(
+            Block.box(1, 0, 1, 15, 6, 15),
+            Block.box(1, 6, 1, 3, 14, 15),
+            Block.box(13, 6, 1, 15, 14, 15),
+            Block.box(3, 6, 13, 13, 14, 15),
+            Block.box(3, 6, 1, 13, 14, 3)
+    ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
 
     public AlchemicalCauldronBlock(Properties properties) {
         super(properties);

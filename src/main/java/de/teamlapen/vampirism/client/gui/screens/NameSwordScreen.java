@@ -28,16 +28,14 @@ public class NameSwordScreen extends Screen {
     private final @NotNull Component yes;
     private final @NotNull Component no;
     private final List<FormattedCharSequence> listLines = new ArrayList<>();
-    private final @NotNull Component text1;
     private final @NotNull Component text2;
     private final ItemStack sword;
     private EditBox nameField;
 
     public NameSwordScreen(ItemStack sword) {
-        super(Component.translatable("gui.vampirism.name_sword.title"));
+        super(Component.empty());
         this.yes = Component.translatable("gui.yes");
         this.no = Component.translatable("gui.no");
-        this.text1 = Component.translatable("gui.vampirism.name_sword.title");
         this.text2 = Component.translatable("gui.vampirism.name_sword.text");
         this.sword = sword;
     }
@@ -75,7 +73,6 @@ public class NameSwordScreen extends Screen {
     @Override
     public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         super.render(graphics, mouseX, mouseY, partialTicks);
-        graphics.drawCenteredString(this.font, this.text1, this.width / 2, 70, 16777215);
         int i = 90;
         for (FormattedCharSequence s : this.listLines) {
             graphics.drawString(this.font, s, (int) ((float) this.width / 2 - (float) font.width(s) / 2.0F), i, 16777215, false);

@@ -50,7 +50,6 @@ import net.neoforged.neoforge.fluids.FluidUtil;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -60,7 +59,6 @@ import java.util.UUID;
  * slots:  0: liquid, 1: ingredient, 2: result, 3: fuel
  */
 public class AlchemicalCauldronBlockEntity extends BaseContainerBlockEntity implements WorldlyContainer, RecipeCraftingHolder, StackedContentsCompatible {
-    private static final Logger LOGGER = LogManager.getLogger();
 
     private static final int[] SLOTS_DOWN = new int[] {0, 1, 2};
     private static final int[] SLOTS_UP = new int[] {0};
@@ -124,8 +122,7 @@ public class AlchemicalCauldronBlockEntity extends BaseContainerBlockEntity impl
     private final Object2IntOpenHashMap<ResourceLocation> recipesUsed = new Object2IntOpenHashMap<>();
     private final RecipeManager.CachedCheck<AlchemicalCauldronRecipeInput, AlchemicalCauldronRecipe> quickCheck;
 
-
-    public AlchemicalCauldronBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
+    public AlchemicalCauldronBlockEntity( BlockPos pos,  BlockState state) {
         super(ModBlockEntities.ALCHEMICAL_CAULDRON.get(), pos, state);
         this.recipeType = ModRecipes.ALCHEMICAL_CAULDRON_TYPE.get();
         this.items = NonNullList.withSize(4, ItemStack.EMPTY);
@@ -140,9 +137,8 @@ public class AlchemicalCauldronBlockEntity extends BaseContainerBlockEntity impl
         return this.items.get(1);
     }
 
-
     @Override
-    public boolean canOpen(@NotNull Player player) {
+    public boolean canOpen( Player player) {
         if (super.canOpen(player)) {
             if (!Helper.isHunter(player)) {
                 player.displayClientMessage(FactionRestriction.getFactionRestrictionMessage(ModFactions.HUNTER.get()), true);
@@ -173,17 +169,15 @@ public class AlchemicalCauldronBlockEntity extends BaseContainerBlockEntity impl
     protected NonNullList<ItemStack> getItems() {
         return this.items;
     }
-
-    @NotNull
+    
     @Override
-    public Component getCustomName() {
-        return Component.translatable("tile.vampirism.alchemical_cauldron");
+    protected Component getDefaultName() {
+        return Component.translatable("container.vampirism.alchemical_cauldron");
     }
 
-    @NotNull
     @Override
     public Component getDisplayName() {
-        return Component.translatable("tile.vampirism.alchemical_cauldron.display", ownerName, Component.translatable("tile.vampirism.alchemical_cauldron"));
+        return Component.translatable("container.vampirism.alchemical_cauldron.owned", ownerName);
     }
 
     public int getLiquidColorClient() {
@@ -194,13 +188,12 @@ public class AlchemicalCauldronBlockEntity extends BaseContainerBlockEntity impl
         });
     }
 
-    public @NotNull Component getOwnerName() {
+    public  Component getOwnerName() {
         return Component.literal(ownerName == null ? "Unknown" : ownerName);
     }
-
-    @NotNull
+    
     @Override
-    public int[] getSlotsForFace(@NotNull Direction side) {
+    public int[] getSlotsForFace( Direction side) {
         if (side == Direction.DOWN) {
             return SLOTS_DOWN;
         } else {
@@ -223,8 +216,7 @@ public class AlchemicalCauldronBlockEntity extends BaseContainerBlockEntity impl
     public ClientboundBlockEntityDataPacket getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
     }
-
-    @NotNull
+    
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider holderProvider) {
         CompoundTag compound = super.getUpdateTag(holderProvider);
@@ -235,7 +227,7 @@ public class AlchemicalCauldronBlockEntity extends BaseContainerBlockEntity impl
     }
 
     @Override
-    public void handleUpdateTag(@NotNull CompoundTag compound, HolderLookup.Provider holderProvider) {
+    public void handleUpdateTag( CompoundTag compound, HolderLookup.Provider holderProvider) {
         super.handleUpdateTag(compound, holderProvider);
         ownerID = compound.hasUUID("owner") ? compound.getUUID("owner") : null;
         ownerName = compound.contains("owner_name") ? compound.getString("owner_name") : null;
@@ -273,7 +265,7 @@ public class AlchemicalCauldronBlockEntity extends BaseContainerBlockEntity impl
     }
 
     @Override
-    public void onDataPacket(@NotNull Connection net, @NotNull ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider holderProvider) {
+    public void onDataPacket( Connection net,  ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider holderProvider) {
         CompoundTag nbt = pkt.getTag();
         if (hasLevel()) {
             handleUpdateTag(nbt, holderProvider);
@@ -281,7 +273,7 @@ public class AlchemicalCauldronBlockEntity extends BaseContainerBlockEntity impl
     }
 
     @Override
-    public void saveAdditional(@NotNull CompoundTag pTag, HolderLookup.Provider holderProvider) {
+    public void saveAdditional( CompoundTag pTag, HolderLookup.Provider holderProvider) {
         super.saveAdditional(pTag, holderProvider);
         pTag.putInt("BurnTime", this.litTime);
         pTag.putInt("CookTime", this.cookingProgress);
@@ -333,7 +325,7 @@ public class AlchemicalCauldronBlockEntity extends BaseContainerBlockEntity impl
         }
     }
 
-    public void setOwnerID(@NotNull Player player) {
+    public void setOwnerID( Player player) {
         ownerID = player.getUUID();
         ownerName = player.getGameProfile().getName();
         this.setChanged();
@@ -346,7 +338,7 @@ public class AlchemicalCauldronBlockEntity extends BaseContainerBlockEntity impl
     /**
      * copy of AbstractFurnaceTileEntity#tick() with modification
      */
-    public static void serverTick(@NotNull Level pLevel, BlockPos pPos, BlockState pState, @NotNull AlchemicalCauldronBlockEntity pBlockEntity) {
+    public static void serverTick( Level pLevel, BlockPos pPos, BlockState pState,  AlchemicalCauldronBlockEntity pBlockEntity) {
         boolean flag = pBlockEntity.isLit();
         boolean flag1 = false;
         if (pBlockEntity.isLit()) {
@@ -415,16 +407,10 @@ public class AlchemicalCauldronBlockEntity extends BaseContainerBlockEntity impl
         }
     }
 
-    @NotNull
+    
     @Override
-    protected AbstractContainerMenu createMenu(int id, @NotNull Inventory player) {
+    protected AbstractContainerMenu createMenu(int id,  Inventory player) {
         return new AlchemicalCauldronMenu(id, player, this, this.dataAccess);
-    }
-
-    @NotNull
-    @Override
-    protected Component getDefaultName() {
-        return Component.translatable("tile.vampirism.alchemical_cauldron");
     }
 
     private boolean canPlayerCook(@Nullable RecipeHolder<AlchemicalCauldronRecipe> recipe) {
