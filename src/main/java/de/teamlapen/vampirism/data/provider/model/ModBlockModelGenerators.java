@@ -86,8 +86,8 @@ public class ModBlockModelGenerators extends VBlockModelGenerators {
         this.blockStateOutput.accept(createSimpleBlock(ModBlocks.INFESTED_DARK_STONE.get(), infestedDarkStoneModel));
         createDefaultBlockItem(ModBlocks.INFESTED_DARK_STONE.get(), VResourceLocation.mod("block/infested_dark_stone"));
 
-        ResourceLocation bloodContainerModel = mod("block/blood_container/blood_container");
-        this.blockStateOutput.accept(createSimpleBlock(ModBlocks.BLOOD_CONTAINER.get(), bloodContainerModel));
+        createNonTemplateModelBlock(ModBlocks.BLOOD_CONTAINER.get());
+        ResourceLocation bloodContainerModel = ModelLocationUtils.getModelLocation(ModBlocks.BLOOD_CONTAINER.get());
         this.itemModelOutput.accept(ModBlocks.BLOOD_CONTAINER.asItem(), ItemModelUtils.composite(ItemModelUtils.plainModel(bloodContainerModel), ItemModelUtils.specialModel(bloodContainerModel, new BloodContainerSpecialRenderer.Unbaked())));
 
         ResourceLocation altarInspirationModel = mod("block/altar_inspiration/altar_inspiration");
