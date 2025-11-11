@@ -15,7 +15,7 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * A class for block entities that require interaction with metadata used on client.
- * IMPORTANT: Override {@code loadMetaData} and {@code saveMetaData} to make it save the variables that are added in {@code getModelData}.
+ * IMPORTANT: Override {@code loadMetaData} and {@code saveMetaData} to make it save the variables that should be synced on the client.
  */
 public abstract class NetworkedBlockEntity extends BlockEntity {
 
@@ -25,35 +25,31 @@ public abstract class NetworkedBlockEntity extends BlockEntity {
 
     @Override
     public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider lookupProvider) {
-        loadMetaData(tag, lookupProvider);
+        loadSynced(tag, lookupProvider);
     }
 
     @Override
     public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider lookupProvider) {
-        loadMetaData(pkt.getTag(), lookupProvider);
+        loadSynced(pkt.getTag(), lookupProvider);
         setChanged();
     }
 
-    public abstract void loadMetaData(CompoundTag tag, HolderLookup.Provider lookupProvider);
+    public abstract void loadSynced(CompoundTag tag, HolderLookup.Provider lookupProvider);
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = new CompoundTag();
-        saveMetaData(tag, registries);
+        saveSynced(tag, registries);
         return tag;
     }
 
-    public abstract void saveMetaData(CompoundTag tag, HolderLookup.Provider registries);
+    public abstract void saveSynced(CompoundTag tag, HolderLookup.Provider registries);
 
     @Override
     public void setChanged() {
         super.setChanged();
-        if (level != null) {
-            if (level.isClientSide) {
-                requestModelDataUpdate();
-            } else {
-                level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_ALL);
-            }
+        if (level != null && !level.isClientSide) {
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_ALL);
         }
     }
 

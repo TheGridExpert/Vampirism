@@ -28,8 +28,6 @@ import net.minecraft.world.level.block.SupportType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.AABB;
-import net.neoforged.neoforge.client.model.data.ModelData;
-import net.neoforged.neoforge.client.model.data.ModelProperty;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.fluids.FluidUtil;
@@ -50,8 +48,6 @@ public class BloodGrinderBlockEntity extends NetworkedBlockEntity {
     public static final int GRIND_DELAY = 400;
     public static final int PULL_DELAY = 8;
     public static final AABB PULL_REACH_AABB = Block.box(5.0, 16.0, 5.0, 11.0, 22.0, 11.0).toAabbs().getFirst();
-
-    public static final ModelProperty<Integer> FLUID_AMOUNT = new ModelProperty<>();
 
     public final IItemHandler itemHandler;
 
@@ -96,19 +92,12 @@ public class BloodGrinderBlockEntity extends NetworkedBlockEntity {
     }
 
     @Override
-    public ModelData getModelData() {
-        return ModelData.builder()
-                .with(FLUID_AMOUNT, fluidInventory.getFluid().getAmount())
-                .build();
-    }
-
-    @Override
-    public void loadMetaData(CompoundTag tag, HolderLookup.Provider lookupProvider) {
+    public void loadSynced(CompoundTag tag, HolderLookup.Provider lookupProvider) {
         fluidInventory.readFromNBT(lookupProvider, tag);
     }
 
     @Override
-    public void saveMetaData(CompoundTag tag, HolderLookup.Provider registries) {
+    public void saveSynced(CompoundTag tag, HolderLookup.Provider registries) {
         fluidInventory.writeToNBT(registries, tag);
     }
 
@@ -271,5 +260,13 @@ public class BloodGrinderBlockEntity extends NetworkedBlockEntity {
 
     public static boolean isFilter(ItemStack stack) {
         return stack.is(ModItems.FABRIC_FILTER);
+    }
+
+    public FluidStack getFluid() {
+        return fluidInventory.getFluid();
+    }
+
+    public void setFluid(FluidStack fluid) {
+        fluidInventory.setFluid(fluid);
     }
 }

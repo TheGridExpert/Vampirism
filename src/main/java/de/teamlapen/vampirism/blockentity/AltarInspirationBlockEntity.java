@@ -38,8 +38,6 @@ public class AltarInspirationBlockEntity extends NetworkedBlockEntity {
     public static final int CAPACITY = 100 * VReference.FOOD_TO_FLUID_BLOOD;
     private static final int RITUAL_TIME = 60;
 
-    public static final ModelProperty<Integer> FLUID_AMOUNT = new ModelProperty<>();
-
     public final ControllableFluidTank fluidInventory;
 
     private int ritualTicksLeft = 0;
@@ -67,19 +65,12 @@ public class AltarInspirationBlockEntity extends NetworkedBlockEntity {
     }
 
     @Override
-    public ModelData getModelData() {
-        return ModelData.builder()
-                .with(FLUID_AMOUNT, fluidInventory.getFluid().getAmount())
-                .build();
-    }
-
-    @Override
-    public void loadMetaData(CompoundTag tag, HolderLookup.Provider lookupProvider) {
+    public void loadSynced(CompoundTag tag, HolderLookup.Provider lookupProvider) {
         fluidInventory.readFromNBT(lookupProvider, tag);
     }
 
     @Override
-    public void saveMetaData(CompoundTag tag, HolderLookup.Provider registries) {
+    public void saveSynced(CompoundTag tag, HolderLookup.Provider registries) {
         fluidInventory.writeToNBT(registries, tag);
     }
 

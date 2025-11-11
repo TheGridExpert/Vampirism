@@ -163,7 +163,7 @@ public class ModAdvancementProvider extends AdvancementProvider {
                     .addCriterion("map", MapFoundCriterionTrigger.TriggerInstance.foundMap(ModMapDecorations.ANCIENT_REMAINS))
                     .save(consumer, REFERENCE.MODID + ":main/reopening_old_wounds");
             AdvancementHolder regicide = Advancement.Builder.advancement()
-                    .display(ModItems.PURE_BLOOD_0.get(), Component.translatable("advancement.vampirism.regicide"), Component.translatable("advancement.vampirism.regicide.desc"), null, AdvancementType.CHALLENGE, true, true, false)
+                    .display(ModItems.PURE_BLOOD_4.get(), Component.translatable("advancement.vampirism.regicide"), Component.translatable("advancement.vampirism.regicide.desc"), null, AdvancementType.CHALLENGE, true, true, false)
                     .parent(vampire_forest)
                     .addCriterion("main", KilledTrigger.TriggerInstance.playerKilledEntity(EntityPredicate.Builder.entity().of(entities, ModEntities.VAMPIRE_BARON.get())))
                     .save(consumer, REFERENCE.MODID + ":main/regicide");

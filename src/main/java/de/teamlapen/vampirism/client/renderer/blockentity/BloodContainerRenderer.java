@@ -16,7 +16,7 @@ public class BloodContainerRenderer implements BlockEntityRenderer<BloodContaine
     @Override
     public void render(BloodContainerBlockEntity blockEntity, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
         VertexUtils.renderFluidTank(
-                blockEntity.getModelData().get(BloodContainerBlockEntity.FLUID),
+                blockEntity.getFluid(),
                 BloodContainerBlockEntity.CAPACITY,
                 new Vec3(8 / 16f, 1 / 16f, 8 / 16f),
                 new Vec3(10 / 16f,13.8 / 16f,10 / 16f),

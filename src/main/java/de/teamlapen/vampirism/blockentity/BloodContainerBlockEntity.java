@@ -9,16 +9,12 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.client.model.data.ModelData;
-import net.neoforged.neoforge.client.model.data.ModelProperty;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
 
 public class BloodContainerBlockEntity extends NetworkedBlockEntity {
 
     public static final int CAPACITY = FluidType.BUCKET_VOLUME * 5;
-
-    public static final ModelProperty<FluidStack> FLUID = new ModelProperty<>();
 
     public final ControllableFluidTank fluidInventory;
 
@@ -44,19 +40,12 @@ public class BloodContainerBlockEntity extends NetworkedBlockEntity {
     }
 
     @Override
-    public ModelData getModelData() {
-        return ModelData.builder()
-                .with(FLUID, fluidInventory.getFluid())
-                .build();
-    }
-
-    @Override
-    public void loadMetaData(CompoundTag tag, HolderLookup.Provider lookupProvider) {
+    public void loadSynced(CompoundTag tag, HolderLookup.Provider lookupProvider) {
         fluidInventory.readFromNBT(lookupProvider, tag);
     }
 
     @Override
-    public void saveMetaData(CompoundTag tag, HolderLookup.Provider registries) {
+    public void saveSynced(CompoundTag tag, HolderLookup.Provider registries) {
         fluidInventory.writeToNBT(registries, tag);
     }
 
