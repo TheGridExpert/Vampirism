@@ -16,6 +16,7 @@ import de.teamlapen.vampirism.client.model.armor.ArmorModels;
 import de.teamlapen.vampirism.client.renderer.BloodVisionRenderer;
 import de.teamlapen.vampirism.client.renderer.RenderHandler;
 import de.teamlapen.vampirism.client.renderer.VampirismClientEntityRegistry;
+import de.teamlapen.vampirism.client.renderer.item.BatCageSpecialRenderer;
 import de.teamlapen.vampirism.client.renderer.item.BloodContainerSpecialRenderer;
 import de.teamlapen.vampirism.client.renderer.item.CoffinSpecialRenderer;
 import de.teamlapen.vampirism.client.renderer.item.MotherTrophyItemRenderer;
@@ -163,5 +164,6 @@ public class VampirismModClient {
         event.register(VResourceLocation.mod("mother_trophy"), MotherTrophyItemRenderer.Unbaked.MAP_CODEC);
         event.register(VResourceLocation.mod("blood_container"), BloodContainerSpecialRenderer.Unbaked.MAP_CODEC);
         event.register(VResourceLocation.mod("coffin"), CoffinSpecialRenderer.Unbaked.MAP_CODEC);
+        event.register(VResourceLocation.mod("bat_cage"), BatCageSpecialRenderer.Unbaked.MAP_CODEC);
     }
 }

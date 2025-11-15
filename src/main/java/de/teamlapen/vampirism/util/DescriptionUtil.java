@@ -41,7 +41,7 @@ public class DescriptionUtil {
     }
 
     private static String getTranslationKey(String modId, String key) {
-        return "tooltip." + modId + "." + key;
+        return "tooltip." + modId + ".desc." + key;
     }
 
     private static List<String> normalizeTextWidth(String text, int maxLength) {

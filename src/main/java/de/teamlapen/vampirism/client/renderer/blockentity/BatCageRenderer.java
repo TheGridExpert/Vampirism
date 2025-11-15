@@ -6,6 +6,7 @@ import de.teamlapen.vampirism.api.util.VResourceLocation;
 import de.teamlapen.vampirism.blockentity.BatCageBlockEntity;
 import de.teamlapen.vampirism.blocks.BatCageBlock;
 import net.minecraft.client.model.BatModel;
+import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
@@ -21,15 +22,21 @@ public class BatCageRenderer implements BlockEntityRenderer<BatCageBlockEntity> 
     private final BatModel model;
 
     public BatCageRenderer(BlockEntityRendererProvider.Context context) {
-        model = new BatModel(context.bakeLayer(ModelLayers.BAT));
+        this(context.getModelSet());
+    }
+
+    public BatCageRenderer(EntityModelSet modelSet) {
+        this.model = new BatModel(modelSet.bakeLayer(ModelLayers.BAT));
     }
 
     @Override
     public void render(BatCageBlockEntity blockEntity, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
-        renderBat(poseStack, bufferSource, packedLight, packedOverlay, blockEntity.getBlockState().getValue(BatCageBlock.FACING));
+        if (blockEntity.getBlockState().getValue(BatCageBlock.HAS_BAT)) {
+            renderBat(poseStack, bufferSource, packedLight, packedOverlay, blockEntity.getBlockState().getValue(BatCageBlock.FACING));
+        }
     }
 
-    private void renderBat(PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay, Direction direction) {
+    public void renderBat(PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay, Direction direction) {
         poseStack.pushPose();
         poseStack.translate(0.5F, 1.0625F, 0.5F);
         poseStack.mulPose(Axis.YN.rotationDegrees(90 * direction.get2DDataValue()));

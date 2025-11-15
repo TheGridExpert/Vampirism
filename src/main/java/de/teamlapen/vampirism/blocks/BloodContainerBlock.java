@@ -93,8 +93,10 @@ public class BloodContainerBlock extends BaseEntityBlock implements ModDisplayIt
 
     @Override
     protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
-        BloodHelper.handleFluidItemBlockInteraction(stack, level, pos, player, hand, hitResult.getDirection());
-        return InteractionResult.SUCCESS;
+        if (BloodHelper.handleFluidItemBlockInteraction(stack, level, pos, player, hand, hitResult.getDirection())) {
+            return InteractionResult.SUCCESS;
+        }
+        return InteractionResult.TRY_WITH_EMPTY_HAND;
     }
 
     @Override

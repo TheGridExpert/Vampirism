@@ -5,6 +5,7 @@ import de.teamlapen.lib.lib.data.VBlockModelGenerators;
 import de.teamlapen.vampirism.api.util.VResourceLocation;
 import de.teamlapen.vampirism.blocks.*;
 import de.teamlapen.vampirism.blocks.candle.CandleHolderBlock;
+import de.teamlapen.vampirism.client.renderer.item.BatCageSpecialRenderer;
 import de.teamlapen.vampirism.client.renderer.item.BloodContainerSpecialRenderer;
 import de.teamlapen.vampirism.client.renderer.item.MotherTrophyItemRenderer;
 import de.teamlapen.vampirism.core.ModBlocks;
@@ -99,6 +100,10 @@ public class ModBlockModelGenerators extends VBlockModelGenerators {
         createDefaultBlockItem(ModBlocks.ALTAR_INFUSION.get(), altarInfusionInventory);
 
         createNonTemplateModelBlock(ModBlocks.BLOOD.get());
+
+        createNonTemplateModelBlock(ModBlocks.BAT_CAGE.get());
+        ResourceLocation batCageModel = ModelLocationUtils.getModelLocation(ModBlocks.BAT_CAGE.get());
+        this.itemModelOutput.accept(ModBlocks.BAT_CAGE.asItem(), ItemModelUtils.composite(ItemModelUtils.plainModel(batCageModel), ItemModelUtils.specialModel(batCageModel, new BatCageSpecialRenderer.Unbaked())));
     }
 
     protected void createCursedEarthPath() {
@@ -359,7 +364,6 @@ public class ModBlockModelGenerators extends VBlockModelGenerators {
         Stream.of(
                 ModBlocks.ALTAR_CLEANSING,
                 ModBlocks.ALTAR_TIP,
-                ModBlocks.BAT_CAGE,
                 ModBlocks.BLOOD_PEDESTAL,
                 ModBlocks.POTION_TABLE,
                 ModBlocks.FIRE_PLACE,

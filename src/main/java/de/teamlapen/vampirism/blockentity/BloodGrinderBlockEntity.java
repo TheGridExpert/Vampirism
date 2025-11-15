@@ -92,12 +92,12 @@ public class BloodGrinderBlockEntity extends NetworkedBlockEntity {
     }
 
     @Override
-    public void loadSynced(CompoundTag tag, HolderLookup.Provider lookupProvider) {
+    protected void loadSynced(CompoundTag tag, HolderLookup.Provider lookupProvider) {
         fluidInventory.readFromNBT(lookupProvider, tag);
     }
 
     @Override
-    public void saveSynced(CompoundTag tag, HolderLookup.Provider registries) {
+    protected void saveSynced(CompoundTag tag, HolderLookup.Provider registries) {
         fluidInventory.writeToNBT(registries, tag);
     }
 

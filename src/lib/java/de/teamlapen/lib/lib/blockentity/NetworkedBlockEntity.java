@@ -34,7 +34,7 @@ public abstract class NetworkedBlockEntity extends BlockEntity {
         setChanged();
     }
 
-    public abstract void loadSynced(CompoundTag tag, HolderLookup.Provider lookupProvider);
+    protected abstract void loadSynced(CompoundTag tag, HolderLookup.Provider lookupProvider);
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
@@ -43,7 +43,7 @@ public abstract class NetworkedBlockEntity extends BlockEntity {
         return tag;
     }
 
-    public abstract void saveSynced(CompoundTag tag, HolderLookup.Provider registries);
+    protected abstract void saveSynced(CompoundTag tag, HolderLookup.Provider registries);
 
     @Override
     public void setChanged() {
