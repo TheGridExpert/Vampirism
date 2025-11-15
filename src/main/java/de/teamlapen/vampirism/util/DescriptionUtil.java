@@ -2,6 +2,7 @@ package de.teamlapen.vampirism.util;
 
 import de.teamlapen.vampirism.REFERENCE;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -16,9 +17,9 @@ public class DescriptionUtil {
     public static void addDescriptionTooltip(String key, String modId, List<Component> tooltipComponents, Object... parameters) {
         if (key.isEmpty()) return;
 
-        tooltipComponents.add(Component.translatable("tooltip.vampirism.hold_shift_for_info").withStyle(ChatFormatting.DARK_GRAY));
+        tooltipComponents.add(Component.translatable("tooltip.vampirism.hold_key_for_info", Component.literal(Minecraft.ON_OSX ? "Option" : "Alt").withStyle(ChatFormatting.GRAY)).withStyle(ChatFormatting.DARK_GRAY));
 
-        if (Screen.hasShiftDown()) {
+        if (Screen.hasAltDown()) {
             List<String> lines = normalizeTextWidth(Component.translatable(getTranslationKey(modId, key), parameters).getString(), 40);
 
             tooltipComponents.add(Component.empty());

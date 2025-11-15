@@ -20,6 +20,7 @@ import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import org.jetbrains.annotations.Nullable;
 
 public class MapUtil {
+
     public static String getTranslation(String namespace, String name) {
         return "filled_map." + namespace + "." + name;
     }
