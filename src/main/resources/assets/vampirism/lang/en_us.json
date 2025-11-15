@@ -52,6 +52,7 @@
   "text.vampirism.tent.cant_use": "You can't sleep in a tent",
   "text.vampirism.candle_holder.not_enough_candles": "Not enough candles, %s are needed",
   "text.vampirism.injection.use_chair": "I would need an Injection Chair to use this",
+  "text.vampirism.syringe.poisonous_blood": "It seems like there is garlic in the blood, I should wait for it to wear off",
   "text.vampirism.blood_left": "Blood left",
   "text.vampirism.blood": "blood",
   "text.vampirism.vampirelevel": "Vampire level",

@@ -1,10 +1,12 @@
 package de.teamlapen.vampirism.items;
 
+import de.teamlapen.vampirism.blockentity.BatCageBlockEntity;
 import de.teamlapen.vampirism.core.ModDataComponents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
@@ -18,6 +20,7 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 
@@ -25,7 +28,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-public class BatCageItem extends BlockItem {
+public class BatCageItem extends BlockItem implements IEntityInteractable {
 
     public BatCageItem(Block block, Properties properties) {
         super(block, properties);
@@ -68,6 +71,23 @@ public class BatCageItem extends BlockItem {
         }
 
         return false;
+    }
+
+    @Override
+    public InteractionResult onEntityInteract(ItemStack stack, Entity target, Player player, Level level, InteractionHand hand) {
+        if (!level.isClientSide && BatCageBlockEntity.canContainEntity(target) && !stack.has(ModDataComponents.HELD_ENTITY)) {
+            ItemStack capturedStack = stack.copyWithCount(1);
+            if (BatCageItem.captureEntity(target, capturedStack)) {
+                if (!player.getAbilities().instabuild) {
+                    stack.shrink(1);
+                }
+                ItemHandlerHelper.giveItemToPlayer(player, capturedStack);
+            }
+
+            return InteractionResult.SUCCESS_SERVER;
+        }
+
+        return InteractionResult.PASS;
     }
 
     public static boolean captureEntity(Entity entity, ItemStack stack) {
