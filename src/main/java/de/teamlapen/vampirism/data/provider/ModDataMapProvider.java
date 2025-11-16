@@ -107,6 +107,7 @@ public class ModDataMapProvider extends DataMapProvider {
         entityValues.add(holder.apply(EntityType.LLAMA), new EntityBloodEntry(10), false);
         entityValues.add(holder.apply(EntityType.BEE), EntityBloodEntry.EMPTY, false);
         entityValues.add(holder.apply(EntityType.VILLAGER), new EntityBloodEntry(15), false);
+        entityValues.add(holder.apply(EntityType.WANDERING_TRADER), new EntityBloodEntry(15), false);
         entityValues.add(holder.apply(EntityType.POLAR_BEAR), new EntityBloodEntry(10), false);
         entityValues.add(holder.apply(EntityType.TRADER_LLAMA), new EntityBloodEntry(10), false);
         entityValues.add(holder.apply(EntityType.PANDA), new EntityBloodEntry(13), false);

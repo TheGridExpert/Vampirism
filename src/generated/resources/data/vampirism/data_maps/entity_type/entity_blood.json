@@ -81,6 +81,9 @@
     "minecraft:villager": {
       "blood": 15
     },
+    "minecraft:wandering_trader": {
+      "blood": 15
+    },
     "minecraft:wolf": {
       "blood": 5
     }

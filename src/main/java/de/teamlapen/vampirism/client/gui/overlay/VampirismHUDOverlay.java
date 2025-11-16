@@ -225,7 +225,7 @@ public class VampirismHUDOverlay {
         int renderHeight = (int) (textureHeight * scale);
 
         int x = (windowWidth - renderWidth) / 2;
-        int y = (windowHeight - renderHeight) / 2 - textureHeight / 5;
+        int y = (windowHeight - renderHeight) / 2 - textureHeight / 4;
 
         PoseStack pose = graphics.pose();
         pose.pushPose();
@@ -290,15 +290,15 @@ public class VampirismHUDOverlay {
             showFullIndicator = player.getCurrentItemAttackStrengthDelay() > 5.0F && living.isAlive();
         }
 
-        int indicatorY = graphics.guiHeight() / 2 - 7 + 16;
-        int indicatorX = graphics.guiWidth() / 2 - 8;
+        int x = graphics.guiWidth() / 2 - 8;
+        int y = graphics.guiHeight() / 2 - 7 + 16;
 
         if (showFullIndicator) {
-            graphics.blitSprite(RenderType::guiTextured, CROSSHAIR_ATTACK_INDICATOR_FULL_SPRITE, indicatorX, indicatorY, 16, 16);
+            graphics.blitSprite(RenderType::guiTextured, CROSSHAIR_ATTACK_INDICATOR_FULL_SPRITE, x, y, 16, 16);
         } else if (attackStrength < 1.0F) {
             int progressWidth = (int) (attackStrength * 17.0F);
-            graphics.blitSprite(RenderType::guiTextured, CROSSHAIR_ATTACK_INDICATOR_BACKGROUND_SPRITE, indicatorX, indicatorY, 16, 4);
-            graphics.blitSprite(RenderType::guiTextured, CROSSHAIR_ATTACK_INDICATOR_PROGRESS_SPRITE, 16, 4, 0, 0, indicatorX, indicatorY, progressWidth, 4);
+            graphics.blitSprite(RenderType::guiTextured, CROSSHAIR_ATTACK_INDICATOR_BACKGROUND_SPRITE, x, y, 16, 4);
+            graphics.blitSprite(RenderType::guiTextured, CROSSHAIR_ATTACK_INDICATOR_PROGRESS_SPRITE, 16, 4, 0, 0, x, y, progressWidth, 4);
         }
 
         RenderSystem.setShaderColor(1, 1, 1, 1);
