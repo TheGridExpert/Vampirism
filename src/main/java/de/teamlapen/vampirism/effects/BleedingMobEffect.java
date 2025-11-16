@@ -33,7 +33,7 @@ public class BleedingMobEffect extends MobEffect {
                         ((IVampire) entity).useBlood(1, true);
                     }
                 } else if (entity instanceof PathfinderMob) {
-                    ExtendedCreature.getSafe(entity).ifPresent(creature -> creature.setBlood(creature.getBlood() - 1));
+                    ExtendedCreature.getFromEntity(entity).ifPresent(creature -> creature.setBlood(creature.getBlood() - 1));
                 }
             }
         }

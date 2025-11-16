@@ -41,13 +41,7 @@ public class SyringeDispenseBehavior extends DefaultDispenseItemBehavior {
         }
 
         LivingEntity target = entities.getFirst();
-
-        Optional<? extends IBiteableEntity> biteableOpt = switch (target) {
-            case PathfinderMob mob when mob.isAlive() -> ExtendedCreature.getSafe(mob);
-            case Player targetPlayer -> Optional.of(VampirePlayer.get(targetPlayer));
-            case IBiteableEntity biteableEntity -> Optional.of(biteableEntity);
-            default -> Optional.empty();
-        };
+        Optional<? extends IBiteableEntity> biteableOpt = ExtendedCreature.getBiteable(target);
 
         if (biteableOpt.isEmpty() || !biteableOpt.get().canBeBitten(null)) {
             return stack;

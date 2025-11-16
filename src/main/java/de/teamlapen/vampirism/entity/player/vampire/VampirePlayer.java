@@ -310,7 +310,7 @@ public class VampirePlayer extends CommonFactionPlayer<IVampirePlayer> implement
             if (((IBiteableEntity) entity).canBeBitten(this)) return BITE_TYPE.SUCK_BLOOD;
         }
         if (entity instanceof PathfinderMob && entity.isAlive()) {
-            Optional<ExtendedCreature> opt = ExtendedCreature.getSafe(entity);
+            Optional<ExtendedCreature> opt = ExtendedCreature.getFromEntity(entity);
             if (opt.map(creature -> creature.canBeBitten(this)).orElse(false)) {
                 if (opt.map(IExtendedCreatureVampirism::hasPoisonousBlood).orElse(false)) {
                     return BITE_TYPE.HUNTER_CREATURE;
@@ -1220,7 +1220,7 @@ public class VampirePlayer extends CommonFactionPlayer<IVampirePlayer> implement
         float saturationMod = IBloodStats.HIGH_SATURATION;
         boolean continue_feeding = true;
         if (feed_victim_bite_type == BITE_TYPE.SUCK_BLOOD_CREATURE && entity.isAlive()) {
-            Optional<ExtendedCreature> opt = ExtendedCreature.getSafe(entity);
+            Optional<ExtendedCreature> opt = ExtendedCreature.getFromEntity(entity);
             blood = opt.map(creature -> creature.onBite(this)).orElse(0);
             saturationMod = opt.map(IBiteableEntity::getBloodSaturation).orElse(0f);
             if (isAdvancedBiter() && opt.map(IExtendedCreatureVampirism::getBlood).orElse(0) == 1) {

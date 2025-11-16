@@ -41,7 +41,7 @@ public class DummyBittenAnimalEntity extends Mob {
             };
             if (entity == null) return;
             entity.copyPosition(this);
-            ExtendedCreature.getSafe(entity).ifPresent(e -> {
+            ExtendedCreature.getFromEntity(entity).ifPresent(e -> {
                 if (e.canBecomeVampire()) {
                     IConvertedCreature<?> c = e.makeVampire();
                     if (c instanceof ConvertedCreatureEntity) {

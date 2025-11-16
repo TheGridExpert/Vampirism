@@ -207,7 +207,7 @@ public class ModEntityEventHandler {
             if (event.getEntity() instanceof Villager) {
                 Optional<TotemBlockEntity> tile = TotemHelper.getTotemNearPos(((ServerLevel) event.getLevel()), event.getEntity().blockPosition(), true);
                 if (tile.filter(t -> ModFactions.HUNTER.match(t.getControllingFaction())).isPresent()) {
-                    ExtendedCreature.getSafe(event.getEntity()).ifPresent(e -> e.setPoisonousBlood(ExtendedCreature.POISONOUS_BLOOD_DOSE_DURATION));
+                    ExtendedCreature.getFromEntity(event.getEntity()).ifPresent(e -> e.setPoisonousBlood(ExtendedCreature.POISONOUS_BLOOD_DOSE_DURATION));
                 }
                 //noinspection UnnecessaryReturnStatement
                 return;
@@ -256,7 +256,7 @@ public class ModEntityEventHandler {
     @SubscribeEvent
     public void onLivingUpdate(EntityTickEvent.Post event) {
         if (event.getEntity() instanceof PathfinderMob) {
-            ExtendedCreature.getSafe(event.getEntity()).ifPresent(IExtendedCreatureVampirism::tick);
+            ExtendedCreature.getFromEntity(event.getEntity()).ifPresent(IExtendedCreatureVampirism::tick);
 
         }
     }

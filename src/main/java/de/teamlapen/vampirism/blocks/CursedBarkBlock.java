@@ -49,7 +49,7 @@ public abstract class CursedBarkBlock extends Block implements HolyWaterEffectCo
                     vampire.increaseRemainingBarkTicks(40);
                 }
             } else {
-                ExtendedCreature.getSafe(entity).ifPresent(creature -> {
+                ExtendedCreature.getFromEntity(entity).ifPresent(creature -> {
                     if (creature.getRemainingBarkTicks() == 0) {
                         creature.setBlood(creature.getBlood() - 1);
                         creature.sync();

@@ -65,7 +65,7 @@ public class InfectionStatus {
             withSource.vampirism$removeEffect();
         }
         if (this.entity instanceof PathfinderMob) {
-            ExtendedCreature.getSafe(this.entity).ifPresent(IExtendedCreatureVampirism::makeVampire);
+            ExtendedCreature.getFromEntity(this.entity).ifPresent(IExtendedCreatureVampirism::makeVampire);
         }
         if (this.entity instanceof Player player) {
             VampirePlayer.get(player).onSanguinareFinished();

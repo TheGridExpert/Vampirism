@@ -53,7 +53,7 @@ public class BiteNearbyEntityVampireGoal<T extends Mob & IVampireMob> extends Go
                 if (!vampire.getSensing().hasLineOfSight(o) || o.hasCustomName()) {
                     continue;
                 }
-                if (ExtendedCreature.getSafe(o).filter(this::canFeed).map(creature -> {
+                if (ExtendedCreature.getFromEntity(o).filter(this::canFeed).map(creature -> {
                     this.creature = creature;
                     return true;
                 }).orElse(false)) {

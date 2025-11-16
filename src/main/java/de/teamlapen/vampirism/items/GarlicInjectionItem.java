@@ -50,7 +50,7 @@ public class GarlicInjectionItem extends InjectionItem implements IEntityInterac
     public InteractionResult onEntityInteract(ItemStack stack, Entity target, Player player, Level level, InteractionHand hand) {
         if (level.isClientSide) return InteractionResult.CONSUME;
 
-        return ExtendedCreature.getSafe(target).map(entity -> {
+        return ExtendedCreature.getFromEntity(target).map(entity -> {
             if (entity.hasPoisonousBlood()) return InteractionResult.CONSUME;
 
             entity.setPoisonousBlood(ExtendedCreature.POISONOUS_BLOOD_DOSE_DURATION);

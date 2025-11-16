@@ -148,7 +148,7 @@ public class BloodVisionRenderer {
         int trans = 200;
         int col = 100;
         this.bloodVisionBuffer.setColor(col, col, col, (int)(trans * progress));
-        var creature = ExtendedCreature.getSafe(entity);
+        var creature = ExtendedCreature.getFromEntity(entity);
         if (creature.isPresent()) {
             ExtendedCreature extendedCreature = creature.get();
             if (extendedCreature.getBlood() > 0 && !extendedCreature.hasPoisonousBlood()) {

@@ -5,6 +5,7 @@ import de.teamlapen.lib.lib.storage.UpdateParams;
 import de.teamlapen.lib.lib.util.UtilLib;
 import de.teamlapen.vampirism.api.VampirismAPI;
 import de.teamlapen.vampirism.api.datamaps.IEntityBlood;
+import de.teamlapen.vampirism.api.entity.IBiteableEntity;
 import de.teamlapen.vampirism.api.entity.IExtendedCreatureVampirism;
 import de.teamlapen.vampirism.api.entity.convertible.IConvertedCreature;
 import de.teamlapen.vampirism.api.entity.vampire.IVampire;
@@ -29,9 +30,9 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.village.ReputationEventType;
 import net.minecraft.world.entity.npc.Villager;
+import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.attachment.IAttachmentHolder;
 import net.neoforged.neoforge.attachment.IAttachmentSerializer;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -49,11 +50,20 @@ public class ExtendedCreature extends Attachment implements IExtendedCreatureVam
     private final static String KEY_MAX_BLOOD = "max_blood";
     private final static String KEY_POISONOUS_BLOOD = "poisonousBlood";
 
-    public static @NotNull Optional<ExtendedCreature> getSafe(@NotNull Entity mob) {
-        if (mob instanceof PathfinderMob pathfinderMob) {
+    public static Optional<ExtendedCreature> getFromEntity(Entity entity) {
+        if (entity instanceof PathfinderMob pathfinderMob) {
             return Optional.of(pathfinderMob.getData(ModAttachments.EXTENDED_CREATURE));
         }
         return Optional.empty();
+    }
+
+    public static Optional<? extends IBiteableEntity> getBiteable(Entity entity) {
+        return switch (entity) {
+            case IBiteableEntity biteable -> Optional.of(biteable);
+            case PathfinderMob mob when mob.isAlive() -> getFromEntity(mob);
+            case Player player -> Optional.of(VampirePlayer.get(player));
+            default -> Optional.empty();
+        };
     }
 
     private final PathfinderMob entity;
@@ -90,7 +100,7 @@ public class ExtendedCreature extends Attachment implements IExtendedCreatureVam
     }
 
     @Override
-    public @NotNull Entity asEntity() {
+    public Entity asEntity() {
         return this.entity;
     }
 
@@ -129,7 +139,7 @@ public class ExtendedCreature extends Attachment implements IExtendedCreatureVam
     }
 
     @Override
-    public @NotNull ResourceLocation getAttachedKey() {
+    public ResourceLocation getAttachedKey() {
         return SERIALIZER_ID;
     }
 
@@ -155,7 +165,7 @@ public class ExtendedCreature extends Attachment implements IExtendedCreatureVam
     }
 
     @Override
-    public void deserializeUpdateNBT(HolderLookup.@NotNull Provider provider, @NotNull CompoundTag nbt) {
+    public void deserializeUpdateNBT(HolderLookup.Provider provider, CompoundTag nbt) {
         if (nbt.contains(KEY_BLOOD)) {
             setBlood(nbt.getInt(KEY_BLOOD));
         }
@@ -318,12 +328,12 @@ public class ExtendedCreature extends Attachment implements IExtendedCreatureVam
     }
 
     @Override
-    public @NotNull String toString() {
+    public String toString() {
         return super.toString() + " for entity (" + entity.toString() + ") [B" + blood + ",MB" + maxBlood + ",CV" + canBecomeVampire + "]";
     }
 
     @Override
-    public @NotNull CompoundTag serializeNBT(HolderLookup.@NotNull Provider provider) {
+    public CompoundTag serializeNBT(HolderLookup.Provider provider) {
         var nbt = new CompoundTag();
         nbt.putInt(KEY_BLOOD, blood);
         nbt.putInt(KEY_MAX_BLOOD, maxBlood);
@@ -332,7 +342,7 @@ public class ExtendedCreature extends Attachment implements IExtendedCreatureVam
     }
 
     @Override
-    public void deserializeNBT(HolderLookup.@NotNull Provider provider, @NotNull CompoundTag compound) {
+    public void deserializeNBT(HolderLookup.Provider provider, CompoundTag compound) {
         if (compound.contains(KEY_MAX_BLOOD)) {
             setMaxBlood(compound.getInt(KEY_MAX_BLOOD));
         }
@@ -345,7 +355,7 @@ public class ExtendedCreature extends Attachment implements IExtendedCreatureVam
     }
 
     @Override
-    public @NotNull CompoundTag serializeUpdateNBT(HolderLookup.@NotNull Provider provider, UpdateParams params) {
+    public CompoundTag serializeUpdateNBT(HolderLookup.Provider provider, UpdateParams params) {
         CompoundTag nbt = new CompoundTag();
         nbt.putInt(KEY_BLOOD, getBlood());
         nbt.putInt(KEY_MAX_BLOOD, getBlood());
@@ -361,7 +371,7 @@ public class ExtendedCreature extends Attachment implements IExtendedCreatureVam
     public static class Serializer implements IAttachmentSerializer<CompoundTag, ExtendedCreature> {
 
         @Override
-        public @NotNull ExtendedCreature read(@NotNull IAttachmentHolder holder, @NotNull CompoundTag tag, HolderLookup.@NotNull Provider provider) {
+        public ExtendedCreature read(IAttachmentHolder holder, CompoundTag tag, HolderLookup.Provider provider) {
             if (holder instanceof PathfinderMob mob) {
                 var creature = new ExtendedCreature(mob);
                 creature.deserializeNBT(provider, tag);
@@ -371,7 +381,7 @@ public class ExtendedCreature extends Attachment implements IExtendedCreatureVam
         }
 
         @Override
-        public CompoundTag write(ExtendedCreature attachment, HolderLookup.@NotNull Provider provider) {
+        public CompoundTag write(ExtendedCreature attachment, HolderLookup.Provider provider) {
             return attachment.serializeNBT(provider);
         }
     }

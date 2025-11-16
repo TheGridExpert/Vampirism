@@ -52,7 +52,7 @@ public class LivingEntityRendererMixin<T extends LivingEntity, S extends LivingE
             bat.yBodyRotO = player.yBodyRotO;
             renderState.vampirism$bat(bat);
         }
-        ExtendedCreature.getSafe(entity).ifPresent(creature -> {
+        ExtendedCreature.getFromEntity(entity).ifPresent(creature -> {
             renderState.vampirism$blood(creature.getBlood());
             renderState.vampirism$poisonousBlood(creature.hasPoisonousBlood());
         });
