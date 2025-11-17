@@ -26,7 +26,7 @@ public class VampirismBiomes {
         mobSpawnBuilder.addSpawn(VEnums.VAMPIRE_CATEGORY.getValue(), new MobSpawnSettings.SpawnerData(ModEntities.VAMPIRE.get(), 80, 1, 3));
         mobSpawnBuilder.addSpawn(VEnums.VAMPIRE_CATEGORY.getValue(), new MobSpawnSettings.SpawnerData(ModEntities.VAMPIRE_BARON.get(), 27, 1, 1));
         mobSpawnBuilder.addSpawn(MobCategory.AMBIENT, new MobSpawnSettings.SpawnerData(ModEntities.BLINDING_BAT.get(), 60, 2, 4));
-        mobSpawnBuilder.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(ModEntities.DUMMY_CREATURE.get(), 80, 3, 6));
+        //mobSpawnBuilder.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(ModEntities.DUMMY_CREATURE.get(), 80, 3, 6));
 
         BiomeSpecialEffects.Builder biomeSpecialEffectsBuilder = new BiomeSpecialEffects.Builder().waterColor(0x670717).waterFogColor(0x670717).fogColor(0x171717).skyColor(0x131313).foliageColorOverride(0x1f1f1f).grassColorOverride(0x1f1f1f)
                 .ambientMoodSound(new AmbientMoodSettings(SoundEvents.AMBIENT_CRIMSON_FOREST_MOOD, 6000, 8, 2.0D))

@@ -98,14 +98,7 @@
       }
     ],
     "axolotls": [],
-    "creature": [
-      {
-        "type": "vampirism:dummy_creature",
-        "maxCount": 6,
-        "minCount": 3,
-        "weight": 80
-      }
-    ],
+    "creature": [],
     "misc": [],
     "monster": [],
     "underground_water_creature": [],
