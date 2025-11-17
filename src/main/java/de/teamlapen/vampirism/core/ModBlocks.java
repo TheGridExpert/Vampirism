@@ -116,7 +116,7 @@ public class ModBlocks {
     public static final DeferredBlock<VampirismFlowerBlock> VAMPIRE_ORCHID = registerWithItem("vampire_orchid", props -> new VampirismFlowerBlock(props, MobEffects.BLINDNESS, 7, true), () -> copyProperties(Blocks.BLUE_ORCHID).mapColor(MapColor.COLOR_MAGENTA));
 
     public static final DeferredBlock<CursedRootsBlock> CURSED_ROOTS = registerWithItem("cursed_roots", CursedRootsBlock::new, () -> copyProperties(Blocks.CRIMSON_ROOTS).mapColor(MapColor.CRIMSON_HYPHAE));
-    public static final DeferredBlock<CursedHangingRootsBlock> CURSED_HANGING_ROOTS = registerWithItem("cursed_hanging_roots", CursedHangingRootsBlock::new, () -> copyProperties(Blocks.HANGING_ROOTS).mapColor(MapColor.CRIMSON_HYPHAE));
+    public static final DeferredBlock<HangingRootsBlock> CURSED_HANGING_ROOTS = registerWithItem("cursed_hanging_roots", HangingRootsBlock::new, () -> copyProperties(Blocks.HANGING_ROOTS).mapColor(MapColor.CRIMSON_HYPHAE));
     
     public static final DeferredBlock<DirectCursedBarkBlock> DIRECT_CURSED_BARK = registerWithItem("direct_cursed_bark", DirectCursedBarkBlock::new, () -> basicProperties().sound(SoundType.WOOD));
     public static final DeferredBlock<DiagonalCursedBarkBlock> DIAGONAL_CURSED_BARK = registerBlock("diagonal_cursed_bark", DiagonalCursedBarkBlock::new, () -> basicProperties().sound(SoundType.EMPTY));

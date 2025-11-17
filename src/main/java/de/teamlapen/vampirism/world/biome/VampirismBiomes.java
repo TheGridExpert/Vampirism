@@ -52,7 +52,7 @@ public class VampirismBiomes {
         addVampireTrees(builder);
 
         addWaterSprings(builder);
-        return new Biome.BiomeBuilder().hasPrecipitation(false).temperature(0.3F).downfall(0F).specialEffects(ambienceBuilder.build()).mobSpawnSettings(spawnBuilder.build()).generationSettings(builder.build());
+        return new Biome.BiomeBuilder().hasPrecipitation(false).temperature(0.3F).downfall(0.6F).specialEffects(ambienceBuilder.build()).mobSpawnSettings(spawnBuilder.build()).generationSettings(builder.build());
     }
 
     public static void addVampireFlower(BiomeGenerationSettings.@NotNull Builder builder) {
