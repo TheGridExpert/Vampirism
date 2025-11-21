@@ -19,7 +19,7 @@ public class BloodGrinderBlockEntityRenderer implements BlockEntityRenderer<Bloo
                 blockEntity.getFluid(),
                 BloodGrinderBlockEntity.CAPACITY,
                 new Vec3(8 / 16f, 4 / 16f, 8 / 16f),
-                new Vec3(15.75f / 16f, 8 / 16f, 15.75f / 16f),
+                new Vec3(14f / 16f, 8 / 16f, 14f / 16f),
                 0.85f,
                 poseStack,
                 bufferSource,
