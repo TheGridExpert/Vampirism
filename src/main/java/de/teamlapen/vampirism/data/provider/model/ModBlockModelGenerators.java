@@ -2,7 +2,6 @@ package de.teamlapen.vampirism.data.provider.model;
 
 import com.mojang.datafixers.util.Pair;
 import de.teamlapen.lib.lib.data.VBlockModelGenerators;
-import de.teamlapen.vampirism.api.util.VResourceLocation;
 import de.teamlapen.vampirism.blocks.*;
 import de.teamlapen.vampirism.blocks.candle.CandleHolderBlock;
 import de.teamlapen.vampirism.client.renderer.item.BatCageSpecialRenderer;
@@ -31,6 +30,7 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static de.teamlapen.vampirism.api.util.VResourceLocation.mod;
+import static de.teamlapen.vampirism.api.util.VResourceLocation.mc;
 import static de.teamlapen.vampirism.api.util.VResourceLocation.modString;
 import static net.minecraft.client.data.models.model.ModelLocationUtils.*;
 
@@ -85,7 +85,7 @@ public class ModBlockModelGenerators extends VBlockModelGenerators {
 
         ResourceLocation infestedDarkStoneModel = ModModelTemplates.CUBE_ALL.create(ModBlocks.INFESTED_DARK_STONE.get(), new TextureMapping().put(TextureSlot.ALL, mod("block/dark_stone")), this.modelOutput);
         this.blockStateOutput.accept(createSimpleBlock(ModBlocks.INFESTED_DARK_STONE.get(), infestedDarkStoneModel));
-        createDefaultBlockItem(ModBlocks.INFESTED_DARK_STONE.get(), VResourceLocation.mod("block/infested_dark_stone"));
+        createDefaultBlockItem(ModBlocks.INFESTED_DARK_STONE.get(), mod("block/infested_dark_stone"));
 
         createNonTemplateModelBlock(ModBlocks.BLOOD_CONTAINER.get());
         ResourceLocation bloodContainerModel = ModelLocationUtils.getModelLocation(ModBlocks.BLOOD_CONTAINER.get());
@@ -184,11 +184,11 @@ public class ModBlockModelGenerators extends VBlockModelGenerators {
 
     protected void createAlchemicalCauldron() {
         var cauldron = mod("block/alchemy_cauldron");
-        var normal = VResourceLocation.mod("block/alchemy_cauldron_liquid");
+        var normal = mod("block/alchemy_cauldron_liquid");
         var boiling = ModModelTemplates.ALCHEMICAL_CAULDRON.createWithSuffix(ModBlocks.ALCHEMICAL_CAULDRON.get(), "_boiling", new TextureMapping().put(ModTextureSlots.LIQUID, mod("block/blank_liquid_boiling")), this.modelOutput);
         this.blockStateOutput.accept(MultiPartGenerator.multiPart(ModBlocks.ALCHEMICAL_CAULDRON.get())
                 .with(Variant.variant().with(VariantProperties.MODEL, cauldron))
-                .with(stateCondition(AlchemicalCauldronBlock.LIT, true), Variant.variant().with(VariantProperties.MODEL, VResourceLocation.mod("block/alchemy_cauldron_fire")))
+                .with(stateCondition(AlchemicalCauldronBlock.LIT, true), Variant.variant().with(VariantProperties.MODEL, mod("block/alchemy_cauldron_fire")))
                 .with(stateCondition(AlchemicalCauldronBlock.LIQUID, AlchemicalCauldronBlock.LiquidState.FILLED), Variant.variant().with(VariantProperties.MODEL, normal))
                 .with(stateCondition(AlchemicalCauldronBlock.LIQUID, AlchemicalCauldronBlock.LiquidState.BOILING), Variant.variant().with(VariantProperties.MODEL, boiling)));
         createDefaultBlockItem(ModBlocks.ALCHEMICAL_CAULDRON.get(), cauldron);
@@ -200,15 +200,15 @@ public class ModBlockModelGenerators extends VBlockModelGenerators {
 
         createNonTemplateBlockWithItem(ModBlocks.TOTEM_TOP.get());
 
-        this.blockStateOutput.accept(createSimpleBlock(ModBlocks.TOTEM_TOP_VAMPIRISM_VAMPIRE.get(), ModModelTemplates.TOTEM_TOP.create(ModBlocks.TOTEM_TOP_VAMPIRISM_VAMPIRE.get(), new TextureMapping().putForced(ModTextureSlots.CORE, VResourceLocation.mod("block/totem_top_core_vampire")), this.modelOutput)));
-        this.blockStateOutput.accept(createSimpleBlock(ModBlocks.TOTEM_TOP_VAMPIRISM_HUNTER.get(), ModModelTemplates.TOTEM_TOP.create(ModBlocks.TOTEM_TOP_VAMPIRISM_HUNTER.get(), new TextureMapping().putForced(ModTextureSlots.CORE, VResourceLocation.mod("block/totem_top_core_hunter")), this.modelOutput)));
+        this.blockStateOutput.accept(createSimpleBlock(ModBlocks.TOTEM_TOP_VAMPIRISM_VAMPIRE.get(), ModModelTemplates.TOTEM_TOP.create(ModBlocks.TOTEM_TOP_VAMPIRISM_VAMPIRE.get(), new TextureMapping().putForced(ModTextureSlots.CORE, mod("block/totem_top_core_vampire")), this.modelOutput)));
+        this.blockStateOutput.accept(createSimpleBlock(ModBlocks.TOTEM_TOP_VAMPIRISM_HUNTER.get(), ModModelTemplates.TOTEM_TOP.create(ModBlocks.TOTEM_TOP_VAMPIRISM_HUNTER.get(), new TextureMapping().putForced(ModTextureSlots.CORE, mod("block/totem_top_core_hunter")), this.modelOutput)));
 
-        ResourceLocation totemCraftedModel = ModModelTemplates.TOTEM_TOP.create(ModBlocks.TOTEM_TOP_CRAFTED.get(), new TextureMapping().putForced(TextureSlot.BOTTOM, VResourceLocation.mod("block/totem_top_crafted_bottom")).putForced(TextureSlot.SIDE, VResourceLocation.mod("block/totem_top_crafted_side")).putForced(TextureSlot.PARTICLE, VResourceLocation.mc("block/obsidian")), this.modelOutput);
+        ResourceLocation totemCraftedModel = ModModelTemplates.TOTEM_TOP.create(ModBlocks.TOTEM_TOP_CRAFTED.get(), new TextureMapping().putForced(TextureSlot.BOTTOM, mod("block/totem_top_crafted_bottom")).putForced(TextureSlot.SIDE, mod("block/totem_top_crafted_side")).putForced(TextureSlot.PARTICLE, mc("block/obsidian")), this.modelOutput);
         this.blockStateOutput.accept(createSimpleBlock(ModBlocks.TOTEM_TOP_CRAFTED.get(), totemCraftedModel));
         createDefaultBlockItem(ModBlocks.TOTEM_TOP_CRAFTED.get(), totemCraftedModel);
 
-        this.blockStateOutput.accept(createSimpleBlock(ModBlocks.TOTEM_TOP_VAMPIRISM_VAMPIRE_CRAFTED.get(), ModModelTemplates.TOTEM_TOP_CRAFTED.create(ModBlocks.TOTEM_TOP_VAMPIRISM_VAMPIRE_CRAFTED.get(), new TextureMapping().putForced(ModTextureSlots.CORE, VResourceLocation.mod("block/totem_top_core_vampire")), this.modelOutput)));
-        this.blockStateOutput.accept(createSimpleBlock(ModBlocks.TOTEM_TOP_VAMPIRISM_HUNTER_CRAFTED.get(), ModModelTemplates.TOTEM_TOP_CRAFTED.create(ModBlocks.TOTEM_TOP_VAMPIRISM_HUNTER_CRAFTED.get(), new TextureMapping().putForced(ModTextureSlots.CORE, VResourceLocation.mod("block/totem_top_core_hunter")), this.modelOutput)));
+        this.blockStateOutput.accept(createSimpleBlock(ModBlocks.TOTEM_TOP_VAMPIRISM_VAMPIRE_CRAFTED.get(), ModModelTemplates.TOTEM_TOP_CRAFTED.create(ModBlocks.TOTEM_TOP_VAMPIRISM_VAMPIRE_CRAFTED.get(), new TextureMapping().putForced(ModTextureSlots.CORE, mod("block/totem_top_core_vampire")), this.modelOutput)));
+        this.blockStateOutput.accept(createSimpleBlock(ModBlocks.TOTEM_TOP_VAMPIRISM_HUNTER_CRAFTED.get(), ModModelTemplates.TOTEM_TOP_CRAFTED.create(ModBlocks.TOTEM_TOP_VAMPIRISM_HUNTER_CRAFTED.get(), new TextureMapping().putForced(ModTextureSlots.CORE, mod("block/totem_top_core_hunter")), this.modelOutput)));
     }
 
     protected void createCandleHolders() {
@@ -382,7 +382,7 @@ public class ModBlockModelGenerators extends VBlockModelGenerators {
         this.blockStateOutput.accept(MultiVariantGenerator.multiVariant(ModBlocks.MED_CHAIR.get())
                 .with(PropertyDispatch.properties(MedChairBlock.PART, MedChairBlock.FACING)
                         .generate(((enumPart, direction) ->
-                                Variant.variant().with(VariantProperties.MODEL, enumPart == MedChairBlock.EnumPart.BOTTOM ? VResourceLocation.mod("block/medchairbase") : VResourceLocation.mod("block/medchairhead")).with(VariantProperties.Y_ROT, switch (direction){
+                                Variant.variant().with(VariantProperties.MODEL, enumPart == MedChairBlock.EnumPart.BOTTOM ? mod("block/medchairbase") : mod("block/medchairhead")).with(VariantProperties.Y_ROT, switch (direction){
                                     case NORTH -> VariantProperties.Rotation.R0;
                                     case EAST -> VariantProperties.Rotation.R90;
                                     case SOUTH -> VariantProperties.Rotation.R180;
@@ -457,12 +457,13 @@ public class ModBlockModelGenerators extends VBlockModelGenerators {
 
     protected void createCoffin() {
         Stream.of(ModBlocks.COFFIN_WHITE, ModBlocks.COFFIN_ORANGE, ModBlocks.COFFIN_MAGENTA, ModBlocks.COFFIN_LIGHT_BLUE, ModBlocks.COFFIN_YELLOW, ModBlocks.COFFIN_LIME, ModBlocks.COFFIN_PINK, ModBlocks.COFFIN_GRAY, ModBlocks.COFFIN_LIGHT_GRAY, ModBlocks.COFFIN_CYAN, ModBlocks.COFFIN_PURPLE, ModBlocks.COFFIN_BLUE, ModBlocks.COFFIN_BROWN, ModBlocks.COFFIN_GREEN, ModBlocks.COFFIN_RED, ModBlocks.COFFIN_BLACK).map(DeferredHolder::get).forEach(block -> {
-            ModModelTemplates.COFFIN.create(VResourceLocation.mod("block/coffin/coffin_" + block.getColor().getName()), new TextureMapping().put(ModTextureSlots.TEXTURE0, mod("block/coffin/coffin_" + block.getColor().getName())), this.modelOutput);
-            var coffin = ModModelTemplates.COFFIN_BOTTOM.create(VResourceLocation.mod("block/coffin/coffin_bottom_" + block.getColor().getName()), new TextureMapping().put(ModTextureSlots.TEXTURE0, mod("block/coffin/coffin_" + block.getColor().getName())), this.modelOutput);
-            ModModelTemplates.COFFIN_TOP.create(VResourceLocation.mod("block/coffin/coffin_top_" + block.getColor().getName()), new TextureMapping().put(ModTextureSlots.TEXTURE0, mod("block/coffin/coffin_" + block.getColor().getName())), this.modelOutput);
-            ResourceLocation model = decorateBlockModelLocation(modString("coffin_empty"));
-            this.blockStateOutput.accept(MultiVariantGenerator.multiVariant(block, Variant.variant().with(VariantProperties.MODEL, model)));
-            this.itemModelOutput.accept(block.asItem(), ItemModelUtils.plainModel(coffin));
+            ModModelTemplates.COFFIN.create(mod("block/coffin_" + block.getColor().getName()), new TextureMapping().put(ModTextureSlots.INNER, mod("block/coffin/coffin_inner_" + block.getColor().getName())), this.modelOutput);
+
+            ResourceLocation bottomModel = ModModelTemplates.COFFIN_BOTTOM.create(mod("block/coffin_bottom_" + block.getColor().getName()), new TextureMapping().put(ModTextureSlots.INNER, mod("block/coffin/coffin_inner_" + block.getColor().getName())), this.modelOutput);
+            ResourceLocation emptyModel = mod("block/coffin_empty");
+
+            this.blockStateOutput.accept(MultiVariantGenerator.multiVariant(block, Variant.variant().with(VariantProperties.MODEL, emptyModel)));
+            this.itemModelOutput.accept(block.asItem(), ItemModelUtils.plainModel(bottomModel));
         });
     }
 
@@ -503,8 +504,8 @@ public class ModBlockModelGenerators extends VBlockModelGenerators {
             withHorizontalRotation(generator, stateCondition(TentBlock.POSITION, 1), bl);
             withHorizontalRotation(generator, stateCondition(TentBlock.POSITION, 2), tl);
             withHorizontalRotation(generator, stateCondition(TentBlock.POSITION, 3), tr);
-            withHorizontalRotation(generator, stateCondition(TentBlock.POSITION, 2), VResourceLocation.mod("block/tentback"), 2);
-            withHorizontalRotation(generator, stateCondition(TentBlock.POSITION, 3), VResourceLocation.mod("block/tentback_flipped"));
+            withHorizontalRotation(generator, stateCondition(TentBlock.POSITION, 2), mod("block/tentback"), 2);
+            withHorizontalRotation(generator, stateCondition(TentBlock.POSITION, 3), mod("block/tentback_flipped"));
             this.blockStateOutput.accept(generator);
         });
     }
@@ -544,8 +545,8 @@ public class ModBlockModelGenerators extends VBlockModelGenerators {
 
     protected void createInfuser() {
         this.blockStateOutput.accept(MultiPartGenerator.multiPart(ModBlocks.INFUSER.get())
-                .with(Variant.variant().with(VariantProperties.MODEL, VResourceLocation.mod("block/blood_infuser/infuser")))
-                .with(stateCondition(BloodInfuserBlock.IS_ACTIVE, true), Variant.variant().with(VariantProperties.MODEL, VResourceLocation.mod("block/blood_infuser/infuser_blood"))));
-        this.createDefaultBlockItem(ModBlocks.INFUSER.get(), VResourceLocation.mod("block/blood_infuser/infuser"));
+                .with(Variant.variant().with(VariantProperties.MODEL, mod("block/blood_infuser/infuser")))
+                .with(stateCondition(BloodInfuserBlock.IS_ACTIVE, true), Variant.variant().with(VariantProperties.MODEL, mod("block/blood_infuser/infuser_blood"))));
+        this.createDefaultBlockItem(ModBlocks.INFUSER.get(), mod("block/blood_infuser/infuser"));
     }
 }

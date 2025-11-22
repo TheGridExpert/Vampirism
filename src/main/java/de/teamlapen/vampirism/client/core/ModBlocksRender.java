@@ -83,9 +83,9 @@ public class ModBlocksRender {
 
     static void registerAdditionalModels(ModelEvent.RegisterAdditional event) {
         for (DyeColor value : DyeColor.values()) {
-            event.register(VResourceLocation.mod("block/coffin/coffin_" + value.getName()));
-            event.register(VResourceLocation.mod("block/coffin/coffin_bottom_" + value.getName()));
-            event.register(VResourceLocation.mod("block/coffin/coffin_top_" + value.getName()));
+            event.register(VResourceLocation.mod("block/coffin_" + value.getName()));
+            event.register(VResourceLocation.mod("block/coffin_bottom_" + value.getName()));
         }
+        event.register(VResourceLocation.mod("block/coffin_top"));
     }
 }

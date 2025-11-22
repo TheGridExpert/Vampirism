@@ -255,10 +255,10 @@ public class CoffinBlock extends VampirismBlockContainer {
                     return;
                 }
             }
-            player.setPos(blockPos.getX() + x, blockPos.getY() - 1, blockPos.getZ() + z);
+            player.setPos(blockPos.getX() + x, blockPos.getY() - 1.13, blockPos.getZ() + z);
             player.setBoundingBox(new AABB(blockPos.getX() + x - 0.2, blockPos.getY() - 0.8, blockPos.getZ() + z - 0.2, blockPos.getX() + x + 0.2, blockPos.getY() + 0.4, blockPos.getZ() + z + 0.2));
         } else {
-            player.setPos(blockPos.getX() + 0.5D, blockPos.getY() + 0.2D, blockPos.getZ() + 0.5D);
+            player.setPos(blockPos.getX() + 0.5D, blockPos.getY(), blockPos.getZ() + 0.5D);
             player.setBoundingBox(((EntityAccessor) player).getDimensions().makeBoundingBox(blockPos.getX() + 0.5D, blockPos.getY() + 0.2D, blockPos.getZ() + 0.5D).deflate(0.3));
         }
     }

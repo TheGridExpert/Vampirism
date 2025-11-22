@@ -82,7 +82,7 @@ public class CoffinRenderer implements BlockEntityRenderer<CoffinBlockEntity> {
             }
         }
 
-        BakedModel baseModel = Minecraft.getInstance().getModelManager().getStandaloneModel(VResourceLocation.mod("block/coffin/coffin_bottom_" + blockEntity.color.getName()));
+        BakedModel baseModel = Minecraft.getInstance().getModelManager().getStandaloneModel(VResourceLocation.mod("block/coffin_bottom_" + blockEntity.color.getName()));
         ModelData modelData = baseModel.getModelData(blockEntity.getLevel(), blockEntity.getBlockPos(), state, ModelData.EMPTY);
         for (RenderType renderType : baseModel.getRenderTypes(state, RandomSource.create(42), modelData)) {
             Minecraft.getInstance().getBlockRenderer().getModelRenderer().renderModel(poseStack.last(), bufferSource.getBuffer(RenderTypeHelper.getEntityRenderType(renderType)), state, baseModel, 1, 1, 1, packedLight, packedOverlay, modelData, renderType);
@@ -97,7 +97,7 @@ public class CoffinRenderer implements BlockEntityRenderer<CoffinBlockEntity> {
             poseStack.translate(0, 0, -0.5 * blockEntity.lidPos);
         }
 
-        BakedModel lidModel = Minecraft.getInstance().getModelManager().getStandaloneModel(VResourceLocation.mod("block/coffin/coffin_top_" + blockEntity.color.getName()));
+        BakedModel lidModel = Minecraft.getInstance().getModelManager().getStandaloneModel(VResourceLocation.mod("block/coffin_top"));
         modelData = lidModel.getModelData(blockEntity.getLevel(), blockEntity.getBlockPos(), state, ModelData.EMPTY);
         for (RenderType renderType : lidModel.getRenderTypes(state, RandomSource.create(42), modelData)) {
             Minecraft.getInstance().getBlockRenderer().getModelRenderer().renderModel(poseStack.last(), bufferSource.getBuffer(RenderTypeHelper.getEntityRenderType(renderType)), state, lidModel, 1, 1, 1, packedLight, packedOverlay, modelData, renderType);
