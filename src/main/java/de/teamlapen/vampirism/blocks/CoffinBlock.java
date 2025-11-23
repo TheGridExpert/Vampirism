@@ -42,6 +42,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
+import java.util.stream.Stream;
 
 public class CoffinBlock extends VampirismBlockContainer {
     
@@ -321,7 +322,7 @@ public class CoffinBlock extends VampirismBlockContainer {
 
     public static class ShapeTable {
 
-        private final VoxelShape[][][] [] shapes;
+        private final VoxelShape[][][][] shapes;
 
         public ShapeTable() {
             this.shapes = buildShapes();
@@ -332,63 +333,17 @@ public class CoffinBlock extends VampirismBlockContainer {
         }
 
         private VoxelShape[][][] [] buildShapes() {
-            VoxelShape shape = Shapes.empty();
-            shape = Shapes.join(shape, Shapes.box(0, 0, 0, 1, 0.0625, 2), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0.90625, 0.0625, 0.046875, 0.96875, 0.1875, 1.96875), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0.875, 0.1875, 1.375, 0.9375, 0.375, 1.875), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0.875, 0.1875, 0.75, 0.9375, 0.375, 1.25), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0.875, 0.1875, 0.125, 0.9375, 0.375, 0.625), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0.25, 0.1875, 1.875, 0.75, 0.375, 1.9375), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0.0625, 0.1875, 0.125, 0.125, 0.375, 0.625), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0.0625, 0.1875, 0.75, 0.125, 0.375, 1.25), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0.0625, 0.1875, 1.375, 0.125, 0.375, 1.875), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0.25, 0.1875, 0.0625, 0.75, 0.375, 0.125), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0.03125, 0.0625, 0.046875, 0.09375, 0.1875, 1.96875), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0.09375, 0.0625, 1.921875, 0.90625, 0.1875, 1.96875), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0.09375, 0.0625, 0.046875, 0.90625, 0.1875, 0.09375), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0.90625, 0.1875, 1.875, 0.96875, 0.375, 1.96875), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0.90625, 0.1875, 1.25, 0.96875, 0.375, 1.375), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0.90625, 0.1875, 0.625, 0.96875, 0.375, 0.75), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0.90625, 0.1875, 0.046875, 0.96875, 0.375, 0.125), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0.03125, 0.1875, 0.046875, 0.09375, 0.375, 0.125), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0.03125, 0.1875, 0.625, 0.09375, 0.375, 0.75), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0.03125, 0.1875, 1.25, 0.09375, 0.375, 1.375), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0.03125, 0.1875, 1.875, 0.09375, 0.375, 1.96875), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0.09375, 0.1875, 1.921875, 0.25, 0.375, 1.96875), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0.75, 0.1875, 1.921875, 0.90625, 0.375, 1.96875), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0.75, 0.1875, 0.046875, 0.90625, 0.375, 0.09375), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0.09375, 0.1875, 0.046875, 0.25, 0.375, 0.09375), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0.09375, 0.375, 0.046875, 0.90625, 0.5, 0.09375), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0.03125, 0.375, 0.046875, 0.09375, 0.5, 1.96875), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0.09375, 0.375, 1.921875, 0.90625, 0.5, 1.96875), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0.90625, 0.375, 0.046875, 0.96875, 0.5, 1.96875), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0.90625, 0.5, 0, 1, 0.5625, 2), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0, 0.5, 0, 0.09375, 0.5625, 2), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0.09375, 0.5, 1.921875, 0.90625, 0.5625, 2), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0.09375, 0.5, 0, 0.90625, 0.5625, 0.09375), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0.09375, 0.0625, 0.09375, 0.140625, 0.546875, 1.921875), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0.859375, 0.0625, 0.09375, 0.90625, 0.546875, 1.921875), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0.140625, 0.0625, 1.859375, 0.859375, 0.546875, 1.921875), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0.140625, 0.0625, 0.09375, 0.859375, 0.546875, 0.15625), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0.1875, 0.125, 0.1875, 0.8125, 0.3125, 0.5), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0.203125, 0.203125, 0.4375, 0.796875, 0.34375, 0.5625), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0.203125, 0.203125, 0.171875, 0.796875, 0.328125, 0.296875), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0.9375, 0.09375, 0.25, 1, 0.15625, 0.5), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0.9375, 0.09375, 0.875, 1, 0.15625, 1.125), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0.9375, 0.09375, 1.5, 1, 0.15625, 1.75), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0, 0.09375, 1.5, 0.0625, 0.15625, 1.75), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0, 0.09375, 0.875, 0.0625, 0.15625, 1.125), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0, 0.09375, 0.25, 0.0625, 0.15625, 0.5), BooleanOp.OR);
+            VoxelShape bodyShape = Stream.of(
+                    Block.box(0, 0, 0, 16, 3, 32),
+                    Block.box(0, 3, 0, 16, 9, 2),
+                    Block.box(0, 3, 30, 16, 9, 32),
+                    Block.box(0, 3, 2, 2, 9, 30),
+                    Block.box(14, 3, 2, 16, 9, 30)
+            ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
+            VoxelShape lidShape = Block.box(0, 9, 0, 16, 11, 32);
 
-            VoxelShape lidShape = Shapes.empty();
-            lidShape = Shapes.join(lidShape, Shapes.box(0, 0.5625, 0, 0.09375, 0.625, 2), BooleanOp.OR);
-            lidShape = Shapes.join(lidShape, Shapes.box(0.09375, 0.5625, 0, 0.90625, 0.625, 0.078125), BooleanOp.OR);
-            lidShape = Shapes.join(lidShape, Shapes.box(0.90625, 0.5625, 0, 1, 0.625, 2), BooleanOp.OR);
-            lidShape = Shapes.join(lidShape, Shapes.box(0.09375, 0.5625, 1.90625, 0.90625, 0.625, 2), BooleanOp.OR);
-            lidShape = Shapes.join(lidShape, Shapes.box(0.09375, 0.625, 0.0625, 0.90625, 0.6875, 1.921875), BooleanOp.OR);
-
-            VoxelShape head = Shapes.join(shape, Shapes.box(0, 0, 0, 1, 1, 1), BooleanOp.AND);
-            VoxelShape foot = Shapes.join(shape, Shapes.box(0, 0, 1, 1, 1, 2), BooleanOp.AND).move(0, 0, -1);
+            VoxelShape head = Shapes.join(bodyShape, Shapes.box(0, 0, 0, 1, 1, 1), BooleanOp.AND);
+            VoxelShape foot = Shapes.join(bodyShape, Shapes.box(0, 0, 1, 1, 1, 2), BooleanOp.AND).move(0, 0, -1);
             VoxelShape lidHead = Shapes.join(lidShape, Shapes.box(0, 0, 0, 1, 1, 1), BooleanOp.AND);
             VoxelShape lidFoot = Shapes.join(lidShape, Shapes.box(0, 0, 1, 1, 1, 2), BooleanOp.AND).move(0, 0, -1);
 
