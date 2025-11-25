@@ -15,9 +15,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.vehicle.DismountHelper;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -39,9 +41,11 @@ import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 public class CoffinBlock extends VampirismBlockContainer {
@@ -284,6 +288,68 @@ public class CoffinBlock extends VampirismBlockContainer {
     public void setBedOccupied(BlockState state, Level world, BlockPos pos, LivingEntity sleeper, boolean occupied) {
         super.setBedOccupied(state, world, pos, sleeper, occupied);
         world.setBlock(pos, world.getBlockState(pos).setValue(CLOSED, occupied), 3);
+    }
+
+    public static Optional<Vec3> findStandUpPosition(EntityType<?> entityType, CollisionGetter collisionGetter, BlockPos pos, float yRot) {
+        BlockState state = collisionGetter.getBlockState(pos);
+        Direction facing = state.getValue(FACING);
+
+        if (state.getValue(VERTICAL)) {
+            return findStandUpPositionVertical(entityType, collisionGetter, pos, facing, yRot);
+        } else {
+            return findStandUpPositionHorizontal(entityType, collisionGetter, pos, facing, yRot);
+        }
+    }
+
+    private static Optional<Vec3> findStandUpPositionHorizontal(EntityType<?> entityType, CollisionGetter collisionGetter, BlockPos pos, Direction facing, float yRot) {
+        Direction clockwise = facing.getClockWise();
+        Direction bestDir = clockwise.isFacingAngle(yRot) ? clockwise.getOpposite() : clockwise;
+        int[][] offsets = coffinStandUpOffsets(facing, bestDir);
+        Optional<Vec3> optional = findStandUpPositionAtOffset(entityType, collisionGetter, pos, offsets, true);
+        return optional.isPresent() ? optional : findStandUpPositionAtOffset(entityType, collisionGetter, pos, offsets, false);
+    }
+
+    // TODO: The player appears on top of the coffin even when it's vertical for some reason. On top of that, placing blocks on top makes it obscured
+    private static Optional<Vec3> findStandUpPositionVertical(EntityType<?> entityType, CollisionGetter collisionGetter, BlockPos pos, Direction facing, float yRot) {
+        Direction clockwise = facing.getClockWise();
+        Direction bestDir = clockwise.isFacingAngle(yRot) ? clockwise.getOpposite() : clockwise;
+        int[][] offsets = coffinStandUpOffsets(facing, bestDir);
+        Optional<Vec3> optional = findStandUpPositionAtOffset(entityType, collisionGetter, pos, offsets, true);
+        return optional.isPresent() ? optional : findStandUpPositionAtOffset(entityType, collisionGetter, pos, offsets, false);
+    }
+
+    private static Optional<Vec3> findStandUpPositionAtOffset(EntityType<?> entityType, CollisionGetter collisionGetter, BlockPos pos, int[][] offsets, boolean simulate) {
+        for (int[] offset : offsets) {
+            BlockPos.MutableBlockPos offsetPos = pos.mutable().move(offset[0], 0, offset[1]);
+            Vec3 safeLocation = DismountHelper.findSafeDismountLocation(entityType, collisionGetter, offsetPos, simulate);
+            if (safeLocation != null) {
+                return Optional.of(safeLocation);
+            }
+        }
+        return Optional.empty();
+    }
+
+    private static int[][] coffinStandUpOffsets(Direction firstDir, Direction secondDir) {
+        return ArrayUtils.addAll(coffinSurroundStandUpOffsets(firstDir, secondDir), coffinAboveStandUpOffsets(firstDir));
+    }
+
+    private static int[][] coffinSurroundStandUpOffsets(Direction firstDir, Direction secondDir) {
+        return new int[][]{
+                {secondDir.getStepX(), secondDir.getStepZ()},
+                {secondDir.getStepX() - firstDir.getStepX(), secondDir.getStepZ() - firstDir.getStepZ()},
+                {secondDir.getStepX() - firstDir.getStepX() * 2, secondDir.getStepZ() - firstDir.getStepZ() * 2},
+                {-firstDir.getStepX() * 2, -firstDir.getStepZ() * 2},
+                {-secondDir.getStepX() - firstDir.getStepX() * 2, -secondDir.getStepZ() - firstDir.getStepZ() * 2},
+                {-secondDir.getStepX() - firstDir.getStepX(), -secondDir.getStepZ() - firstDir.getStepZ()},
+                {-secondDir.getStepX(), -secondDir.getStepZ()},
+                {-secondDir.getStepX() + firstDir.getStepX(), -secondDir.getStepZ() + firstDir.getStepZ()},
+                {firstDir.getStepX(), firstDir.getStepZ()},
+                {secondDir.getStepX() + firstDir.getStepX(), secondDir.getStepZ() + firstDir.getStepZ()}
+        };
+    }
+
+    private static int[][] coffinAboveStandUpOffsets(Direction dir) {
+        return new int[][]{{0, 0}, {-dir.getStepX(), -dir.getStepZ()}};
     }
 
     @Override
