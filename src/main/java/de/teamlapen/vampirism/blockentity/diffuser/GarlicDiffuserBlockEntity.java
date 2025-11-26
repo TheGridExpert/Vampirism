@@ -70,10 +70,6 @@ public class GarlicDiffuserBlockEntity extends DiffuserBlockEntity {
         return data != null ? data.burnDuration() : 0;
     }
 
-    public boolean isInRange(BlockPos blockPos) {
-        return new ChunkPos(this.getBlockPos()).getChessboardDistance(new ChunkPos(blockPos)) <= this.radius;
-    }
-
     @Override
     public boolean canOpen(@NotNull Player pPlayer) {
         return tryAccess(pPlayer, ModFactions.HUNTER, getName()) && super.canOpen(pPlayer);

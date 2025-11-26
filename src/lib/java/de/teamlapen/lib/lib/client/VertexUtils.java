@@ -16,7 +16,9 @@ import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.fluids.FluidStack;
 import org.jetbrains.annotations.Nullable;
@@ -45,6 +47,24 @@ public class VertexUtils {
             Material material = new Material(TextureAtlas.LOCATION_BLOCKS, IClientFluidTypeExtensions.of(fluidStack.getFluid()).getStillTexture(fluidStack));
             VertexConsumer vertex = material.buffer(bufferSource, RenderType::entityTranslucent);
             VertexUtils.addCube(vertex, poseStack, 1, filled, packedLight, packedOverlay, -1, fluidAlpha);
+
+            poseStack.popPose();
+        }
+    }
+
+    public static void renderShape(PoseStack poseStack, VertexConsumer builder, VoxelShape shape, int light, int overlay, int color, float a) {
+        for (AABB bb : shape.toAabbs()) {
+            float width = (float) (bb.maxX - bb.minX);
+            float height = (float) (bb.maxY - bb.minY);
+
+            float cx = (float) ((bb.minX + bb.maxX) / 2.0);
+            float cy = (float) bb.minY;
+            float cz = (float) ((bb.minZ + bb.maxZ) / 2.0);
+
+            poseStack.pushPose();
+            poseStack.translate(cx, cy, cz);
+
+            VertexUtils.addCube(builder, poseStack, width, height, -1, -1, color, a);
 
             poseStack.popPose();
         }
@@ -157,6 +177,17 @@ public class VertexUtils {
         vertF(builder, poseStack, x1, y1, 0, u1, v0, r, g, b, a, lu, lv, ou, ov, nx, ny, nz);
         vertF(builder, poseStack, x1, y0, 0, u1, v1, r, g, b, a, lu, lv, ou, ov, nx, ny, nz);
         vertF(builder, poseStack, x0, y0, 0, u0, v1, r, g, b, a, lu, lv, ou, ov, nx, ny, nz);
+    }
+
+    public static void vertF(VertexConsumer builder, PoseStack.Pose pose,
+                             float x, float y, float z,
+                             float r, float g, float b, float a) {
+        builder.addVertex(pose.pose(), x, y, z);
+        builder.setColor((int) (r * 255), (int) (g * 255), (int) (b * 255), (int)(a * 255));
+        builder.setUv(0, 0);
+        builder.setUv1(0, 0);
+        builder.setUv2(0, 0);
+        builder.setNormal(0, 1, 0);
     }
 
     public static void vert(VertexConsumer builder, PoseStack poseStack, float x, float y, float z,

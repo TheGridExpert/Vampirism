@@ -2,15 +2,15 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": "#c:dusts/redstone",
-    "X": "vampirism:blood_infused_iron_ingot",
-    "Y": "#c:crops/garlic",
-    "Z": "#minecraft:planks"
+    "B": "#vampirism:pure_blood",
+    "D": "#c:dusts/redstone",
+    "P": "#minecraft:planks",
+    "T": "minecraft:redstone_torch"
   },
   "pattern": [
-    "XXX",
-    "XYX",
-    "ZAZ"
+    " T ",
+    "PDP",
+    "PBP"
   ],
   "result": {
     "count": 1,

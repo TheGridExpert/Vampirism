@@ -229,7 +229,7 @@ public class ModItems {
 
     public static final DeferredItem<FeedingAdapterItem> FEEDING_ADAPTER = ITEMS.registerItem("feeding_adapter", props -> new FeedingAdapterItem(props.stacksTo(1)));
     public static final DeferredItem<OblivionPotionItem> OBLIVION_POTION = ITEMS.registerItem("oblivion_potion", props -> new OblivionPotionItem(props.stacksTo(1).rarity(Rarity.UNCOMMON).component(DataComponents.CONSUMABLE, Consumables.defaultDrink().onConsume(new OblivionEffect()).build())));
-    public static final DeferredItem<Item> GARLIC_FINDER = ITEMS.registerItem("garlic_finder",  props -> new Item(props.rarity(Rarity.RARE)));
+    public static final DeferredItem<Item> GARLIC_FINDER = ITEMS.registerItem("garlic_finder", Item::new);
 
     public static final DeferredItem<OilBottleItem> OIL_BOTTLE = ITEMS.registerItem("oil_bottle",  props -> new OilBottleItem(props.stacksTo(1)));
 
@@ -345,7 +345,8 @@ public class ModItems {
                 INJECTION_GARLIC,
                 INJECTION_SANGUINARE,
                 VAMPIRE_BLOOD_BOTTLE,
-                STAKE
+                STAKE,
+                GARLIC_FINDER
         );
 
         if (descriptionItems.anyMatch(item -> stack.is(item.asItem()))) {
