@@ -75,13 +75,9 @@ public class ModBlockModelGenerators extends VBlockModelGenerators {
 
         createTintedLeaves(ModBlocks.DARK_SPRUCE_LEAVES.get(), TexturedModel.LEAVES, -1);
 
-        ResourceLocation sunscreenModel = ModModelTemplates.BEACON_MODEL.create(ModBlocks.SUNSCREEN_BEACON.get(), new TextureMapping().put(ModTextureSlots.BEACON, mod("block/cursed_earth")), this.modelOutput);
+        ResourceLocation sunscreenModel = ModModelTemplates.VAMPIRE_BEACON.create(ModBlocks.SUNSCREEN_BEACON.get(), new TextureMapping().put(TextureSlot.TOP, mod("block/sunscreen_beacon_top")).put(TextureSlot.SIDE, mod("block/sunscreen_beacon_side")), this.modelOutput);
         this.blockStateOutput.accept(createSimpleBlock(ModBlocks.SUNSCREEN_BEACON.get(), sunscreenModel));
         createDefaultBlockItem(ModBlocks.SUNSCREEN_BEACON.get(), sunscreenModel);
-
-        ResourceLocation vampireBeaconModel = ModModelTemplates.BEACON_MODEL.create(ModBlocks.VAMPIRE_BEACON.get(), new TextureMapping().put(ModTextureSlots.BEACON, mod("block/vampire_beacon")), this.modelOutput);
-        this.blockStateOutput.accept(createSimpleBlock(ModBlocks.VAMPIRE_BEACON.get(), vampireBeaconModel));
-        createDefaultBlockItem(ModBlocks.VAMPIRE_BEACON.get(), vampireBeaconModel);
 
         ResourceLocation infestedDarkStoneModel = ModModelTemplates.CUBE_ALL.create(ModBlocks.INFESTED_DARK_STONE.get(), new TextureMapping().put(TextureSlot.ALL, mod("block/dark_stone")), this.modelOutput);
         this.blockStateOutput.accept(createSimpleBlock(ModBlocks.INFESTED_DARK_STONE.get(), infestedDarkStoneModel));
@@ -374,7 +370,8 @@ public class ModBlockModelGenerators extends VBlockModelGenerators {
                 ModBlocks.GRAVE_CAGE,
                 ModBlocks.VAMPIRE_RACK,
                 ModBlocks.THRONE,
-                ModBlocks.FOG_DIFFUSER
+                ModBlocks.FOG_DIFFUSER,
+                ModBlocks.VAMPIRE_BEACON
         ).map(DeferredHolder::get).forEach(this::createNonTemplateBlockWithItem);
     }
 

@@ -1,7 +1,7 @@
 {
-  "parent": "minecraft:block/beacon",
-  "render_type": "minecraft:cutout",
+  "parent": "vampirism:block/vampire_beacon",
   "textures": {
-    "beacon": "vampirism:block/cursed_earth"
+    "side": "vampirism:block/sunscreen_beacon_side",
+    "top": "vampirism:block/sunscreen_beacon_top"
   }
 }

@@ -24,7 +24,7 @@ public class ModModelTemplates extends ModelTemplates {
     public static final ModelTemplate BLOOD_SIEVE = create(mod("blood_sieve"), ModTextureSlots.FILTER);
     public static final ModelTemplate TOTEM_TOP = create(mod("totem_top"));
     public static final ModelTemplate TOTEM_TOP_CRAFTED = create(mod("totem_top_crafted"));
-    public static final ModelTemplate BEACON_MODEL = create("beacon", ModTextureSlots.BEACON).extend().renderType(VResourceLocation.mc("cutout")).build();
+    public static final ModelTemplate VAMPIRE_BEACON = create(mod("vampire_beacon"), TextureSlot.TOP, TextureSlot.SIDE);
     public static final ModelTemplate ALCHEMICAL_CAULDRON = create(mod("alchemy_cauldron_liquid"), ModTextureSlots.LIQUID);
     public static final ModelTemplate DIRT_PATH = create("dirt_path", TextureSlot.TOP, TextureSlot.BOTTOM, TextureSlot.SIDE, TextureSlot.PARTICLE);
     public static final ModelTemplate CRUCIFIX = createItem(mod("crucifix"), TextureSlot.TEXTURE, TextureSlot.PARTICLE);
