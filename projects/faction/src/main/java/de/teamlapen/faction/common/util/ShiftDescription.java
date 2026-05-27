@@ -9,6 +9,7 @@ import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -51,7 +52,13 @@ public record ShiftDescription(@Nullable Component component, @Nullable String f
         var component = this.component;
         if (component == null) {
             component = Optional.ofNullable(this.formatableString).or(() -> stack.typeHolder().unwrapKey().map(x -> x.identifier().toLanguageKey("tooltip"))).map(x -> {
-                if (stack.getItem() instanceof IDescriptionProvider provider) {
+                IDescriptionProvider provider = null;
+                if (stack.getItem() instanceof IDescriptionProvider p) {
+                    provider = p;
+                } else if (stack.getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof IDescriptionProvider p) {
+                    provider = p;
+                }
+                if (provider != null) {
                     return Component.translatable(x, provider.getDescriptionParameters());
                 } else {
                     return Component.translatable(x);
