@@ -3,17 +3,36 @@
   "placement": [
     {
       "type": "minecraft:rarity_filter",
-      "chance": 4
+      "chance": 2
+    },
+    {
+      "type": "minecraft:in_square"
     },
     {
       "type": "minecraft:heightmap",
       "heightmap": "WORLD_SURFACE_WG"
     },
     {
-      "type": "minecraft:in_square"
+      "type": "minecraft:biome"
     },
     {
-      "type": "minecraft:biome"
+      "type": "minecraft:count",
+      "count": 5
+    },
+    {
+      "type": "minecraft:random_offset",
+      "xz_spread": {
+        "type": "minecraft:trapezoid",
+        "max": 2,
+        "min": -2,
+        "plateau": 0
+      },
+      "y_spread": {
+        "type": "minecraft:trapezoid",
+        "max": 1,
+        "min": -1,
+        "plateau": 0
+      }
     },
     {
       "type": "minecraft:block_predicate_filter",

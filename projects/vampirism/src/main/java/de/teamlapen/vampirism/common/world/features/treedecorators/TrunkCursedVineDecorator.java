@@ -12,20 +12,19 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.levelgen.feature.treedecorators.TreeDecorator;
 import net.minecraft.world.level.levelgen.feature.treedecorators.TreeDecoratorType;
-import org.jetbrains.annotations.NotNull;
 
 public class TrunkCursedVineDecorator extends TreeDecorator {
+
     public static final TrunkCursedVineDecorator INSTANCE = new TrunkCursedVineDecorator();
     public static final MapCodec<TrunkCursedVineDecorator> CODEC = MapCodec.unit(() -> INSTANCE);
 
-    @NotNull
     @Override
     protected TreeDecoratorType<?> type() {
         return ModFeatures.TRUNK_CURSED_VINE.get();
     }
 
     @Override
-    public void place(@NotNull Context context) {
+    public void place(Context context) {
         context.logs().forEach((trunkPos) -> {
             if (context.level().isStateAtPosition(trunkPos, state -> state.hasProperty(BlockStateProperties.AXIS))) {
                 placeCursedVine(context, trunkPos);
@@ -33,7 +32,7 @@ public class TrunkCursedVineDecorator extends TreeDecorator {
         });
     }
 
-    protected void placeCursedVine(@NotNull Context context, @NotNull BlockPos pos) {
+    protected void placeCursedVine(Context context, BlockPos pos) {
         if (context.level().isStateAtPosition(pos, state -> state.getValue(BlockStateProperties.AXIS) == Direction.Axis.X)) {
             placeCursedVineX(context, pos);
         } else if (context.level().isStateAtPosition(pos, state -> state.getValue(BlockStateProperties.AXIS) == Direction.Axis.Y)) {
@@ -43,7 +42,7 @@ public class TrunkCursedVineDecorator extends TreeDecorator {
         }
     }
 
-    protected void placeCursedVineX(@NotNull Context context, @NotNull BlockPos pos) {
+    protected void placeCursedVineX(Context context, BlockPos pos) {
         place(context, pos.north(), ModBlocks.DIRECT_CURSED_BARK.get().defaultBlockState().setValue(DirectCursedBarkBlock.SOUTH_TYPE, DirectCursedBarkBlock.Type.HORIZONTAL));
         place(context, pos.south(), ModBlocks.DIRECT_CURSED_BARK.get().defaultBlockState().setValue(DirectCursedBarkBlock.NORTH_TYPE, DirectCursedBarkBlock.Type.HORIZONTAL));
         place(context, pos.above(), ModBlocks.DIRECT_CURSED_BARK.get().defaultBlockState().setValue(DirectCursedBarkBlock.DOWN_TYPE, DirectCursedBarkBlock.Type.HORIZONTAL));
@@ -55,7 +54,7 @@ public class TrunkCursedVineDecorator extends TreeDecorator {
         place(context, pos.south().above(), ModBlocks.DIAGONAL_CURSED_BARK.get().defaultBlockState().setValue(DiagonalCursedBarkBlock.DOWN_NORTH, true));
     }
 
-    protected void placeCursedVineY(@NotNull Context context, @NotNull BlockPos pos) {
+    protected void placeCursedVineY(Context context, BlockPos pos) {
         place(context, pos.north(), ModBlocks.DIRECT_CURSED_BARK.get().defaultBlockState().setValue(DirectCursedBarkBlock.SOUTH_TYPE, DirectCursedBarkBlock.Type.VERTICAL));
         place(context, pos.south(), ModBlocks.DIRECT_CURSED_BARK.get().defaultBlockState().setValue(DirectCursedBarkBlock.NORTH_TYPE, DirectCursedBarkBlock.Type.VERTICAL));
         place(context, pos.east(), ModBlocks.DIRECT_CURSED_BARK.get().defaultBlockState().setValue(DirectCursedBarkBlock.WEST_TYPE, DirectCursedBarkBlock.Type.VERTICAL));
@@ -67,7 +66,7 @@ public class TrunkCursedVineDecorator extends TreeDecorator {
         place(context, pos.south().east(), ModBlocks.DIAGONAL_CURSED_BARK.get().defaultBlockState().setValue(DiagonalCursedBarkBlock.NORTH_WEST, true));
     }
 
-    protected void placeCursedVineZ(@NotNull Context context, @NotNull BlockPos pos) {
+    protected void placeCursedVineZ(Context context, BlockPos pos) {
         place(context, pos.above(), ModBlocks.DIRECT_CURSED_BARK.get().defaultBlockState().setValue(DirectCursedBarkBlock.DOWN_TYPE, DirectCursedBarkBlock.Type.VERTICAL));
         place(context, pos.below(), ModBlocks.DIRECT_CURSED_BARK.get().defaultBlockState().setValue(DirectCursedBarkBlock.UP_TYPE, DirectCursedBarkBlock.Type.VERTICAL));
         place(context, pos.east(), ModBlocks.DIRECT_CURSED_BARK.get().defaultBlockState().setValue(DirectCursedBarkBlock.WEST_TYPE, DirectCursedBarkBlock.Type.HORIZONTAL));
@@ -79,7 +78,7 @@ public class TrunkCursedVineDecorator extends TreeDecorator {
         place(context, pos.below().east(), ModBlocks.DIAGONAL_CURSED_BARK.get().defaultBlockState().setValue(DiagonalCursedBarkBlock.UP_WEST, true));
     }
 
-    protected void place(@NotNull Context context, @NotNull BlockPos pos, @NotNull BlockState state) {
+    protected void place(Context context, BlockPos pos, BlockState state) {
         if (context.level().isStateAtPosition(pos, BlockBehaviour.BlockStateBase::isAir)) {
             context.setBlock(pos, state);
         }

@@ -3,6 +3,7 @@ package de.teamlapen.vampirism.common.core;
 
 import de.teamlapen.vampirism.REFERENCE;
 import de.teamlapen.vampirism.common.world.features.VampireDungeonFeature;
+import de.teamlapen.vampirism.common.world.features.treedecorators.TallGrassOnGroundDecorator;
 import de.teamlapen.vampirism.common.world.features.treedecorators.TrunkCursedVineDecorator;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.levelgen.feature.Feature;
@@ -19,6 +20,7 @@ public class ModFeatures {
     public static final DeferredHolder<Feature<?>, VampireDungeonFeature> VAMPIRE_DUNGEON = FEATURES.register("vampire_dungeon", () -> new VampireDungeonFeature(NoneFeatureConfiguration.CODEC));
 
     public static final DeferredHolder<TreeDecoratorType<?>, TreeDecoratorType<TrunkCursedVineDecorator>> TRUNK_CURSED_VINE = TREE_DECORATOR.register("trunk_cursed_vine", () -> new TreeDecoratorType<>(TrunkCursedVineDecorator.CODEC));
+    public static final DeferredHolder<TreeDecoratorType<?>, TreeDecoratorType<TallGrassOnGroundDecorator>> TALL_GRASS_ON_GROUND = TREE_DECORATOR.register("tall_grass_on_ground", () -> new TreeDecoratorType<>(TallGrassOnGroundDecorator.CODEC));
 
     static void register(IEventBus bus) {
         FEATURES.register(bus);

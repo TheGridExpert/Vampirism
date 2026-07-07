@@ -24,6 +24,12 @@
     "decorators": [
       {
         "type": "vampirism:trunk_cursed_vine"
+      },
+      {
+        "type": "vampirism:tall_grass_on_ground",
+        "height": 1,
+        "radius": 3,
+        "tries": 8
       }
     ],
     "foliage_placer": {
