@@ -32,6 +32,7 @@ import net.minecraft.world.level.levelgen.feature.foliageplacers.SpruceFoliagePl
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 import net.minecraft.world.level.levelgen.feature.stateproviders.SimpleStateProvider;
 import net.minecraft.world.level.levelgen.feature.trunkplacers.StraightTrunkPlacer;
+import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicate;
 import net.minecraft.world.level.levelgen.placement.*;
 import net.minecraft.world.level.levelgen.structure.templatesystem.TagMatchTest;
 import net.neoforged.neoforge.common.world.BiomeModifier;
@@ -96,8 +97,8 @@ public class VampirismFeatures {
 
     public static void createPlacedFeatures(BootstrapContext<PlacedFeature> context) {
         HolderGetter<ConfiguredFeature<?, ?>> configuredFeatures = context.lookup(Registries.CONFIGURED_FEATURE);
-        context.register(VAMPIRE_FLOWER_PLACED, new PlacedFeature(configuredFeatures.getOrThrow(VAMPIRE_FLOWER), List.of(RarityFilter.onAverageOnceEvery(4), PlacementUtils.HEIGHTMAP_WORLD_SURFACE, InSquarePlacement.spread(), BiomeFilter.biome())));
-        context.register(CURSED_ROOT_PLACED, new PlacedFeature(configuredFeatures.getOrThrow(CURSED_ROOT), VegetationPlacements.worldSurfaceSquaredWithCount(2)));
+        context.register(VAMPIRE_FLOWER_PLACED, new PlacedFeature(configuredFeatures.getOrThrow(VAMPIRE_FLOWER), onlyInAir(List.of(RarityFilter.onAverageOnceEvery(4), PlacementUtils.HEIGHTMAP_WORLD_SURFACE, InSquarePlacement.spread(), BiomeFilter.biome()))));
+        context.register(CURSED_ROOT_PLACED, new PlacedFeature(configuredFeatures.getOrThrow(CURSED_ROOT), onlyInAir(VegetationPlacements.worldSurfaceSquaredWithCount(2))));
         context.register(DARK_SPRUCE_TREE_PLACED, new PlacedFeature(configuredFeatures.getOrThrow(DARK_SPRUCE_TREE), List.of(PlacementUtils.filteredByBlockSurvival((ModBlocks.DARK_SPRUCE_SAPLING.get())))));
         context.register(CURSED_SPRUCE_TREE_PLACED, new PlacedFeature(configuredFeatures.getOrThrow(CURSED_SPRUCE_TREE), List.of(PlacementUtils.filteredByBlockSurvival((ModBlocks.CURSED_SPRUCE_SAPLING.get())))));
         context.register(VAMPIRE_DUNGEON_PLACED, new PlacedFeature(configuredFeatures.getOrThrow(VAMPIRE_DUNGEON), List.of(CountPlacement.of(3), InSquarePlacement.spread(), HeightRangePlacement.uniform(VerticalAnchor.absolute(0), VerticalAnchor.top()), BiomeFilter.biome())));
@@ -105,8 +106,12 @@ public class VampirismFeatures {
         context.register(VAMPIRE_TREES_SPARSE_PLACED, new PlacedFeature(configuredFeatures.getOrThrow(VAMPIRE_TREES), VegetationPlacements.treePlacement(PlacementUtils.countExtra(3, 0.1f, 1))));
         context.register(ORE_DARK_STONE_PLACED, new PlacedFeature(configuredFeatures.getOrThrow(ORE_DARK_STONE), OrePlacementAccessor.invokeCommonOrePlacement(30, HeightRangePlacement.uniform(VerticalAnchor.bottom(), VerticalAnchor.top()))));
         context.register(ORE_CURSED_DIRT_PLACED, new PlacedFeature(configuredFeatures.getOrThrow(ORE_CURSED_DIRT), OrePlacementAccessor.invokeCommonOrePlacement(7, HeightRangePlacement.uniform(VerticalAnchor.absolute(0), VerticalAnchor.absolute(160)))));
-        context.register(VAMPIRE_FOREST_GRASS_PLACED, new PlacedFeature(configuredFeatures.getOrThrow(VegetationFeatures.GRASS), VegetationPlacements.worldSurfaceSquaredWithCount(12)));
-        context.register(VAMPIRE_FOREST_TALL_GRASS_PLACED, new PlacedFeature(configuredFeatures.getOrThrow(VegetationFeatures.TALL_GRASS), List.of(NoiseThresholdCountPlacement.of(-0.8, 0, 7), RarityFilter.onAverageOnceEvery(24), InSquarePlacement.spread(), PlacementUtils.HEIGHTMAP, BiomeFilter.biome())));
+        context.register(VAMPIRE_FOREST_GRASS_PLACED, new PlacedFeature(configuredFeatures.getOrThrow(VegetationFeatures.GRASS), onlyInAir(VegetationPlacements.worldSurfaceSquaredWithCount(12))));
+        context.register(VAMPIRE_FOREST_TALL_GRASS_PLACED, new PlacedFeature(configuredFeatures.getOrThrow(VegetationFeatures.TALL_GRASS), onlyInAir(List.of(NoiseThresholdCountPlacement.of(-0.8, 0, 7), RarityFilter.onAverageOnceEvery(24), InSquarePlacement.spread(), PlacementUtils.HEIGHTMAP, BiomeFilter.biome()))));
+    }
+
+    private static List<PlacementModifier> onlyInAir(List<PlacementModifier> placement) {
+        return ImmutableList.<PlacementModifier>builder().addAll(placement).add(BlockPredicateFilter.forPredicate(BlockPredicate.matchesTag(BlockTags.AIR))).build();
     }
 
     public static void createBiomeModifier(BootstrapContext<BiomeModifier> context) {
