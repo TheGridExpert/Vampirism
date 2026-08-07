@@ -71,6 +71,7 @@ public class ModEntitiesRender {
 
     public static void onRegisterRenderers(EntityRenderersEvent.@NotNull RegisterRenderers event) {
         event.registerEntityRenderer(ModEntities.BLINDING_BAT.get(), BatRenderer::new);
+        event.registerEntityRenderer(ModEntities.ILLUSORY_BAT.get(), IllusoryBatRenderer::new);
         event.registerEntityRenderer(ModEntities.CONVERTED_CREATURE_IMOB.get(), ConvertedCreatureRenderer::new);
         event.registerEntityRenderer(ModEntities.CONVERTED_CREATURE.get(), (ConvertedCreatureRenderer::new));
         event.registerEntityRenderer(ModEntities.HUNTER.get(), (BasicHunterRenderer::new));

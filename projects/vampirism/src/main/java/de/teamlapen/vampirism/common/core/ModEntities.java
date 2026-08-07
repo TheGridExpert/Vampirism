@@ -33,8 +33,6 @@ import net.minecraft.world.entity.ambient.Bat;
 import net.minecraft.world.entity.vehicle.boat.Boat;
 import net.minecraft.world.entity.vehicle.boat.ChestBoat;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.common.conditions.ICondition;
@@ -95,6 +93,7 @@ public class ModEntities {
 
     // Misc
     public static final DeferredHolder<EntityType<?>, EntityType<BlindingBatEntity>> BLINDING_BAT = registerEntityType("blinding_bat", BlindingBatEntity::new, MobCategory.AMBIENT, x -> x.sized(0.5F, 0.9F));
+    public static final DeferredHolder<EntityType<?>, EntityType<IllusoryBatEntity>> ILLUSORY_BAT = registerEntityType("illusory_bat", IllusoryBatEntity::new, MobCategory.MISC, x -> x.sized(0.5F, 0.9F).clientTrackingRange(64).updateInterval(1));
     public static final DeferredHolder<EntityType<?>, EntityType<AggressiveVillagerEntity>> VILLAGER_ANGRY = registerEntityType("villager_angry", AggressiveVillagerEntity::new, MobCategory.CREATURE, x -> x.sized(0.6F, 1.95F).noSummon());
     public static final DeferredHolder<EntityType<?>, EntityType<SoulOrbEntity>> SOUL_ORB = registerEntityType("soul_orb", SoulOrbEntity::new, MobCategory.MISC, x -> x.sized(0.25F, 0.25F).fireImmune().noSummon());
     public static final DeferredHolder<EntityType<?>, EntityType<SitEntity>> SIT = registerEntityType("sit", SitEntity::new, MobCategory.MISC, x -> x.sized(0.0001f, 0.0001f).setTrackingRange(256).setUpdateInterval(20).noSummon());
@@ -164,6 +163,7 @@ public class ModEntities {
         event.put(ADVANCED_VAMPIRE.get(), AdvancedVampireEntity.getAttributeBuilder().build());
         event.put(ADVANCED_VAMPIRE_IMOB.get(), AdvancedVampireEntity.getAttributeBuilder().build());
         event.put(BLINDING_BAT.get(), Bat.createAttributes().build());
+        event.put(ILLUSORY_BAT.get(), Bat.createAttributes().build());
         event.put(CONVERTED_CREATURE.get(), BasicVampireEntity.getAttributeBuilder().build());
         event.put(CONVERTED_CREATURE_IMOB.get(), BasicVampireEntity.getAttributeBuilder().build());
         event.put(DUMMY_CREATURE.get(), BasicVampireEntity.getAttributeBuilder().build());

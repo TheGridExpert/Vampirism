@@ -9,11 +9,17 @@ import de.teamlapen.vampirism.api.world.entity.player.vampire.IVampirePlayer;
 import de.teamlapen.vampirism.common.config.ModConfig;
 import de.teamlapen.vampirism.common.core.ModAttachments;
 import de.teamlapen.vampirism.common.core.ModEffects;
+import de.teamlapen.vampirism.common.core.ModEntities;
 import de.teamlapen.vampirism.common.core.ModItems;
+import de.teamlapen.vampirism.common.world.entity.IllusoryBatEntity;
 import de.teamlapen.vampirism.common.world.entity.player.vampire.VampirePlayer;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.util.Util;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -27,7 +33,6 @@ import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.common.NeoForgeMod;
 
 import java.util.Objects;
-
 
 public class BatVampireAction extends DefaultVampireAction implements ILastingAction<IVampirePlayer> {
 
@@ -47,6 +52,7 @@ public class BatVampireAction extends DefaultVampireAction implements ILastingAc
         setModifier(player, true);
         updatePlayer((VampirePlayer) vampire, true);
         IDraculaPlayer.get(player).ifPresent(d -> d.closeWings(true));
+        createTransformationEffects(player, true);
         return IActionResult.SUCCESS;
     }
 
@@ -110,6 +116,7 @@ public class BatVampireAction extends DefaultVampireAction implements ILastingAc
         //player.addPotionEffect(new PotionEffect(MobEffects.REGENERATION, 20, 0, false, false));
         updatePlayer((VampirePlayer) vampire, false);
         player.removeData(ModAttachments.VAMPIRE_BAT);
+        createTransformationEffects(player, false);
     }
 
     @Override
@@ -197,4 +204,32 @@ public class BatVampireAction extends DefaultVampireAction implements ILastingAc
         }
     }
 
+    private static void createTransformationEffects(Player player, boolean enteringBatForm) {
+        if (!(player.level() instanceof ServerLevel level)) return;
+
+        double x = player.getX();
+        double y = player.getY() + player.getBbHeight() * 0.5D;
+        double z = player.getZ();
+        level.sendParticles(ParticleTypes.SQUID_INK, x, y, z, 20, 0.45D, 0.6D, 0.45D, 0.03D);
+        level.sendParticles(ParticleTypes.LARGE_SMOKE, x, y, z, 28, 0.4D, 0.6D, 0.4D, 0.03D);
+        if (enteringBatForm) {
+            spawnIllusoryBats(level, player);
+        }
+        level.playSound(null, x, y, z, SoundEvents.BAT_AMBIENT, SoundSource.PLAYERS, 1.4F, enteringBatForm ? 0.72F : 0.9F);
+        level.playSound(null, x, y, z, SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 0.55F, enteringBatForm ? 0.72F : 0.85F);
+    }
+
+    private static void spawnIllusoryBats(ServerLevel level, Player player) {
+        for (int i = 0; i < 28; i++) {
+            IllusoryBatEntity bat = new IllusoryBatEntity(ModEntities.ILLUSORY_BAT.get(), level);
+            double angle = level.getRandom().nextDouble() * Math.PI * 2.0D;
+            double horizontalSpeed = 0.24D + level.getRandom().nextDouble() * 0.08D;
+            double verticalSpeed = (level.getRandom().nextDouble() - 0.35D) * 0.16D;
+            bat.snapTo(player.getX(), player.getY() + player.getBbHeight() * (0.25D + level.getRandom().nextDouble() * 0.55D), player.getZ(), (float) (angle * 180.0D / Math.PI), 0.0F);
+            bat.setDeltaMovement(Math.cos(angle) * horizontalSpeed, verticalSpeed + 0.04D, Math.sin(angle) * horizontalSpeed);
+            bat.setLifetime(24 + level.getRandom().nextInt(15));
+            bat.hurtMarked = true; // Send its initial velocity to tracking clients immediately.
+            level.addFreshEntity(bat);
+        }
+    }
 }
