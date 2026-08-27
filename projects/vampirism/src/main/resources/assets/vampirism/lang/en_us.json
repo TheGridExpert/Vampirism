@@ -596,7 +596,7 @@
   "skill.vampirism.vampire_minion_collect": "Blood Collection",
   "skill.vampirism.vampire_minion_collect.desc": "Send your minions out to collect blood",
   "skill.vampirism.hunter": "Becoming a Hunter",
-  "skill.vampirism.stake1": "How to use a Stake",
+  "skill.vampirism.stake1": "How to Use a Stake",
   "skill.vampirism.stake1.desc": "Instantly kill any vampire below %s percent health with a stake",
   "skill.vampirism.stake1.desc.behind": "Instantly kill any vampire below %s percent health with a stake from behind",
   "skill.vampirism.weapon_table": "Basic Technology",
