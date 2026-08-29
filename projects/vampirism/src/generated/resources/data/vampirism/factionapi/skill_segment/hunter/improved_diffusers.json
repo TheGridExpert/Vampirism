@@ -1,0 +1,13 @@
+{
+  "parents": [
+    "vampirism:hunter/vampire_repelling"
+  ],
+  "placement": {
+    "type": "after",
+    "segment": "vampirism:hunter/purified_garlic"
+  },
+  "skills": [
+    "vampirism:improved_diffusers"
+  ],
+  "tree": "vampirism:hunter/level"
+}

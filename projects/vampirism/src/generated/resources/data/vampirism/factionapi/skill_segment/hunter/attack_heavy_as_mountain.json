@@ -1,0 +1,9 @@
+{
+  "parents": [
+    "vampirism:hunter/near_breach_reforging"
+  ],
+  "skills": [
+    "vampirism:attack_heavy_as_mountain"
+  ],
+  "tree": "vampirism:hunter/level"
+}
