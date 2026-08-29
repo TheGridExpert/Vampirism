@@ -2,7 +2,6 @@ package de.teamlapen.vampirism.common.integration.jei.categories;
 
 import de.teamlapen.faction.api.factions.skills.ISkill;
 import de.teamlapen.faction.api.factions.skills.ISkillHandler;
-import de.teamlapen.faction.api.registries.skills.DeferredSkill;
 import de.teamlapen.faction.common.util.Color;
 import de.teamlapen.vampirism.api.util.VIdentifier;
 import de.teamlapen.vampirism.api.world.entity.player.hunter.IHunterPlayer;
@@ -35,7 +34,6 @@ import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.display.SlotDisplay;
 import net.minecraft.world.item.crafting.display.SlotDisplayContext;
-import net.neoforged.neoforge.registries.DeferredHolder;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -132,7 +130,7 @@ public class VaporStillRecipeCategory extends AbstractRecipeCategory<JEIPotionMi
             addSkillLine(HunterSkills.CONCENTRATED_BREWING, skillLines, skills);
         }
         if (recipe.getOriginal().master) {
-            addSkillLine(HunterSkills.MASTER_BREWER, skillLines, skills);
+            addSkillLine(HunterSkills.FORGOTTEN_FORMULARY, skillLines, skills);
         }
         if (recipe.getOriginal().efficient) {
             addSkillLine(HunterSkills.EFFICIENT_BREWING, skillLines, skills);

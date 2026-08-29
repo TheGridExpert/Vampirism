@@ -1,9 +1,0 @@
-{
-  "parents": [
-    "vampirism:hunter/near_breach_reforging"
-  ],
-  "skills": [
-    "vampirism:hunter_attack_damage"
-  ],
-  "tree": "vampirism:hunter/level"
-}

@@ -1,6 +1,6 @@
 {
   "parents": [
-    "vampirism:hunter/garlic_diffuser"
+    "vampirism:hunter/vampire_repelling"
   ],
   "skills": [
     "vampirism:purified_garlic"

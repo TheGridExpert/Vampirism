@@ -1,13 +1,13 @@
 {
   "parents": [
-    "vampirism:hunter/ultimate_crucifix"
+    "vampirism:hunter/crucifixion"
   ],
   "placement": {
     "type": "after",
-    "segment": "vampirism:hunter/crucifix_repel"
+    "segment": "vampirism:hunter/crucifix_repelling"
   },
   "skills": [
-    "vampirism:enhanced_blessing"
+    "vampirism:greater_blessing"
   ],
   "tree": "vampirism:hunter/level"
 }
