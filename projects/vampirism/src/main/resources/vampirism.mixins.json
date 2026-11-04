@@ -32,6 +32,7 @@
     "WorldGenSettingsMixin",
     "accessor.AnimationStateAccessor",
     "accessor.AttributeInstanceAccessor",
+    "accessor.CrossbowItemAccessor",
     "accessor.EntityAccessor",
     "accessor.FoodDataAccessor",
     "accessor.GroundPathNavigationAccessor",

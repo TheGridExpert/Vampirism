@@ -4,6 +4,7 @@ import com.mojang.serialization.MapCodec;
 import de.teamlapen.faction.api.FactionRegistries;
 import de.teamlapen.vampirism.api.VampirismRegistries;
 import de.teamlapen.vampirism.api.world.entity.convertible.Converter;
+import de.teamlapen.vampirism.api.world.entity.hunter.IHunterVariant;
 import de.teamlapen.vampirism.api.world.entity.player.vampire.IVampireVision;
 import de.teamlapen.vampirism.api.world.items.oil.IOil;
 import de.teamlapen.vampirism.common.world.features.ModNoiseParameters;
@@ -22,6 +23,7 @@ public class ModRegistries {
     public static final Registry<IOil> OILS = new RegistryBuilder<>(VampirismRegistries.Keys.OIL).sync(true).create();
     public static final Registry<MapCodec<? extends Converter>> ENTITY_CONVERTER = new RegistryBuilder<>(VampirismRegistries.Keys.ENTITY_CONVERTER).create();
     public static final Registry<IVampireVision> VAMPIRE_VISION = new RegistryBuilder<>(VampirismRegistries.Keys.VAMPIRE_VISION).sync(true).create();
+    public static final Registry<IHunterVariant> HUNTER_VARIANT = new RegistryBuilder<>(VampirismRegistries.Keys.HUNTER_VARIANT).sync(true).create();
 
     public static final RegistrySetBuilder DATA_BUILDER = new RegistrySetBuilder()
             .add(Registries.BIOME, ModBiomes::createBiomes)
@@ -51,6 +53,7 @@ public class ModRegistries {
         event.register(OILS);
         event.register(ENTITY_CONVERTER);
         event.register(VAMPIRE_VISION);
+        event.register(HUNTER_VARIANT);
     }
 
     static void registerDatapackRegistries(DataPackRegistryEvent.NewRegistry event) {

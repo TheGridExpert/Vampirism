@@ -2,6 +2,7 @@ package de.teamlapen.vampirism.common.core;
 
 import de.teamlapen.vampirism.REFERENCE;
 import de.teamlapen.vampirism.common.world.entity.ai.sensing.ActionSensor;
+import de.teamlapen.vampirism.common.world.entity.ai.sensing.HunterSpecificSensor;
 import de.teamlapen.vampirism.common.world.entity.ai.sensing.HurtBySensor;
 import de.teamlapen.vampirism.common.world.entity.ai.sensing.SurroundedSensor;
 import de.teamlapen.vampirism.common.world.entity.dracula.ai.sensors.DraculaAttackablesSensor;
@@ -22,6 +23,7 @@ public class ModSensors {
     public static final DeferredHolder<SensorType<?>, SensorType<HurtBySensor>> HURT_BY = SENSOR_TYPES.register("hurt_by", () -> new SensorType<>(HurtBySensor::new));
     public static final DeferredHolder<SensorType<?>, SensorType<ActionSensor<LivingEntity>>> ACTION_SENSOR = SENSOR_TYPES.register("action_sensor", () -> new SensorType<>(ActionSensor::new));
     public static final DeferredHolder<SensorType<?>, SensorType<DraculaStageSensor>> DRACULA_STAGE_SENSOR = SENSOR_TYPES.register("dracula_stage_sensor", () -> new SensorType<>(DraculaStageSensor::new));
+    public static final DeferredHolder<SensorType<?>, SensorType<HunterSpecificSensor>> HUNTER_SPECIFIC_SENSOR = SENSOR_TYPES.register("hunter_specific_sensor", () -> new SensorType<>(HunterSpecificSensor::new));
 
     static void register(IEventBus bus) {
         SENSOR_TYPES.register(bus);

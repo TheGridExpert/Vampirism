@@ -6,6 +6,7 @@ import de.teamlapen.vampirism.REFERENCE;
 import de.teamlapen.vampirism.api.VEnums;
 import de.teamlapen.vampirism.api.VampirismRegistries;
 import de.teamlapen.vampirism.api.world.entity.convertible.Converter;
+import de.teamlapen.vampirism.api.world.entity.hunter.IHunterVariant;
 import de.teamlapen.vampirism.common.advancements.critereon.MarshallCriterion;
 import de.teamlapen.vampirism.api.world.entity.player.vampire.IWingsEntity;
 import de.teamlapen.vampirism.common.advancements.critereon.DraculaCriterion;
@@ -67,6 +68,7 @@ public class ModEntities {
     public static final DeferredHolder<EntityType<?>, EntityType<VampireTaskMasterEntity>> TASK_MASTER_VAMPIRE = registerEntityType("task_master_vampire", VampireTaskMasterEntity::new, VEnums.VAMPIRE_CATEGORY.getValue(), x -> x.sized(0.6f, 1.95f));
 
     // Hunters
+    public static final DeferredHolder<EntityType<?>, EntityType<Hunter>> NEW_HUNTER = registerEntityType("hunter_new", Hunter::new, VEnums.HUNTER_CATEGORY.getValue(), b -> b.sized(0.6F, 1.95F));
     public static final DeferredHolder<EntityType<?>, EntityType<BasicHunterEntity>> HUNTER = registerEntityType("hunter", BasicHunterEntity::new, VEnums.HUNTER_CATEGORY.getValue(), (d) -> d.sized(0.6F, 1.95F));
     public static final DeferredHolder<EntityType<?>, EntityType<BasicHunterEntity.IMob>> HUNTER_IMOB = registerEntityType("hunter_imob", BasicHunterEntity.IMob::new, VEnums.HUNTER_CATEGORY.getValue(), x -> x.sized(0.6f, 1.95f).noSummon());
     public static final DeferredHolder<EntityType<?>, EntityType<AdvancedHunterEntity>> ADVANCED_HUNTER = registerEntityType("advanced_hunter", AdvancedHunterEntity::new, VEnums.HUNTER_CATEGORY.getValue(), b -> b.sized(0.6F, 1.95F));
@@ -124,6 +126,7 @@ public class ModEntities {
     public static final DeferredHolder<EntityDataSerializer<?>, EntityDataSerializer<DraculaState>> DRACULA_STATE = DATA_SERIALIZER.register("dracula_state", () -> (EntityDataSerializer.ForValueType<DraculaState>) (() -> DraculaState.STREAM_CODEC));
     public static final DeferredHolder<EntityDataSerializer<?>, EntityDataSerializer<List<Integer>>> INT_LIST = DATA_SERIALIZER.register("int_list", () -> (EntityDataSerializer.ForValueType<List<Integer>>) (() -> ByteBufCodecs.VAR_INT.apply(ByteBufCodecs.list())));
     public static final DeferredHolder<EntityDataSerializer<?>, EntityDataSerializer<IWingsEntity.WingsState>> WINGS_STATE = DATA_SERIALIZER.register("wings_state", () -> (EntityDataSerializer.ForValueType<IWingsEntity.WingsState>) (() -> NeoForgeStreamCodecs.enumCodec(IWingsEntity.WingsState.class)));
+    public static final DeferredHolder<EntityDataSerializer<?>, EntityDataSerializer<Holder<IHunterVariant>>> HUNTER_VARIANT = DATA_SERIALIZER.register("hunter_variant", () -> (EntityDataSerializer.ForValueType<Holder<IHunterVariant>>) (() -> HunterVariant.STREAM_CODEC));
 
     static void register(IEventBus bus) {
         ENTITY_TYPES.register(bus);
@@ -134,6 +137,7 @@ public class ModEntities {
     }
 
     static void onRegisterSpawns(RegisterSpawnPlacementsEvent event) {
+        event.register(NEW_HUNTER.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Hunter::checkHunterSpawnRules, RegisterSpawnPlacementsEvent.Operation.OR);
         event.register(ADVANCED_HUNTER.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, HunterBaseEntity::spawnPredicateHunter, RegisterSpawnPlacementsEvent.Operation.OR);
         event.register(ADVANCED_VAMPIRE.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, VampireBaseEntity::spawnPredicateVampire, RegisterSpawnPlacementsEvent.Operation.OR);
         event.register(BLINDING_BAT.get(), SpawnPlacementTypes.NO_RESTRICTIONS, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, BlindingBatEntity::spawnPredicate, RegisterSpawnPlacementsEvent.Operation.OR);
@@ -149,6 +153,7 @@ public class ModEntities {
     }
 
     static void onRegisterEntityTypeAttributes(EntityAttributeCreationEvent event) {
+        event.put(NEW_HUNTER.get(), Hunter.getAttributeBuilder().build());
         event.put(ADVANCED_HUNTER.get(), AdvancedHunterEntity.getAttributeBuilder().build());
         event.put(ADVANCED_HUNTER_IMOB.get(), AdvancedHunterEntity.getAttributeBuilder().build());
         event.put(ADVANCED_VAMPIRE.get(), AdvancedVampireEntity.getAttributeBuilder().build());

@@ -1,5 +1,6 @@
 package de.teamlapen.vampirism.common.world.entity.ai.navigation;
 
+import de.teamlapen.vampirism.common.world.entity.hunter.Hunter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.block.FenceGateBlock;
@@ -24,6 +25,10 @@ public class HunterNodeEvaluator extends WalkNodeEvaluator {
             }
         }
 
+        if (pathType == PathType.WATER && mob instanceof Hunter && Hunter.isShallowWater(mob.level(), new BlockPos(x, y + 1, z))) {
+            return PathType.WALKABLE;
+        }
+
         return pathType;
     }
 
@@ -35,6 +40,10 @@ public class HunterNodeEvaluator extends WalkNodeEvaluator {
         if (blockState.getBlock() instanceof FenceGateBlock) {
             boolean isOpen = blockState.getValue(FenceGateBlock.OPEN);
             return isOpen ? PathType.WALKABLE_DOOR : PathType.DOOR_WOOD_CLOSED;
+        }
+
+        if (pathType == PathType.WATER && this.mob instanceof Hunter && Hunter.isShallowWater(this.mob.level(), new BlockPos(x, y + 1, z))) {
+            return PathType.WALKABLE;
         }
 
         return pathType;

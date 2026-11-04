@@ -73,6 +73,7 @@ public class ModEntitiesRender {
         event.registerEntityRenderer(ModEntities.BLINDING_BAT.get(), BatRenderer::new);
         event.registerEntityRenderer(ModEntities.CONVERTED_CREATURE_IMOB.get(), ConvertedCreatureRenderer::new);
         event.registerEntityRenderer(ModEntities.CONVERTED_CREATURE.get(), (ConvertedCreatureRenderer::new));
+        event.registerEntityRenderer(ModEntities.NEW_HUNTER.get(), HunterRenderer::new);
         event.registerEntityRenderer(ModEntities.HUNTER.get(), (BasicHunterRenderer::new));
         event.registerEntityRenderer(ModEntities.HUNTER_IMOB.get(), (BasicHunterRenderer::new));
         event.registerEntityRenderer(ModEntities.VAMPIRE.get(), (BasicVampireRenderer::new));

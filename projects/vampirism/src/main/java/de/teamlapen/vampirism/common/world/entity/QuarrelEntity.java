@@ -7,6 +7,7 @@ import de.teamlapen.vampirism.common.config.ModConfig;
 import de.teamlapen.vampirism.common.core.ModAttachments;
 import de.teamlapen.vampirism.common.core.ModEntities;
 import de.teamlapen.vampirism.common.core.ModItems;
+import de.teamlapen.vampirism.common.world.entity.hunter.Hunter;
 import de.teamlapen.vampirism.common.world.items.crossbow.QuarrelItem;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -218,6 +219,15 @@ public class QuarrelEntity extends AbstractArrow implements IEntityQuarrel {
      */
     public void setIgnoreHurtTimer() {
         this.ignoreHurtTimer = true;
+    }
+
+    @Override
+    protected boolean canHitEntity(Entity target) {
+        if (getOwner() instanceof Hunter && target instanceof Hunter) {
+            return false;
+        }
+
+        return super.canHitEntity(target);
     }
 
     @Override

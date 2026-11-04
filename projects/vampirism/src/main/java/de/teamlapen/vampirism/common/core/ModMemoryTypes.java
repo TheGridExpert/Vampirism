@@ -5,12 +5,14 @@ import de.teamlapen.vampirism.REFERENCE;
 import de.teamlapen.vampirism.common.util.serialization.ModCodecs;
 import de.teamlapen.vampirism.common.world.entity.ai.memory.HurtByEntities;
 import de.teamlapen.vampirism.common.world.entity.ai.system.AiSystem;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.util.Unit;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.NearestVisibleLivingEntities;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -76,6 +78,21 @@ public class ModMemoryTypes {
     //</editor-fold>
     //</editor-fold>
 
+    //<editor-fold desc="Hunter">
+    public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Unit>> PATROL_COOLDOWN = unit("hunter.patrol_cooldown");
+    public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Unit>> REPOSITIONING_COOLDOWN = unit("hunter.repositioning_cooldown");
+    public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Unit>> SHOULD_RETREAT = unit("hunter.should_retreat");
+    public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Unit>> WEAPONS_UNSHEATHED = unit("hunter.weapons_unsheathed");
+    public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Long>> WEAPON_SHEATH_COOLDOWN = transientMemory("hunter.weapon_sheath_cooldown");
+    public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Vec3>> AIM_TARGET = transientMemory("hunter.aim_target");
+    public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<LivingEntity>> CURE_TARGET = transientMemory("hunter.cure_target");
+    public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Integer>> SEE_TIME = transientMemory("hunter.see_time");
+    public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Set<GlobalPos>>> GATES_TO_CLOSE = transientMemory("hunter.gates_to_close");
+    public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<List<LivingEntity>>> NEAREST_VISIBLE_HUNTERS = transientMemory("hunter.nearest_visible_hunters");
+    public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<List<LivingEntity>>> NEAREST_VISIBLE_HOSTILES = transientMemory("hunter.nearest_visible_hostiles");
+    public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<List<LivingEntity>>> NEAREST_VISIBLE_INFECTED_ENTITIES = transientMemory("hunter.nearest_visible_infected_entities");
+    //</editor-fold>
+
 
     static void register(IEventBus bus) {
         MEMORY_MODULES.register(bus);
@@ -92,5 +109,9 @@ public class ModMemoryTypes {
 
     private static DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Long>> longInt(String name) {
         return MEMORY_MODULES.register(name, () -> new MemoryModuleType<>(Optional.of(Codec.LONG)));
+    }
+
+    private static <U> DeferredHolder<MemoryModuleType<?>, MemoryModuleType<U>> transientMemory(String name) {
+        return MEMORY_MODULES.register(name, () -> new MemoryModuleType<>(Optional.empty()));
     }
 }

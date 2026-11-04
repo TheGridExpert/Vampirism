@@ -32,6 +32,7 @@ public class ModAttributes {
      * Registered for EntityPlayer
      */
     public static final DeferredHolder<Attribute, RangedAttribute> DBNO_DURATION = ATTRIBUTES.register("dbno_duration", () -> (RangedAttribute) new RangedAttribute("attribute.vampirism.dbno_duration", 1.0, 0.0, Integer.MAX_VALUE).setSyncable(true));
+    public static final DeferredHolder<Attribute, RangedAttribute> ACCURACY = ATTRIBUTES.register("accuracy", () -> new RangedAttribute("attribute.vampirism.accuracy", 1.0D, 0.1D, 5.0D));
 
     static void register(IEventBus bus) {
         ATTRIBUTES.register(bus);

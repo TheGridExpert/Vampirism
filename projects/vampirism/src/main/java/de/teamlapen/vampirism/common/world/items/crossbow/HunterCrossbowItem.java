@@ -6,6 +6,7 @@ import de.teamlapen.vampirism.common.core.ModDataComponents;
 import de.teamlapen.vampirism.common.core.ModEnchantments;
 import de.teamlapen.vampirism.common.core.ModItems;
 import de.teamlapen.vampirism.common.world.entity.QuarrelEntity;
+import de.teamlapen.vampirism.common.world.entity.ai.behaviour.PreciseCrossbowAttack;
 import de.teamlapen.vampirism.common.world.items.component.EnchantmentOverride;
 import de.teamlapen.vampirism.common.world.items.component.QuarrelPouchContents;
 import de.teamlapen.vampirism.common.tags.ModItemTags;
@@ -222,6 +223,13 @@ public abstract class HunterCrossbowItem extends CrossbowItem implements IHunter
             shootProjectile(shooter, projectile, i, projectileSpeed, projectileInaccuracy, 0, targetOverride);
             applyHorizontalSpread(shooter, hand, projectile, i, projectiles.size());
             level.addFreshEntity(projectile);
+        }
+    }
+
+    @Override
+    protected void shootProjectile(LivingEntity shooter, Projectile projectile, int index, float velocity, float inaccuracy, float angle, @Nullable LivingEntity targetOverride) {
+        if (!PreciseCrossbowAttack.shootAimedProjectile(shooter, projectile, index, velocity, inaccuracy, angle)) {
+            super.shootProjectile(shooter, projectile, index, velocity, inaccuracy, angle, targetOverride);
         }
     }
 
