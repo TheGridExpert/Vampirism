@@ -41,6 +41,7 @@ public class ModEntityTypeTagsProvider extends EntityTypeTagsProvider {
         tag(ModEntityTags.HUNTER_THREAT_PROVOKED_ONLY).add(EntityType.ZOMBIFIED_PIGLIN, EntityType.ENDERMAN);
         tag(ModEntityTags.HUNTER_THREAT_AVOID).add(EntityType.WARDEN).addTag(Tags.EntityTypes.BOSSES);
         tag(ModEntityTags.HUNTER_THREAT_PRIORITY).addTag(ModEntityTags.VAMPIRE).add(EntityType.WITCH, EntityType.EVOKER, EntityType.SKELETON, EntityType.STRAY, EntityType.BOGGED);
+        tag(ModEntityTags.HUNTER_BRAIN_AGGRESSORS).add(EntityType.PIGLIN, EntityType.PIGLIN_BRUTE, EntityType.BREEZE);
         tag(ModEntityTags.VAMPIRE_VILLAGE_GUARDS).add(ModEntities.VAMPIRE.get(), ModEntities.VAMPIRE_IMOB.get(), ModEntities.ADVANCED_VAMPIRE.get(), ModEntities.ADVANCED_VAMPIRE_IMOB.get());
         tag(EntityTypeTags.CAN_WEAR_HORSE_ARMOR).add(GeneratedVampirismConvertedEntities.CONVERTED_HORSE.get());
         tag(EntityTypeTags.CAN_EQUIP_SADDLE).add(GeneratedVampirismConvertedEntities.CONVERTED_HORSE.get())

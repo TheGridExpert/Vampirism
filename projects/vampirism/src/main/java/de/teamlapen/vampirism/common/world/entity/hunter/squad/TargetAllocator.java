@@ -9,7 +9,7 @@ import java.util.*;
 import java.util.function.ToDoubleBiFunction;
 import java.util.function.ToIntFunction;
 
-public final class TargetAllocator {
+public class TargetAllocator {
 
     public static Map<LivingEntity, List<Hunter>> allocate(List<Hunter> hunters, List<LivingEntity> targets, ToIntFunction<LivingEntity> capacity, ToDoubleBiFunction<Hunter, LivingEntity> cost) {
         List<Candidate> candidates = new ArrayList<>();

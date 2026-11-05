@@ -6,7 +6,7 @@ import net.minecraft.world.entity.SpawnGroupData;
 
 import java.util.UUID;
 
-public final class HunterGroupData implements SpawnGroupData {
+public class HunterGroupData implements SpawnGroupData {
 
     private static final int MELEE_SHARE = 5;
     private static final int RANGED_SHARE = 4;

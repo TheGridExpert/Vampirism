@@ -24,7 +24,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.*;
 import java.util.function.Predicate;
 
-public final class SquadContext {
+public class SquadContext {
 
     public static final double ENGAGE_RADIUS = 24.0D;
     private static final int WOUNDED_RETREAT_TICKS = 400;

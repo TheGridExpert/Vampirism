@@ -6,13 +6,10 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.Creeper;
 
-public final class HunterThreats {
+public class HunterThreats {
 
     public static final double EXPLOSIVE_MIN_SHOOT_DISTANCE = 10.0D;
     public static final double CHARGED_EXPLOSIVE_MIN_SHOOT_DISTANCE = 14.0D;
-
-    private HunterThreats() {
-    }
 
     public static boolean isExplosive(LivingEntity entity) {
         return entity.is(ModEntityTags.HUNTER_THREAT_EXPLOSIVE);

@@ -9,7 +9,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.*;
 
-public final class HunterSquad {
+public class HunterSquad {
 
     public static final int MAX_SIZE = 9;
     private static final int MIN_SIZE = 3;

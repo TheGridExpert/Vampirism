@@ -4,7 +4,7 @@ import de.teamlapen.vampirism.common.world.entity.hunter.squad.tactic.*;
 
 import java.util.List;
 
-public final class GeneralStrategy implements SquadStrategy {
+public class GeneralStrategy implements SquadStrategy {
 
     public static final GeneralStrategy INSTANCE = new GeneralStrategy();
 

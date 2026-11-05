@@ -4,7 +4,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
-public final class SquadOrder {
+public class SquadOrder {
 
     private @Nullable LivingEntity target;
     private @Nullable Vec3 position;

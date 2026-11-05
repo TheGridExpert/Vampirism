@@ -15,7 +15,10 @@ import de.teamlapen.vampirism.common.tags.ModDamageTypeTags;
 import de.teamlapen.vampirism.common.util.DifficultyCalculator;
 import de.teamlapen.vampirism.common.util.Helper;
 import de.teamlapen.vampirism.common.util.OilUtils;
+import de.teamlapen.vampirism.common.tags.ModEntityTags;
 import de.teamlapen.vampirism.common.world.entity.ai.goals.AvoidBlockGoal;
+import de.teamlapen.vampirism.common.world.entity.ai.goals.BrainHunterTargetGoal;
+import de.teamlapen.vampirism.common.world.entity.hunter.HunterAggression;
 import de.teamlapen.vampirism.common.world.entity.ai.goals.GolemTargetNonVillageFactionGoal;
 import de.teamlapen.vampirism.common.world.entity.player.hunter.HunterPlayer;
 import de.teamlapen.vampirism.common.world.entity.player.hunter.skills.HunterSkills;
@@ -145,6 +148,10 @@ public class ModEntityEventHandler {
 
             if (event.getEntity() instanceof Creeper creeper) {
                 creeper.goalSelector.addGoal(3, new AvoidBlockGoal(creeper, ModVillage.CREEPER_REPELLENT, 6, 1.0));
+            }
+
+            if (event.getEntity() instanceof Mob mob && mob.is(ModEntityTags.HUNTER_BRAIN_AGGRESSORS) && HunterAggression.targetsHunters(mob)) {
+                mob.targetSelector.addGoal(2, new BrainHunterTargetGoal(mob));
             }
 
 

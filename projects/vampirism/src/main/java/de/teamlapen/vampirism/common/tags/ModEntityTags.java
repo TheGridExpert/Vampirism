@@ -26,6 +26,7 @@ public class ModEntityTags {
     public static final TagKey<EntityType<?>> HUNTER_THREAT_PROVOKED_ONLY = tag("hunter/threat/provoked_only");
     public static final TagKey<EntityType<?>> HUNTER_THREAT_AVOID = tag("hunter/threat/avoid");
     public static final TagKey<EntityType<?>> HUNTER_THREAT_PRIORITY = tag("hunter/threat/priority");
+    public static final TagKey<EntityType<?>> HUNTER_BRAIN_AGGRESSORS = tag("hunter/brain_aggressors");
 
     public static final TagKey<EntityType<?>> ZOMBIES = tag("zombies");
     public static final TagKey<EntityType<?>> IGNORE_VAMPIRE_SWORD_FINISHER = tag("ignore_vampire_sword_finisher");
