@@ -15,7 +15,7 @@ public class FormationTactic implements SquadTactic {
 
     @Override
     public void apply(SquadContext context) {
-        if (context.hasThreats()) return;
+        if (context.hasThreats() || context.isRelaxed()) return;
 
         Hunter leader = context.squad().leader();
         if (leader == null) return;

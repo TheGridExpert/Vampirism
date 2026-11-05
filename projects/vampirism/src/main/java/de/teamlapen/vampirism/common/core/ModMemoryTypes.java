@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import de.teamlapen.vampirism.REFERENCE;
 import de.teamlapen.vampirism.common.util.serialization.ModCodecs;
 import de.teamlapen.vampirism.common.world.entity.ai.memory.HurtByEntities;
+import de.teamlapen.vampirism.common.world.entity.hunter.squad.PatrolArea;
 import de.teamlapen.vampirism.common.world.entity.ai.system.AiSystem;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.UUIDUtil;
@@ -95,6 +96,7 @@ public class ModMemoryTypes {
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<LivingEntity>> SQUAD_TARGET = transientMemory("hunter.squad_target");
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Vec3>> SQUAD_POSITION = transientMemory("hunter.squad_position");
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Unit>> SQUAD_RETREAT = transientMemory("hunter.squad_retreat");
+    public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<PatrolArea>> SQUAD_PATROL_AREA = transientMemory("hunter.squad_patrol_area");
     //</editor-fold>
 
 

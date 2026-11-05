@@ -10,6 +10,16 @@ public class SquadOrder {
     private @Nullable Vec3 position;
     private boolean retreat;
     private boolean groupRetreat;
+    private @Nullable PatrolArea patrolArea;
+
+    public SquadOrder patrolArea(@Nullable PatrolArea patrolArea) {
+        this.patrolArea = patrolArea;
+        return this;
+    }
+
+    public @Nullable PatrolArea getPatrolArea() {
+        return this.patrolArea;
+    }
 
     public SquadOrder target(@Nullable LivingEntity target) {
         this.target = target;

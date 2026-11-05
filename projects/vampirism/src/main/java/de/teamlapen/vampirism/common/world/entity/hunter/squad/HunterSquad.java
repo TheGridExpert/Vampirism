@@ -2,6 +2,7 @@ package de.teamlapen.vampirism.common.world.entity.hunter.squad;
 
 import de.teamlapen.vampirism.common.core.ModMemoryTypes;
 import de.teamlapen.vampirism.common.world.entity.hunter.Hunter;
+import de.teamlapen.vampirism.common.world.entity.hunter.HunterPost;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
@@ -17,6 +18,8 @@ public class HunterSquad {
     private static final int ORDER_TTL = 30; // TTL = time to live: ticks before a squad order expires from a hunter's memory
     private static final double MAX_LEADER_DISTANCE = 40.0D;
     private static final double HEADING_MIN_SPEED_SQR = 0.0004D;
+    private static final int GUARD_DURATION = 600;
+    private static final double POST_STRAGGLER_MARGIN = 8.0D;
 
     private final UUID id;
     private final int thinkOffset;
@@ -26,6 +29,7 @@ public class HunterSquad {
     private Vec3 heading = new Vec3(1, 0, 0);
     private boolean retreating;
     private boolean disbanded;
+    private long guardUntil;
 
     private HunterSquad(UUID id) {
         this.id = id;
@@ -68,6 +72,9 @@ public class HunterSquad {
         if (this.members.size() < 2) return;
 
         SquadContext context = SquadContext.create(level, this);
+        if (context.hasThreats()) {
+            this.guardUntil = level.getGameTime() + GUARD_DURATION;
+        }
         this.strategy.tick(context);
         context.apply(ORDER_TTL);
     }
@@ -83,10 +90,12 @@ public class HunterSquad {
     private void kickStragglers() {
         if (this.leader.isFighting()) return;
 
+        HunterPost post = post();
         for (Hunter member : List.copyOf(this.members)) {
-            if (member != this.leader && member.distanceTo(this.leader) > MAX_LEADER_DISTANCE) {
-                leave(member);
-            }
+            if (member == this.leader || member.distanceTo(this.leader) <= MAX_LEADER_DISTANCE) continue;
+            if (post != null && post.equals(member.getPost()) && post.contains(member.blockPosition(), POST_STRAGGLER_MARGIN)) continue;
+
+            leave(member);
         }
     }
 
@@ -186,6 +195,7 @@ public class HunterSquad {
         hunter.getBrain().eraseMemory(ModMemoryTypes.SQUAD_TARGET.get());
         hunter.getBrain().eraseMemory(ModMemoryTypes.SQUAD_POSITION.get());
         hunter.getBrain().eraseMemory(ModMemoryTypes.SQUAD_RETREAT.get());
+        hunter.getBrain().eraseMemory(ModMemoryTypes.SQUAD_PATROL_AREA.get());
     }
 
     private void electLeader() {
@@ -226,6 +236,19 @@ public class HunterSquad {
 
     public boolean isRetreating() {
         return this.retreating;
+    }
+
+    public boolean isOnGuard(long gameTime) {
+        return gameTime < this.guardUntil;
+    }
+
+    public @Nullable HunterPost post() {
+        if (this.leader != null && this.leader.getPost() != null) return this.leader.getPost();
+        for (Hunter member : this.members) {
+            HunterPost post = member.getPost();
+            if (post != null) return post;
+        }
+        return null;
     }
 
     public void setRetreating(boolean retreating) {

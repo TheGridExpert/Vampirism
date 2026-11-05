@@ -3,6 +3,7 @@ package de.teamlapen.vampirism.common.world.entity.hunter;
 import de.teamlapen.vampirism.api.world.entity.hunter.IHunterVariant;
 import de.teamlapen.vampirism.common.core.ModAttributes;
 import de.teamlapen.vampirism.common.core.ModDebugSubscriptions;
+import de.teamlapen.vampirism.common.tags.ModStructureTags;
 import de.teamlapen.vampirism.common.core.ModEntities;
 import de.teamlapen.vampirism.common.core.ModHunterVariants;
 import de.teamlapen.vampirism.common.core.ModItems;
@@ -20,6 +21,7 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
@@ -48,6 +50,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.common.CommonHooks;
@@ -94,8 +98,17 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
     private static final int REACH_RANGE = 2;
     private static final int MAX_REACH_CHECKS = 16;
 
+    public static final String TAG_POST_RADIUS = "PostRadius";
+    private static final int CAMP_POST_RADIUS = 12;
+    private static final int CAMPFIRE_SEARCH_RADIUS = 10;
+    private static final int CAMPFIRE_SEARCH_HEIGHT = 4;
+    private static final int OUTPOST_MIN_POST_RADIUS = 12;
+    private static final int OUTPOST_MAX_POST_RADIUS = 24;
+
     private final NonNullList<ItemStack> sheathedWeapons = NonNullList.withSize(2, ItemStack.EMPTY);
     private final Map<Integer, ReachCheck> reachChecks = new HashMap<>();
+    private int postRadius;
+    private boolean needsPostCheck;
     private @Nullable HunterSquad squad;
     private @Nullable UUID squadId;
 
@@ -140,6 +153,10 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
 
     @Override
     protected void customServerAiStep(ServerLevel level) {
+        if (this.needsPostCheck) {
+            resolveOutpostPost(level);
+        }
+
         ProfilerFiller profilerFiller = Profiler.get();
         profilerFiller.push("hunterSquad");
         HunterSquad.tickMember(level, this);
@@ -275,6 +292,7 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
         output.store(TAG_SHEATHED_WEAPONS, ItemStack.OPTIONAL_CODEC.listOf(), this.sheathedWeapons);
         output.store(TAG_QUARREL_TYPE, Item.CODEC, this.entityData.get(DATA_QUARREL_TYPE_ID));
         output.storeNullable(TAG_SQUAD_ID, UUIDUtil.CODEC, this.squadId);
+        output.putInt(TAG_POST_RADIUS, this.postRadius);
     }
 
     @Override
@@ -295,6 +313,7 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
 
         input.read(TAG_QUARREL_TYPE, Item.CODEC).ifPresent(quarrel -> this.entityData.set(DATA_QUARREL_TYPE_ID, quarrel));
         this.squadId = input.read(TAG_SQUAD_ID, UUIDUtil.CODEC).orElse(null);
+        this.postRadius = input.getIntOr(TAG_POST_RADIUS, 0);
     }
 
     @Override
@@ -312,6 +331,7 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
         HunterEquipmentAssigner.assignRandomEquipment(this, level, random);
 
         HunterAi.initMemories(this);
+        this.needsPostCheck = true;
 
         super.finalizeSpawn(level, difficulty, spawnReason, group);
         return group;
@@ -330,8 +350,35 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
         this.squadId = squad.id();
     }
 
-    public void makeCampHunter(BlockPos campPos) {
-        this.getBrain().setMemory(MemoryModuleType.HOME, GlobalPos.of(this.level().dimension(), campPos));
+    public void makeCampHunter(BlockPos tentPos) {
+        BlockPos campfire = BlockPos.findClosestMatch(tentPos, CAMPFIRE_SEARCH_RADIUS, CAMPFIRE_SEARCH_HEIGHT, pos -> level().getBlockState(pos).is(BlockTags.CAMPFIRES)).orElse(tentPos);
+        assignPost(campfire, CAMP_POST_RADIUS);
+    }
+
+    public void assignPost(BlockPos center, int radius) {
+        this.getBrain().setMemory(MemoryModuleType.HOME, GlobalPos.of(this.level().dimension(), center));
+        this.postRadius = radius;
+        this.needsPostCheck = false;
+    }
+
+    public @Nullable HunterPost getPost() {
+        if (this.postRadius <= 0) return null;
+        return this.getBrain().getMemory(MemoryModuleType.HOME).map(home -> new HunterPost(home.pos(), this.postRadius)).orElse(null);
+    }
+
+    public int getPatrolRadius(int fallback) {
+        return this.postRadius > 0 ? this.postRadius : fallback;
+    }
+
+    private void resolveOutpostPost(ServerLevel level) {
+        this.needsPostCheck = false;
+        StructureStart outpost = level.structureManager().getStructureWithPieceAt(blockPosition(), ModStructureTags.HUNTER_OUTPOST);
+        if (!outpost.isValid()) return;
+
+        BoundingBox box = outpost.getBoundingBox();
+        int radius = Mth.clamp(Math.max(box.getXSpan(), box.getZSpan()) / 2, OUTPOST_MIN_POST_RADIUS, OUTPOST_MAX_POST_RADIUS);
+        BlockPos center = box.getCenter();
+        assignPost(new BlockPos(center.getX(), getBlockY(), center.getZ()), radius);
     }
 
     private void assignRandomFactionLevel(ServerLevelAccessor level, RandomSource random) {

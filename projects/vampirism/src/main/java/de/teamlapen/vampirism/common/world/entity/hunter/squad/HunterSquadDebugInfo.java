@@ -41,7 +41,9 @@ public record HunterSquadDebugInfo(UUID squadId, int leaderId, Optional<Integer>
 
         List<String> lines = new ArrayList<>();
         if (hunter == leader) {
-            String header = "Leader | " + squad.id().toString().substring(0, 4) + " | " + squad.members().size() + "/" + HunterSquad.MAX_SIZE + " | " + squad.strategy().getClass().getSimpleName();
+            String mode = squad.isOnGuard(hunter.level().getGameTime()) ? "on guard" : "relaxed";
+            String post = squad.post() != null ? " | post r" + squad.post().radius() : "";
+            String header = "Leader | " + squad.id().toString().substring(0, 4) + " | " + squad.members().size() + "/" + HunterSquad.MAX_SIZE + " | " + mode + post;
             lines.add(squad.isRetreating() ? header + " | RETREAT" : header);
         }
         String activity = brain.getActiveNonCoreActivity().map(Activity::getName).orElse("none");

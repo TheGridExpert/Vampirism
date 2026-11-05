@@ -64,6 +64,10 @@ public class SquadContext {
         return this.victims.get(threat);
     }
 
+    public boolean isRelaxed() {
+        return !hasThreats() && !this.squad.isOnGuard(this.level.getGameTime());
+    }
+
     public static SquadContext create(ServerLevel level, HunterSquad squad) {
         return new SquadContext(level, squad);
     }
@@ -245,6 +249,12 @@ public class SquadContext {
                 brain.setMemoryWithExpiry(ModMemoryTypes.SQUAD_POSITION.get(), order.getPosition(), ttl);
             } else {
                 brain.eraseMemory(ModMemoryTypes.SQUAD_POSITION.get());
+            }
+
+            if (order != null && order.getPatrolArea() != null) {
+                brain.setMemoryWithExpiry(ModMemoryTypes.SQUAD_PATROL_AREA.get(), order.getPatrolArea(), ttl);
+            } else {
+                brain.eraseMemory(ModMemoryTypes.SQUAD_PATROL_AREA.get());
             }
 
             if (order != null && order.isGroupRetreat()) {

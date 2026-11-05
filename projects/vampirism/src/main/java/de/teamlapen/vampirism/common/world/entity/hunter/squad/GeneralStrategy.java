@@ -15,6 +15,7 @@ public class GeneralStrategy implements SquadStrategy {
             new MeleeTokenTactic(),
             new ScreenTactic(),
             new ReserveTactic(),
+            new RelaxedPatrolTactic(),
             new FormationTactic()
     );
 

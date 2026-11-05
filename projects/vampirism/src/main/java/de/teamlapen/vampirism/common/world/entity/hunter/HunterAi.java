@@ -31,6 +31,7 @@ public class HunterAi {
 
     public static final int PATROL_RADIUS = 16;
     private static final float SPEED_MULTIPLIER_WHEN_PATROLLING = 0.8F;
+    private static final float SPEED_MULTIPLIER_WHEN_LEADING_RELAXED = 0.5F;
     private static final int MIN_PATROL_COOLDOWN = 40;
     private static final int MAX_PATROL_COOLDOWN = 120;
 
@@ -95,7 +96,8 @@ public class HunterAi {
             ModMemoryTypes.DANGER.get(),
             ModMemoryTypes.SQUAD_TARGET.get(),
             ModMemoryTypes.SQUAD_POSITION.get(),
-            ModMemoryTypes.SQUAD_RETREAT.get()
+            ModMemoryTypes.SQUAD_RETREAT.get(),
+            ModMemoryTypes.SQUAD_PATROL_AREA.get()
     );
 
     @SuppressWarnings("deprecation")
@@ -143,7 +145,7 @@ public class HunterAi {
                 5,
                 ImmutableList.of(
                         MoveToSquadPosition.create(SPEED_MULTIPLIER_WHEN_FOLLOWING, FORMATION_TOLERANCE),
-                        PatrolAroundHome.create(PATROL_RADIUS, SPEED_MULTIPLIER_WHEN_PATROLLING),
+                        PatrolAroundHome.create(PATROL_RADIUS, SPEED_MULTIPLIER_WHEN_PATROLLING, SPEED_MULTIPLIER_WHEN_LEADING_RELAXED),
                         new RunOne<>(
                                 ImmutableList.of(
                                         Pair.of(SetEntityLookTarget.create(EntityType.PLAYER, 10.0F), 2),
