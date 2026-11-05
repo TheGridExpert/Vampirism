@@ -18,7 +18,7 @@ public class FollowSquadTarget {
                 instance.absent(ModMemoryTypes.SHOULD_RETREAT.get())
         ).apply(instance, (squadTargetAcc, attackTargetAcc, cantReachAcc, _) -> (level, hunter, _) -> {
             LivingEntity target = instance.get(squadTargetAcc);
-            if (!target.isAlive() || target.level() != hunter.level() || !hunter.canAttack(target) || !HunterThreats.canEngage(hunter, target)) {
+            if (!target.isAlive() || target.level() != hunter.level() || !hunter.canAttack(target) || !HunterThreats.canEngage(hunter, target) || !HunterThreats.isWorthEngaging(hunter, target)) {
                 squadTargetAcc.erase();
                 return false;
             }

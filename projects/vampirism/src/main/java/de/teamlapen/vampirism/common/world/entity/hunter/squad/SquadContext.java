@@ -42,6 +42,7 @@ public class SquadContext {
     private final Vec3 front;
     private final Map<Hunter, SquadOrder> orders = new HashMap<>();
     private final Map<LivingEntity, Hunter> victims = new HashMap<>();
+    private final Map<Long, Boolean> safeSpots = new HashMap<>();
     private @Nullable PathfindingContext pathfindingContext;
 
     private SquadContext(ServerLevel level, HunterSquad squad) {
@@ -185,14 +186,18 @@ public class SquadContext {
     }
 
     private boolean isSafeStandingSpot(BlockPos pos) {
+        return this.safeSpots.computeIfAbsent(pos.asLong(), _ -> checkStandingSpot(pos));
+    }
+
+    private boolean checkStandingSpot(BlockPos pos) {
+        BlockPos head = pos.above();
+        BlockState headState = this.level.getBlockState(head);
+        if (!headState.getCollisionShape(this.level, head).isEmpty() || !headState.getFluidState().isEmpty()) return false;
+
         if (this.pathfindingContext == null) {
             this.pathfindingContext = new PathfindingContext(this.level, this.members.getFirst());
         }
-        if (WalkNodeEvaluator.getPathTypeStatic(this.pathfindingContext, pos.mutable()) != PathType.WALKABLE) return false;
-
-        BlockPos head = pos.above();
-        BlockState headState = this.level.getBlockState(head);
-        return headState.getCollisionShape(this.level, head).isEmpty() && headState.getFluidState().isEmpty();
+        return WalkNodeEvaluator.getPathTypeStatic(this.pathfindingContext, pos.mutable()) == PathType.WALKABLE;
     }
 
     private static List<int[]> safeSpotOffsets() {

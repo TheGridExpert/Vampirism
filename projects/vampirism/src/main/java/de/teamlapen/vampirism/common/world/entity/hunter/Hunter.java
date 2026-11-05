@@ -55,6 +55,8 @@ import net.neoforged.neoforge.common.NeoForgeMod;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -88,7 +90,12 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
     private static final double PLAYER_SPRINT_FACTOR = 1.3D;
     private static final double GROUND_DRAG = 1.0D - 0.6D * 0.91D;
 
+    private static final int REACH_CHECK_TTL = 40;
+    private static final int REACH_RANGE = 2;
+    private static final int MAX_REACH_CHECKS = 16;
+
     private final NonNullList<ItemStack> sheathedWeapons = NonNullList.withSize(2, ItemStack.EMPTY);
+    private final Map<Integer, ReachCheck> reachChecks = new HashMap<>();
     private @Nullable HunterSquad squad;
     private @Nullable UUID squadId;
 
@@ -171,6 +178,27 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
     @Override
     protected PathNavigation createNavigation(Level level) {
         return new HunterPathNavigation(this, level);
+    }
+
+    @Override
+    public int getMaxFallDistance() {
+        return getComfortableFallDistance(0.0F);
+    }
+
+    public boolean canReach(LivingEntity target) {
+        long now = level().getGameTime();
+        ReachCheck check = this.reachChecks.get(target.getId());
+        if (check != null && now - check.time() < REACH_CHECK_TTL) return check.reachable();
+
+        if (this.reachChecks.size() >= MAX_REACH_CHECKS) {
+            this.reachChecks.values().removeIf(old -> now - old.time() >= REACH_CHECK_TTL);
+        }
+        boolean reachable = this.getNavigation() instanceof HunterPathNavigation navigation && navigation.canReach(target, REACH_RANGE);
+        this.reachChecks.put(target.getId(), new ReachCheck(now, reachable));
+        return reachable;
+    }
+
+    private record ReachCheck(long time, boolean reachable) {
     }
 
     public boolean isNearGround() {

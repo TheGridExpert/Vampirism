@@ -239,7 +239,8 @@ public class HunterAi {
 
     private static boolean isSafeToEngage(Hunter hunter, LivingEntity target) {
         if (!HunterThreats.canEngage(hunter, target)) return false;
-        return !HunterThreats.isExplosive(target) || hunter.distanceTo(target) >= HunterThreats.minShootDistance(target);
+        if (HunterThreats.isExplosive(target) && hunter.distanceTo(target) < HunterThreats.minShootDistance(target)) return false;
+        return HunterThreats.isWorthEngaging(hunter, target);
     }
 
     private static Optional<? extends LivingEntity> findNearestValidAttackTarget(ServerLevel level, Hunter hunter) {
@@ -249,11 +250,11 @@ public class HunterAi {
         }
 
         Optional<LivingEntity> angryTarget = BehaviorUtils.getLivingEntityFromUUIDMemory(hunter, MemoryModuleType.ANGRY_AT);
-        if (angryTarget.isPresent() && isSafeToEngage(hunter, angryTarget.get()) && Sensor.isEntityAttackableIgnoringLineOfSight(level, hunter, angryTarget.get())) {
+        if (angryTarget.isPresent() && Sensor.isEntityAttackableIgnoringLineOfSight(level, hunter, angryTarget.get()) && isSafeToEngage(hunter, angryTarget.get())) {
             return angryTarget;
         }
 
-        return findClosestInMemory(hunter, ModMemoryTypes.NEAREST_VISIBLE_HOSTILES.get(), target -> isSafeToEngage(hunter, target) && Sensor.isEntityAttackable(level, hunter, target));
+        return findClosestInMemory(hunter, ModMemoryTypes.NEAREST_VISIBLE_HOSTILES.get(), target -> Sensor.isEntityAttackable(level, hunter, target) && isSafeToEngage(hunter, target));
     }
 
     public static Optional<LivingEntity> findClosestInMemory(Hunter hunter, MemoryModuleType<List<LivingEntity>> memory, Predicate<LivingEntity> predicate) {

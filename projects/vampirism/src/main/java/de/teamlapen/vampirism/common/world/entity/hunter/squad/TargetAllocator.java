@@ -6,12 +6,13 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 
 import java.util.*;
+import java.util.function.BiPredicate;
 import java.util.function.ToDoubleBiFunction;
 import java.util.function.ToIntFunction;
 
 public class TargetAllocator {
 
-    public static Map<LivingEntity, List<Hunter>> allocate(List<Hunter> hunters, List<LivingEntity> targets, ToIntFunction<LivingEntity> capacity, ToDoubleBiFunction<Hunter, LivingEntity> cost) {
+    public static Map<LivingEntity, List<Hunter>> allocate(List<Hunter> hunters, List<LivingEntity> targets, ToIntFunction<LivingEntity> capacity, ToDoubleBiFunction<Hunter, LivingEntity> cost, BiPredicate<Hunter, LivingEntity> feasible) {
         List<Candidate> candidates = new ArrayList<>();
         for (Hunter hunter : hunters) {
             for (LivingEntity target : targets) {
@@ -21,13 +22,15 @@ public class TargetAllocator {
         }
         candidates.sort(Comparator.comparingDouble(Candidate::cost));
 
+        Map<LivingEntity, Integer> capacities = new HashMap<>();
         Set<Hunter> assigned = new HashSet<>();
         Map<LivingEntity, List<Hunter>> result = new LinkedHashMap<>();
         for (Candidate candidate : candidates) {
             if (assigned.contains(candidate.hunter())) continue;
 
             List<Hunter> engaged = result.computeIfAbsent(candidate.target(), _ -> new ArrayList<>());
-            if (engaged.size() >= capacity.applyAsInt(candidate.target())) continue;
+            if (engaged.size() >= capacities.computeIfAbsent(candidate.target(), capacity::applyAsInt)) continue;
+            if (!feasible.test(candidate.hunter(), candidate.target())) continue;
 
             engaged.add(candidate.hunter());
             assigned.add(candidate.hunter());

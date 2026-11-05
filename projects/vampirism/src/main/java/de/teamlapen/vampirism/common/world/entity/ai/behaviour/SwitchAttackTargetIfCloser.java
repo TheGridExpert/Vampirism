@@ -1,5 +1,6 @@
 package de.teamlapen.vampirism.common.world.entity.ai.behaviour;
 
+import de.teamlapen.vampirism.common.world.entity.hunter.Hunter;
 import de.teamlapen.vampirism.common.world.entity.hunter.HunterThreats;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -26,31 +27,32 @@ public class SwitchAttackTargetIfCloser {
             if (!mob.canAttack(currentTarget)
                     || !currentTarget.isAlive()
                     || currentTarget.level() != mob.level()
-                    || isTiredOfTryingToReachTarget(mob, instance.tryGet(cantReachAcc))) {
+                    || isTiredOfTryingToReachTarget(mob, instance.tryGet(cantReachAcc))
+                    || !isWorthEngaging(mob, currentTarget)) {
                 attackTargetMemory.erase();
                 return true;
             }
 
             Optional<List<LivingEntity>> candidatesOpt = instance.tryGet(candidatesAcc);
             if (candidatesOpt.isPresent() && !candidatesOpt.get().isEmpty()) {
-                LivingEntity best = candidatesOpt.get().stream()
-                        .filter(candidate -> !HunterThreats.isExplosive(candidate) || mob.distanceTo(candidate) >= HunterThreats.minShootDistance(candidate))
-                        .min(Comparator.comparingDouble(mob::distanceToSqr))
-                        .orElse(null);
+                double switchDistance = mob.distanceToSqr(currentTarget) * 0.65D;
+                List<LivingEntity> byDistance = candidatesOpt.get().stream().sorted(Comparator.comparingDouble(mob::distanceToSqr)).toList();
+                for (LivingEntity candidate : byDistance) {
+                    if (mob.distanceToSqr(candidate) >= switchDistance) break;
+                    if (HunterThreats.isExplosive(candidate) && mob.distanceTo(candidate) < HunterThreats.minShootDistance(candidate)) continue;
+                    if (!isWorthEngaging(mob, candidate)) continue;
 
-                if (best != null && best != currentTarget) {
-                    double distCurrent = mob.distanceToSqr(currentTarget);
-                    double distNew = mob.distanceToSqr(best);
-
-                    if (distNew < distCurrent * 0.65D) {
-                        attackTargetMemory.set(best);
-                        return true;
-                    }
+                    if (candidate != currentTarget) attackTargetMemory.set(candidate);
+                    break;
                 }
             }
 
             return true;
         }));
+    }
+
+    private static boolean isWorthEngaging(Mob mob, LivingEntity target) {
+        return !(mob instanceof Hunter hunter) || HunterThreats.isWorthEngaging(hunter, target);
     }
 
     private static boolean isTiredOfTryingToReachTarget(LivingEntity entity, Optional<Long> timeSinceInvalidTarget) {

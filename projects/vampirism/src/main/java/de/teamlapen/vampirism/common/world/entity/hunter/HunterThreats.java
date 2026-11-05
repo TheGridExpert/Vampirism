@@ -5,6 +5,8 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.Creeper;
+import net.minecraft.world.entity.monster.Enemy;
+import net.minecraft.world.entity.player.Player;
 
 public class HunterThreats {
 
@@ -50,6 +52,19 @@ public class HunterThreats {
     public static double minShootDistance(LivingEntity entity) {
         if (!isExplosive(entity)) return 0.0D;
         return entity instanceof Creeper creeper && creeper.isPowered() ? CHARGED_EXPLOSIVE_MIN_SHOOT_DISTANCE : EXPLOSIVE_MIN_SHOOT_DISTANCE;
+    }
+
+    public static boolean isActiveThreat(LivingEntity entity) {
+        if (entity instanceof Player) return true;
+        if (!(entity instanceof Mob mob)) return false;
+
+        LivingEntity victim = mob.getTarget();
+        return victim != null && (victim instanceof Hunter || victim instanceof Player || !(victim instanceof Enemy));
+    }
+
+    public static boolean isWorthEngaging(Hunter hunter, LivingEntity target) {
+        if (hunter.isRangedClass() && isActiveThreat(target)) return true;
+        return hunter.canReach(target);
     }
 
     public static boolean canEngage(Hunter hunter, LivingEntity target) {

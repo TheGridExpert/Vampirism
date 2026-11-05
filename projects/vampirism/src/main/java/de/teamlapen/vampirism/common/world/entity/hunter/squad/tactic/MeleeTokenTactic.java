@@ -48,7 +48,8 @@ public class MeleeTokenTactic implements SquadTactic {
 
         Map<LivingEntity, List<Hunter>> plan = TargetAllocator.allocate(fighters, targets,
                 TargetAllocator.proportionalCapacity(targets, fighters.size(), target -> baseTokens + (target.getBbWidth() > LARGE_TARGET_WIDTH ? 1 : 0)),
-                (fighter, target) -> cost(context, fighter, target, protect));
+                (fighter, target) -> cost(context, fighter, target, protect),
+                HunterThreats::isWorthEngaging);
 
         plan.forEach((target, assigned) -> {
             List<Hunter> ordered = assigned.stream().sorted(Comparator.comparingDouble(fighter -> fighter.distanceToSqr(target))).toList();

@@ -80,8 +80,11 @@ public class HunterSpecificSensor extends Sensor<LivingEntity> {
     }
 
     private static boolean isNoticeable(ServerLevel level, Hunter hunter, LivingEntity target, double noticeRange) {
-        double range = isSeenThroughWater(level, hunter, target) ? noticeRange * WATER_VISIBILITY_FACTOR : noticeRange;
-        return hunter.distanceToSqr(target) <= range * range;
+        double distanceSqr = hunter.distanceToSqr(target);
+        if (distanceSqr > noticeRange * noticeRange) return false;
+
+        double waterRange = noticeRange * WATER_VISIBILITY_FACTOR;
+        return distanceSqr <= waterRange * waterRange || !isSeenThroughWater(level, hunter, target);
     }
 
     private static boolean isSeenThroughWater(ServerLevel level, Hunter hunter, LivingEntity target) {

@@ -43,7 +43,8 @@ public class FocusFireTactic implements SquadTactic {
 
         Map<LivingEntity, List<Hunter>> plan = TargetAllocator.allocate(shooters, targets,
                 TargetAllocator.proportionalCapacity(targets, shooters.size(), _ -> MAX_SHOOTERS_PER_TARGET),
-                (shooter, target) -> cost(context, shooter, target));
+                (shooter, target) -> cost(context, shooter, target),
+                HunterThreats::isWorthEngaging);
 
         plan.forEach((target, assigned) -> {
             Vec3 approach = horizontalDirection(context.rangedCenter(), target.position(), context.front());
