@@ -3,6 +3,7 @@ package de.teamlapen.vampirism.common.world.entity.hunter.squad;
 import de.teamlapen.vampirism.common.core.ModMemoryTypes;
 import de.teamlapen.vampirism.common.world.entity.hunter.Hunter;
 import de.teamlapen.vampirism.common.world.entity.hunter.HunterThreats;
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.util.Unit;
@@ -11,7 +12,11 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.pathfinder.PathType;
+import net.minecraft.world.level.pathfinder.PathfindingContext;
+import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
@@ -23,6 +28,10 @@ public final class SquadContext {
 
     public static final double ENGAGE_RADIUS = 24.0D;
     private static final int WOUNDED_RETREAT_TICKS = 400;
+    private static final int SAFE_SPOT_RADIUS = 6;
+    private static final int MAX_SURFACE_HEIGHT_DIFFERENCE = 6;
+    private static final int[] VERTICAL_OFFSETS = {0, 1, -1, 2, -2, 3, -3};
+    private static final List<int[]> SAFE_SPOT_OFFSETS = safeSpotOffsets();
 
     private final ServerLevel level;
     private final HunterSquad squad;
@@ -33,6 +42,7 @@ public final class SquadContext {
     private final Vec3 front;
     private final Map<Hunter, SquadOrder> orders = new HashMap<>();
     private final Map<LivingEntity, Hunter> victims = new HashMap<>();
+    private @Nullable PathfindingContext pathfindingContext;
 
     private SquadContext(ServerLevel level, HunterSquad squad) {
         this.level = level;
@@ -150,9 +160,50 @@ public final class SquadContext {
     public Vec3 ground(Vec3 pos, double referenceY) {
         int x = Mth.floor(pos.x);
         int z = Mth.floor(pos.z);
+        int baseY = Mth.floor(referenceY);
+
+        for (int[] offset : SAFE_SPOT_OFFSETS) {
+            BlockPos spot = findStandingSpot(x + offset[0], z + offset[1], baseY);
+            if (spot != null) return Vec3.atBottomCenterOf(spot);
+        }
+
         int surface = this.level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
-        double y = Math.abs(surface - referenceY) < 6 ? surface : referenceY;
+        double y = Math.abs(surface - referenceY) < MAX_SURFACE_HEIGHT_DIFFERENCE ? surface : referenceY;
         return new Vec3(x + 0.5, y, z + 0.5);
+    }
+
+    private @Nullable BlockPos findStandingSpot(int x, int z, int baseY) {
+        int surface = this.level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
+        if (Math.abs(surface - baseY) < MAX_SURFACE_HEIGHT_DIFFERENCE && isSafeStandingSpot(new BlockPos(x, surface, z))) {
+            return new BlockPos(x, surface, z);
+        }
+        for (int dy : VERTICAL_OFFSETS) {
+            BlockPos candidate = new BlockPos(x, baseY + dy, z);
+            if (isSafeStandingSpot(candidate)) return candidate;
+        }
+        return null;
+    }
+
+    private boolean isSafeStandingSpot(BlockPos pos) {
+        if (this.pathfindingContext == null) {
+            this.pathfindingContext = new PathfindingContext(this.level, this.members.getFirst());
+        }
+        if (WalkNodeEvaluator.getPathTypeStatic(this.pathfindingContext, pos.mutable()) != PathType.WALKABLE) return false;
+
+        BlockPos head = pos.above();
+        BlockState headState = this.level.getBlockState(head);
+        return headState.getCollisionShape(this.level, head).isEmpty() && headState.getFluidState().isEmpty();
+    }
+
+    private static List<int[]> safeSpotOffsets() {
+        List<int[]> offsets = new ArrayList<>();
+        for (int dx = -SAFE_SPOT_RADIUS; dx <= SAFE_SPOT_RADIUS; dx++) {
+            for (int dz = -SAFE_SPOT_RADIUS; dz <= SAFE_SPOT_RADIUS; dz++) {
+                if (dx * dx + dz * dz <= SAFE_SPOT_RADIUS * SAFE_SPOT_RADIUS) offsets.add(new int[]{dx, dz});
+            }
+        }
+        offsets.sort(Comparator.comparingInt(offset -> offset[0] * offset[0] + offset[1] * offset[1]));
+        return List.copyOf(offsets);
     }
 
     public boolean hasClearShot(Hunter shooter, Vec3 from, LivingEntity target) {
