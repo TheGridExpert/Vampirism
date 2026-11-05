@@ -3,16 +3,24 @@ package de.teamlapen.vampirism.common.world.entity.hunter;
 import com.mojang.datafixers.util.Pair;
 import de.teamlapen.vampirism.common.core.ModItems;
 import net.minecraft.util.RandomSource;
+import net.minecraft.util.random.WeightedList;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.ServerLevelAccessor;
-import org.jetbrains.annotations.NotNull;
+
+import java.util.Optional;
 
 @SuppressWarnings("unchecked")
 public class HunterEquipmentAssigner {
+
+    private static final WeightedList<Optional<ItemLike>> HATS = WeightedList.<Optional<ItemLike>>builder()
+            .add(Optional.of(ModItems.HUNTER_HAT_BROAD.get()), 4)
+            .add(Optional.of(ModItems.HUNTER_HAT_TALL.get()), 3)
+            .add(Optional.empty(), 2)
+            .build();
 
     private static final Pair<ItemLike, Integer>[] MELEE_MAIN_WEAPONS = new Pair[]{
             Pair.of(ModItems.HUNTER_AXE_NORMAL.get(), 2),
@@ -85,7 +93,7 @@ public class HunterEquipmentAssigner {
             }
     };
 
-    public static void assignRandomEquipment(@NotNull Hunter hunter, ServerLevelAccessor level, RandomSource random) {
+    public static void assignRandomEquipment(Hunter hunter, ServerLevelAccessor level, RandomSource random) {
         boolean isMelee = hunter.isMeleeClass();
         Pair<ItemLike, Integer>[][] armorSet = isMelee ? MELEE_ARMOR : RANGED_ARMOR;
         Pair<ItemLike, Integer>[] mainWeapons = isMelee ? MELEE_MAIN_WEAPONS : RANGED_MAIN_WEAPONS;
@@ -118,6 +126,10 @@ public class HunterEquipmentAssigner {
                     break;
                 }
             }
+        }
+
+        if (hunter.getItemBySlot(EquipmentSlot.HEAD).isEmpty()) {
+            HATS.getRandomOrThrow(random).ifPresent(hat -> hunter.setItemSlot(EquipmentSlot.HEAD, new ItemStack(hat)));
         }
 
         for (int i = SECONDARY_WEAPONS.length - 1; i >= 0; i--) {
