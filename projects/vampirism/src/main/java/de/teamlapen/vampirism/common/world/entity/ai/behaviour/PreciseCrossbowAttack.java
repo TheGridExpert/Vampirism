@@ -43,8 +43,7 @@ public class PreciseCrossbowAttack extends Behavior<Hunter> {
 
     @Override
     protected boolean checkExtraStartConditions(ServerLevel level, Hunter shooter) {
-        LivingEntity target = shooter.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).orElse(null);
-        return target != null && target.isAlive() && shooter.isHolding(item -> item.getItem() instanceof CrossbowItem) && shooter.isRangedClass();
+        LivingEntity target = shooter.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).orElse(null);        return target != null && target.isAlive() && shooter.isHolding(item -> item.getItem() instanceof CrossbowItem) && shooter.isRangedClass();
     }
 
     @Override
@@ -58,8 +57,7 @@ public class PreciseCrossbowAttack extends Behavior<Hunter> {
         LivingEntity target = shooter.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).orElse(null);
         if (target == null || !target.isAlive()) return;
 
-        boolean seesTarget = shooter.hasLineOfSight(target);
-        boolean isCharging = this.crossbowState == CrossbowState.CHARGING || shooter.isUsingItem();
+        boolean seesTarget = shooter.hasLineOfSight(target);        boolean isCharging = this.crossbowState == CrossbowState.CHARGING || shooter.isUsingItem();
 
         if (seesTarget && !isCharging) {
             Vec3 aimPos = calculateAimPosition(shooter, target);
@@ -67,7 +65,7 @@ public class PreciseCrossbowAttack extends Behavior<Hunter> {
             shooter.getBrain().setMemory(ModMemoryTypes.AIM_TARGET.get(), aimPos);
         }
 
-        if (seesTarget && !shooter.getBrain().hasMemoryValue(MemoryModuleType.PATH)) {
+        if (seesTarget || this.crossbowState != CrossbowState.READY_TO_ATTACK) {
             crossbowAttack(shooter, target);
         }
     }
@@ -78,7 +76,7 @@ public class PreciseCrossbowAttack extends Behavior<Hunter> {
             entity.stopUsingItem();
         }
 
-        if (entity.isHolding(is -> is.getItem() instanceof CrossbowItem)) {
+        if (entity.isHolding(stack -> stack.getItem() instanceof CrossbowItem)) {
             entity.setChargingCrossbow(false);
             ItemStack crossbow = entity.getItemInHand(ProjectileUtil.getWeaponHoldingHand(entity, item -> item instanceof CrossbowItem));
             crossbow.set(DataComponents.CHARGED_PROJECTILES, ChargedProjectiles.EMPTY);
@@ -91,24 +89,31 @@ public class PreciseCrossbowAttack extends Behavior<Hunter> {
     private void crossbowAttack(Hunter shooter, LivingEntity target) {
         switch (this.crossbowState) {
             case UNCHARGED -> {
-                shooter.startUsingItem(ProjectileUtil.getWeaponHoldingHand(shooter, item -> item instanceof CrossbowItem));
-                this.crossbowState = CrossbowState.CHARGING;
-                shooter.setChargingCrossbow(true);
-            }
-            case CHARGING -> {
-                if (!shooter.isUsingItem()) {
-                    this.crossbowState = CrossbowState.UNCHARGED;
+                if (CrossbowItem.isCharged(heldCrossbow(shooter))) {
+                    finishCharging(shooter);
                     return;
                 }
 
-                int useTicks = shooter.getTicksUsingItem();
-                ItemStack stack = shooter.getUseItem();
+                shooter.startUsingItem(ProjectileUtil.getWeaponHoldingHand(shooter, item -> item instanceof CrossbowItem));                this.crossbowState = CrossbowState.CHARGING;
+                shooter.setChargingCrossbow(true);
+            }
+            case CHARGING -> {
+                if (CrossbowItem.isCharged(heldCrossbow(shooter))) {
+                    finishCharging(shooter);
+                    return;
+                }
 
-                if (useTicks >= CrossbowItem.getChargeDuration(stack, shooter)) {
+                if (!shooter.isUsingItem()) {                    this.crossbowState = CrossbowState.UNCHARGED;
+                    return;
+                }
+
+                if (shooter.getTicksUsingItem() >= CrossbowItem.getChargeDuration(shooter.getUseItem(), shooter)) {
                     shooter.releaseUsingItem();
-                    this.crossbowState = CrossbowState.CHARGED;
-                    this.attackDelay = 20 + shooter.getRandom().nextInt(20);
-                    shooter.setChargingCrossbow(false);
+                    if (CrossbowItem.isCharged(heldCrossbow(shooter))) {
+                        finishCharging(shooter);
+                    } else {
+                        this.crossbowState = CrossbowState.UNCHARGED;
+                    }
                 }
             }
             case CHARGED -> {
@@ -130,6 +135,19 @@ public class PreciseCrossbowAttack extends Behavior<Hunter> {
                 shooter.getBrain().eraseMemory(ModMemoryTypes.SEE_TIME.get());
             }
         }
+    }
+
+    private void finishCharging(Hunter shooter) {
+        if (shooter.isUsingItem()) {
+            shooter.releaseUsingItem();
+        }
+        this.crossbowState = CrossbowState.CHARGED;
+        this.attackDelay = 20 + shooter.getRandom().nextInt(20);
+        shooter.setChargingCrossbow(false);
+    }
+
+    private static ItemStack heldCrossbow(Hunter shooter) {
+        return shooter.getItemInHand(ProjectileUtil.getWeaponHoldingHand(shooter, item -> item instanceof CrossbowItem));
     }
 
     private Vec3 calculateAimPosition(Hunter shooter, LivingEntity target) {

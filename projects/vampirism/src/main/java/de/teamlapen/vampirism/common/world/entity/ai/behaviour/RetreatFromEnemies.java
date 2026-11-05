@@ -33,16 +33,16 @@ public class RetreatFromEnemies {
 
             Vec3 fleeDir = mobPos.subtract(enemiesCenter).normalize();
 
-            Vec3 alliesCenter = mob.getBrain().getMemory(ModMemoryTypes.NEAREST_VISIBLE_HUNTERS.get())
-                    .flatMap(list -> list.stream()
-                            .filter(a -> a.isAlive() && a.distanceToSqr(mob) < 400)
-                            .min(Comparator.comparingDouble(a -> a.distanceToSqr(mob)))
+            Vec3 nearestAllyPos = mob.getBrain().getMemory(ModMemoryTypes.NEAREST_VISIBLE_HUNTERS.get())
+                    .flatMap(allies -> allies.stream()
+                            .filter(ally -> ally.isAlive() && ally.distanceToSqr(mob) < 400)
+                            .min(Comparator.comparingDouble(ally -> ally.distanceToSqr(mob)))
                     )
                     .map(Entity::position)
                     .orElse(null);
 
-            if (alliesCenter != null) {
-                Vec3 toAlly = alliesCenter.subtract(mobPos).normalize();
+            if (nearestAllyPos != null) {
+                Vec3 toAlly = nearestAllyPos.subtract(mobPos).normalize();
                 fleeDir = fleeDir.add(toAlly).normalize();
             }
 
@@ -61,10 +61,10 @@ public class RetreatFromEnemies {
         if (entities.isEmpty()) return Vec3.ZERO;
 
         double x = 0, y = 0, z = 0;
-        for (LivingEntity e : entities) {
-            x += e.getX();
-            y += e.getY();
-            z += e.getZ();
+        for (LivingEntity entity : entities) {
+            x += entity.getX();
+            y += entity.getY();
+            z += entity.getZ();
         }
 
         int count = entities.size();

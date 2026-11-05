@@ -20,7 +20,7 @@ public class ModEntityTypeTagsProvider extends EntityTypeTagsProvider {
 
     @Override
     protected void addTags(HolderLookup.Provider holderLookup) {
-        tag(ModEntityTags.HUNTER).add(ModEntities.HUNTER.get(), ModEntities.HUNTER_IMOB.get(), ModEntities.ADVANCED_HUNTER.get(), ModEntities.ADVANCED_HUNTER_IMOB.get(), ModEntities.HUNTER_TRAINER.get(), ModEntities.HUNTER_TRAINER.get(), ModEntities.HUNTER_TRAINER_DUMMY.get(), ModEntities.TASK_MASTER_HUNTER.get());
+        tag(ModEntityTags.HUNTER).add(ModEntities.HUNTER.get(), ModEntities.NEW_HUNTER.get(), ModEntities.HUNTER_IMOB.get(), ModEntities.ADVANCED_HUNTER.get(), ModEntities.ADVANCED_HUNTER_IMOB.get(), ModEntities.HUNTER_TRAINER.get(), ModEntities.HUNTER_TRAINER.get(), ModEntities.HUNTER_TRAINER_DUMMY.get(), ModEntities.TASK_MASTER_HUNTER.get());
         tag(ModEntityTags.VAMPIRE).addTag(ModEntityTags.CONVERTED_CREATURES).add(ModEntities.VAMPIRE.get(), ModEntities.VAMPIRE_IMOB.get(), ModEntities.ADVANCED_VAMPIRE.get(), ModEntities.ADVANCED_VAMPIRE_IMOB.get(), ModEntities.VAMPIRE_BARON.get(), ModEntities.TASK_MASTER_VAMPIRE.get());
         tag(ModEntityTags.ADVANCED_HUNTER).add(ModEntities.ADVANCED_HUNTER.get(), ModEntities.ADVANCED_HUNTER_IMOB.get());
         tag(ModEntityTags.ADVANCED_VAMPIRE).add(ModEntities.ADVANCED_VAMPIRE.get(), ModEntities.ADVANCED_VAMPIRE_IMOB.get());
@@ -35,6 +35,12 @@ public class ModEntityTypeTagsProvider extends EntityTypeTagsProvider {
         tag(ModEntityTags.HUNTER_DEFAULT_TARGETS)
                 .addTag(EntityTypeTags.UNDEAD).addTag(EntityTypeTags.ILLAGER).addTag(EntityTypeTags.RAIDERS);
         tag(ModEntityTags.VAMPIRE_DEFAULT_TARGETS);
+        tag(ModEntityTags.HUNTER_THREAT_EXPLOSIVE).add(EntityType.CREEPER);
+        tag(ModEntityTags.HUNTER_THREAT_RANGED_ONLY).add(EntityType.PHANTOM, EntityType.GHAST, EntityType.BLAZE, EntityType.VEX);
+        tag(ModEntityTags.HUNTER_THREAT_MELEE_ONLY).add(EntityType.ENDERMAN, EntityType.BREEZE);
+        tag(ModEntityTags.HUNTER_THREAT_PROVOKED_ONLY).add(EntityType.ZOMBIFIED_PIGLIN, EntityType.ENDERMAN);
+        tag(ModEntityTags.HUNTER_THREAT_AVOID).add(EntityType.WARDEN).addTag(Tags.EntityTypes.BOSSES);
+        tag(ModEntityTags.HUNTER_THREAT_PRIORITY).addTag(ModEntityTags.VAMPIRE).add(EntityType.WITCH, EntityType.EVOKER, EntityType.SKELETON, EntityType.STRAY, EntityType.BOGGED);
         tag(ModEntityTags.VAMPIRE_VILLAGE_GUARDS).add(ModEntities.VAMPIRE.get(), ModEntities.VAMPIRE_IMOB.get(), ModEntities.ADVANCED_VAMPIRE.get(), ModEntities.ADVANCED_VAMPIRE_IMOB.get());
         tag(EntityTypeTags.CAN_WEAR_HORSE_ARMOR).add(GeneratedVampirismConvertedEntities.CONVERTED_HORSE.get());
         tag(EntityTypeTags.CAN_EQUIP_SADDLE).add(GeneratedVampirismConvertedEntities.CONVERTED_HORSE.get())

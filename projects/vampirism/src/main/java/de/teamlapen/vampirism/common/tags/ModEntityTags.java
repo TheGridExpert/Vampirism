@@ -20,6 +20,13 @@ public class ModEntityTags {
     public static final TagKey<EntityType<?>> VAMPIRE_DEFAULT_TARGETS = tag("target/default/vampire");
     public static final TagKey<EntityType<?>> HUNTER_DEFAULT_TARGETS = tag("target/default/hunter");
 
+    public static final TagKey<EntityType<?>> HUNTER_THREAT_EXPLOSIVE = tag("hunter/threat/explosive");
+    public static final TagKey<EntityType<?>> HUNTER_THREAT_RANGED_ONLY = tag("hunter/threat/ranged_only");
+    public static final TagKey<EntityType<?>> HUNTER_THREAT_MELEE_ONLY = tag("hunter/threat/melee_only");
+    public static final TagKey<EntityType<?>> HUNTER_THREAT_PROVOKED_ONLY = tag("hunter/threat/provoked_only");
+    public static final TagKey<EntityType<?>> HUNTER_THREAT_AVOID = tag("hunter/threat/avoid");
+    public static final TagKey<EntityType<?>> HUNTER_THREAT_PRIORITY = tag("hunter/threat/priority");
+
     public static final TagKey<EntityType<?>> ZOMBIES = tag("zombies");
     public static final TagKey<EntityType<?>> IGNORE_VAMPIRE_SWORD_FINISHER = tag("ignore_vampire_sword_finisher");
 

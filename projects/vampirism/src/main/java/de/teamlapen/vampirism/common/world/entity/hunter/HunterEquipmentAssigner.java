@@ -111,10 +111,10 @@ public class HunterEquipmentAssigner {
         for (int i = 0; i < armorSet.length; i++) {
             Pair<ItemLike, Integer>[] slotTiers = armorSet[i];
             int slotBudget = Math.max(1, (int) (armorTokens * armorWeights[i]));
-            for (int t = slotTiers.length - 1; t >= 0; t--) {
-                if (slotBudget >= slotTiers[t].getSecond()) {
-                    setArmorSlot(hunter, i, new ItemStack(slotTiers[t].getFirst()));
-                    armorTokens -= slotTiers[t].getSecond();
+            for (int tier = slotTiers.length - 1; tier >= 0; tier--) {
+                if (slotBudget >= slotTiers[tier].getSecond()) {
+                    setArmorSlot(hunter, i, new ItemStack(slotTiers[tier].getFirst()));
+                    armorTokens -= slotTiers[tier].getSecond();
                     break;
                 }
             }

@@ -86,6 +86,7 @@ public class ModEntityLootTableProvider extends EntityLootSubProvider {
                 ;
         this.add(HUNTER.get(), hunter);
         this.add(HUNTER_IMOB.get(), hunter);
+        this.add(NEW_HUNTER.get(), hunter);
 
         LootTable.Builder advancedHunter = LootTable.lootTable()
                 .withPool(LootPool.lootPool().when(LootItemKilledByPlayerCondition.killedByPlayer())

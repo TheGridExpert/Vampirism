@@ -21,7 +21,7 @@ public class CheckIfSafeToStopRetreating extends Behavior<Hunter> {
 
     @Override
     protected boolean checkExtraStartConditions(ServerLevel level, Hunter hunter) {
-        return hunter.getHealth() > hunter.getMaxHealth() * safeHealthPercent;
+        return hunter.getHealth() > hunter.getMaxHealth() * safeHealthPercent && !hunter.getBrain().hasMemoryValue(ModMemoryTypes.SQUAD_RETREAT.get());
     }
 
     @Override

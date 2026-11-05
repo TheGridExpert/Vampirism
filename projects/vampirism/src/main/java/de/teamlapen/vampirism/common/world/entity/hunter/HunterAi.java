@@ -2,6 +2,7 @@ package de.teamlapen.vampirism.common.world.entity.hunter;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Pair;
+import de.teamlapen.vampirism.common.core.ModActivities;
 import de.teamlapen.vampirism.common.core.ModEntities;
 import de.teamlapen.vampirism.common.core.ModMemoryTypes;
 import de.teamlapen.vampirism.common.core.ModSensors;
@@ -29,35 +30,42 @@ import java.util.function.Predicate;
 public class HunterAi {
 
     public static final int PATROL_RADIUS = 16;
-    private static final float SPEED_MULTIPLIER_WHEN_PATROLLING = 0.4F;
+    private static final float SPEED_MULTIPLIER_WHEN_PATROLLING = 0.8F;
     private static final int MIN_PATROL_COOLDOWN = 40;
     private static final int MAX_PATROL_COOLDOWN = 120;
 
     private static final double CURING_RANGE = 1.5D;
     private static final double CURING_RADIUS = 12.0D;
     private static final double MAX_HOSTILE_RADIUS_TO_CURE = 14.0D;
-    private static final float SPEED_MULTIPLIER_WHEN_CHASING_CURE_TARGET = 0.7F;
+    private static final float SPEED_MULTIPLIER_WHEN_CHASING_CURE_TARGET = Hunter.RUN_SPEED;
     private static final int STARE_TICKS_AFTER_CURING = 100;
 
-    private static final float SPEED_MULTIPLIER_WHEN_CHASING_TARGET = 0.7F;
-    private static final float SPEED_MULTIPLIER_WHEN_DISTANCING_RANGED = 0.85F;
+    private static final float SPEED_MULTIPLIER_WHEN_CHASING_TARGET = Hunter.RUN_SPEED;
+    private static final float SPEED_MULTIPLIER_WHEN_DISTANCING_RANGED = Hunter.RUN_SPEED;
     private static final int MELEE_ATTACK_COOLDOWN = 20;
     private static final double PREFERRED_ATTACK_DISTANCE = 2.5D;
     private static final double TOO_CLOSE_ATTACK_DISTANCE = 1.0D;
     private static final double MIN_RANGE_ATTACK_DISTANCE = 7.5D;
     private static final double MAX_RANGE_ATTACK_DISTANCE = 15.0D;
 
-    private static final float SPEED_MULTIPLIER_WHEN_RETREATING = 0.7F;
+    private static final float SPEED_MULTIPLIER_WHEN_RETREATING = Hunter.RUN_SPEED;
     private static final float RETREAT_HEALTH_PERCENT = 0.25F;
     private static final float SAFE_HEALTH_PERCENT = 0.75F;
     private static final int MAX_RETREAT_DURATION = 700;
     private static final double RETREAT_DISTANCE = 5.0D;
     private static final double RETREAT_SAFE_DISTANCE = 15.0D;
 
+    private static final float SPEED_MULTIPLIER_WHEN_FOLLOWING = Hunter.WALK_SPEED;
+    private static final double FORMATION_TOLERANCE = 2.0D;
+    private static final double COMBAT_POSITION_TOLERANCE = 1.5D;
+    private static final float SPEED_MULTIPLIER_WHEN_EVADING = Hunter.RUN_SPEED;
+    private static final int EVADE_DISTANCE = 12;
+
     private static final ImmutableList<SensorType<? extends Sensor<? super Hunter>>> SENSOR_TYPES = ImmutableList.of(
             SensorType.NEAREST_LIVING_ENTITIES,
             SensorType.NEAREST_PLAYERS,
-            ModSensors.HUNTER_SPECIFIC_SENSOR.get()
+            ModSensors.HUNTER_SPECIFIC_SENSOR.get(),
+            ModSensors.HUNTER_DANGER_SENSOR.get()
     );
     private static final ImmutableList<MemoryModuleType<?>> MEMORY_TYPES = ImmutableList.of(
             MemoryModuleType.HOME,
@@ -83,7 +91,11 @@ public class HunterAi {
             ModMemoryTypes.GATES_TO_CLOSE.get(),
             ModMemoryTypes.NEAREST_VISIBLE_HUNTERS.get(),
             ModMemoryTypes.NEAREST_VISIBLE_HOSTILES.get(),
-            ModMemoryTypes.NEAREST_VISIBLE_INFECTED_ENTITIES.get()
+            ModMemoryTypes.NEAREST_VISIBLE_INFECTED_ENTITIES.get(),
+            ModMemoryTypes.DANGER.get(),
+            ModMemoryTypes.SQUAD_TARGET.get(),
+            ModMemoryTypes.SQUAD_POSITION.get(),
+            ModMemoryTypes.SQUAD_RETREAT.get()
     );
 
     @SuppressWarnings("deprecation")
@@ -98,7 +110,8 @@ public class HunterAi {
                 initCoreActivity(),
                 initPatrolActivity(),
                 initFightActivity(),
-                initRetreatActivity()
+                initRetreatActivity(),
+                initEvadeActivity()
         );
     }
 
@@ -116,8 +129,9 @@ public class HunterAi {
                         InteractWithDoor.create(),
                         InteractWithGate.create(),
                         new LookAtTargetSink(45, 90),
-                        AvoidBumpingIntoOthers.create(0.4F),
+                        AvoidBumpingIntoOthers.create(0.5F),
                         new HandleHunterWeapons.Sheathe(),
+                        FollowSquadTarget.create(),
                         new MoveToPatrolTarget(MIN_PATROL_COOLDOWN, MAX_PATROL_COOLDOWN)
                 )
         );
@@ -128,6 +142,7 @@ public class HunterAi {
                 Activity.IDLE,
                 5,
                 ImmutableList.of(
+                        MoveToSquadPosition.create(SPEED_MULTIPLIER_WHEN_FOLLOWING, FORMATION_TOLERANCE),
                         PatrolAroundHome.create(PATROL_RADIUS, SPEED_MULTIPLIER_WHEN_PATROLLING),
                         new RunOne<Hunter>(
                                 ImmutableList.of(
@@ -150,12 +165,13 @@ public class HunterAi {
                 10,
                 ImmutableList.of(
                         new HandleHunterWeapons.Unsheathe(),
-                        SwitchAttackTargetIfCloser.create(ModMemoryTypes.NEAREST_VISIBLE_HOSTILES.get()),
+                        withoutMemory(ModMemoryTypes.SQUAD_TARGET.get(), SwitchAttackTargetIfCloser.create(ModMemoryTypes.NEAREST_VISIBLE_HOSTILES.get())),
                         new CheckHealthAndRetreat(RETREAT_HEALTH_PERCENT, MAX_RETREAT_DURATION),
+                        MoveToSquadPosition.create(SPEED_MULTIPLIER_WHEN_CHASING_TARGET, COMBAT_POSITION_TOLERANCE),
                         ifMelee(DistanceMeleeAttack.create(MELEE_ATTACK_COOLDOWN, PREFERRED_ATTACK_DISTANCE, TOO_CLOSE_ATTACK_DISTANCE)),
-                        ifMelee(SetWalkTargetFromAttackTargetIfTargetOutOfReach.create(SPEED_MULTIPLIER_WHEN_CHASING_TARGET)),
+                        ifMelee(withoutMemory(ModMemoryTypes.SQUAD_POSITION.get(), SetWalkTargetFromAttackTargetIfTargetOutOfReach.create(SPEED_MULTIPLIER_WHEN_CHASING_TARGET))),
                         new PreciseCrossbowAttack(),
-                        ifRanged(MaintainDistanceFromTarget.create(SPEED_MULTIPLIER_WHEN_DISTANCING_RANGED, MIN_RANGE_ATTACK_DISTANCE, MAX_RANGE_ATTACK_DISTANCE))
+                        ifRanged(withoutMemory(ModMemoryTypes.SQUAD_POSITION.get(), MaintainDistanceFromTarget.create(SPEED_MULTIPLIER_WHEN_DISTANCING_RANGED, MIN_RANGE_ATTACK_DISTANCE, MAX_RANGE_ATTACK_DISTANCE)))
                 ),
                 MemoryModuleType.ATTACK_TARGET
         );
@@ -166,6 +182,7 @@ public class HunterAi {
                 Activity.AVOID,
                 15,
                 ImmutableList.of(
+                        MoveToSquadPosition.create(SPEED_MULTIPLIER_WHEN_RETREATING, FORMATION_TOLERANCE),
                         RetreatFromEnemies.create(ModMemoryTypes.NEAREST_VISIBLE_HOSTILES.get(), SPEED_MULTIPLIER_WHEN_RETREATING, RETREAT_DISTANCE, RETREAT_SAFE_DISTANCE),
                         new RunOne<Hunter>(
                                 ImmutableList.of(
@@ -181,11 +198,23 @@ public class HunterAi {
         );
     }
 
+    private static ActivityData<Hunter> initEvadeActivity() {
+        return ActivityData.<Hunter>create(
+                ModActivities.HUNTER_EVADE.get(),
+                20,
+                ImmutableList.of(
+                        SetWalkTargetAwayFrom.entity(ModMemoryTypes.DANGER.get(), SPEED_MULTIPLIER_WHEN_EVADING, EVADE_DISTANCE, true)
+                ),
+                ModMemoryTypes.DANGER.get()
+        );
+    }
+
     public static void updateActivity(Hunter hunter) {
         Brain<Hunter> brain = hunter.getBrain();
         Activity previousActivity = brain.getActiveNonCoreActivity().orElse(null);
 
         brain.setActiveActivityToFirstValid(ImmutableList.of(
+                ModActivities.HUNTER_EVADE.get(),
                 Activity.AVOID,
                 Activity.FIGHT,
                 Activity.IDLE
@@ -194,20 +223,35 @@ public class HunterAi {
         Activity newActivity = brain.getActiveNonCoreActivity().orElse(null);
         if (previousActivity != Activity.FIGHT && newActivity == Activity.FIGHT) {
             stopWalking(hunter);
+            brain.eraseMemory(ModMemoryTypes.CURE_TARGET.get());
         }
     }
 
     public static boolean isEnemy(LivingEntity target, LivingEntity hunter) {
-        return (target instanceof Monster || Helper.isVampire(target)) && hunter.canAttack(target);
+        if (!(target instanceof Monster || Helper.isVampire(target))) return false;
+        if (HunterThreats.isAvoided(target)) return false;
+        if (HunterThreats.requiresProvocation(target) && !HunterThreats.isProvoked(target)) return false;
+        if (hunter instanceof Hunter self && !HunterThreats.canEngage(self, target)) return false;
+        return hunter.canAttack(target);
+    }
+
+    private static boolean isSafeToEngage(Hunter hunter, LivingEntity target) {
+        if (!HunterThreats.canEngage(hunter, target)) return false;
+        return !HunterThreats.isExplosive(target) || hunter.distanceTo(target) >= HunterThreats.minShootDistance(target);
     }
 
     private static Optional<? extends LivingEntity> findNearestValidAttackTarget(ServerLevel level, Hunter hunter) {
+        Optional<LivingEntity> squadTarget = hunter.getBrain().getMemory(ModMemoryTypes.SQUAD_TARGET.get());
+        if (squadTarget.isPresent() && squadTarget.get().isAlive()) {
+            return squadTarget;
+        }
+
         Optional<LivingEntity> angryTarget = BehaviorUtils.getLivingEntityFromUUIDMemory(hunter, MemoryModuleType.ANGRY_AT);
-        if (angryTarget.isPresent() && Sensor.isEntityAttackableIgnoringLineOfSight(level, hunter, angryTarget.get())) {
+        if (angryTarget.isPresent() && isSafeToEngage(hunter, angryTarget.get()) && Sensor.isEntityAttackableIgnoringLineOfSight(level, hunter, angryTarget.get())) {
             return angryTarget;
         }
 
-        return findClosestInMemory(hunter, ModMemoryTypes.NEAREST_VISIBLE_HOSTILES.get(), target -> Sensor.isEntityAttackable(level, hunter, target));
+        return findClosestInMemory(hunter, ModMemoryTypes.NEAREST_VISIBLE_HOSTILES.get(), target -> isSafeToEngage(hunter, target) && Sensor.isEntityAttackable(level, hunter, target));
     }
 
     public static Optional<LivingEntity> findClosestInMemory(Hunter hunter, MemoryModuleType<List<LivingEntity>> memory, Predicate<LivingEntity> predicate) {
@@ -270,6 +314,11 @@ public class HunterAi {
     private static void stopWalking(Hunter hunter) {
         hunter.getBrain().eraseMemory(MemoryModuleType.WALK_TARGET);
         hunter.getNavigation().stop();
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <E extends LivingEntity> OneShot<E> withoutMemory(MemoryModuleType<?> memory, BehaviorControl<? super E> trigger) {
+        return BehaviorBuilder.triggerIf(entity -> !entity.getBrain().hasMemoryValue(memory), (OneShot<? super E>) trigger);
     }
 
     public static OneShot<Hunter> ifMelee(OneShot<Hunter> trigger) {

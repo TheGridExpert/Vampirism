@@ -36,7 +36,7 @@ public class FindCureTarget {
             boolean hostilesNearby = instance.tryGet(nearestHostilesAcc)
                     .orElse(List.of())
                     .stream()
-                    .anyMatch(a -> a.isAlive() && a.distanceTo(hunter) < maxHostileRadius);
+                    .anyMatch(hostile -> hostile.isAlive() && hostile.distanceTo(hunter) < maxHostileRadius);
             if (hostilesNearby) return false;
 
             if (existingCureTargetOpt.isPresent()) {
@@ -47,14 +47,14 @@ public class FindCureTarget {
             List<LivingEntity> allyCureTargets = instance.tryGet(nearestAlliesAcc)
                     .orElse(List.of())
                     .stream()
-                    .filter(e -> e.getBrain().hasMemoryValue(ModMemoryTypes.CURE_TARGET.get()))
-                    .map(e -> e.getBrain().getMemory(ModMemoryTypes.CURE_TARGET.get()).orElse(null))
+                    .filter(ally -> ally.getBrain().hasMemoryValue(ModMemoryTypes.CURE_TARGET.get()))
+                    .map(ally -> ally.getBrain().getMemory(ModMemoryTypes.CURE_TARGET.get()).orElse(null))
                     .filter(Objects::nonNull)
                     .toList();
 
             Optional<LivingEntity> nearestTargetOpt = instance.tryGet(nearestInfectedEntitiesAcc).orElse(List.of()).stream()
-                    .filter(e -> e.isAlive() && !allyCureTargets.contains(e) && e.distanceTo(hunter) <= cureRadius)
-                    .min(Comparator.comparingDouble(e -> e.distanceToSqr(hunter)));
+                    .filter(infected -> infected.isAlive() && !allyCureTargets.contains(infected) && infected.distanceTo(hunter) <= cureRadius)
+                    .min(Comparator.comparingDouble(infected -> infected.distanceToSqr(hunter)));
 
             if (nearestTargetOpt.isPresent()) {
                 LivingEntity cureTarget = nearestTargetOpt.get();
@@ -62,15 +62,15 @@ public class FindCureTarget {
                 List<LivingEntity> allHunters = new ArrayList<>(instance.tryGet(nearestAlliesAcc)
                         .orElse(List.of())
                         .stream()
-                        .filter(e -> e.isAlive() && e instanceof Hunter allyHunter && !allyHunter.isFighting() && !allyHunter.isRetreating())
-                        .filter(e -> e.getBrain().getMemory(ModMemoryTypes.NEAREST_VISIBLE_HOSTILES.get())
+                        .filter(ally -> ally.isAlive() && ally instanceof Hunter allyHunter && !allyHunter.isFighting() && !allyHunter.isRetreating())
+                        .filter(ally -> ally.getBrain().getMemory(ModMemoryTypes.NEAREST_VISIBLE_HOSTILES.get())
                                 .orElse(List.of())
                                 .stream()
-                                .noneMatch(h -> h.isAlive() && h.distanceTo(e) < maxHostileRadius))
+                                .noneMatch(hostile -> hostile.isAlive() && hostile.distanceTo(ally) < maxHostileRadius))
                         .toList());
                 allHunters.add(hunter);
 
-                LivingEntity closestHunter = allHunters.stream().min(Comparator.comparingDouble(h -> h.distanceToSqr(cureTarget))).get();
+                LivingEntity closestHunter = allHunters.stream().min(Comparator.comparingDouble(candidate -> candidate.distanceToSqr(cureTarget))).get();
 
                 closestHunter.getBrain().setMemoryWithExpiry(ModMemoryTypes.CURE_TARGET.get(), cureTarget, CURE_TIMEOUT);
                 closestHunter.getBrain().setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(cureTarget, speed, 1));
@@ -85,8 +85,8 @@ public class FindCureTarget {
             Optional<LivingEntity> allyWithTargetOpt = instance.tryGet(nearestAlliesAcc)
                     .orElse(List.of())
                     .stream()
-                    .filter(e -> e.isAlive() && e.getBrain().hasMemoryValue(ModMemoryTypes.CURE_TARGET.get()))
-                    .min(Comparator.comparingDouble(e -> e.distanceToSqr(hunter)));
+                    .filter(ally -> ally.isAlive() && ally.getBrain().hasMemoryValue(ModMemoryTypes.CURE_TARGET.get()))
+                    .min(Comparator.comparingDouble(ally -> ally.distanceToSqr(hunter)));
 
             if (allyWithTargetOpt.isPresent()) {
                 hunter.getBrain().setMemory(MemoryModuleType.LOOK_TARGET, new EntityTracker(allyWithTargetOpt.get(), true));

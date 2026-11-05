@@ -509,6 +509,7 @@
   "attribute.vampirism.blood_exhaustion": "Blood Exhaustion",
   "attribute.vampirism.neonatal_duration": "Neonatal Duration",
   "attribute.vampirism.dbno_duration": "DBNO Duration",
+  "attribute.vampirism.sprint_speed": "Sprint Speed",
 
   "fluid.vampirism.blood": "Blood",
   "fluid.vampirism.blood.vampirism": "Vampirism's Blood",

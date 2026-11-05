@@ -6,7 +6,10 @@ import de.teamlapen.vampirism.common.core.ModEntities;
 import de.teamlapen.vampirism.common.core.ModHunterVariants;
 import de.teamlapen.vampirism.common.core.ModItems;
 import de.teamlapen.vampirism.common.world.entity.ai.navigation.HunterPathNavigation;
+import de.teamlapen.vampirism.common.world.entity.hunter.squad.HunterGroupData;
+import de.teamlapen.vampirism.common.world.entity.hunter.squad.HunterSquad;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.NonNullList;
@@ -47,6 +50,7 @@ import net.neoforged.neoforge.common.NeoForgeMod;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 public class Hunter extends PathfinderMob implements CrossbowAttackMob {
@@ -73,13 +77,22 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
     private static final int MAX_LEVEL = 14;
     public static final float ARROW_VELOCITY = 2.0F;
 
+    public static final String TAG_SQUAD_ID = "SquadId";
+    public static final float WALK_SPEED = 1.0F;
+    public static final float RUN_SPEED = 2.0F;
+    private static final double PLAYER_SPRINT_FACTOR = 1.3D;
+    private static final double GROUND_DRAG = 1.0D - 0.6D * 0.91D;
+
     private final NonNullList<ItemStack> sheathedWeapons = NonNullList.withSize(2, ItemStack.EMPTY);
+    private @Nullable HunterSquad squad;
+    private @Nullable UUID squadId;
 
     public Hunter(EntityType<? extends PathfinderMob> entityType, Level level) {
         super(entityType, level);
         this.getNavigation().setCanOpenDoors(true);
         this.getNavigation().setCanFloat(true);
         this.getNavigation().setRequiredPathLength(48.0F);
+        this.moveControl = new HunterMoveControl(this);
     }
 
     public static boolean checkHunterSpawnRules(EntityType<Hunter> entityType, LevelAccessor level, EntitySpawnReason spawnReason, BlockPos pos, RandomSource random) {
@@ -89,7 +102,8 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
     public static AttributeSupplier.Builder getAttributeBuilder() {
         return LivingEntity.createLivingAttributes()
                 .add(Attributes.FOLLOW_RANGE, 32.0)
-                .add(Attributes.MOVEMENT_SPEED, 0.55F)
+                .add(Attributes.MOVEMENT_SPEED, 0.1F)
+                .add(ModAttributes.SPRINT_SPEED, 1.0D)
                 .add(NeoForgeMod.SWIM_SPEED, 2.5F)
                 .add(Attributes.ATTACK_DAMAGE, 3.0)
                 .add(Attributes.MAX_HEALTH, 20.0)
@@ -115,7 +129,9 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
     @Override
     protected void customServerAiStep(ServerLevel level) {
         ProfilerFiller profilerFiller = Profiler.get();
-        profilerFiller.push("hunterBrain");
+        profilerFiller.push("hunterSquad");
+        HunterSquad.tickMember(level, this);
+        profilerFiller.popPush("hunterBrain");
         this.getBrain().tick(level, this);
         profilerFiller.pop();
         HunterAi.updateActivity(this);
@@ -123,6 +139,22 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
         handleNaturalRegeneration(level);
 
         super.customServerAiStep(level);
+    }
+
+    public double velocityFactor(double gait) {
+        if (gait <= WALK_SPEED) return gait;
+        double run = PLAYER_SPRINT_FACTOR * getAttributeValue(ModAttributes.SPRINT_SPEED);
+        return Mth.lerp(Math.min(gait - WALK_SPEED, 1.0D), 1.0D, run);
+    }
+
+    // Mob ground velocity scales with the square of its speed, since setSpeed also sets the forward input
+    public double speedModifierFor(double gait) {
+        double speed = getAttributeValue(Attributes.MOVEMENT_SPEED);
+        return speed <= 0 ? 0 : Math.sqrt(velocityFactor(gait) / speed);
+    }
+
+    public double runVelocity() {
+        return INPUT_FRICTION * getAttributeValue(Attributes.MOVEMENT_SPEED) * velocityFactor(RUN_SPEED) / GROUND_DRAG;
     }
 
     @Override
@@ -203,6 +235,7 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
         output.putInt(TAG_FACTION_LEVEL, getFactionLevel());
         output.store(TAG_SHEATHED_WEAPONS, ItemStack.OPTIONAL_CODEC.listOf(), this.sheathedWeapons);
         output.store(TAG_QUARREL_TYPE, Item.CODEC, this.entityData.get(DATA_QUARREL_TYPE_ID));
+        output.storeNullable(TAG_SQUAD_ID, UUIDUtil.CODEC, this.squadId);
     }
 
     @Override
@@ -222,14 +255,17 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
         });
 
         input.read(TAG_QUARREL_TYPE, Item.CODEC).ifPresent(quarrel -> this.entityData.set(DATA_QUARREL_TYPE_ID, quarrel));
+        this.squadId = input.read(TAG_SQUAD_ID, UUIDUtil.CODEC).orElse(null);
     }
 
     @Override
     @SuppressWarnings("deprecation")
     public @Nullable SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, EntitySpawnReason spawnReason, @Nullable SpawnGroupData spawnGroupData) {
         RandomSource random = level.getRandom();
+        HunterGroupData group = spawnGroupData instanceof HunterGroupData data && data.hasRoom() ? data : new HunterGroupData();
 
-        setHunterClass(HunterClassType.getRandom(random));
+        setHunterClass(group.nextClass(random));
+        this.squadId = group.squadId();
         setVariant(HunterVariant.getRandomVariant(DEFAULT_VARIANT, random));
         assignRandomFactionLevel(level, random);
 
@@ -238,7 +274,21 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
 
         HunterAi.initMemories(this);
 
-        return super.finalizeSpawn(level, difficulty, spawnReason, spawnGroupData);
+        super.finalizeSpawn(level, difficulty, spawnReason, group);
+        return group;
+    }
+
+    public @Nullable HunterSquad getSquad() {
+        return this.squad;
+    }
+
+    public @Nullable UUID getSquadId() {
+        return this.squadId;
+    }
+
+    public void setSquad(HunterSquad squad) {
+        this.squad = squad;
+        this.squadId = squad.id();
     }
 
     private void assignRandomFactionLevel(ServerLevelAccessor level, RandomSource random) {
@@ -261,7 +311,7 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
         float levelFactor = (factionLevel - 1.0f) / MAX_LEVEL;
 
         float followRangeFactor = gaussianFactor(random, 1.0f + levelFactor * 0.4f, 0.2f);
-        float speedFactor = gaussianFactor(random, 1.0f + levelFactor * 0.15f, 0.08f);
+        float sprintFactor = gaussianFactor(random, 1.03f + levelFactor * 0.3f, 0.05f);
         float damageFactor = gaussianFactor(random, 1.0f + levelFactor * 0.85f, 0.2f);
         float healthFactor = gaussianFactor(random, 1.0f + levelFactor * 0.75f, 0.2f);
 
@@ -270,7 +320,7 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
         }
 
         multiplyAttributeIfPresent(Attributes.FOLLOW_RANGE, followRangeFactor, 0);
-        multiplyAttributeIfPresent(Attributes.MOVEMENT_SPEED, speedFactor);
+        multiplyAttributeIfPresent(ModAttributes.SPRINT_SPEED, sprintFactor);
         multiplyAttributeIfPresent(Attributes.ATTACK_DAMAGE, damageFactor);
         multiplyAttributeIfPresent(Attributes.MAX_HEALTH, healthFactor, 0);
 

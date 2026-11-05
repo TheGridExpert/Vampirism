@@ -19,22 +19,23 @@ public class PatrolAroundHome {
                 instance.present(MemoryModuleType.HOME),
                 instance.absent(MemoryModuleType.WALK_TARGET),
                 instance.absent(ModMemoryTypes.PATROL_COOLDOWN.get()),
-                instance.absent(ModMemoryTypes.CURE_TARGET.get())
-        ).apply(instance, (homeAcc, walkTargetAcc, patrolCooldownAcc, cureTargetAcc) -> ((level, hunter, gameTime) -> {
+                instance.absent(ModMemoryTypes.CURE_TARGET.get()),
+                instance.absent(ModMemoryTypes.SQUAD_POSITION.get())
+        ).apply(instance, (homeAcc, walkTargetAcc, patrolCooldownAcc, cureTargetAcc, squadPositionAcc) -> ((level, hunter, gameTime) -> {
             BlockPos homePos = instance.get(homeAcc).pos();
             RandomSource random = hunter.getRandom();
 
             double angle = random.nextDouble() * Math.PI * 2.0;
             double dist = 2.0 + random.nextDouble() * (radius - 2.0);
 
-            int tx = homePos.getX() + Mth.floor(Math.cos(angle) * dist);
-            int tz = homePos.getZ() + Mth.floor(Math.sin(angle) * dist);
+            int targetX = homePos.getX() + Mth.floor(Math.cos(angle) * dist);
+            int targetZ = homePos.getZ() + Mth.floor(Math.sin(angle) * dist);
 
-            int surfaceY = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, tx, tz);
+            int surfaceY = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, targetX, targetZ);
             int hunterY = hunter.blockPosition().getY();
-            int ty = (Math.abs(surfaceY - hunterY) < 12) ? surfaceY : hunterY;
+            int targetY = (Math.abs(surfaceY - hunterY) < 12) ? surfaceY : hunterY;
 
-            BlockPos target = new BlockPos(tx, ty, tz);
+            BlockPos target = new BlockPos(targetX, targetY, targetZ);
             hunter.getBrain().setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(new BlockPosTracker(target), speed, 1));
 
             return true;

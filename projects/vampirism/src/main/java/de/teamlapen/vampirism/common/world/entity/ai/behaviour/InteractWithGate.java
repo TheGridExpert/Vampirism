@@ -131,9 +131,9 @@ public class InteractWithGate {
 
     private static boolean areOtherMobsComingThroughGate(LivingEntity entity, BlockPos pos, Optional<List<LivingEntity>> nearbyEntities) {
         return nearbyEntities.isPresent() && nearbyEntities.get().stream()
-                .filter(e -> e.getType() == entity.getType())
-                .filter(e -> pos.closerToCenterThan(e.position(), MAX_DISTANCE_TO_HOLD_GATE_OPEN_FOR_OTHER_MOBS))
-                .anyMatch(e -> isMobComingThroughGate(e.getBrain(), pos));
+                .filter(other -> other.getType() == entity.getType())
+                .filter(other -> pos.closerToCenterThan(other.position(), MAX_DISTANCE_TO_HOLD_GATE_OPEN_FOR_OTHER_MOBS))
+                .anyMatch(other -> isMobComingThroughGate(other.getBrain(), pos));
     }
 
     private static boolean isMobComingThroughGate(Brain<?> brain, BlockPos pos) {
