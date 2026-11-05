@@ -63,6 +63,7 @@ public final class HunterSquad {
         updateHeading();
         kickStragglers();
         mergeWithVisibleSquads();
+        promoteStrongerLeader();
 
         if (this.members.size() < 2) return;
 
@@ -189,6 +190,14 @@ public final class HunterSquad {
 
     private void electLeader() {
         this.leader = this.members.stream().max(Comparator.comparingInt(HunterSquad::leadershipScore)).orElse(null);
+    }
+
+    private void promoteStrongerLeader() {
+        for (Hunter member : this.members) {
+            if (leadershipScore(member) > leadershipScore(this.leader)) {
+                this.leader = member;
+            }
+        }
     }
 
     private static int leadershipScore(Hunter hunter) {
