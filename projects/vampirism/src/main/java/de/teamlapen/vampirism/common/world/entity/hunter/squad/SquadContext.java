@@ -84,7 +84,7 @@ public class SquadContext {
         for (LivingEntity threat : found) {
             if (threat instanceof Hunter || !threat.isAlive() || threat.level() != this.level) continue;
             if (HunterThreats.isAvoided(threat)) continue;
-            if (!HunterThreats.canMelee(threat) && !HunterThreats.canShoot(threat)) continue;
+            if (!HunterThreats.canMelee(threat) && !HunterThreats.canShoot(threat) && !HunterThreats.shouldLure(threat)) continue;
             if (threat.position().distanceTo(this.squadCenter) > ENGAGE_RADIUS) continue;
             result.add(threat);
         }

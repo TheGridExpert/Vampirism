@@ -26,7 +26,7 @@ public class HunterThreats {
     }
 
     public static boolean canMelee(LivingEntity entity) {
-        return !isExplosive(entity) && !entity.is(ModEntityTags.HUNTER_THREAT_RANGED_ONLY) && !isInDeepWater(entity);
+        return !isExplosive(entity) && !entity.is(ModEntityTags.HUNTER_THREAT_RANGED_ONLY) && !isSubmerged(entity);
     }
 
     public static boolean canShoot(LivingEntity entity) {
@@ -62,7 +62,12 @@ public class HunterThreats {
         return victim != null && (victim instanceof Hunter || victim instanceof Player || !(victim instanceof Enemy));
     }
 
+    public static boolean shouldLure(LivingEntity target) {
+        return isSubmerged(target) && isActiveThreat(target);
+    }
+
     public static boolean isWorthEngaging(Hunter hunter, LivingEntity target) {
+        if (isSubmerged(target)) return isActiveThreat(target);
         if (hunter.isRangedClass() && isActiveThreat(target)) return true;
         return hunter.canReach(target);
     }

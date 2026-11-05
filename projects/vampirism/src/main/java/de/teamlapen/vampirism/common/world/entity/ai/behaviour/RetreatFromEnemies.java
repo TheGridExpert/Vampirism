@@ -1,14 +1,17 @@
 package de.teamlapen.vampirism.common.world.entity.ai.behaviour;
 
 import de.teamlapen.vampirism.common.core.ModMemoryTypes;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.Entity;
+import de.teamlapen.vampirism.common.util.Helper;
+import de.teamlapen.vampirism.common.world.entity.hunter.Hunter;
+import de.teamlapen.vampirism.common.world.entity.hunter.HunterThreats;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.behavior.OneShot;
 import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.WalkTarget;
+import net.minecraft.world.entity.ai.util.LandRandomPos;
+import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.Comparator;
@@ -16,58 +19,64 @@ import java.util.List;
 
 public class RetreatFromEnemies {
 
-    private static final double MIN_MOVE_DISTANCE = 4.0;
+    private static final double DANGER_RADIUS = 8.0D;
+    private static final double ALLY_RADIUS = 20.0D;
+    private static final int FLEE_RANGE = 8;
+    private static final int VERTICAL_RANGE = 7;
+    private static final double AVOID_POINT_OFFSET = 4.0D;
 
-    public static OneShot<PathfinderMob> create(MemoryModuleType<List<LivingEntity>> enemiesMemory, float speedModifier, double retreatDistance, double safeDistance) {
+    public static OneShot<Hunter> create(float speedModifier, double minFleeDistance, double safeDistance) {
         return BehaviorBuilder.create(instance -> instance.group(
-                instance.present(enemiesMemory),
-                instance.absent(MemoryModuleType.WALK_TARGET)
-        ).apply(instance, (enemiesAcc, walkTargetAcc) -> (ServerLevel _, PathfinderMob mob, long _) -> {
-            List<LivingEntity> aliveEnemies = instance.get(enemiesAcc).stream().filter(LivingEntity::isAlive).toList();
-            if (aliveEnemies.isEmpty()) return false;
+                instance.present(MemoryModuleType.NEAREST_LIVING_ENTITIES),
+                instance.absent(MemoryModuleType.WALK_TARGET),
+                instance.registered(ModMemoryTypes.NEAREST_VISIBLE_HUNTERS.get())
+        ).apply(instance, (nearbyAcc, walkTargetAcc, alliesAcc) -> (_, hunter, _) -> {
+            List<LivingEntity> threats = instance.get(nearbyAcc).stream()
+                    .filter(entity -> hunter.distanceTo(entity) < safeDistance && isDangerTo(hunter, entity))
+                    .toList();
+            if (threats.isEmpty()) return false;
 
-            Vec3 enemiesCenter = averagePosition(aliveEnemies);
-            Vec3 mobPos = mob.position();
+            Vec3 fleeDirection = Vec3.ZERO;
+            for (LivingEntity threat : threats) {
+                Vec3 away = hunter.position().subtract(threat.position());
+                Vec3 horizontal = new Vec3(away.x, 0, away.z);
+                double distance = Math.max(1.0D, horizontal.length());
+                fleeDirection = fleeDirection.add(horizontal.scale(1.0D / (distance * distance)));
+            }
+            if (fleeDirection.lengthSqr() < 1.0E-6) {
+                fleeDirection = new Vec3(hunter.getRandom().nextDouble() - 0.5D, 0, hunter.getRandom().nextDouble() - 0.5D);
+            }
+            fleeDirection = fleeDirection.normalize();
 
-            if (mobPos.distanceTo(enemiesCenter) >= safeDistance) return false;
-
-            Vec3 fleeDir = mobPos.subtract(enemiesCenter).normalize();
-
-            Vec3 nearestAllyPos = mob.getBrain().getMemory(ModMemoryTypes.NEAREST_VISIBLE_HUNTERS.get())
-                    .flatMap(allies -> allies.stream()
-                            .filter(ally -> ally.isAlive() && ally.distanceToSqr(mob) < 400)
-                            .min(Comparator.comparingDouble(ally -> ally.distanceToSqr(mob)))
-                    )
-                    .map(Entity::position)
+            Vec3 allyPos = instance.tryGet(alliesAcc).orElse(List.of()).stream()
+                    .filter(ally -> ally.isAlive() && ally.distanceTo(hunter) < ALLY_RADIUS)
+                    .min(Comparator.comparingDouble(ally -> ally.distanceToSqr(hunter)))
+                    .map(LivingEntity::position)
                     .orElse(null);
-
-            if (nearestAllyPos != null) {
-                Vec3 toAlly = nearestAllyPos.subtract(mobPos).normalize();
-                fleeDir = fleeDir.add(toAlly).normalize();
+            if (allyPos != null) {
+                Vec3 toAlly = allyPos.subtract(hunter.position());
+                Vec3 horizontal = new Vec3(toAlly.x, 0, toAlly.z);
+                if (horizontal.lengthSqr() > 1.0E-4 && horizontal.normalize().dot(fleeDirection) > 0) {
+                    fleeDirection = fleeDirection.add(horizontal.normalize()).normalize();
+                }
             }
 
-            Vec3 targetPos = mobPos.add(fleeDir.scale(retreatDistance));
+            Vec3 avoidPoint = hunter.position().subtract(fleeDirection.scale(AVOID_POINT_OFFSET));
+            Vec3 destination = LandRandomPos.getPosAway(hunter, minFleeDistance, minFleeDistance + FLEE_RANGE, VERTICAL_RANGE, avoidPoint);
+            if (destination == null) return false;
 
-            if (mobPos.distanceToSqr(targetPos) >= MIN_MOVE_DISTANCE * MIN_MOVE_DISTANCE) {
-                walkTargetAcc.set(new WalkTarget(targetPos, speedModifier, 0));
-                return true;
-            }
-
-            return false;
+            walkTargetAcc.set(new WalkTarget(destination, speedModifier, 0));
+            return true;
         }));
     }
 
-    private static Vec3 averagePosition(List<LivingEntity> entities) {
-        if (entities.isEmpty()) return Vec3.ZERO;
+    private static boolean isDangerTo(Hunter hunter, LivingEntity entity) {
+        if (!entity.isAlive() || entity instanceof Hunter) return false;
+        if (!(entity instanceof Monster || Helper.isVampire(entity))) return false;
 
-        double x = 0, y = 0, z = 0;
-        for (LivingEntity entity : entities) {
-            x += entity.getX();
-            y += entity.getY();
-            z += entity.getZ();
-        }
-
-        int count = entities.size();
-        return new Vec3(x / count, y / count, z / count);
+        boolean targetsHunter = entity instanceof Mob mob && mob.getTarget() == hunter;
+        if (targetsHunter) return true;
+        if (HunterThreats.requiresProvocation(entity) && !HunterThreats.isProvoked(entity)) return false;
+        return hunter.distanceTo(entity) < DANGER_RADIUS;
     }
 }

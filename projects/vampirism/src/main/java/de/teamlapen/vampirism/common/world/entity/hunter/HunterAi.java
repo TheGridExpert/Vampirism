@@ -44,7 +44,6 @@ public class HunterAi {
     private static final float SPEED_MULTIPLIER_WHEN_CHASING_TARGET = Hunter.RUN_SPEED;
     private static final float SPEED_MULTIPLIER_WHEN_DISTANCING_RANGED = Hunter.RUN_SPEED;
     private static final int MELEE_ATTACK_COOLDOWN = 20;
-    private static final double PREFERRED_ATTACK_DISTANCE = 2.5D;
     private static final double TOO_CLOSE_ATTACK_DISTANCE = 1.0D;
     private static final double MIN_RANGE_ATTACK_DISTANCE = 7.5D;
     private static final double MAX_RANGE_ATTACK_DISTANCE = 15.0D;
@@ -55,6 +54,9 @@ public class HunterAi {
     private static final int MAX_RETREAT_DURATION = 700;
     private static final double RETREAT_DISTANCE = 5.0D;
     private static final double RETREAT_SAFE_DISTANCE = 15.0D;
+
+    private static final float SPEED_MULTIPLIER_WHEN_LURING = Hunter.RUN_SPEED;
+    private static final double LURE_DISTANCE = 8.0D;
 
     private static final float SPEED_MULTIPLIER_WHEN_FOLLOWING = Hunter.WALK_SPEED;
     private static final double FORMATION_TOLERANCE = 2.0D;
@@ -167,15 +169,16 @@ public class HunterAi {
                 10,
                 ImmutableList.of(
                         new HandleHunterWeapons.Unsheathe(),
-                        ifMelee(StopAttackingIfTargetInvalid.create((_, target) -> !HunterThreats.canMelee(target))),
-                        ifRanged(StopAttackingIfTargetInvalid.create((_, target) -> !HunterThreats.canShoot(target))),
+                        ifMelee(StopAttackingIfTargetInvalid.create((_, target) -> !HunterThreats.canMelee(target) && !HunterThreats.shouldLure(target))),
+                        ifRanged(StopAttackingIfTargetInvalid.create((_, target) -> !HunterThreats.canShoot(target) && !HunterThreats.shouldLure(target))),
                         withoutMemory(ModMemoryTypes.SQUAD_TARGET.get(), SwitchAttackTargetIfCloser.create(ModMemoryTypes.NEAREST_VISIBLE_HOSTILES.get())),
                         new CheckHealthAndRetreat(RETREAT_HEALTH_PERCENT, MAX_RETREAT_DURATION),
                         MoveToSquadPosition.create(SPEED_MULTIPLIER_WHEN_CHASING_TARGET, COMBAT_POSITION_TOLERANCE),
-                        ifMelee(DistanceMeleeAttack.create(MELEE_ATTACK_COOLDOWN, PREFERRED_ATTACK_DISTANCE, TOO_CLOSE_ATTACK_DISTANCE)),
-                        ifMelee(withoutMemory(ModMemoryTypes.SQUAD_POSITION.get(), SetWalkTargetFromAttackTargetIfTargetOutOfReach.create(SPEED_MULTIPLIER_WHEN_CHASING_TARGET))),
+                        LureFromWater.create(SPEED_MULTIPLIER_WHEN_LURING, LURE_DISTANCE),
+                        ifMelee(DistanceMeleeAttack.create(MELEE_ATTACK_COOLDOWN, TOO_CLOSE_ATTACK_DISTANCE)),
+                        ifMelee(unlessLuring(withoutMemory(ModMemoryTypes.SQUAD_POSITION.get(), SetWalkTargetFromAttackTargetIfTargetOutOfReach.create(SPEED_MULTIPLIER_WHEN_CHASING_TARGET)))),
                         new PreciseCrossbowAttack(),
-                        ifRanged(withoutMemory(ModMemoryTypes.SQUAD_POSITION.get(), MaintainDistanceFromTarget.create(SPEED_MULTIPLIER_WHEN_DISTANCING_RANGED, MIN_RANGE_ATTACK_DISTANCE, MAX_RANGE_ATTACK_DISTANCE)))
+                        ifRanged(unlessLuring(withoutMemory(ModMemoryTypes.SQUAD_POSITION.get(), MaintainDistanceFromTarget.create(SPEED_MULTIPLIER_WHEN_DISTANCING_RANGED, MIN_RANGE_ATTACK_DISTANCE, MAX_RANGE_ATTACK_DISTANCE))))
                 ),
                 MemoryModuleType.ATTACK_TARGET
         );
@@ -187,7 +190,7 @@ public class HunterAi {
                 15,
                 ImmutableList.of(
                         MoveToSquadPosition.create(SPEED_MULTIPLIER_WHEN_RETREATING, FORMATION_TOLERANCE),
-                        RetreatFromEnemies.create(ModMemoryTypes.NEAREST_VISIBLE_HOSTILES.get(), SPEED_MULTIPLIER_WHEN_RETREATING, RETREAT_DISTANCE, RETREAT_SAFE_DISTANCE),
+                        RetreatFromEnemies.create(SPEED_MULTIPLIER_WHEN_RETREATING, RETREAT_DISTANCE, RETREAT_SAFE_DISTANCE),
                         new RunOne<>(
                                 ImmutableList.of(
                                         Pair.of(SetEntityLookClosestOfRange.create(ModMemoryTypes.NEAREST_VISIBLE_HOSTILES.get(), 12.0F), 3),
@@ -323,6 +326,10 @@ public class HunterAi {
 
     public static <E extends LivingEntity> OneShot<E> withoutMemory(MemoryModuleType<?> memory, BehaviorControl<? super E> trigger) {
         return BehaviorBuilder.triggerIf(entity -> !entity.getBrain().hasMemoryValue(memory), (OneShot<? super E>) trigger);
+    }
+
+    public static OneShot<Hunter> unlessLuring(OneShot<Hunter> trigger) {
+        return BehaviorBuilder.triggerIf(hunter -> hunter.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).map(target -> !HunterThreats.shouldLure(target)).orElse(true), trigger);
     }
 
     public static OneShot<Hunter> ifMelee(OneShot<Hunter> trigger) {

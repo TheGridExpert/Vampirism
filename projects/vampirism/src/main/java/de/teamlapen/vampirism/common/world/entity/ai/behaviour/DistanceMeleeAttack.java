@@ -13,11 +13,11 @@ import java.util.function.Predicate;
 
 public class DistanceMeleeAttack {
 
-    public static OneShot<Hunter> create(int attackCooldown, double preferredDistance, double tooCloseDistance) {
-        return create(_ -> true, attackCooldown, preferredDistance, tooCloseDistance);
+    public static OneShot<Hunter> create(int attackCooldown, double tooCloseDistance) {
+        return create(_ -> true, attackCooldown, tooCloseDistance);
     }
 
-    public static OneShot<Hunter> create(Predicate<Hunter> canAttack, int attackCooldown, double preferredDistance, double tooCloseDistance) {
+    public static OneShot<Hunter> create(Predicate<Hunter> canAttack, int attackCooldown, double tooCloseDistance) {
         return BehaviorBuilder.create(
                 instance -> instance.group(
                         instance.registered(MemoryModuleType.LOOK_TARGET),
@@ -35,7 +35,7 @@ public class DistanceMeleeAttack {
                         hunter.getNavigation().moveTo(retreatPos.x, retreatPos.y, retreatPos.z, 1.0D);
                     }
 
-                    if (distance < preferredDistance) {
+                    if (hunter.isWithinMeleeAttackRange(target) && hunter.getSensing().hasLineOfSight(target)) {
                         hunter.getLookControl().setLookAt(target);
                         hunter.swing(InteractionHand.MAIN_HAND);
                         hunter.doHurtTarget(level, target);

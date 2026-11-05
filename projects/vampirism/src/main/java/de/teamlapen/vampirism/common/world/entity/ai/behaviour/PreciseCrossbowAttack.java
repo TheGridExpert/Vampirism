@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import de.teamlapen.vampirism.common.core.ModAttributes;
 import de.teamlapen.vampirism.common.core.ModMemoryTypes;
 import de.teamlapen.vampirism.common.world.entity.hunter.Hunter;
+import de.teamlapen.vampirism.common.world.entity.hunter.HunterThreats;
 import de.teamlapen.vampirism.misc.mixin.accessor.CrossbowItemAccessor;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
@@ -43,7 +44,8 @@ public class PreciseCrossbowAttack extends Behavior<Hunter> {
 
     @Override
     protected boolean checkExtraStartConditions(ServerLevel level, Hunter shooter) {
-        LivingEntity target = shooter.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).orElse(null);        return target != null && target.isAlive() && shooter.isHolding(item -> item.getItem() instanceof CrossbowItem) && shooter.isRangedClass();
+        LivingEntity target = shooter.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).orElse(null);
+        return target != null && target.isAlive() && shooter.isHolding(item -> item.getItem() instanceof CrossbowItem) && shooter.isRangedClass();
     }
 
     @Override
@@ -57,7 +59,8 @@ public class PreciseCrossbowAttack extends Behavior<Hunter> {
         LivingEntity target = shooter.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).orElse(null);
         if (target == null || !target.isAlive()) return;
 
-        boolean seesTarget = shooter.hasLineOfSight(target);        boolean isCharging = this.crossbowState == CrossbowState.CHARGING || shooter.isUsingItem();
+        boolean seesTarget = shooter.hasLineOfSight(target) && !HunterThreats.isSubmerged(target);
+        boolean isCharging = this.crossbowState == CrossbowState.CHARGING || shooter.isUsingItem();
 
         if (seesTarget && !isCharging) {
             Vec3 aimPos = calculateAimPosition(shooter, target);
