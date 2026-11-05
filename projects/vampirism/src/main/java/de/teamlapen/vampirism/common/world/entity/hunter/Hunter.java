@@ -2,12 +2,14 @@ package de.teamlapen.vampirism.common.world.entity.hunter;
 
 import de.teamlapen.vampirism.api.world.entity.hunter.IHunterVariant;
 import de.teamlapen.vampirism.common.core.ModAttributes;
+import de.teamlapen.vampirism.common.core.ModDebugSubscriptions;
 import de.teamlapen.vampirism.common.core.ModEntities;
 import de.teamlapen.vampirism.common.core.ModHunterVariants;
 import de.teamlapen.vampirism.common.core.ModItems;
 import de.teamlapen.vampirism.common.world.entity.ai.navigation.HunterPathNavigation;
 import de.teamlapen.vampirism.common.world.entity.hunter.squad.HunterGroupData;
 import de.teamlapen.vampirism.common.world.entity.hunter.squad.HunterSquad;
+import de.teamlapen.vampirism.common.world.entity.hunter.squad.HunterSquadDebugInfo;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.Direction;
@@ -22,6 +24,7 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.profiling.Profiler;
+import net.minecraft.util.debug.DebugValueSource;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
@@ -141,6 +144,12 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
         handleNaturalRegeneration(level);
 
         super.customServerAiStep(level);
+    }
+
+    @Override
+    public void registerDebugValues(ServerLevel level, DebugValueSource.Registration registration) {
+        super.registerDebugValues(level, registration);
+        registration.register(ModDebugSubscriptions.HUNTER_SQUADS.get(), () -> HunterSquadDebugInfo.of(this));
     }
 
     public double velocityFactor(double gait) {

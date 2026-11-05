@@ -126,6 +126,7 @@ public class ClientServices extends Services {
         bus.addListener(ModParticleFactories::registerFactories);
         bus.addListener(ClientEventHandler::onModelRegistry);
         bus.addListener(ModDebugEntries::registerDebugEntries);
+        bus.addListener(ModDebugEntries::registerDebugRenderers);
         bus.addListener(ModItemsRender::registerItemDecorator);
         bus.addListener(ModItemsRender::registerItemBars);
         bus.addListener(ModClientEffects::registerClientExtensions);
@@ -156,6 +157,7 @@ public class ClientServices extends Services {
         bus.register(this.clientEventHandler);
         bus.register(this.playerSkinHelper);
         bus.register(this.clientTooltips);
+        bus.addListener(ModDebugEntries::addDebugSubscriptionFlags);
         bus.addListener(ClientTickEvent.Pre.class, _ -> {
             this.fullScreenOverlay.update();
             this.sunBlindOverlay.update();
