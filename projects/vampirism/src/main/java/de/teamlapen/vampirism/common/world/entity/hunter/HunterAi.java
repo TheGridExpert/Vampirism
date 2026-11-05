@@ -121,7 +121,7 @@ public class HunterAi {
     }
 
     private static ActivityData<Hunter> initCoreActivity() {
-        return ActivityData.<Hunter>create(
+        return ActivityData.create(
                 Activity.CORE,
                 0,
                 ImmutableList.of(
@@ -138,13 +138,13 @@ public class HunterAi {
     }
 
     private static ActivityData<Hunter> initPatrolActivity() {
-        return ActivityData.<Hunter>create(
+        return ActivityData.create(
                 Activity.IDLE,
                 5,
                 ImmutableList.of(
                         MoveToSquadPosition.create(SPEED_MULTIPLIER_WHEN_FOLLOWING, FORMATION_TOLERANCE),
                         PatrolAroundHome.create(PATROL_RADIUS, SPEED_MULTIPLIER_WHEN_PATROLLING),
-                        new RunOne<Hunter>(
+                        new RunOne<>(
                                 ImmutableList.of(
                                         Pair.of(SetEntityLookTarget.create(EntityType.PLAYER, 10.0F), 2),
                                         Pair.of(SetEntityLookTarget.create(ModEntities.NEW_HUNTER.get(), 8.0F), 2),
@@ -154,17 +154,19 @@ public class HunterAi {
                         ),
                         FindCureTarget.create(CURING_RADIUS, MAX_HOSTILE_RADIUS_TO_CURE, SPEED_MULTIPLIER_WHEN_CHASING_CURE_TARGET),
                         CureTargetIfClose.create(CURING_RANGE, STARE_TICKS_AFTER_CURING),
-                        StartAttacking.<Hunter>create((level, hunter) -> true, HunterAi::findNearestValidAttackTarget)
+                        StartAttacking.create((_, _) -> true, HunterAi::findNearestValidAttackTarget)
                 )
         );
     }
 
     private static ActivityData<Hunter> initFightActivity() {
-        return ActivityData.<Hunter>create(
+        return ActivityData.create(
                 Activity.FIGHT,
                 10,
                 ImmutableList.of(
                         new HandleHunterWeapons.Unsheathe(),
+                        ifMelee(StopAttackingIfTargetInvalid.create((_, target) -> !HunterThreats.canMelee(target))),
+                        ifRanged(StopAttackingIfTargetInvalid.create((_, target) -> !HunterThreats.canShoot(target))),
                         withoutMemory(ModMemoryTypes.SQUAD_TARGET.get(), SwitchAttackTargetIfCloser.create(ModMemoryTypes.NEAREST_VISIBLE_HOSTILES.get())),
                         new CheckHealthAndRetreat(RETREAT_HEALTH_PERCENT, MAX_RETREAT_DURATION),
                         MoveToSquadPosition.create(SPEED_MULTIPLIER_WHEN_CHASING_TARGET, COMBAT_POSITION_TOLERANCE),
@@ -178,13 +180,13 @@ public class HunterAi {
     }
 
     private static ActivityData<Hunter> initRetreatActivity() {
-        return ActivityData.<Hunter>create(
+        return ActivityData.create(
                 Activity.AVOID,
                 15,
                 ImmutableList.of(
                         MoveToSquadPosition.create(SPEED_MULTIPLIER_WHEN_RETREATING, FORMATION_TOLERANCE),
                         RetreatFromEnemies.create(ModMemoryTypes.NEAREST_VISIBLE_HOSTILES.get(), SPEED_MULTIPLIER_WHEN_RETREATING, RETREAT_DISTANCE, RETREAT_SAFE_DISTANCE),
-                        new RunOne<Hunter>(
+                        new RunOne<>(
                                 ImmutableList.of(
                                         Pair.of(SetEntityLookClosestOfRange.create(ModMemoryTypes.NEAREST_VISIBLE_HOSTILES.get(), 12.0F), 3),
                                         Pair.of(SetEntityLookTarget.create(ModEntities.NEW_HUNTER.get(), 8.0F), 2),
@@ -199,7 +201,7 @@ public class HunterAi {
     }
 
     private static ActivityData<Hunter> initEvadeActivity() {
-        return ActivityData.<Hunter>create(
+        return ActivityData.create(
                 ModActivities.HUNTER_EVADE.get(),
                 20,
                 ImmutableList.of(
@@ -316,7 +318,6 @@ public class HunterAi {
         hunter.getNavigation().stop();
     }
 
-    @SuppressWarnings("unchecked")
     public static <E extends LivingEntity> OneShot<E> withoutMemory(MemoryModuleType<?> memory, BehaviorControl<? super E> trigger) {
         return BehaviorBuilder.triggerIf(entity -> !entity.getBrain().hasMemoryValue(memory), (OneShot<? super E>) trigger);
     }

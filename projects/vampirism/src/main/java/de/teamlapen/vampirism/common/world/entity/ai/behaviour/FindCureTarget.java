@@ -24,7 +24,7 @@ public class FindCureTarget {
                 instance.registered(ModMemoryTypes.NEAREST_VISIBLE_HUNTERS.get()),
                 instance.registered(ModMemoryTypes.NEAREST_VISIBLE_HOSTILES.get()),
                 instance.registered(ModMemoryTypes.NEAREST_VISIBLE_INFECTED_ENTITIES.get())
-        ).apply(instance, (walkTargetAcc, lookTargetAcc, cureTargetAcc, nearestAlliesAcc, nearestHostilesAcc, nearestInfectedEntitiesAcc) -> ((level, hunter, gameTime) -> {
+        ).apply(instance, (_, _, cureTargetAcc, nearestAlliesAcc, nearestHostilesAcc, nearestInfectedEntitiesAcc) -> ((_, hunter, _) -> {
             Optional<LivingEntity> existingCureTargetOpt = instance.tryGet(cureTargetAcc);
             if (existingCureTargetOpt.isPresent() && !isValidCureTarget(hunter, existingCureTargetOpt.get(), cureRadius * 2)) {
                 cureTargetAcc.erase();

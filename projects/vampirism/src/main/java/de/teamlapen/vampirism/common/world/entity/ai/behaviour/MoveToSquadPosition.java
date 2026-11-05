@@ -20,7 +20,7 @@ public class MoveToSquadPosition {
                 instance.present(ModMemoryTypes.SQUAD_POSITION.get()),
                 instance.registered(MemoryModuleType.WALK_TARGET),
                 instance.absent(ModMemoryTypes.CURE_TARGET.get())
-        ).apply(instance, (positionAcc, walkTargetAcc, cureTargetAcc) -> (level, hunter, gameTime) -> {
+        ).apply(instance, (positionAcc, walkTargetAcc, _) -> (_, hunter, _) -> {
             Vec3 position = instance.get(positionAcc);
             double distance = hunter.position().distanceTo(position);
             if (distance <= tolerance) return false;

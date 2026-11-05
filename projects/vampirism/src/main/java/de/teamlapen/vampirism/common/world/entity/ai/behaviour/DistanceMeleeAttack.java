@@ -14,7 +14,7 @@ import java.util.function.Predicate;
 public class DistanceMeleeAttack {
 
     public static OneShot<Hunter> create(int attackCooldown, double preferredDistance, double tooCloseDistance) {
-        return create(entity -> true, attackCooldown, preferredDistance, tooCloseDistance);
+        return create(_ -> true, attackCooldown, preferredDistance, tooCloseDistance);
     }
 
     public static OneShot<Hunter> create(Predicate<Hunter> canAttack, int attackCooldown, double preferredDistance, double tooCloseDistance) {
@@ -23,7 +23,7 @@ public class DistanceMeleeAttack {
                         instance.registered(MemoryModuleType.LOOK_TARGET),
                         instance.present(MemoryModuleType.ATTACK_TARGET),
                         instance.absent(MemoryModuleType.ATTACK_COOLING_DOWN)
-                ).apply(instance, (lookTarget, attackTarget, coolingDown) -> (ServerLevel level, Hunter hunter, long gameTime) -> {
+                ).apply(instance, (_, attackTarget, coolingDown) -> (ServerLevel level, Hunter hunter, long _) -> {
                     LivingEntity target = instance.get(attackTarget);
                     if (!canAttack.test(hunter)) return false;
 

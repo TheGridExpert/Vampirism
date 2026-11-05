@@ -69,6 +69,7 @@ public final class SquadContext {
         for (LivingEntity threat : found) {
             if (threat instanceof Hunter || !threat.isAlive() || threat.level() != this.level) continue;
             if (HunterThreats.isAvoided(threat)) continue;
+            if (!HunterThreats.canMelee(threat) && !HunterThreats.canShoot(threat)) continue;
             if (threat.position().distanceTo(this.squadCenter) > ENGAGE_RADIUS) continue;
             result.add(threat);
         }
@@ -134,7 +135,7 @@ public final class SquadContext {
     }
 
     public SquadOrder claim(Hunter hunter) {
-        return this.orders.computeIfAbsent(hunter, member -> new SquadOrder());
+        return this.orders.computeIfAbsent(hunter, _ -> new SquadOrder());
     }
 
     public List<Hunter> rangedMembers() {

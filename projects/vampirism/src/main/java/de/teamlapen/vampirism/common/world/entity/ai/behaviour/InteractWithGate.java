@@ -40,7 +40,7 @@ public class InteractWithGate {
                         instance.registered(MemoryModuleType.NEAREST_LIVING_ENTITIES)
                 ).apply(
                         instance,
-                        (pathMem, gatesToCloseMem, nearestEntitiesMem) -> (level, entity, gameTime) -> {
+                        (pathMem, gatesToCloseMem, nearestEntitiesMem) -> (level, entity, _) -> {
                             Path path = instance.get(pathMem);
                             Optional<Set<GlobalPos>> rememberedGatesOpt = instance.tryGet(gatesToCloseMem);
 

@@ -13,7 +13,7 @@ public class FordLikeSwim extends Swim<Hunter> {
 
     public static boolean shouldRise(Hunter hunter) {
         if (!hunter.isInWater()) {
-            return hunter.isInLava() || hunter.isInFluidType((entity, fluidType, height) -> hunter.canSwimInFluidType(fluidType) && height > hunter.getFluidJumpThreshold());
+            return hunter.isInLava() || hunter.isInFluidType((_, fluidType, height) -> hunter.canSwimInFluidType(fluidType) && height > hunter.getFluidJumpThreshold());
         }
 
         // Ford (walk on the bottom) in shallow water

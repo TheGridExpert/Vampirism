@@ -16,7 +16,7 @@ public class SetEntityLookClosestOfRange {
         return BehaviorBuilder.create(instance -> instance.group(
                 instance.absent(MemoryModuleType.LOOK_TARGET),
                 instance.present(lookListMemory)
-        ).apply(instance, (lookTargetAccessor, nearestAccessor) -> (level, entity, gameTime) -> {
+        ).apply(instance, (lookTargetAccessor, nearestAccessor) -> (_, entity, _) -> {
             Optional<LivingEntity> closest = instance.get(nearestAccessor).stream()
                     .filter(target -> target.isAlive() && !entity.hasPassenger(target))
                     .filter(target -> target.distanceToSqr(entity) <= (double) maxDist * maxDist)

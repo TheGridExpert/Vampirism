@@ -20,7 +20,7 @@ public class SwitchAttackTargetIfCloser {
                 instance.present(MemoryModuleType.ATTACK_TARGET),
                 instance.registered(candidateMemory),
                 instance.registered(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE)
-        ).apply(instance, (attackTargetMemory, candidatesAcc, cantReachAcc) -> (level, mob, gameTime) -> {
+        ).apply(instance, (attackTargetMemory, candidatesAcc, cantReachAcc) -> (level, mob, _) -> {
             LivingEntity currentTarget = instance.get(attackTargetMemory);
 
             if (!mob.canAttack(currentTarget)

@@ -21,7 +21,7 @@ public class AvoidBumpingIntoOthers {
         return BehaviorBuilder.create(instance -> instance.group(
                 instance.present(ModMemoryTypes.NEAREST_VISIBLE_HUNTERS.get()),
                 instance.registered(MemoryModuleType.WALK_TARGET)
-        ).apply(instance, (visibleHuntersAccessor, walkTargetAccessor) -> (ServerLevel level, Hunter hunter, long gameTime) -> {
+        ).apply(instance, (visibleHuntersAccessor, _) -> (ServerLevel level, Hunter hunter, long _) -> {
             List<LivingEntity> visibleHunters = instance.get(visibleHuntersAccessor);
             Hunter closest = null;
             double closestDistSqr = Double.MAX_VALUE;

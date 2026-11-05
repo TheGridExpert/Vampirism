@@ -22,7 +22,7 @@ public class RetreatFromEnemies {
         return BehaviorBuilder.create(instance -> instance.group(
                 instance.present(enemiesMemory),
                 instance.absent(MemoryModuleType.WALK_TARGET)
-        ).apply(instance, (enemiesAcc, walkTargetAcc) -> (ServerLevel level, PathfinderMob mob, long gameTime) -> {
+        ).apply(instance, (enemiesAcc, walkTargetAcc) -> (ServerLevel _, PathfinderMob mob, long _) -> {
             List<LivingEntity> aliveEnemies = instance.get(enemiesAcc).stream().filter(LivingEntity::isAlive).toList();
             if (aliveEnemies.isEmpty()) return false;
 

@@ -27,11 +27,19 @@ public final class HunterThreats {
     }
 
     public static boolean canMelee(LivingEntity entity) {
-        return !isExplosive(entity) && !entity.is(ModEntityTags.HUNTER_THREAT_RANGED_ONLY);
+        return !isExplosive(entity) && !entity.is(ModEntityTags.HUNTER_THREAT_RANGED_ONLY) && !isInDeepWater(entity);
     }
 
     public static boolean canShoot(LivingEntity entity) {
-        return !entity.is(ModEntityTags.HUNTER_THREAT_MELEE_ONLY);
+        return !entity.is(ModEntityTags.HUNTER_THREAT_MELEE_ONLY) && !isSubmerged(entity);
+    }
+
+    public static boolean isInDeepWater(LivingEntity entity) {
+        return entity.isInWater() && !Hunter.isShallowWater(entity.level(), entity.blockPosition());
+    }
+
+    public static boolean isSubmerged(LivingEntity entity) {
+        return entity.isUnderWater() && isInDeepWater(entity);
     }
 
     public static boolean requiresProvocation(LivingEntity entity) {

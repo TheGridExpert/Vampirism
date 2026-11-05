@@ -15,7 +15,7 @@ public class CureTargetIfClose {
     public static OneShot<Hunter> create(double cureRange, int stareTicks) {
         return BehaviorBuilder.create(instance -> instance.group(
                 instance.present(ModMemoryTypes.CURE_TARGET.get())
-        ).apply(instance, (cureTargetAcc) -> ((level, hunter, gameTime) -> {
+        ).apply(instance, (cureTargetAcc) -> ((_, hunter, _) -> {
             LivingEntity cureTarget = instance.get(cureTargetAcc);
 
             if (cureTarget.distanceTo(hunter) > cureRange) return false;

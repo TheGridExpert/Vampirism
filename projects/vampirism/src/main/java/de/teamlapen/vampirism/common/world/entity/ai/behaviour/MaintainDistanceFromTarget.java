@@ -34,7 +34,7 @@ public class MaintainDistanceFromTarget {
                 instance.registered(MemoryModuleType.WALK_TARGET),
                 instance.present(MemoryModuleType.ATTACK_TARGET),
                 instance.absent(ModMemoryTypes.REPOSITIONING_COOLDOWN.get())
-        ).apply(instance, (walkTargetAcc, targetAcc, repositioningCooldownAcc) -> (ServerLevel level, PathfinderMob shooter, long gameTime) -> {
+        ).apply(instance, (walkTargetAcc, targetAcc, _) -> (ServerLevel level, PathfinderMob shooter, long _) -> {
             LivingEntity target = instance.get(targetAcc);
             Vec3 shooterPos = shooter.position();
             Vec3 targetPos = target.position();

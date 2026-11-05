@@ -42,7 +42,7 @@ public class FocusFireTactic implements SquadTactic {
         if (targets.isEmpty()) return;
 
         Map<LivingEntity, List<Hunter>> plan = TargetAllocator.allocate(shooters, targets,
-                TargetAllocator.proportionalCapacity(targets, shooters.size(), target -> MAX_SHOOTERS_PER_TARGET),
+                TargetAllocator.proportionalCapacity(targets, shooters.size(), _ -> MAX_SHOOTERS_PER_TARGET),
                 (shooter, target) -> cost(context, shooter, target));
 
         plan.forEach((target, assigned) -> {

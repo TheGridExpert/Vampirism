@@ -16,7 +16,7 @@ public class ReserveTactic implements SquadTactic {
     public void apply(SquadContext context) {
         if (!context.hasThreats()) return;
 
-        List<Hunter> reserve = context.free(hunter -> true);
+        List<Hunter> reserve = context.free(_ -> true);
         if (reserve.isEmpty()) return;
 
         Vec3 center = context.threatCenter().subtract(context.front().scale(RESERVE_DISTANCE));

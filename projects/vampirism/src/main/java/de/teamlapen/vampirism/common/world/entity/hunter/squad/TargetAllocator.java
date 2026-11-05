@@ -26,7 +26,7 @@ public final class TargetAllocator {
         for (Candidate candidate : candidates) {
             if (assigned.contains(candidate.hunter())) continue;
 
-            List<Hunter> engaged = result.computeIfAbsent(candidate.target(), target -> new ArrayList<>());
+            List<Hunter> engaged = result.computeIfAbsent(candidate.target(), _ -> new ArrayList<>());
             if (engaged.size() >= capacity.applyAsInt(candidate.target())) continue;
 
             engaged.add(candidate.hunter());
