@@ -7,7 +7,7 @@ import de.teamlapen.vampirism.common.core.ModEntities;
 import de.teamlapen.vampirism.common.server.SimpleSpawnerLogic;
 import de.teamlapen.vampirism.common.util.UtilLib;
 import de.teamlapen.vampirism.common.world.entity.hunter.AdvancedHunterEntity;
-import de.teamlapen.vampirism.common.world.entity.hunter.BasicHunterEntity;
+import de.teamlapen.vampirism.common.world.entity.hunter.Hunter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.StructureTags;
 import net.minecraft.world.level.Level;
@@ -22,14 +22,14 @@ import net.minecraft.world.level.storage.ValueOutput;
 public class TentBlockEntity extends BlockEntity {
 
 
-    private final SimpleSpawnerLogic<BasicHunterEntity> spawnerLogicHunter;
+    private final SimpleSpawnerLogic<Hunter> spawnerLogicHunter;
     private final SimpleSpawnerLogic<AdvancedHunterEntity> spawnerLogicAdvancedHunter;
     private boolean spawn = false;
     private boolean advanced = false;
 
     public TentBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.TENT.get(), pos, state);
-        this.spawnerLogicHunter = new SimpleSpawnerLogic<>(ModEntities.HUNTER.get()).setActivateRange(64).setSpawnRange(6).setMinSpawnDelay(600).setMaxSpawnDelay(1000).setMaxNearbyEntities(2).setDailyLimit(ModConfig.balance().hunterTentMaxSpawn.get()).setLimitTotalEntities(VEnums.HUNTER_CATEGORY.getValue()).setOnSpawned(hunter -> hunter.makeCampHunter(this.worldPosition));
+        this.spawnerLogicHunter = new SimpleSpawnerLogic<>(ModEntities.NEW_HUNTER.get()).setActivateRange(64).setSpawnRange(6).setMinSpawnDelay(600).setMaxSpawnDelay(1000).setMaxNearbyEntities(2).setDailyLimit(ModConfig.balance().hunterTentMaxSpawn.get()).setLimitTotalEntities(VEnums.HUNTER_CATEGORY.getValue()).setOnSpawned(hunter -> hunter.makeCampHunter(this.worldPosition));
         this.spawnerLogicAdvancedHunter = new SimpleSpawnerLogic<>(ModEntities.ADVANCED_HUNTER.get()).setActivateRange(64).setSpawnRange(6).setMinSpawnDelay(1200).setMaxSpawnDelay(2000).setMaxNearbyEntities(1).setDailyLimit(1).setLimitTotalEntities(VEnums.HUNTER_CATEGORY.getValue()).setOnSpawned(hunter -> hunter.makeCampHunter(this.worldPosition));
     }
 

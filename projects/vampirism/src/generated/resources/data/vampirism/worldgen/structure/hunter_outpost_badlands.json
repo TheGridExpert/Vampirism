@@ -9,7 +9,7 @@
       "bounding_box": "piece",
       "spawns": [
         {
-          "type": "vampirism:hunter",
+          "type": "vampirism:hunter_new",
           "maxCount": 4,
           "minCount": 2,
           "weight": 80

@@ -11,6 +11,7 @@ import de.teamlapen.vampirism.common.world.entity.hunter.squad.HunterSquad;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.Direction;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -33,6 +34,7 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.monster.CrossbowAttackMob;
 import net.minecraft.world.entity.schedule.Activity;
@@ -289,6 +291,10 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
     public void setSquad(HunterSquad squad) {
         this.squad = squad;
         this.squadId = squad.id();
+    }
+
+    public void makeCampHunter(BlockPos campPos) {
+        this.getBrain().setMemory(MemoryModuleType.HOME, GlobalPos.of(this.level().dimension(), campPos));
     }
 
     private void assignRandomFactionLevel(ServerLevelAccessor level, RandomSource random) {
