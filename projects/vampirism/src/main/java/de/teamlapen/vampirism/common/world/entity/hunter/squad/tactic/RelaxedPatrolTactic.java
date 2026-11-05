@@ -6,11 +6,7 @@ import de.teamlapen.vampirism.common.world.entity.hunter.squad.PatrolArea;
 import de.teamlapen.vampirism.common.world.entity.hunter.squad.SquadContext;
 import de.teamlapen.vampirism.common.world.entity.hunter.squad.SquadOrder;
 import de.teamlapen.vampirism.common.world.entity.hunter.squad.SquadTactic;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
-
-import java.util.Comparator;
-import java.util.List;
 
 public class RelaxedPatrolTactic implements SquadTactic {
 
@@ -34,15 +30,14 @@ public class RelaxedPatrolTactic implements SquadTactic {
     }
 
     private static void patrolPost(SquadContext context, HunterPost post) {
-        List<Hunter> patrol = context.free(_ -> true).stream().sorted(Comparator.comparing(Entity::getUUID)).toList();
-        double sweep = PatrolArea.FULL_CIRCLE / patrol.size();
-        for (int i = 0; i < patrol.size(); i++) {
-            context.claim(patrol.get(i)).patrolArea(new PatrolArea(post.center(), post.radius(), i * sweep, sweep));
+        PatrolArea area = new PatrolArea(post.center(), post.radius());
+        for (Hunter hunter : context.free(_ -> true)) {
+            context.claim(hunter).patrolArea(area);
         }
     }
 
     private static void followLeader(SquadContext context, Hunter leader) {
-        PatrolArea area = PatrolArea.circle(leader.blockPosition(), LEADER_AREA_RADIUS);
+        PatrolArea area = new PatrolArea(leader.blockPosition(), LEADER_AREA_RADIUS);
         for (Hunter hunter : context.free(member -> member != leader)) {
             SquadOrder order = context.claim(hunter).patrolArea(area);
             if (hunter.distanceTo(leader) > LEASH_DISTANCE) {

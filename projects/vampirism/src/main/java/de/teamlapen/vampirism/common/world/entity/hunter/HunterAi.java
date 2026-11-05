@@ -30,8 +30,8 @@ import java.util.function.Predicate;
 public class HunterAi {
 
     public static final int PATROL_RADIUS = 16;
-    private static final float SPEED_MULTIPLIER_WHEN_PATROLLING = 0.8F;
-    private static final float SPEED_MULTIPLIER_WHEN_LEADING_RELAXED = 0.5F;
+    private static final float SPEED_MULTIPLIER_WHEN_PATROLLING = 0.3F;
+    private static final float SPEED_MULTIPLIER_WHEN_LEADING_RELAXED = 0.2F;
     private static final int MIN_PATROL_COOLDOWN = 40;
     private static final int MAX_PATROL_COOLDOWN = 120;
 

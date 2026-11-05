@@ -29,7 +29,7 @@ public class PatrolAroundHome {
                 instance.registered(ModMemoryTypes.SQUAD_PATROL_AREA.get())
         ).apply(instance, (homeAcc, _, _, _, _, areaAcc) -> ((level, hunter, _) -> {
             BlockPos homePos = instance.get(homeAcc).pos();
-            PatrolArea area = instance.tryGet(areaAcc).orElseGet(() -> PatrolArea.circle(homePos, hunter.getPatrolRadius(radius)));
+            PatrolArea area = instance.tryGet(areaAcc).orElseGet(() -> new PatrolArea(homePos, hunter.getPatrolRadius(radius)));
             float walkSpeed = isRelaxedLeader(hunter, level.getGameTime()) ? relaxedLeaderSpeed : speed;
             for (int i = 0; i < MAX_TRIES; i++) {
                 BlockPos target = findDryTarget(level, hunter, area);
