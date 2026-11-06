@@ -98,6 +98,9 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
     private static final int REACH_RANGE = 2;
     private static final int MAX_REACH_CHECKS = 16;
 
+    private static final float AIM_FOCUS_PER_SHOT = 0.1F;
+    private static final int MAX_AIM_FOCUS_SHOTS = 4;
+
     public static final String TAG_POST_RADIUS = "PostRadius";
     private static final int CAMP_POST_RADIUS = 12;
     private static final int CAMPFIRE_SEARCH_RADIUS = 10;
@@ -109,6 +112,8 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
     private final Map<Integer, ReachCheck> reachChecks = new HashMap<>();
     private int postRadius;
     private boolean needsPostCheck;
+    private int focusTargetId = -1;
+    private int focusShots;
     private @Nullable HunterSquad squad;
     private @Nullable UUID squadId;
 
@@ -524,6 +529,20 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
     @Override
     public void performRangedAttack(LivingEntity target, float velocity) {
         this.performCrossbowAttack(this, ARROW_VELOCITY);
+        recordShotAt(target);
+    }
+
+    public float getAimFocus(LivingEntity target) {
+        if (target.getId() != this.focusTargetId) return 1.0F;
+        return 1.0F - AIM_FOCUS_PER_SHOT * Math.min(this.focusShots, MAX_AIM_FOCUS_SHOTS);
+    }
+
+    private void recordShotAt(LivingEntity target) {
+        if (target.getId() != this.focusTargetId) {
+            this.focusTargetId = target.getId();
+            this.focusShots = 0;
+        }
+        this.focusShots++;
     }
 
     @Override

@@ -3,6 +3,7 @@ package de.teamlapen.vampirism.common.world.entity.ai.behaviour;
 import com.google.common.collect.ImmutableMap;
 import de.teamlapen.vampirism.common.core.ModAttributes;
 import de.teamlapen.vampirism.common.core.ModMemoryTypes;
+import de.teamlapen.vampirism.common.world.entity.QuarrelEntity;
 import de.teamlapen.vampirism.common.world.entity.hunter.Hunter;
 import de.teamlapen.vampirism.common.world.entity.hunter.HunterThreats;
 import de.teamlapen.vampirism.misc.mixin.accessor.CrossbowItemAccessor;
@@ -175,11 +176,17 @@ public class PreciseCrossbowAttack extends Behavior<Hunter> {
     public static boolean shootAimedProjectile(LivingEntity shooter, Projectile projectile, int index, float velocity, float inaccuracy, float angle) {
         if (!(shooter instanceof Hunter hunter)) return false;
 
+        LivingEntity target = hunter.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).orElse(null);
         Optional<Vec3> aimTargetOpt = hunter.getBrain().getMemory(ModMemoryTypes.AIM_TARGET.get());
-        if (aimTargetOpt.isEmpty()) return false;
+        if (target == null && aimTargetOpt.isEmpty()) return false;
 
-        Vec3 aimTarget = aimTargetOpt.get();
-        Vec3 delta = aimTarget.subtract(shooter.position().add(0, shooter.getEyeHeight(), 0));
+        Vec3 delta;
+        if (target != null) {
+            float gravityFactor = projectile instanceof QuarrelEntity quarrel ? quarrel.getGravityFactor() : 1.0F;
+            delta = BallisticAim.calculateShotDirection(shooter.level(), projectile, projectile.position(), target, velocity, gravityFactor);
+        } else {
+            delta = aimTargetOpt.get().subtract(shooter.position().add(0, shooter.getEyeHeight(), 0));
+        }
 
         Vector3f shotVector = CrossbowItemAccessor.invokeGetProjectileShotVector(shooter, delta, angle);
 
@@ -188,7 +195,8 @@ public class PreciseCrossbowAttack extends Behavior<Hunter> {
             accuracyMod = shooter.getAttributeValue(ModAttributes.ACCURACY);
         }
 
-        float adjustedInaccuracy = Math.max(0.0f, inaccuracy / (float) accuracyMod);
+        float focus = target != null ? hunter.getAimFocus(target) : 1.0f;
+        float adjustedInaccuracy = Math.max(0.0f, inaccuracy / (float) accuracyMod * focus);
         projectile.shoot(shotVector.x(), shotVector.y(), shotVector.z(), velocity, adjustedInaccuracy);
 
         float pitch = CrossbowItemAccessor.invokeGetShotPitch(shooter.getRandom(), index);

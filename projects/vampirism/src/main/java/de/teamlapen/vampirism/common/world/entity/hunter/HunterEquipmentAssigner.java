@@ -114,7 +114,7 @@ public class HunterEquipmentAssigner {
             hunter.setSheathedWeapon(new ItemStack(mainWeapons[0].getFirst()), 0);
         }
 
-        float[] armorWeights = {0.3f, 0.2f, 0.25f, 0.25f};
+        float[] armorWeights = {0.3f, 0.25f, 0.25f, 0.2f};
 
         for (int i = 0; i < armorSet.length; i++) {
             Pair<ItemLike, Integer>[] slotTiers = armorSet[i];

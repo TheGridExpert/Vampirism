@@ -183,12 +183,14 @@ public class QuarrelEntity extends AbstractArrow implements IEntityQuarrel {
     }
 
     private float getEffectiveGravityFactor() {
-        float factor = getGravityFactor();
+        Vec3 movement = getDeltaMovement();
+        return effectiveGravityFactor(getGravityFactor(), Math.sqrt(movement.x * movement.x + movement.z * movement.z));
+    }
+
+    public static float effectiveGravityFactor(float factor, double horizontalSpeed) {
         if (factor >= 1.0f) {
             return factor;
         }
-        Vec3 movement = getDeltaMovement();
-        double horizontalSpeed = Math.sqrt(movement.x * movement.x + movement.z * movement.z);
         return horizontalSpeed >= MIN_PRECISION_HORIZONTAL_SPEED ? factor : 1.0f;
     }
 
