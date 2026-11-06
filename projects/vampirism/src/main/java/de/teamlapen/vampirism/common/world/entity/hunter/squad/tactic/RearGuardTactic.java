@@ -18,20 +18,20 @@ public class RearGuardTactic implements SquadTactic {
     public void apply(SquadContext context) {
         if (!context.hasThreats()) return;
 
-        boolean hasHealthyMelee = !context.free(hunter -> hunter.isMeleeClass() && healthFraction(hunter) >= HEALTHY_HEALTH).isEmpty();
-        List<Hunter> rear = context.free(hunter -> hunter.getBrain().hasMemoryValue(ModMemoryTypes.SHOULD_RETREAT.get())
-                || (hasHealthyMelee && hunter.isMeleeClass() && healthFraction(hunter) < WOUNDED_HEALTH));
+        boolean hasHealthyMelee = !context.freeMembers(hunter -> hunter.isMeleeClass() && getHealthFraction(hunter) >= HEALTHY_HEALTH).isEmpty();
+        List<Hunter> rear = context.freeMembers(hunter -> hunter.getBrain().hasMemoryValue(ModMemoryTypes.SHOULD_RETREAT.get())
+                || (hasHealthyMelee && hunter.isMeleeClass() && getHealthFraction(hunter) < WOUNDED_HEALTH));
         if (rear.isEmpty()) return;
 
         Vec3 rearCenter = context.threatCenter().subtract(context.front().scale(REAR_DISTANCE));
         for (int i = 0; i < rear.size(); i++) {
             Hunter hunter = rear.get(i);
             Vec3 offset = context.side().scale((i - (rear.size() - 1) / 2.0D) * 2.0D);
-            context.claim(hunter).retreat().position(context.ground(rearCenter.add(offset), hunter.getY()));
+            context.claimOrder(hunter).retreat().position(context.findSafeGround(rearCenter.add(offset), hunter.getY()));
         }
     }
 
-    private static float healthFraction(Hunter hunter) {
+    private static float getHealthFraction(Hunter hunter) {
         return hunter.getHealth() / hunter.getMaxHealth();
     }
 }

@@ -27,23 +27,23 @@ public class GroupRetreatTactic implements SquadTactic {
             return;
         }
 
-        double own = context.members().stream().mapToDouble(HunterThreats::power).sum();
-        double enemy = context.threats().stream().mapToDouble(HunterThreats::power).sum();
+        double own = context.members().stream().mapToDouble(HunterThreats::calculatePower).sum();
+        double enemy = context.threats().stream().mapToDouble(HunterThreats::calculatePower).sum();
 
         boolean retreating = squad.isRetreating() ? own < enemy * STOP_RATIO : own < enemy * START_RATIO;
         squad.setRetreating(retreating);
         if (!retreating) return;
 
-        Vec3 fallback = fallbackPosition(context);
-        List<Hunter> free = context.free(_ -> true);
+        Vec3 fallback = findFallbackPosition(context);
+        List<Hunter> free = context.freeMembers(_ -> true);
         for (int i = 0; i < free.size(); i++) {
             Hunter hunter = free.get(i);
             Vec3 offset = context.side().scale((i - (free.size() - 1) / 2.0D) * 2.0D);
-            context.claim(hunter).groupRetreat().position(context.ground(fallback.add(offset), hunter.getY()));
+            context.claimOrder(hunter).groupRetreat().position(context.findSafeGround(fallback.add(offset), hunter.getY()));
         }
     }
 
-    private static Vec3 fallbackPosition(SquadContext context) {
+    private static Vec3 findFallbackPosition(SquadContext context) {
         Vec3 threatCenter = context.threatCenter();
         Vec3 squadCenter = context.squadCenter();
         Hunter leader = context.squad().leader();

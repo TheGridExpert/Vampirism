@@ -19,7 +19,7 @@ public class HunterAggression {
         return mob instanceof Monster || Helper.isVampire(mob);
     }
 
-    public static @Nullable LivingEntity closerHunter(ServerLevel level, Mob mob, TargetingConditions conditions, AABB searchArea, @Nullable LivingEntity current) {
+    public static @Nullable LivingEntity findCloserHunter(ServerLevel level, Mob mob, TargetingConditions conditions, AABB searchArea, @Nullable LivingEntity current) {
         if (!targetsHunters(mob)) return current;
 
         Hunter hunter = level.getNearestEntity(level.getEntitiesOfClass(Hunter.class, searchArea, _ -> true), conditions, mob, mob.getX(), mob.getEyeY(), mob.getZ());

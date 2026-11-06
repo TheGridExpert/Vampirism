@@ -39,15 +39,15 @@ public class HunterSquadDebugRenderer implements DebugRenderer.SimpleDebugRender
         if (level == null) return;
 
         debugValues.forEachEntity(ModDebugSubscriptions.HUNTER_SQUADS.get(), (hunter, info) -> {
-            int squadColor = squadColor(info.squadId());
-            Vec3 head = aboveHead(hunter, partialTicks);
+            int squadColor = getSquadColor(info.squadId());
+            Vec3 head = getAboveHeadPosition(hunter, partialTicks);
 
             if (info.leaderId() == hunter.getId()) {
                 Gizmos.point(head, squadColor, 12.0F);
             } else {
                 Entity leader = level.getEntity(info.leaderId());
                 if (leader != null) {
-                    Gizmos.line(aboveHead(leader, partialTicks), head, squadColor, LINK_WIDTH);
+                    Gizmos.line(getAboveHeadPosition(leader, partialTicks), head, squadColor, LINK_WIDTH);
                 }
             }
 
@@ -58,11 +58,11 @@ public class HunterSquadDebugRenderer implements DebugRenderer.SimpleDebugRender
                 Gizmos.cuboid(new AABB(position.subtract(0.25, 0, 0.25), position.add(0.25, 0.5, 0.25)), GizmoStyle.stroke(POSITION_COLOR));
             });
 
-            renderLines(hunter, info, squadColor);
+            renderInfoLines(hunter, info, squadColor);
         });
     }
 
-    private static void renderLines(Entity hunter, HunterSquadDebugInfo info, int squadColor) {
+    private static void renderInfoLines(Entity hunter, HunterSquadDebugInfo info, int squadColor) {
         List<String> lines = info.lines();
         boolean leader = info.leaderId() == hunter.getId();
         for (int i = 0; i < lines.size(); i++) {
@@ -71,11 +71,11 @@ public class HunterSquadDebugRenderer implements DebugRenderer.SimpleDebugRender
         }
     }
 
-    private static Vec3 aboveHead(Entity entity, float partialTicks) {
+    private static Vec3 getAboveHeadPosition(Entity entity, float partialTicks) {
         return entity.getPosition(partialTicks).add(0, entity.getBbHeight() + HEAD_OFFSET, 0);
     }
 
-    private static int squadColor(UUID squadId) {
+    private static int getSquadColor(UUID squadId) {
         float hue = (squadId.hashCode() & 0xFFFF) / (float) 0xFFFF;
         return Mth.hsvToArgb(hue, 0.75F, 1.0F, 255);
     }

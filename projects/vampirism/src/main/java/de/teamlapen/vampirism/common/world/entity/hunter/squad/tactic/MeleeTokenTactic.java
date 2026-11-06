@@ -33,7 +33,7 @@ public class MeleeTokenTactic implements SquadTactic {
     public void apply(SquadContext context) {
         if (!context.hasThreats()) return;
 
-        List<Hunter> fighters = context.free(Hunter::isMeleeClass);
+        List<Hunter> fighters = context.freeMembers(Hunter::isMeleeClass);
         if (fighters.isEmpty()) return;
 
         List<Hunter> ranged = context.rangedMembers();
@@ -42,39 +42,39 @@ public class MeleeTokenTactic implements SquadTactic {
 
         List<LivingEntity> targets = context.threats().stream()
                 .filter(HunterThreats::canMelee)
-                .filter(threat -> threat.position().distanceTo(context.squadCenter()) <= LEASH_RADIUS || distanceToNearest(threat, protect) <= GUARD_RADIUS)
+                .filter(threat -> threat.position().distanceTo(context.squadCenter()) <= LEASH_RADIUS || calculateDistanceToNearest(threat, protect) <= GUARD_RADIUS)
                 .toList();
         if (targets.isEmpty()) return;
 
-        Map<LivingEntity, List<Hunter>> plan = TargetAllocator.allocate(fighters, targets,
-                TargetAllocator.proportionalCapacity(targets, fighters.size(), target -> baseTokens + (target.getBbWidth() > LARGE_TARGET_WIDTH ? 1 : 0)),
-                (fighter, target) -> cost(context, fighter, target, protect),
+        Map<LivingEntity, List<Hunter>> plan = TargetAllocator.allocateTargets(fighters, targets,
+                TargetAllocator.createProportionalCapacity(targets, fighters.size(), target -> baseTokens + (target.getBbWidth() > LARGE_TARGET_WIDTH ? 1 : 0)),
+                (fighter, target) -> calculateAssignmentCost(context, fighter, target, protect),
                 HunterThreats::isWorthEngaging);
 
         plan.forEach((target, assigned) -> {
             List<Hunter> ordered = assigned.stream().sorted(Comparator.comparingDouble(fighter -> fighter.distanceToSqr(target))).toList();
             for (int i = 0; i < ordered.size(); i++) {
                 Hunter fighter = ordered.get(i);
-                SquadOrder order = context.claim(fighter).target(target);
+                SquadOrder order = context.claimOrder(fighter).target(target);
                 if (i > 0 && fighter.distanceTo(target) > FLANK_START_DISTANCE) {
-                    order.position(flankPosition(context, target, ordered.getFirst(), i, fighter));
+                    order.position(findFlankPosition(context, target, ordered.getFirst(), i, fighter));
                 }
             }
         });
     }
 
-    private static double cost(SquadContext context, Hunter fighter, LivingEntity target, List<Vec3> protect) {
+    private static double calculateAssignmentCost(SquadContext context, Hunter fighter, LivingEntity target, List<Vec3> protect) {
         double cost = fighter.distanceTo(target);
         if (fighter.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).orElse(null) == target) cost -= KEEP_TARGET_BONUS;
 
-        Hunter victim = context.victimOf(target);
+        Hunter victim = context.getVictimOf(target);
         if (victim != null) cost -= SUPPORT_BONUS;
         if (victim == fighter) cost -= RETALIATE_BONUS;
-        if (distanceToNearest(target, protect) <= GUARD_RADIUS) cost -= GUARD_BONUS;
+        if (calculateDistanceToNearest(target, protect) <= GUARD_RADIUS) cost -= GUARD_BONUS;
         return cost;
     }
 
-    private static Vec3 flankPosition(SquadContext context, LivingEntity target, Hunter first, int index, Hunter fighter) {
+    private static Vec3 findFlankPosition(SquadContext context, LivingEntity target, Hunter first, int index, Hunter fighter) {
         Vec3 approach = target.position().subtract(first.position());
         Vec3 direction = new Vec3(approach.x, 0, approach.z);
         direction = direction.lengthSqr() < 1.0E-4 ? context.front() : direction.normalize();
@@ -84,10 +84,10 @@ public class MeleeTokenTactic implements SquadTactic {
             case 2 -> new Vec3(-direction.z, 0, direction.x);
             default -> new Vec3(direction.z, 0, -direction.x);
         };
-        return context.ground(target.position().add(flank.scale(FLANK_OFFSET)), fighter.getY());
+        return context.findSafeGround(target.position().add(flank.scale(FLANK_OFFSET)), fighter.getY());
     }
 
-    private static double distanceToNearest(LivingEntity threat, List<Vec3> positions) {
+    private static double calculateDistanceToNearest(LivingEntity threat, List<Vec3> positions) {
         double best = Double.MAX_VALUE;
         for (Vec3 pos : positions) {
             best = Math.min(best, threat.position().distanceTo(pos));

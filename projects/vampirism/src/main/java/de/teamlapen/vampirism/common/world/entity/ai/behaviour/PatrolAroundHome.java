@@ -49,7 +49,7 @@ public class PatrolAroundHome {
     }
 
     private static @Nullable BlockPos findDryTarget(ServerLevel level, Hunter hunter, PatrolArea area) {
-        BlockPos sample = area.sample(hunter.getRandom());
+        BlockPos sample = area.pickRandomPosition(hunter.getRandom());
         int targetX = sample.getX();
         int targetZ = sample.getZ();
 

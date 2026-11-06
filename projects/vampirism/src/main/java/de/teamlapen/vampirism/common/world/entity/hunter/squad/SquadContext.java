@@ -31,7 +31,7 @@ public class SquadContext {
     private static final int SAFE_SPOT_RADIUS = 6;
     private static final int MAX_SURFACE_HEIGHT_DIFFERENCE = 6;
     private static final int[] VERTICAL_OFFSETS = {0, 1, -1, 2, -2, 3, -3};
-    private static final List<int[]> SAFE_SPOT_OFFSETS = safeSpotOffsets();
+    private static final List<int[]> SAFE_SPOT_OFFSETS = createSafeSpotOffsets();
 
     private final ServerLevel level;
     private final HunterSquad squad;
@@ -49,9 +49,9 @@ public class SquadContext {
         this.level = level;
         this.squad = squad;
         this.members = List.copyOf(squad.members());
-        this.squadCenter = average(this.members);
+        this.squadCenter = averagePosition(this.members);
         this.threats = collectThreats();
-        this.threatCenter = this.threats.isEmpty() ? null : average(this.threats);
+        this.threatCenter = this.threats.isEmpty() ? null : averagePosition(this.threats);
         this.front = computeFront();
         for (LivingEntity threat : this.threats) {
             if (threat instanceof Mob mob && mob.getTarget() instanceof Hunter victim && this.members.contains(victim)) {
@@ -60,7 +60,7 @@ public class SquadContext {
         }
     }
 
-    public @Nullable Hunter victimOf(LivingEntity threat) {
+    public @Nullable Hunter getVictimOf(LivingEntity threat) {
         return this.victims.get(threat);
     }
 
@@ -141,7 +141,7 @@ public class SquadContext {
         return !this.orders.containsKey(hunter);
     }
 
-    public List<Hunter> free(Predicate<Hunter> filter) {
+    public List<Hunter> freeMembers(Predicate<Hunter> filter) {
         List<Hunter> result = new ArrayList<>();
         for (Hunter member : this.members) {
             if (isFree(member) && filter.test(member)) result.add(member);
@@ -149,7 +149,7 @@ public class SquadContext {
         return result;
     }
 
-    public SquadOrder claim(Hunter hunter) {
+    public SquadOrder claimOrder(Hunter hunter) {
         return this.orders.computeIfAbsent(hunter, _ -> new SquadOrder());
     }
 
@@ -159,10 +159,10 @@ public class SquadContext {
 
     public Vec3 rangedCenter() {
         List<Hunter> ranged = rangedMembers();
-        return ranged.isEmpty() ? this.squadCenter : average(ranged);
+        return ranged.isEmpty() ? this.squadCenter : averagePosition(ranged);
     }
 
-    public Vec3 ground(Vec3 pos, double referenceY) {
+    public Vec3 findSafeGround(Vec3 pos, double referenceY) {
         int x = Mth.floor(pos.x);
         int z = Mth.floor(pos.z);
         int baseY = Mth.floor(referenceY);
@@ -190,10 +190,10 @@ public class SquadContext {
     }
 
     private boolean isSafeStandingSpot(BlockPos pos) {
-        return this.safeSpots.computeIfAbsent(pos.asLong(), _ -> checkStandingSpot(pos));
+        return this.safeSpots.computeIfAbsent(pos.asLong(), _ -> evaluateStandingSpot(pos));
     }
 
-    private boolean checkStandingSpot(BlockPos pos) {
+    private boolean evaluateStandingSpot(BlockPos pos) {
         BlockPos head = pos.above();
         BlockState headState = this.level.getBlockState(head);
         if (!headState.getCollisionShape(this.level, head).isEmpty() || !headState.getFluidState().isEmpty()) return false;
@@ -204,7 +204,7 @@ public class SquadContext {
         return WalkNodeEvaluator.getPathTypeStatic(this.pathfindingContext, pos.mutable()) == PathType.WALKABLE;
     }
 
-    private static List<int[]> safeSpotOffsets() {
+    private static List<int[]> createSafeSpotOffsets() {
         List<int[]> offsets = new ArrayList<>();
         for (int dx = -SAFE_SPOT_RADIUS; dx <= SAFE_SPOT_RADIUS; dx++) {
             for (int dz = -SAFE_SPOT_RADIUS; dz <= SAFE_SPOT_RADIUS; dz++) {
@@ -220,7 +220,7 @@ public class SquadContext {
         return this.level.clip(new ClipContext(eye, target.getEyePosition(), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, shooter)).getType() == HitResult.Type.MISS;
     }
 
-    public @Nullable LivingEntity nearestThreat(Vec3 pos, Predicate<LivingEntity> filter) {
+    public @Nullable LivingEntity findNearestThreat(Vec3 pos, Predicate<LivingEntity> filter) {
         LivingEntity best = null;
         double bestDistance = Double.MAX_VALUE;
         for (LivingEntity threat : this.threats) {
@@ -234,7 +234,7 @@ public class SquadContext {
         return best;
     }
 
-    public void apply(int ttl) {
+    public void applyOrders(int ttl) {
         for (Hunter member : this.members) {
             Brain<Hunter> brain = member.getBrain();
             SquadOrder order = this.orders.get(member);
@@ -275,7 +275,7 @@ public class SquadContext {
         brain.setMemoryWithExpiry(ModMemoryTypes.SHOULD_RETREAT.get(), Unit.INSTANCE, duration);
     }
 
-    private static Vec3 average(Collection<? extends LivingEntity> entities) {
+    private static Vec3 averagePosition(Collection<? extends LivingEntity> entities) {
         double x = 0, y = 0, z = 0;
         for (LivingEntity entity : entities) {
             x += entity.getX();

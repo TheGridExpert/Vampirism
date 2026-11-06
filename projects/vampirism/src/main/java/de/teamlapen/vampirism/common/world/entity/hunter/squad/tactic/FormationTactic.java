@@ -20,8 +20,8 @@ public class FormationTactic implements SquadTactic {
         Hunter leader = context.squad().leader();
         if (leader == null) return;
 
-        List<Hunter> melee = context.free(hunter -> hunter != leader && hunter.isMeleeClass());
-        List<Hunter> ranged = context.free(hunter -> hunter != leader && hunter.isRangedClass());
+        List<Hunter> melee = context.freeMembers(hunter -> hunter != leader && hunter.isMeleeClass());
+        List<Hunter> ranged = context.freeMembers(hunter -> hunter != leader && hunter.isRangedClass());
 
         List<Hunter> column = new ArrayList<>(melee.subList(0, (melee.size() + 1) / 2));
         column.addAll(ranged);
@@ -34,7 +34,7 @@ public class FormationTactic implements SquadTactic {
             int row = i / 2 + 1;
             double lateral = i % 2 == 0 ? -SIDE_OFFSET : SIDE_OFFSET;
             Vec3 slot = leader.position().subtract(heading.scale(row * ROW_SPACING)).add(side.scale(lateral));
-            context.claim(hunter).position(context.ground(slot, leader.getY()));
+            context.claimOrder(hunter).position(context.findSafeGround(slot, leader.getY()));
         }
     }
 }

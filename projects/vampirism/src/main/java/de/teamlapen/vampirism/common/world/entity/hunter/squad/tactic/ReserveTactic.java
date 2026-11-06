@@ -16,14 +16,14 @@ public class ReserveTactic implements SquadTactic {
     public void apply(SquadContext context) {
         if (!context.hasThreats()) return;
 
-        List<Hunter> reserve = context.free(_ -> true);
+        List<Hunter> reserve = context.freeMembers(_ -> true);
         if (reserve.isEmpty()) return;
 
         Vec3 center = context.threatCenter().subtract(context.front().scale(RESERVE_DISTANCE));
         for (int i = 0; i < reserve.size(); i++) {
             Hunter hunter = reserve.get(i);
             Vec3 offset = context.side().scale((i - (reserve.size() - 1) / 2.0D) * LINE_SPACING);
-            context.claim(hunter).position(context.ground(center.add(offset), hunter.getY()));
+            context.claimOrder(hunter).position(context.findSafeGround(center.add(offset), hunter.getY()));
         }
     }
 }

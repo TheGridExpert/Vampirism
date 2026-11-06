@@ -13,6 +13,6 @@ public class HunterMoveControl extends MoveControl {
 
     @Override
     public void setWantedPosition(double x, double y, double z, double gait) {
-        super.setWantedPosition(x, y, z, this.hunter.speedModifierFor(gait));
+        super.setWantedPosition(x, y, z, this.hunter.calculateSpeedModifier(gait));
     }
 }

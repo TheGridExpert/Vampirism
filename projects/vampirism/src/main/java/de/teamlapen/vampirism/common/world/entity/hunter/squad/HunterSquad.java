@@ -41,26 +41,26 @@ public class HunterSquad {
         if (squad == null || squad.disbanded || !squad.members.contains(hunter)) {
             UUID id = squad == null && hunter.getSquadId() != null ? hunter.getSquadId() : UUID.randomUUID();
             squad = new HunterSquad(id);
-            squad.add(hunter);
+            squad.addMember(hunter);
         }
 
-        squad.tickFrom(level, hunter);
+        squad.tickForMember(level, hunter);
     }
 
-    private void tickFrom(ServerLevel level, Hunter hunter) {
-        if (this.leader == null || !isActive(this.leader, level)) {
-            this.members.removeIf(member -> !isActive(member, level));
+    private void tickForMember(ServerLevel level, Hunter hunter) {
+        if (this.leader == null || !isActiveMember(this.leader, level)) {
+            this.members.removeIf(member -> !isActiveMember(member, level));
             electLeader();
         }
 
         if (hunter != this.leader) return;
         if ((level.getGameTime() + this.thinkOffset) % THINK_INTERVAL != 0) return;
 
-        think(level);
+        planOrders(level);
     }
 
-    private void think(ServerLevel level) {
-        this.members.removeIf(member -> !isActive(member, level));
+    private void planOrders(ServerLevel level) {
+        this.members.removeIf(member -> !isActiveMember(member, level));
         if (this.leader == null || !this.members.contains(this.leader)) electLeader();
         if (this.leader == null) return;
 
@@ -76,7 +76,7 @@ public class HunterSquad {
             this.guardUntil = level.getGameTime() + GUARD_DURATION;
         }
         this.strategy.tick(context);
-        context.apply(ORDER_TTL);
+        context.applyOrders(ORDER_TTL);
     }
 
     private void updateHeading() {
@@ -95,7 +95,7 @@ public class HunterSquad {
             if (member == this.leader || member.distanceTo(this.leader) <= MAX_LEADER_DISTANCE) continue;
             if (post != null && post.equals(member.getPost()) && post.contains(member.blockPosition(), POST_STRAGGLER_MARGIN)) continue;
 
-            leave(member);
+            detachMember(member);
         }
     }
 
@@ -108,17 +108,17 @@ public class HunterSquad {
                 if (otherSquad == null || otherSquad == this || otherSquad.disbanded || !otherSquad.members.contains(other)) continue;
 
                 if (shouldAbsorb(otherSquad)) {
-                    absorb(otherSquad);
+                    absorbSquad(otherSquad);
                 } else if (this.members.size() > otherSquad.members.size()) {
-                    reinforce(otherSquad);
+                    sendReinforcements(otherSquad);
                 } else {
-                    otherSquad.reinforce(this);
+                    otherSquad.sendReinforcements(this);
                 }
             }
         }
     }
 
-    private void reinforce(HunterSquad recipient) {
+    private void sendReinforcements(HunterSquad recipient) {
         int needed = MIN_SIZE - recipient.members.size();
         if (needed <= 0 || recipient.members.isEmpty() || this.members.size() - needed < MIN_SIZE) return;
 
@@ -130,25 +130,25 @@ public class HunterSquad {
                 .toList());
 
         for (int i = 0; i < needed && !candidates.isEmpty(); i++) {
-            boolean wantRanged = recipient.countRanged(true) < recipient.countRanged(false);
+            boolean wantRanged = recipient.countByClass(true) < recipient.countByClass(false);
             Hunter pick = candidates.stream()
-                    .min(Comparator.comparingInt((Hunter member) -> transferPenalty(member, wantRanged))
+                    .min(Comparator.comparingInt((Hunter member) -> calculateTransferPenalty(member, wantRanged))
                             .thenComparingDouble(member -> member.distanceToSqr(anchor)))
                     .orElseThrow();
             candidates.remove(pick);
             this.members.remove(pick);
             clearOrders(pick);
-            recipient.add(pick);
+            recipient.addMember(pick);
         }
     }
 
-    private int transferPenalty(Hunter member, boolean wantRanged) {
+    private int calculateTransferPenalty(Hunter member, boolean wantRanged) {
         int penalty = member.isRangedClass() == wantRanged ? 0 : 1;
-        if (countRanged(member.isRangedClass()) <= 1) penalty += 2;
+        if (countByClass(member.isRangedClass()) <= 1) penalty += 2;
         return penalty;
     }
 
-    private int countRanged(boolean ranged) {
+    private int countByClass(boolean ranged) {
         int count = 0;
         for (Hunter member : this.members) {
             if (member.isRangedClass() == ranged) count++;
@@ -169,26 +169,26 @@ public class HunterSquad {
         return sameId || this.id.compareTo(other.id) < 0;
     }
 
-    private void absorb(HunterSquad other) {
+    private void absorbSquad(HunterSquad other) {
         for (Hunter hunter : other.members) {
-            add(hunter);
+            addMember(hunter);
         }
         other.members.clear();
         other.leader = null;
         other.disbanded = true;
     }
 
-    private void add(Hunter hunter) {
+    private void addMember(Hunter hunter) {
         if (!this.members.contains(hunter)) {
             this.members.add(hunter);
         }
         hunter.setSquad(this);
     }
 
-    private void leave(Hunter hunter) {
+    private void detachMember(Hunter hunter) {
         this.members.remove(hunter);
         clearOrders(hunter);
-        new HunterSquad(UUID.randomUUID()).add(hunter);
+        new HunterSquad(UUID.randomUUID()).addMember(hunter);
     }
 
     private static void clearOrders(Hunter hunter) {
@@ -199,22 +199,22 @@ public class HunterSquad {
     }
 
     private void electLeader() {
-        this.leader = this.members.stream().max(Comparator.comparingInt(HunterSquad::leadershipScore)).orElse(null);
+        this.leader = this.members.stream().max(Comparator.comparingInt(HunterSquad::calculateLeadershipScore)).orElse(null);
     }
 
     private void promoteStrongerLeader() {
         for (Hunter member : this.members) {
-            if (leadershipScore(member) > leadershipScore(this.leader)) {
+            if (calculateLeadershipScore(member) > calculateLeadershipScore(this.leader)) {
                 this.leader = member;
             }
         }
     }
 
-    private static int leadershipScore(Hunter hunter) {
+    private static int calculateLeadershipScore(Hunter hunter) {
         return hunter.getFactionLevel();
     }
 
-    private static boolean isActive(Hunter hunter, ServerLevel level) {
+    private static boolean isActiveMember(Hunter hunter, ServerLevel level) {
         return hunter.isAlive() && !hunter.isRemoved() && hunter.level() == level;
     }
 

@@ -49,7 +49,7 @@ public class HunterThreats {
         return entity instanceof Mob mob && mob.getTarget() instanceof Hunter;
     }
 
-    public static double minShootDistance(LivingEntity entity) {
+    public static double getMinShootDistance(LivingEntity entity) {
         if (!isExplosive(entity)) return 0.0D;
         return entity instanceof Creeper creeper && creeper.isPowered() ? CHARGED_EXPLOSIVE_MIN_SHOOT_DISTANCE : EXPLOSIVE_MIN_SHOOT_DISTANCE;
     }
@@ -76,7 +76,7 @@ public class HunterThreats {
         return hunter.isRangedClass() ? canShoot(target) : canMelee(target);
     }
 
-    public static double power(LivingEntity entity) {
+    public static double calculatePower(LivingEntity entity) {
         double damage = entity.getAttributes().hasAttribute(Attributes.ATTACK_DAMAGE) ? entity.getAttributeValue(Attributes.ATTACK_DAMAGE) : 2.0D;
         double weight = isExplosive(entity) ? 3.0D : isPriority(entity) ? 1.5D : 1.0D;
         return entity.getHealth() * Math.max(1.0D, damage) * weight;

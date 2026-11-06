@@ -181,20 +181,20 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
         registration.register(ModDebugSubscriptions.HUNTER_SQUADS.get(), () -> HunterSquadDebugInfo.of(this));
     }
 
-    public double velocityFactor(double gait) {
+    public double calculateVelocityFactor(double gait) {
         if (gait <= WALK_SPEED) return gait;
         double run = PLAYER_SPRINT_FACTOR * getAttributeValue(ModAttributes.SPRINT_SPEED);
         return Mth.lerp(Math.min(gait - WALK_SPEED, 1.0D), 1.0D, run);
     }
 
     // Mob ground velocity scales with the square of its speed, since setSpeed also sets the forward input
-    public double speedModifierFor(double gait) {
+    public double calculateSpeedModifier(double gait) {
         double speed = getAttributeValue(Attributes.MOVEMENT_SPEED);
-        return speed <= 0 ? 0 : Math.sqrt(velocityFactor(gait) / speed);
+        return speed <= 0 ? 0 : Math.sqrt(calculateVelocityFactor(gait) / speed);
     }
 
-    public double runVelocity() {
-        return INPUT_FRICTION * getAttributeValue(Attributes.MOVEMENT_SPEED) * velocityFactor(RUN_SPEED) / GROUND_DRAG;
+    public double calculateRunVelocity() {
+        return INPUT_FRICTION * getAttributeValue(Attributes.MOVEMENT_SPEED) * calculateVelocityFactor(RUN_SPEED) / GROUND_DRAG;
     }
 
     @Override

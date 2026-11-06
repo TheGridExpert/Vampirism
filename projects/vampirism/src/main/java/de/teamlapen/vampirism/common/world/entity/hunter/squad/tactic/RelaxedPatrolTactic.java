@@ -23,27 +23,27 @@ public class RelaxedPatrolTactic implements SquadTactic {
 
         HunterPost post = context.squad().post();
         if (post != null) {
-            patrolPost(context, post);
+            assignPostPatrol(context, post);
         } else {
-            followLeader(context, leader);
+            assignLeaderPatrol(context, leader);
         }
     }
 
-    private static void patrolPost(SquadContext context, HunterPost post) {
+    private static void assignPostPatrol(SquadContext context, HunterPost post) {
         PatrolArea area = new PatrolArea(post.center(), post.radius());
-        for (Hunter hunter : context.free(_ -> true)) {
-            context.claim(hunter).patrolArea(area);
+        for (Hunter hunter : context.freeMembers(_ -> true)) {
+            context.claimOrder(hunter).patrolArea(area);
         }
     }
 
-    private static void followLeader(SquadContext context, Hunter leader) {
+    private static void assignLeaderPatrol(SquadContext context, Hunter leader) {
         PatrolArea area = new PatrolArea(leader.blockPosition(), LEADER_AREA_RADIUS);
-        for (Hunter hunter : context.free(member -> member != leader)) {
-            SquadOrder order = context.claim(hunter).patrolArea(area);
+        for (Hunter hunter : context.freeMembers(member -> member != leader)) {
+            SquadOrder order = context.claimOrder(hunter).patrolArea(area);
             if (hunter.distanceTo(leader) > LEASH_DISTANCE) {
                 Vec3 toHunter = hunter.position().subtract(leader.position());
                 Vec3 direction = new Vec3(toHunter.x, 0, toHunter.z).normalize();
-                order.position(context.ground(leader.position().add(direction.scale(CATCH_UP_DISTANCE)), leader.getY()));
+                order.position(context.findSafeGround(leader.position().add(direction.scale(CATCH_UP_DISTANCE)), leader.getY()));
             }
         }
     }

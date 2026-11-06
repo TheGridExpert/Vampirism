@@ -43,10 +43,10 @@ public class MaintainDistanceFromTarget {
             boolean lineOfSightClear = isLineOfSightClear(level, shooter, shooter.getEyePosition(), target.getEyePosition());
 
             double targetSpeed = target.getDeltaMovement().horizontalDistance();
-            double shooterSpeed = shooter instanceof Hunter hunter ? hunter.runVelocity() : shooter.getDeltaMovement().horizontalDistance() + shooter.getAttributeBaseValue(Attributes.MOVEMENT_SPEED);
+            double shooterSpeed = shooter instanceof Hunter hunter ? hunter.calculateRunVelocity() : shooter.getDeltaMovement().horizontalDistance() + shooter.getAttributeBaseValue(Attributes.MOVEMENT_SPEED);
             boolean targetFaster = targetSpeed > shooterSpeed * 1.1;
 
-            double minDist = Math.max(minDistance, HunterThreats.minShootDistance(target));
+            double minDist = Math.max(minDistance, HunterThreats.getMinShootDistance(target));
             double maxDist = Math.max(maxDistance, minDist + 5.0);
 
             Vec3 desiredPos = null;

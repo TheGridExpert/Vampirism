@@ -56,7 +56,7 @@ public abstract class NearestAttackableTargetGoalMixin extends TargetGoal implem
         if (this.targetType != Player.class && this.targetType != ServerPlayer.class) return;
         if (!(this.mob.level() instanceof ServerLevel level)) return;
 
-        this.target = HunterAggression.closerHunter(level, this.mob, getTargetConditions(), getTargetSearchArea(getFollowDistance()), this.target);
+        this.target = HunterAggression.findCloserHunter(level, this.mob, getTargetConditions(), getTargetSearchArea(getFollowDistance()), this.target);
     }
 
     @Unique

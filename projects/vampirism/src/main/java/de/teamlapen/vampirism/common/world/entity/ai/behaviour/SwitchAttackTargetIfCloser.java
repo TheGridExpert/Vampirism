@@ -39,7 +39,7 @@ public class SwitchAttackTargetIfCloser {
                 List<LivingEntity> byDistance = candidatesOpt.get().stream().sorted(Comparator.comparingDouble(mob::distanceToSqr)).toList();
                 for (LivingEntity candidate : byDistance) {
                     if (mob.distanceToSqr(candidate) >= switchDistance) break;
-                    if (HunterThreats.isExplosive(candidate) && mob.distanceTo(candidate) < HunterThreats.minShootDistance(candidate)) continue;
+                    if (HunterThreats.isExplosive(candidate) && mob.distanceTo(candidate) < HunterThreats.getMinShootDistance(candidate)) continue;
                     if (!isWorthEngaging(mob, candidate)) continue;
 
                     if (candidate != currentTarget) attackTargetMemory.set(candidate);

@@ -12,7 +12,7 @@ import java.util.function.ToIntFunction;
 
 public class TargetAllocator {
 
-    public static Map<LivingEntity, List<Hunter>> allocate(List<Hunter> hunters, List<LivingEntity> targets, ToIntFunction<LivingEntity> capacity, ToDoubleBiFunction<Hunter, LivingEntity> cost, BiPredicate<Hunter, LivingEntity> feasible) {
+    public static Map<LivingEntity, List<Hunter>> allocateTargets(List<Hunter> hunters, List<LivingEntity> targets, ToIntFunction<LivingEntity> capacity, ToDoubleBiFunction<Hunter, LivingEntity> cost, BiPredicate<Hunter, LivingEntity> feasible) {
         List<Candidate> candidates = new ArrayList<>();
         for (Hunter hunter : hunters) {
             for (LivingEntity target : targets) {
@@ -39,13 +39,13 @@ public class TargetAllocator {
         return result;
     }
 
-    public static ToIntFunction<LivingEntity> proportionalCapacity(List<LivingEntity> targets, int hunters, ToIntFunction<LivingEntity> max) {
+    public static ToIntFunction<LivingEntity> createProportionalCapacity(List<LivingEntity> targets, int hunters, ToIntFunction<LivingEntity> max) {
         double total = 0;
         for (LivingEntity target : targets) {
-            total += HunterThreats.power(target);
+            total += HunterThreats.calculatePower(target);
         }
         double totalPower = Math.max(total, 1.0E-4);
-        return target -> Mth.clamp(Mth.ceil(HunterThreats.power(target) / totalPower * hunters), 1, max.applyAsInt(target));
+        return target -> Mth.clamp(Mth.ceil(HunterThreats.calculatePower(target) / totalPower * hunters), 1, max.applyAsInt(target));
     }
 
     private record Candidate(Hunter hunter, LivingEntity target, double cost) {}

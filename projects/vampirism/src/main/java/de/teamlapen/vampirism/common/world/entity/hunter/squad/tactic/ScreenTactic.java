@@ -21,7 +21,7 @@ public class ScreenTactic implements SquadTactic {
         if (!context.hasThreats()) return;
 
         Vec3 anchor = context.rangedCenter();
-        List<Hunter> guards = context.free(Hunter::isMeleeClass).stream()
+        List<Hunter> guards = context.freeMembers(Hunter::isMeleeClass).stream()
                 .sorted(Comparator.comparingDouble(hunter -> hunter.position().subtract(anchor).dot(context.side())))
                 .toList();
         if (guards.isEmpty()) return;
@@ -29,9 +29,9 @@ public class ScreenTactic implements SquadTactic {
         Vec3 lineCenter = anchor.add(context.front().scale(LINE_DISTANCE));
         for (int i = 0; i < guards.size(); i++) {
             Hunter guard = guards.get(i);
-            Vec3 slot = context.ground(lineCenter.add(context.side().scale((i - (guards.size() - 1) / 2.0D) * LINE_SPACING)), guard.getY());
-            LivingEntity intercept = context.nearestThreat(slot, threat -> HunterThreats.canMelee(threat) && threat.position().distanceTo(slot) < INTERCEPT_RADIUS);
-            context.claim(guard).position(slot).target(intercept);
+            Vec3 slot = context.findSafeGround(lineCenter.add(context.side().scale((i - (guards.size() - 1) / 2.0D) * LINE_SPACING)), guard.getY());
+            LivingEntity intercept = context.findNearestThreat(slot, threat -> HunterThreats.canMelee(threat) && threat.position().distanceTo(slot) < INTERCEPT_RADIUS);
+            context.claimOrder(guard).position(slot).target(intercept);
         }
     }
 }

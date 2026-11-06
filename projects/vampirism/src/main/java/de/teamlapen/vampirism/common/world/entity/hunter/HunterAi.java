@@ -244,7 +244,7 @@ public class HunterAi {
 
     private static boolean isSafeToEngage(Hunter hunter, LivingEntity target) {
         if (!HunterThreats.canEngage(hunter, target)) return false;
-        if (HunterThreats.isExplosive(target) && hunter.distanceTo(target) < HunterThreats.minShootDistance(target)) return false;
+        if (HunterThreats.isExplosive(target) && hunter.distanceTo(target) < HunterThreats.getMinShootDistance(target)) return false;
         return HunterThreats.isWorthEngaging(hunter, target);
     }
 
