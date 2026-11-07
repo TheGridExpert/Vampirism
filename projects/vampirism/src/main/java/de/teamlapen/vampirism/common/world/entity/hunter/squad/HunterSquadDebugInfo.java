@@ -43,7 +43,7 @@ public record HunterSquadDebugInfo(UUID squadId, int leaderId, Optional<Integer>
         if (hunter == leader) {
             String mode = squad.isOnGuard(hunter.level().getGameTime()) ? "on guard" : "relaxed";
             String post = squad.post() != null ? " | post r" + squad.post().radius() : "";
-            String header = "Leader | " + squad.id().toString().substring(0, 4) + " | " + squad.members().size() + "/" + HunterSquad.MAX_SIZE + " | " + mode + post;
+            String header = "Leader | " + squad.id().toString().substring(0, 4) + " | " + squad.members().size() + "/" + HunterSquad.MAX_SIZE + " | " + mode + post + describeBanner(hunter, squad);
             lines.add(squad.isRetreating() ? header + " | RETREAT" : header);
         }
         String activity = brain.getActiveNonCoreActivity().map(Activity::getName).orElse("none");
@@ -51,6 +51,14 @@ public record HunterSquadDebugInfo(UUID squadId, int leaderId, Optional<Integer>
         lines.add(describeOrder(brain, order, target));
 
         return new HunterSquadDebugInfo(squad.id(), leader != null ? leader.getId() : hunter.getId(), target.map(LivingEntity::getId), brain.getMemory(ModMemoryTypes.SQUAD_POSITION.get()), lines);
+    }
+
+    private static String describeBanner(Hunter leader, HunterSquad squad) {
+        long cooldown = squad.bannerCooldownUntil() - leader.level().getGameTime();
+        String cooldownText = cooldown > 0 ? " " + cooldown / 20 + "s" : "";
+        if (leader.hasOminousBanner()) return " | ominous banner";
+        if (leader.hasBanner()) return " | banner" + cooldownText;
+        return cooldown > 0 ? " | banner cooldown" + cooldownText : "";
     }
 
     private static String describeOrder(Brain<Hunter> brain, Optional<LivingEntity> order, Optional<LivingEntity> target) {

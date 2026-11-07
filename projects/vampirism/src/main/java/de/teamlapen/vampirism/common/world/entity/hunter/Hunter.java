@@ -1,8 +1,12 @@
 package de.teamlapen.vampirism.common.world.entity.hunter;
 
+import de.teamlapen.faction.api.factions.village.VillageBanner;
+import de.teamlapen.faction.common.core.FactionDataComponents;
+import de.teamlapen.faction.common.world.effects.FactionBadOmenMobEffect;
 import de.teamlapen.vampirism.api.world.entity.hunter.IHunterVariant;
 import de.teamlapen.vampirism.common.core.ModAttributes;
 import de.teamlapen.vampirism.common.core.ModDebugSubscriptions;
+import de.teamlapen.vampirism.common.core.ModFactions;
 import de.teamlapen.vampirism.common.tags.ModStructureTags;
 import de.teamlapen.vampirism.common.core.ModEntities;
 import de.teamlapen.vampirism.common.core.ModHunterVariants;
@@ -41,6 +45,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.CrossbowAttackMob;
 import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.item.CrossbowItem;
@@ -83,12 +88,16 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
     public static final String TAG_FACTION_LEVEL = "FactionLevel";
     public static final String TAG_SHEATHED_WEAPONS = "SheathedWeapons";
     public static final String TAG_QUARREL_TYPE = "QuarrelType";
+    public static final String TAG_SQUAD_ID = "SquadId";
+    public static final String TAG_POST_RADIUS = "PostRadius";
+    public static final String TAG_STASHED_HELMET = "StashedHelmet";
+    public static final String TAG_OMINOUS_BANNER = "OminousBanner";
+    public static final String TAG_BANNER_COOLDOWN = "BannerCooldownUntil";
 
     private static final int MIN_LEVEL = 1;
     private static final int MAX_LEVEL = 14;
     public static final float ARROW_VELOCITY = 2.0F;
 
-    public static final String TAG_SQUAD_ID = "SquadId";
     public static final float WALK_SPEED = 1.0F;
     public static final float RUN_SPEED = 2.0F;
     private static final double PLAYER_SPRINT_FACTOR = 1.3D;
@@ -101,14 +110,18 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
     private static final float AIM_FOCUS_PER_SHOT = 0.1F;
     private static final int MAX_AIM_FOCUS_SHOTS = 4;
 
-    public static final String TAG_POST_RADIUS = "PostRadius";
     private static final int CAMP_POST_RADIUS = 12;
     private static final int CAMPFIRE_SEARCH_RADIUS = 10;
     private static final int CAMPFIRE_SEARCH_HEIGHT = 4;
     private static final int OUTPOST_MIN_POST_RADIUS = 12;
     private static final int OUTPOST_MAX_POST_RADIUS = 24;
 
+    private static final double BANNER_PICKUP_REACH = 1.0D;
+
     private final NonNullList<ItemStack> sheathedWeapons = NonNullList.withSize(2, ItemStack.EMPTY);
+    private ItemStack stashedHelmet = ItemStack.EMPTY;
+    private boolean ominousBanner;
+    private long bannerCooldownUntil;
     private final Map<Integer, ReachCheck> reachChecks = new HashMap<>();
     private int postRadius;
     private boolean needsPostCheck;
@@ -298,6 +311,9 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
         output.store(TAG_QUARREL_TYPE, Item.CODEC, this.entityData.get(DATA_QUARREL_TYPE_ID));
         output.storeNullable(TAG_SQUAD_ID, UUIDUtil.CODEC, this.squadId);
         output.putInt(TAG_POST_RADIUS, this.postRadius);
+        output.store(TAG_STASHED_HELMET, ItemStack.OPTIONAL_CODEC, this.stashedHelmet);
+        output.putBoolean(TAG_OMINOUS_BANNER, this.ominousBanner);
+        output.putLong(TAG_BANNER_COOLDOWN, this.bannerCooldownUntil);
     }
 
     @Override
@@ -319,6 +335,9 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
         input.read(TAG_QUARREL_TYPE, Item.CODEC).ifPresent(quarrel -> this.entityData.set(DATA_QUARREL_TYPE_ID, quarrel));
         this.squadId = input.read(TAG_SQUAD_ID, UUIDUtil.CODEC).orElse(null);
         this.postRadius = input.getIntOr(TAG_POST_RADIUS, 0);
+        this.stashedHelmet = input.read(TAG_STASHED_HELMET, ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY);
+        this.ominousBanner = input.getBooleanOr(TAG_OMINOUS_BANNER, false);
+        this.bannerCooldownUntil = input.getLongOr(TAG_BANNER_COOLDOWN, 0L);
     }
 
     @Override
@@ -514,6 +533,88 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
         }
 
         return wasHurt;
+    }
+
+    @Override
+    public void die(DamageSource source) {
+        boolean ominous = !this.dead && hasOminousBanner();
+        super.die(source);
+        if (ominous && this.dead && level() instanceof ServerLevel serverLevel) {
+            FactionBadOmenMobEffect.grantBadOmen(source.getEntity(), ModFactions.HUNTER);
+            if (this.squad != null) this.squad.startBannerCooldown(serverLevel.getGameTime());
+        }
+    }
+
+    @Override
+    protected void dropCustomDeathLoot(ServerLevel level, DamageSource source, boolean killedByPlayer) {
+        if (hasBanner()) {
+            ItemEntity banner = spawnAtLocation(level, removeBanner());
+            if (banner != null && this.squad != null) this.squad.onBannerDropped(banner);
+        }
+        super.dropCustomDeathLoot(level, source, killedByPlayer);
+    }
+
+    public static ItemStack createSquadBanner(ServerLevel level) {
+        VillageBanner banner = ModFactions.HUNTER.components().get(FactionDataComponents.VILLAGE_BANNER);
+        return banner != null ? banner.createBanner(level.registryAccess()) : ItemStack.EMPTY;
+    }
+
+    public static boolean isBanner(ItemStack stack) {
+        return stack.has(FactionDataComponents.IS_FACTION_BANNER);
+    }
+
+    public boolean hasBanner() {
+        return isBanner(getItemBySlot(EquipmentSlot.HEAD));
+    }
+
+    public boolean hasOminousBanner() {
+        return this.ominousBanner && hasBanner();
+    }
+
+    public void makeBannerOminous() {
+        if (hasBanner()) this.ominousBanner = true;
+    }
+
+    public void equipBanner(ItemStack banner, boolean ominous) {
+        if (banner.isEmpty()) return;
+        if (!hasBanner()) this.stashedHelmet = getItemBySlot(EquipmentSlot.HEAD).copy();
+        setItemSlot(EquipmentSlot.HEAD, banner);
+        this.ominousBanner = ominous;
+    }
+
+    public ItemStack removeBanner() {
+        if (!hasBanner()) return ItemStack.EMPTY;
+        ItemStack banner = getItemBySlot(EquipmentSlot.HEAD);
+        setItemSlot(EquipmentSlot.HEAD, this.stashedHelmet);
+        this.stashedHelmet = ItemStack.EMPTY;
+        this.ominousBanner = false;
+        return banner;
+    }
+
+    public boolean isWithinPickupReach(ItemEntity item) {
+        return getBoundingBox().inflate(BANNER_PICKUP_REACH).intersects(item.getBoundingBox());
+    }
+
+    public void pickUpBanner(ItemEntity item) {
+        ItemStack stack = item.getItem();
+        if (!isBanner(stack) || hasBanner()) return;
+
+        take(item, 1);
+        ItemStack banner = stack.split(1);
+        if (stack.isEmpty()) {
+            item.discard();
+        } else {
+            item.setItem(stack);
+        }
+        equipBanner(banner, false);
+    }
+
+    public long getBannerCooldownUntil() {
+        return this.bannerCooldownUntil;
+    }
+
+    public void setBannerCooldownUntil(long gameTime) {
+        this.bannerCooldownUntil = gameTime;
     }
 
     @Override

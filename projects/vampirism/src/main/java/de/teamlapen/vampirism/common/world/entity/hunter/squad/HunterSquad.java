@@ -5,6 +5,9 @@ import de.teamlapen.vampirism.common.world.entity.hunter.Hunter;
 import de.teamlapen.vampirism.common.world.entity.hunter.HunterPost;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
@@ -20,6 +23,11 @@ public class HunterSquad {
     private static final double HEADING_MIN_SPEED_SQR = 0.0004D;
     private static final int GUARD_DURATION = 600;
     private static final double POST_STRAGGLER_MARGIN = 8.0D;
+    private static final int BANNER_MIN_SIZE = 5;
+    private static final int BANNER_SUMMON_CHANCE = 60;
+    private static final int BANNER_COOLDOWN = 6000;
+    private static final double BANNER_RECOVERY_RANGE = 32.0D;
+    private static final int BANNER_RECOVERY_TIMEOUT = 600;
 
     private final UUID id;
     private final int thinkOffset;
@@ -30,6 +38,10 @@ public class HunterSquad {
     private boolean retreating;
     private boolean disbanded;
     private long guardUntil;
+    private long bannerCooldownUntil;
+    private @Nullable ItemEntity droppedBanner;
+    private int bannerPursuitTicks;
+    private final Set<UUID> abandonedBanners = new HashSet<>();
 
     private HunterSquad(UUID id) {
         this.id = id;
@@ -68,6 +80,7 @@ public class HunterSquad {
         kickStragglers();
         mergeWithVisibleSquads();
         promoteStrongerLeader();
+        updateBanner(level);
 
         if (this.members.size() < 2) return;
 
@@ -183,6 +196,7 @@ public class HunterSquad {
             this.members.add(hunter);
         }
         hunter.setSquad(this);
+        this.bannerCooldownUntil = Math.max(this.bannerCooldownUntil, hunter.getBannerCooldownUntil());
     }
 
     private void detachMember(Hunter hunter) {
@@ -208,6 +222,83 @@ public class HunterSquad {
                 this.leader = member;
             }
         }
+    }
+
+    private void updateBanner(ServerLevel level) {
+        handBannersToLeader();
+
+        long gameTime = level.getGameTime();
+        if (this.leader.hasBanner()) {
+            setDroppedBanner(null);
+            if (gameTime >= this.bannerCooldownUntil) this.leader.makeBannerOminous();
+            return;
+        }
+
+        setDroppedBanner(isRecoverable(level, this.droppedBanner) ? this.droppedBanner : searchForDroppedBanner(level));
+        if (this.droppedBanner != null) return;
+
+        if (this.members.size() >= BANNER_MIN_SIZE && gameTime >= this.bannerCooldownUntil && !this.retreating && level.getRandom().nextInt(BANNER_SUMMON_CHANCE) == 0) {
+            this.leader.equipBanner(Hunter.createSquadBanner(level), true);
+        }
+    }
+
+    private void handBannersToLeader() {
+        for (Hunter member : this.members) {
+            if (member == this.leader || !member.hasBanner()) continue;
+
+            boolean ominous = member.hasOminousBanner();
+            ItemStack banner = member.removeBanner();
+            if (!this.leader.hasBanner()) {
+                this.leader.equipBanner(banner, ominous);
+            } else if (ominous) {
+                this.leader.makeBannerOminous();
+            }
+        }
+    }
+
+    public void startBannerCooldown(long gameTime) {
+        this.bannerCooldownUntil = gameTime + BANNER_COOLDOWN;
+        for (Hunter member : this.members) {
+            member.setBannerCooldownUntil(this.bannerCooldownUntil);
+        }
+    }
+
+    public void onBannerDropped(ItemEntity banner) {
+        setDroppedBanner(banner);
+    }
+
+    private void setDroppedBanner(@Nullable ItemEntity banner) {
+        if (banner != this.droppedBanner) this.bannerPursuitTicks = 0;
+        this.droppedBanner = banner;
+    }
+
+    public void tickBannerPursuit() {
+        if (this.droppedBanner == null || ++this.bannerPursuitTicks < BANNER_RECOVERY_TIMEOUT) return;
+
+        this.abandonedBanners.add(this.droppedBanner.getUUID());
+        setDroppedBanner(null);
+    }
+
+    public @Nullable ItemEntity findDroppedBanner(ServerLevel level) {
+        return isRecoverable(level, this.droppedBanner) ? this.droppedBanner : null;
+    }
+
+    private @Nullable ItemEntity searchForDroppedBanner(ServerLevel level) {
+        this.abandonedBanners.removeIf(id -> level.getEntity(id) == null);
+        return level.getEntitiesOfClass(ItemEntity.class, this.leader.getBoundingBox().inflate(BANNER_RECOVERY_RANGE), banner -> isRecoverable(level, banner)).stream()
+                .min(Comparator.comparingDouble(this.leader::distanceToSqr))
+                .orElse(null);
+    }
+
+    private boolean isRecoverable(ServerLevel level, @Nullable ItemEntity banner) {
+        if (banner == null || this.leader == null) return false;
+        if (banner.isRemoved() || level.getEntity(banner.getId()) != banner || !Hunter.isBanner(banner.getItem())) return false;
+        if (banner.getOwner() instanceof Player || this.abandonedBanners.contains(banner.getUUID())) return false;
+        return banner.distanceTo(this.leader) <= BANNER_RECOVERY_RANGE;
+    }
+
+    public long bannerCooldownUntil() {
+        return this.bannerCooldownUntil;
     }
 
     private static int calculateLeadershipScore(Hunter hunter) {

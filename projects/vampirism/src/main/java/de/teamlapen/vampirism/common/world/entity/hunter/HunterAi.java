@@ -147,6 +147,7 @@ public class HunterAi {
                 5,
                 ImmutableList.of(
                         MoveToSquadPosition.create(SPEED_MULTIPLIER_WHEN_FOLLOWING, FORMATION_TOLERANCE),
+                        RecoverSquadBanner.create(SPEED_MULTIPLIER_WHEN_FOLLOWING),
                         PatrolAroundHome.create(PATROL_RADIUS, SPEED_MULTIPLIER_WHEN_PATROLLING, SPEED_MULTIPLIER_WHEN_LEADING_RELAXED),
                         new RunOne<>(
                                 ImmutableList.of(
