@@ -13,6 +13,7 @@ public class GeneralStrategy implements SquadStrategy {
             new RearGuardTactic(),
             new FocusFireTactic(),
             new MeleeTokenTactic(),
+            new HoldEngagementTactic(),
             new ScreenTactic(),
             new ReserveTactic(),
             new RelaxedPatrolTactic(),

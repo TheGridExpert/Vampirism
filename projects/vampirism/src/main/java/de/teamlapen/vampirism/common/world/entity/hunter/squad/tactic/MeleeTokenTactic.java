@@ -42,7 +42,7 @@ public class MeleeTokenTactic implements SquadTactic {
 
         List<LivingEntity> targets = context.threats().stream()
                 .filter(HunterThreats::canMelee)
-                .filter(threat -> threat.position().distanceTo(context.squadCenter()) <= LEASH_RADIUS || calculateDistanceToNearest(threat, protect) <= GUARD_RADIUS)
+                .filter(threat -> threat.position().distanceTo(context.squadCenter()) <= LEASH_RADIUS || context.getSpotterDistance(threat) <= LEASH_RADIUS || calculateDistanceToNearest(threat, protect) <= GUARD_RADIUS)
                 .toList();
         if (targets.isEmpty()) return;
 

@@ -22,6 +22,7 @@ public class HunterSquad {
     private static final double MAX_LEADER_DISTANCE = 40.0D;
     private static final double HEADING_MIN_SPEED_SQR = 0.0004D;
     private static final int GUARD_DURATION = 600;
+    private static final int THREAT_MEMORY = 60;
     private static final double POST_STRAGGLER_MARGIN = 8.0D;
     private static final int BANNER_MIN_SIZE = 5;
     private static final int BANNER_SUMMON_CHANCE = 60;
@@ -38,6 +39,8 @@ public class HunterSquad {
     private boolean retreating;
     private boolean disbanded;
     private long guardUntil;
+    private final Map<LivingEntity, Long> rememberedThreats = new HashMap<>();
+    private int threatCount;
     private long bannerCooldownUntil;
     private @Nullable ItemEntity droppedBanner;
     private int bannerPursuitTicks;
@@ -85,11 +88,28 @@ public class HunterSquad {
         if (this.members.size() < 2) return;
 
         SquadContext context = SquadContext.create(level, this);
+        rememberThreats(context.getReportedThreats(), level.getGameTime());
+        this.threatCount = context.threats().size();
         if (context.hasThreats()) {
             this.guardUntil = level.getGameTime() + GUARD_DURATION;
         }
         this.strategy.tick(context);
         context.applyOrders(ORDER_TTL);
+    }
+
+    private void rememberThreats(List<LivingEntity> threats, long gameTime) {
+        for (LivingEntity threat : threats) {
+            this.rememberedThreats.put(threat, gameTime);
+        }
+    }
+
+    public Set<LivingEntity> getRememberedThreats(long gameTime) {
+        this.rememberedThreats.entrySet().removeIf(entry -> gameTime - entry.getValue() > THREAT_MEMORY || !entry.getKey().isAlive());
+        return this.rememberedThreats.keySet();
+    }
+
+    public int threatCount() {
+        return this.threatCount;
     }
 
     private void updateHeading() {

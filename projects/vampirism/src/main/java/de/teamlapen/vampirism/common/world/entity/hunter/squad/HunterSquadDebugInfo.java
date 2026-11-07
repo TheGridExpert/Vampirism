@@ -41,7 +41,7 @@ public record HunterSquadDebugInfo(UUID squadId, int leaderId, Optional<Integer>
 
         List<String> lines = new ArrayList<>();
         if (hunter == leader) {
-            String mode = squad.isOnGuard(hunter.level().getGameTime()) ? "on guard" : "relaxed";
+            String mode = squad.isOnGuard(hunter.level().getGameTime()) ? "on guard, threats " + squad.threatCount() : "relaxed";
             String post = squad.post() != null ? " | post r" + squad.post().radius() : "";
             String header = "Leader | " + squad.id().toString().substring(0, 4) + " | " + squad.members().size() + "/" + HunterSquad.MAX_SIZE + " | " + mode + post + describeBanner(hunter, squad);
             lines.add(squad.isRetreating() ? header + " | RETREAT" : header);

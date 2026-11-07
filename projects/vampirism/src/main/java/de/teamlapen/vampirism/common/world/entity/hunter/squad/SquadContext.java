@@ -42,6 +42,8 @@ public class SquadContext {
     private final Vec3 front;
     private final Map<Hunter, SquadOrder> orders = new HashMap<>();
     private final Map<LivingEntity, Hunter> victims = new HashMap<>();
+    private final Map<LivingEntity, Double> spotterDistances = new LinkedHashMap<>();
+    private final Set<LivingEntity> reportedThreats = new HashSet<>();
     private final Map<Long, Boolean> safeSpots = new HashMap<>();
     private @Nullable PathfindingContext pathfindingContext;
 
@@ -73,22 +75,42 @@ public class SquadContext {
     }
 
     private List<LivingEntity> collectThreats() {
-        Set<LivingEntity> found = new LinkedHashSet<>();
         for (Hunter member : this.members) {
             Brain<Hunter> brain = member.getBrain();
-            brain.getMemory(ModMemoryTypes.NEAREST_VISIBLE_HOSTILES.get()).ifPresent(found::addAll);
-            brain.getMemory(MemoryModuleType.ATTACK_TARGET).ifPresent(found::add);
+            brain.getMemory(ModMemoryTypes.NEAREST_VISIBLE_HOSTILES.get()).ifPresent(seen -> seen.forEach(threat -> recordSpotting(threat, member)));
+            brain.getMemory(MemoryModuleType.ATTACK_TARGET).ifPresent(threat -> recordSpotting(threat, member));
+        }
+        this.reportedThreats.addAll(this.spotterDistances.keySet());
+
+        for (LivingEntity remembered : this.squad.getRememberedThreats(this.level.getGameTime())) {
+            if (this.reportedThreats.contains(remembered)) continue;
+            for (Hunter member : this.members) {
+                recordSpotting(remembered, member);
+            }
         }
 
         List<LivingEntity> result = new ArrayList<>();
-        for (LivingEntity threat : found) {
+        for (Map.Entry<LivingEntity, Double> entry : this.spotterDistances.entrySet()) {
+            LivingEntity threat = entry.getKey();
             if (threat instanceof Hunter || !threat.isAlive() || threat.level() != this.level) continue;
             if (HunterThreats.isAvoided(threat)) continue;
             if (!HunterThreats.canMelee(threat) && !HunterThreats.canShoot(threat) && !HunterThreats.shouldLure(threat)) continue;
-            if (threat.position().distanceTo(this.squadCenter) > ENGAGE_RADIUS) continue;
+            if (entry.getValue() > ENGAGE_RADIUS && threat.position().distanceTo(this.squadCenter) > ENGAGE_RADIUS) continue;
             result.add(threat);
         }
         return result;
+    }
+
+    private void recordSpotting(LivingEntity threat, Hunter spotter) {
+        this.spotterDistances.merge(threat, (double) threat.distanceTo(spotter), Math::min);
+    }
+
+    public List<LivingEntity> getReportedThreats() {
+        return this.threats.stream().filter(this.reportedThreats::contains).toList();
+    }
+
+    public double getSpotterDistance(LivingEntity threat) {
+        return this.spotterDistances.getOrDefault(threat, Double.MAX_VALUE);
     }
 
     private Vec3 computeFront() {
