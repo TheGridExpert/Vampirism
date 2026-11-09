@@ -51,7 +51,6 @@ public class HunterAi {
     private static final float SPEED_MULTIPLIER_WHEN_RETREATING = Hunter.RUN_SPEED;
     private static final float RETREAT_HEALTH_PERCENT = 0.25F;
     private static final float SAFE_HEALTH_PERCENT = 0.75F;
-    private static final int MAX_RETREAT_DURATION = 700;
     private static final double RETREAT_DISTANCE = 5.0D;
     private static final double RETREAT_SAFE_DISTANCE = 15.0D;
 
@@ -63,6 +62,10 @@ public class HunterAi {
     private static final double COMBAT_POSITION_TOLERANCE = 1.5D;
     private static final float SPEED_MULTIPLIER_WHEN_EVADING = Hunter.RUN_SPEED;
     private static final int EVADE_DISTANCE = 12;
+
+    private static final double CRUCIFIX_TRIGGER_DISTANCE = 3.0D;
+    private static final int CRUCIFIX_FLEE_TICKS = 40;
+    private static final float CRUCIFIX_MELEE_HEALTH_PERCENT = 0.5F;
 
     private static final ImmutableList<SensorType<? extends Sensor<? super Hunter>>> SENSOR_TYPES = ImmutableList.of(
             SensorType.NEAREST_LIVING_ENTITIES,
@@ -96,6 +99,8 @@ public class HunterAi {
             ModMemoryTypes.NEAREST_VISIBLE_HOSTILES.get(),
             ModMemoryTypes.NEAREST_VISIBLE_INFECTED_ENTITIES.get(),
             ModMemoryTypes.DANGER.get(),
+            ModMemoryTypes.CRUCIFIX_FLEE.get(),
+            ModMemoryTypes.CRUCIFIX_COOLDOWN.get(),
             ModMemoryTypes.SQUAD_TARGET.get(),
             ModMemoryTypes.SQUAD_POSITION.get(),
             ModMemoryTypes.SQUAD_RETREAT.get(),
@@ -135,6 +140,7 @@ public class HunterAi {
                         new LookAtTargetSink(45, 90),
                         AvoidBumpingIntoOthers.create(0.5F),
                         new HandleHunterWeapons.Sheathe(),
+                        RepelWithCrucifix.create(CRUCIFIX_TRIGGER_DISTANCE, CRUCIFIX_FLEE_TICKS, CRUCIFIX_MELEE_HEALTH_PERCENT),
                         FollowSquadTarget.create(),
                         new MoveToPatrolTarget(MIN_PATROL_COOLDOWN, MAX_PATROL_COOLDOWN)
                 )
@@ -173,7 +179,7 @@ public class HunterAi {
                         ifMelee(StopAttackingIfTargetInvalid.create((_, target) -> !HunterThreats.canMelee(target) && !HunterThreats.shouldLure(target))),
                         ifRanged(StopAttackingIfTargetInvalid.create((_, target) -> !HunterThreats.canShoot(target) && !HunterThreats.shouldLure(target))),
                         withoutMemory(ModMemoryTypes.SQUAD_TARGET.get(), SwitchAttackTargetIfCloser.create(ModMemoryTypes.NEAREST_VISIBLE_HOSTILES.get())),
-                        new CheckHealthAndRetreat(RETREAT_HEALTH_PERCENT, MAX_RETREAT_DURATION),
+                        new CheckHealthAndRetreat(RETREAT_HEALTH_PERCENT),
                         MoveToSquadPosition.create(SPEED_MULTIPLIER_WHEN_CHASING_TARGET, COMBAT_POSITION_TOLERANCE),
                         LureFromWater.create(SPEED_MULTIPLIER_WHEN_LURING, LURE_DISTANCE),
                         ifMelee(DistanceMeleeAttack.create(MELEE_ATTACK_COOLDOWN, TOO_CLOSE_ATTACK_DISTANCE)),
@@ -190,8 +196,8 @@ public class HunterAi {
                 Activity.AVOID,
                 15,
                 ImmutableList.of(
-                        MoveToSquadPosition.create(SPEED_MULTIPLIER_WHEN_RETREATING, FORMATION_TOLERANCE),
                         RetreatFromEnemies.create(SPEED_MULTIPLIER_WHEN_RETREATING, RETREAT_DISTANCE, RETREAT_SAFE_DISTANCE),
+                        BehaviorBuilder.triggerIf(hunter -> !RetreatFromEnemies.isPursued(hunter, RETREAT_SAFE_DISTANCE), MoveToSquadPosition.create(SPEED_MULTIPLIER_WHEN_RETREATING, FORMATION_TOLERANCE)),
                         new RunOne<>(
                                 ImmutableList.of(
                                         Pair.of(SetEntityLookClosestOfRange.create(ModMemoryTypes.NEAREST_VISIBLE_HOSTILES.get(), 12.0F), 3),

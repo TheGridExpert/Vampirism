@@ -83,11 +83,15 @@ public class CrucifixItem extends Item implements IItemWithTier, IDescriptionPro
     }
 
     protected void applyCooldown(Player player, ItemStack itemStack) {
+        player.getCooldowns().addCooldown(itemStack, getCooldownTicks(itemStack));
+    }
+
+    public int getCooldownTicks(ItemStack itemStack) {
         UseCooldown useCooldown = itemStack.get(DataComponents.USE_COOLDOWN);
         if (useCooldown == null) {
             throw new IllegalStateException("Crucifix itemstack does not have a UseCooldown component");
         }
-        player.getCooldowns().addCooldown(itemStack, useCooldown.ticks() * 2);
+        return useCooldown.ticks() * 2;
     }
 
     @Override
@@ -105,7 +109,7 @@ public class CrucifixItem extends Item implements IItemWithTier, IDescriptionPro
         }
     }
 
-    protected boolean affectsEntity(LivingEntity entity, Level level) {
+    public boolean affectsEntity(LivingEntity entity, Level level) {
         return entity.typeHolder().is(EntityTypeTags.UNDEAD) || Helper.isVampire(entity);
     }
 

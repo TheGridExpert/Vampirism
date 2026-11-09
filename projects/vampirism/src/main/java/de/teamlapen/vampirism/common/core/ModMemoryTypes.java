@@ -93,6 +93,8 @@ public class ModMemoryTypes {
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<List<LivingEntity>>> NEAREST_VISIBLE_HOSTILES = transientMemory("hunter.nearest_visible_hostiles");
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<List<LivingEntity>>> NEAREST_VISIBLE_INFECTED_ENTITIES = transientMemory("hunter.nearest_visible_infected_entities");
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<LivingEntity>> DANGER = transientMemory("hunter.danger");
+    public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<LivingEntity>> CRUCIFIX_FLEE = transientMemory("hunter.crucifix_flee");
+    public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Unit>> CRUCIFIX_COOLDOWN = transientMemory("hunter.crucifix_cooldown");
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<LivingEntity>> SQUAD_TARGET = transientMemory("hunter.squad_target");
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Vec3>> SQUAD_POSITION = transientMemory("hunter.squad_position");
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Unit>> SQUAD_RETREAT = transientMemory("hunter.squad_retreat");

@@ -134,7 +134,7 @@ public class HunterEquipmentAssigner {
 
         for (int i = SECONDARY_WEAPONS.length - 1; i >= 0; i--) {
             if (secondaryTokens >= SECONDARY_WEAPONS[i].getSecond()) {
-
+                hunter.setSheathedWeapon(new ItemStack(SECONDARY_WEAPONS[i].getFirst()), 1);
                 break;
             }
         }

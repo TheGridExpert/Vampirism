@@ -23,11 +23,13 @@ import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Comparator;
+import java.util.List;
 
 public class MaintainDistanceFromTarget {
 
     private static final double MIN_MOVE_DISTANCE = 4.0;
     private static final int MOVE_COOLDOWN_TICKS = 40;
+    private static final double HOSTILE_CLEARANCE = 4.0D;
 
     public static OneShot<PathfinderMob> create(float speedModifier, double minDistance, double maxDistance) {
         return BehaviorBuilder.create(instance -> instance.group(
@@ -56,7 +58,7 @@ public class MaintainDistanceFromTarget {
             } else if (dist < minDist) {
                 desiredPos = findCandidateOpposite(level, shooter, target, (int) Math.ceil(minDist), (int) Math.max(10, Math.ceil(minDist) + 4), 16);
             } else if (dist > maxDist) {
-                desiredPos = findCandidateToward(level, shooter, targetPos, 2, (int) Math.ceil(maxDist), 10);
+                desiredPos = findCandidateInRange(level, shooter, target, minDist, maxDist, 10);
             } else if (!lineOfSightClear) {
                 desiredPos = findSmallReposition(level, shooter, target, dist, 12);
             }
@@ -83,6 +85,7 @@ public class MaintainDistanceFromTarget {
                     Vec3 dir = allyPos.subtract(shooter.position()).normalize();
                     return findGroundNear(level, allyPos.add(dir.scale(2.0)));
                 })
+                .filter(pos -> isClearOfHostiles(shooter, pos))
                 .orElseGet(() -> findCandidateOpposite(level, shooter, target, (int) minDistance, (int) maxDistance, 12));
     }
 
@@ -110,16 +113,16 @@ public class MaintainDistanceFromTarget {
         return null;
     }
 
-    private static @Nullable Vec3 findCandidateToward(ServerLevel level, PathfinderMob shooter, Vec3 targetPos, int minRadius, int maxRadius, int tries) {
+    private static @Nullable Vec3 findCandidateInRange(ServerLevel level, PathfinderMob shooter, LivingEntity target, double minDistance, double maxDistance, int tries) {
         RandomSource random = shooter.getRandom();
-
-        double dirX = targetPos.x - shooter.getX();
-        double dirZ = targetPos.z - shooter.getZ();
-        double baseAngle = Math.atan2(dirZ, dirX);
+        Vec3 targetPos = target.position();
+        double baseAngle = Math.atan2(shooter.getZ() - targetPos.z, shooter.getX() - targetPos.x);
+        double innerRadius = Math.min(minDistance + 1.0D, maxDistance);
+        double outerRadius = Math.max(innerRadius, maxDistance - 1.0D);
 
         for (int i = 0; i < tries; i++) {
-            double angle = baseAngle + Mth.nextDouble(random,-Math.toRadians(30), Math.toRadians(30));
-            double dist = minRadius + random.nextDouble() * (maxRadius - minRadius);
+            double angle = baseAngle + Mth.nextDouble(random, -Math.toRadians(30), Math.toRadians(30));
+            double dist = innerRadius + random.nextDouble() * (outerRadius - innerRadius);
             Vec3 pos = candidateFromAngle(level, shooter, targetPos, angle, dist);
             if (pos != null) return pos;
         }
@@ -152,10 +155,22 @@ public class MaintainDistanceFromTarget {
         int candidateY = (Math.abs(surfaceY - shooterY) < 12) ? surfaceY : shooterY;
 
         Vec3 candidate = Vec3.atBottomCenterOf(new BlockPos(candidateX, candidateY, candidateZ));
+        if (!isClearOfHostiles(shooter, candidate)) return null;
+
         Vec3 eye = candidate.add(0.0, shooter.getEyeHeight(), 0.0);
         Vec3 targetEye = center.add(0.0, 1.5, 0.0);
 
         return isLineOfSightClear(level, shooter, eye, targetEye) ? candidate : null;
+    }
+
+    private static boolean isClearOfHostiles(PathfinderMob shooter, Vec3 candidate) {
+        if (!(shooter instanceof Hunter hunter)) return true;
+
+        for (LivingEntity hostile : hunter.getBrain().getMemory(ModMemoryTypes.NEAREST_VISIBLE_HOSTILES.get()).orElse(List.of())) {
+            double clearance = Math.max(HOSTILE_CLEARANCE, HunterThreats.getMinShootDistance(hostile));
+            if (hostile.position().distanceToSqr(candidate) < clearance * clearance) return false;
+        }
+        return true;
     }
 
     private static Vec3 predictTargetPosition(LivingEntity target, double scale) {

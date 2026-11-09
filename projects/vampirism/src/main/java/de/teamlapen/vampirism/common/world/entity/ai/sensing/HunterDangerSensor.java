@@ -40,7 +40,9 @@ public class HunterDangerSensor extends Sensor<LivingEntity> {
             }
         }
 
-        brain.eraseMemory(ModMemoryTypes.DANGER.get());
+        brain.getMemory(ModMemoryTypes.CRUCIFIX_FLEE.get()).filter(LivingEntity::isAlive).ifPresentOrElse(
+                repelled -> brain.setMemory(ModMemoryTypes.DANGER.get(), repelled),
+                () -> brain.eraseMemory(ModMemoryTypes.DANGER.get()));
     }
 
     private static boolean isDangerous(LivingEntity hunter, LivingEntity other) {

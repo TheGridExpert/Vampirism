@@ -293,6 +293,8 @@ public class SquadContext {
             if (brain.getTimeUntilExpiry(ModMemoryTypes.SHOULD_RETREAT.get()) >= duration) return;
         } else {
             brain.eraseMemory(MemoryModuleType.ATTACK_TARGET);
+            brain.eraseMemory(MemoryModuleType.WALK_TARGET);
+            brain.eraseMemory(ModMemoryTypes.REPOSITIONING_COOLDOWN.get());
         }
         brain.setMemoryWithExpiry(ModMemoryTypes.SHOULD_RETREAT.get(), Unit.INSTANCE, duration);
     }

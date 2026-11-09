@@ -72,15 +72,16 @@ public class FocusFireTactic implements SquadTactic {
     }
 
     private static Vec3 findFiringPosition(SquadContext context, Hunter shooter, LivingEntity target, Vec3 approach, Vec3 side, int index, int count) {
-        LivingEntity closeThreat = context.findNearestThreat(shooter.position(), HunterThreats::canMelee);
-        if (closeThreat != null && closeThreat.distanceTo(shooter) < PEEL_DISTANCE) {
+        LivingEntity closeThreat = context.findNearestThreat(shooter.position(), threat -> threat.distanceTo(shooter) < calculateClearance(threat));
+        if (closeThreat != null) {
             Vec3 away = calculateHorizontalDirection(closeThreat.position(), shooter.position(), approach.reverse());
-            return context.findSafeGround(shooter.position().add(away.scale(BACK_OFF_DISTANCE)), shooter.getY());
+            double backOff = Math.max(BACK_OFF_DISTANCE, calculateClearance(closeThreat) - closeThreat.distanceTo(shooter) + 2.0D);
+            return context.findSafeGround(shooter.position().add(away.scale(backOff)), shooter.getY());
         }
 
         double minRange = Math.max(MIN_RANGE, HunterThreats.getMinShootDistance(target));
         Vec3 previous = shooter.getBrain().getMemory(ModMemoryTypes.SQUAD_POSITION.get()).orElse(null);
-        if (previous != null && isInFiringRange(previous.distanceTo(target.position()), minRange) && context.hasClearShot(shooter, previous, target)) {
+        if (previous != null && isInFiringRange(previous.distanceTo(target.position()), minRange) && isClearOfThreats(context, previous) && context.hasClearShot(shooter, previous, target)) {
             return previous;
         }
 
@@ -90,14 +91,39 @@ public class FocusFireTactic implements SquadTactic {
 
         Vec3 lineCenter = target.position().subtract(approach.scale(minRange + LINE_BUFFER));
         Vec3 slot = lineCenter.add(side.scale((index - (count - 1) / 2.0D) * LINE_SPACING));
+        Vec3 slotSide = side;
+        if (distanceToRoute(target.position(), shooter.position(), slot) < minRange) {
+            Vec3 ownApproach = calculateHorizontalDirection(shooter.position(), target.position(), approach);
+            slot = target.position().subtract(ownApproach.scale(minRange + LINE_BUFFER));
+            slotSide = new Vec3(-ownApproach.z, 0, ownApproach.x);
+        }
 
         Vec3 first = null;
         for (double shift : new double[]{0.0D, 2.0D, -2.0D}) {
-            Vec3 candidate = context.findSafeGround(slot.add(side.scale(shift)), shooter.getY());
+            Vec3 candidate = context.findSafeGround(slot.add(slotSide.scale(shift)), shooter.getY());
+            if (!isClearOfThreats(context, candidate)) continue;
             if (context.hasClearShot(shooter, candidate, target)) return candidate;
             if (first == null) first = candidate;
         }
-        return first;
+        return first != null ? first : shooter.position();
+    }
+
+    private static double calculateClearance(LivingEntity threat) {
+        return Math.max(PEEL_DISTANCE, HunterThreats.getMinShootDistance(threat));
+    }
+
+    private static boolean isClearOfThreats(SquadContext context, Vec3 position) {
+        return context.findNearestThreat(position, threat -> threat.position().distanceTo(position) < calculateClearance(threat)) == null;
+    }
+
+    private static double distanceToRoute(Vec3 point, Vec3 start, Vec3 end) {
+        double dx = end.x - start.x;
+        double dz = end.z - start.z;
+        double lengthSqr = dx * dx + dz * dz;
+        double t = lengthSqr < 1.0E-6 ? 0.0D : Math.clamp(((point.x - start.x) * dx + (point.z - start.z) * dz) / lengthSqr, 0.0D, 1.0D);
+        double offsetX = point.x - (start.x + dx * t);
+        double offsetZ = point.z - (start.z + dz * t);
+        return Math.sqrt(offsetX * offsetX + offsetZ * offsetZ);
     }
 
     private static Vec3 calculateHorizontalDirection(Vec3 from, Vec3 to, Vec3 fallback) {

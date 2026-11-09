@@ -12,9 +12,8 @@ import net.minecraft.world.entity.ai.memory.MemoryStatus;
 public class CheckHealthAndRetreat extends Behavior<Hunter> {
 
     private final float retreatHealthPercent;
-    private final int maxRetreatDuration;
 
-    public CheckHealthAndRetreat(float retreatHealthPercent, int maxRetreatDuration) {
+    public CheckHealthAndRetreat(float retreatHealthPercent) {
         super(ImmutableMap.of(
                 ModMemoryTypes.SHOULD_RETREAT.get(),
                 MemoryStatus.REGISTERED,
@@ -22,7 +21,6 @@ public class CheckHealthAndRetreat extends Behavior<Hunter> {
                 MemoryStatus.REGISTERED
         ), 20, 40);
         this.retreatHealthPercent = retreatHealthPercent;
-        this.maxRetreatDuration = maxRetreatDuration;
     }
 
     @Override
@@ -32,7 +30,9 @@ public class CheckHealthAndRetreat extends Behavior<Hunter> {
 
     @Override
     protected void start(ServerLevel level, Hunter hunter, long gameTime) {
-        hunter.getBrain().setMemoryWithExpiry(ModMemoryTypes.SHOULD_RETREAT.get(), Unit.INSTANCE, maxRetreatDuration);
+        hunter.getBrain().setMemory(ModMemoryTypes.SHOULD_RETREAT.get(), Unit.INSTANCE);
         hunter.getBrain().eraseMemory(MemoryModuleType.ATTACK_TARGET);
+        hunter.getBrain().eraseMemory(MemoryModuleType.WALK_TARGET);
+        hunter.getBrain().eraseMemory(ModMemoryTypes.REPOSITIONING_COOLDOWN.get());
     }
 }

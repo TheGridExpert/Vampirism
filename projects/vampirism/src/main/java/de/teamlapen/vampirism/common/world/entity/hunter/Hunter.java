@@ -11,7 +11,9 @@ import de.teamlapen.vampirism.common.tags.ModStructureTags;
 import de.teamlapen.vampirism.common.core.ModEntities;
 import de.teamlapen.vampirism.common.core.ModHunterVariants;
 import de.teamlapen.vampirism.common.core.ModItems;
+import de.teamlapen.vampirism.common.core.ModMemoryTypes;
 import de.teamlapen.vampirism.common.world.entity.ai.navigation.HunterPathNavigation;
+import de.teamlapen.vampirism.common.world.items.CrucifixItem;
 import de.teamlapen.vampirism.common.world.entity.hunter.squad.HunterGroupData;
 import de.teamlapen.vampirism.common.world.entity.hunter.squad.HunterSquad;
 import de.teamlapen.vampirism.common.world.entity.hunter.squad.HunterSquadDebugInfo;
@@ -69,6 +71,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+//TODO: Review despawn rules when new advanced hunters and new camps are added
 public class Hunter extends PathfinderMob implements CrossbowAttackMob {
 
     private static final EntityDataAccessor<String> DATA_CLASS_TYPE_ID = SynchedEntityData.defineId(Hunter.class, EntityDataSerializers.STRING);
@@ -117,11 +120,13 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
     private static final int OUTPOST_MAX_POST_RADIUS = 24;
 
     private static final double BANNER_PICKUP_REACH = 1.0D;
+    private static final int CRUCIFIX_HOLD_TICKS = 10;
 
     private final NonNullList<ItemStack> sheathedWeapons = NonNullList.withSize(2, ItemStack.EMPTY);
     private ItemStack stashedHelmet = ItemStack.EMPTY;
     private boolean ominousBanner;
     private long bannerCooldownUntil;
+    private int crucifixHoldTicks;
     private final Map<Integer, ReachCheck> reachChecks = new HashMap<>();
     private int postRadius;
     private boolean needsPostCheck;
@@ -183,6 +188,9 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
         profilerFiller.pop();
         HunterAi.updateActivity(this);
 
+        if (this.crucifixHoldTicks > 0 && --this.crucifixHoldTicks == 0) {
+            putAwayCrucifix();
+        }
         handleNaturalRegeneration(level);
 
         super.customServerAiStep(level);
@@ -338,6 +346,7 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
         this.stashedHelmet = input.read(TAG_STASHED_HELMET, ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY);
         this.ominousBanner = input.getBooleanOr(TAG_OMINOUS_BANNER, false);
         this.bannerCooldownUntil = input.getLongOr(TAG_BANNER_COOLDOWN, 0L);
+        if (isCrucifix(getMainHandItem())) this.crucifixHoldTicks = 1;
     }
 
     @Override
@@ -494,6 +503,7 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
     // TODO: FactionRestriction only works for humans and thence npc hunters may not use all of their weapons' potential
 
     public void unsheatheWeapons() {
+        putAwayCrucifix();
         ItemStack main = this.sheathedWeapons.get(0);
         if (!main.isEmpty()) {
             this.setItemInHand(InteractionHand.MAIN_HAND, main.copy());
@@ -501,13 +511,14 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
         }
 
         ItemStack off = this.sheathedWeapons.get(1);
-        if (!off.isEmpty()) {
+        if (!off.isEmpty() && !isCrucifix(off)) {
             this.setItemInHand(InteractionHand.OFF_HAND, off.copy());
             setSheathedWeapon(ItemStack.EMPTY, 1);
         }
     }
 
     public void sheatheWeapons() {
+        putAwayCrucifix();
         ItemStack main = this.getMainHandItem();
         ItemStack off = this.getOffhandItem();
 
@@ -523,6 +534,39 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
         if (!this.level().isClientSide()) {
             reevaluateHunterClass();
         }
+    }
+
+    private static boolean isCrucifix(ItemStack stack) {
+        return stack.getItem() instanceof CrucifixItem;
+    }
+
+    public ItemStack getSheathedCrucifix() {
+        ItemStack secondary = this.sheathedWeapons.get(1);
+        return isCrucifix(secondary) ? secondary : ItemStack.EMPTY;
+    }
+
+    public ItemStack drawCrucifix() {
+        ItemStack crucifix = getSheathedCrucifix();
+        ItemStack main = getMainHandItem();
+        if (crucifix.isEmpty() || (!main.isEmpty() && !this.sheathedWeapons.get(0).isEmpty())) return ItemStack.EMPTY;
+
+        if (!main.isEmpty()) this.sheathedWeapons.set(0, main.copy());
+        this.sheathedWeapons.set(1, ItemStack.EMPTY);
+        setItemInHand(InteractionHand.MAIN_HAND, crucifix);
+        this.crucifixHoldTicks = CRUCIFIX_HOLD_TICKS;
+        return crucifix;
+    }
+
+    private void putAwayCrucifix() {
+        this.crucifixHoldTicks = 0;
+        ItemStack held = getMainHandItem();
+        if (!isCrucifix(held) || !this.sheathedWeapons.get(1).isEmpty()) return;
+
+        this.sheathedWeapons.set(1, held.copy());
+        boolean weaponsDrawn = this.getBrain().hasMemoryValue(ModMemoryTypes.WEAPONS_UNSHEATHED.get());
+        ItemStack main = weaponsDrawn ? this.sheathedWeapons.get(0) : ItemStack.EMPTY;
+        if (weaponsDrawn) this.sheathedWeapons.set(0, ItemStack.EMPTY);
+        setItemInHand(InteractionHand.MAIN_HAND, main.copy());
     }
 
     @Override
@@ -547,6 +591,7 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
 
     @Override
     protected void dropCustomDeathLoot(ServerLevel level, DamageSource source, boolean killedByPlayer) {
+        putAwayCrucifix();
         if (hasBanner()) {
             ItemEntity banner = spawnAtLocation(level, removeBanner());
             if (banner != null && this.squad != null) this.squad.onBannerDropped(banner);
