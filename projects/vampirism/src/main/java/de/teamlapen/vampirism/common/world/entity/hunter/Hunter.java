@@ -126,11 +126,13 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
 
     private static final double BANNER_PICKUP_REACH = 1.0D;
     private static final int CRUCIFIX_HOLD_TICKS = 10;
+    public static final int CRUCIFIX_SLOT = 2;
 
-    private final NonNullList<ItemStack> sheathedWeapons = NonNullList.withSize(2, ItemStack.EMPTY);
+    private final NonNullList<ItemStack> sheathedWeapons = NonNullList.withSize(3, ItemStack.EMPTY);
     private boolean ominousBanner;
     private long bannerCooldownUntil;
     private int crucifixHoldTicks;
+    private boolean offhandAttackNext;
     private final Map<Integer, ReachCheck> reachChecks = new HashMap<>();
     private int postRadius;
     private boolean needsPostCheck;
@@ -344,6 +346,10 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
                 this.sheathedWeapons.set(i, weapons.get(i));
             }
         });
+        if (isCrucifix(this.sheathedWeapons.get(1)) && this.sheathedWeapons.get(CRUCIFIX_SLOT).isEmpty()) {
+            this.sheathedWeapons.set(CRUCIFIX_SLOT, this.sheathedWeapons.get(1));
+            this.sheathedWeapons.set(1, ItemStack.EMPTY);
+        }
 
         input.read(TAG_QUARREL_TYPE, Item.CODEC).ifPresent(quarrel -> this.entityData.set(DATA_QUARREL_TYPE_ID, quarrel));
         this.squadId = input.read(TAG_SQUAD_ID, UUIDUtil.CODEC).orElse(null);
@@ -361,7 +367,7 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
         HunterGroupData group = HunterGroupData.resolve(spawnGroupData);
         boolean newGroup = group != spawnGroupData;
 
-        setHunterClass(group.nextClass(random));
+        setHunterClass(chooseClass(group, random));
         this.squadId = group.squadId();
         setVariant(HunterVariant.getRandomVariant(DEFAULT_VARIANT, random));
         assignRandomFactionLevel(level, random);
@@ -421,6 +427,21 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
         int radius = Mth.clamp(Math.max(box.getXSpan(), box.getZSpan()) / 2, OUTPOST_MIN_POST_RADIUS, OUTPOST_MAX_POST_RADIUS);
         BlockPos center = box.getCenter();
         assignPost(new BlockPos(center.getX(), getBlockY(), center.getZ()), radius);
+    }
+
+    protected HunterClassType chooseClass(HunterGroupData group, RandomSource random) {
+        return group.nextClass(random);
+    }
+
+    public boolean isDualWielding() {
+        return false;
+    }
+
+    public InteractionHand nextAttackHand() {
+        if (!isDualWielding() || getOffhandItem().isEmpty()) return InteractionHand.MAIN_HAND;
+        InteractionHand hand = this.offhandAttackNext ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
+        this.offhandAttackNext = !this.offhandAttackNext;
+        return hand;
     }
 
     public static EntityType<? extends Hunter> randomType(RandomSource random) {
@@ -529,7 +550,7 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
         }
 
         ItemStack off = this.sheathedWeapons.get(1);
-        if (!off.isEmpty() && !isCrucifix(off)) {
+        if (!off.isEmpty()) {
             this.setItemInHand(InteractionHand.OFF_HAND, off.copy());
             setSheathedWeapon(ItemStack.EMPTY, 1);
         }
@@ -547,6 +568,10 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
         this.setItemInHand(InteractionHand.OFF_HAND, ItemStack.EMPTY);
     }
 
+    public ItemStack getSheathedWeapon(int index) {
+        return this.sheathedWeapons.get(index);
+    }
+
     public void setSheathedWeapon(ItemStack item, int index) {
         this.sheathedWeapons.set(index, item);
         if (!this.level().isClientSide()) {
@@ -559,8 +584,7 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
     }
 
     public ItemStack getSheathedCrucifix() {
-        ItemStack secondary = this.sheathedWeapons.get(1);
-        return isCrucifix(secondary) ? secondary : ItemStack.EMPTY;
+        return this.sheathedWeapons.get(CRUCIFIX_SLOT);
     }
 
     public ItemStack drawCrucifix() {
@@ -569,7 +593,7 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
         if (crucifix.isEmpty() || (!main.isEmpty() && !this.sheathedWeapons.get(0).isEmpty())) return ItemStack.EMPTY;
 
         if (!main.isEmpty()) this.sheathedWeapons.set(0, main.copy());
-        this.sheathedWeapons.set(1, ItemStack.EMPTY);
+        this.sheathedWeapons.set(CRUCIFIX_SLOT, ItemStack.EMPTY);
         setItemInHand(InteractionHand.MAIN_HAND, crucifix);
         this.crucifixHoldTicks = CRUCIFIX_HOLD_TICKS;
         return crucifix;
@@ -578,9 +602,9 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
     private void putAwayCrucifix() {
         this.crucifixHoldTicks = 0;
         ItemStack held = getMainHandItem();
-        if (!isCrucifix(held) || !this.sheathedWeapons.get(1).isEmpty()) return;
+        if (!isCrucifix(held) || !this.sheathedWeapons.get(CRUCIFIX_SLOT).isEmpty()) return;
 
-        this.sheathedWeapons.set(1, held.copy());
+        this.sheathedWeapons.set(CRUCIFIX_SLOT, held.copy());
         boolean weaponsDrawn = this.getBrain().hasMemoryValue(ModMemoryTypes.WEAPONS_UNSHEATHED.get());
         ItemStack main = weaponsDrawn ? this.sheathedWeapons.get(0) : ItemStack.EMPTY;
         if (weaponsDrawn) this.sheathedWeapons.set(0, ItemStack.EMPTY);

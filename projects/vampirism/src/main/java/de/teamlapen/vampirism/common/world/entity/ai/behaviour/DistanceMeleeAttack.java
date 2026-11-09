@@ -2,7 +2,6 @@ package de.teamlapen.vampirism.common.world.entity.ai.behaviour;
 
 import de.teamlapen.vampirism.common.world.entity.hunter.Hunter;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.behavior.OneShot;
 import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder;
@@ -37,7 +36,7 @@ public class DistanceMeleeAttack {
 
                     if (hunter.isWithinMeleeAttackRange(target) && hunter.getSensing().hasLineOfSight(target)) {
                         hunter.getLookControl().setLookAt(target);
-                        hunter.swing(InteractionHand.MAIN_HAND);
+                        hunter.swing(hunter.nextAttackHand());
                         hunter.doHurtTarget(level, target);
                         coolingDown.setWithExpiry(true, attackCooldown);
                         return true;

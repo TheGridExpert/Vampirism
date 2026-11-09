@@ -14,6 +14,7 @@ import de.teamlapen.vampirism.common.world.entity.hunter.squad.HunterGroupData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
@@ -46,6 +47,18 @@ public class AdvancedHunter extends Hunter implements VampireBookLootProvider {
         group.claimAdvanced();
         setData(ModAttachments.SUPPORTER, VampirismMod.services().supporterManager().getRandomNewHunter(level.getRandom()));
         return super.finalizeSpawn(level, difficulty, spawnReason, group);
+    }
+
+    @Override
+    protected HunterClassType chooseClass(HunterGroupData group, RandomSource random) {
+        Supporter supporter = getData(ModAttachments.SUPPORTER);
+        if (supporter.dualWielding()) return HunterClassType.MELEE;
+        return supporter.hunterClass().orElseGet(() -> super.chooseClass(group, random));
+    }
+
+    @Override
+    public boolean isDualWielding() {
+        return getData(ModAttachments.SUPPORTER).dualWielding();
     }
 
     @Override

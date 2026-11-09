@@ -69,7 +69,8 @@
       "ru_ru": "Маркус Грид"
     },
     "gender": "male",
-    "book": "vampirism:ashes_of_past_dawns"
+    "book": "vampirism:ashes_of_past_dawns",
+    "dual_wielding": true
   },
   {
     "player": "random",
@@ -78,6 +79,7 @@
     "name_translations": {
       "ru_ru": "Ранд Одноглазый"
     },
-    "gender": "male"
+    "gender": "male",
+    "hunter_class": "ranged"
   }
 ]

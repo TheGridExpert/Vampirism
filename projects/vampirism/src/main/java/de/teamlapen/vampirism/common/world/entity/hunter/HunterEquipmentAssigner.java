@@ -113,6 +113,9 @@ public class HunterEquipmentAssigner {
         if (!weaponEquipped) {
             hunter.setSheathedWeapon(new ItemStack(mainWeapons[0].getFirst()), 0);
         }
+        if (isMelee && hunter.isDualWielding()) {
+            hunter.setSheathedWeapon(hunter.getSheathedWeapon(0).copy(), 1);
+        }
 
         float[] armorWeights = {0.3f, 0.25f, 0.25f, 0.2f};
 
@@ -134,7 +137,7 @@ public class HunterEquipmentAssigner {
 
         for (int i = SECONDARY_WEAPONS.length - 1; i >= 0; i--) {
             if (secondaryTokens >= SECONDARY_WEAPONS[i].getSecond()) {
-                hunter.setSheathedWeapon(new ItemStack(SECONDARY_WEAPONS[i].getFirst()), 1);
+                hunter.setSheathedWeapon(new ItemStack(SECONDARY_WEAPONS[i].getFirst()), Hunter.CRUCIFIX_SLOT);
                 break;
             }
         }
