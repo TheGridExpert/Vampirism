@@ -49,7 +49,8 @@
     "name_translations": {
       "ru_ru": "Пироман Пик"
     },
-    "gender": "male"
+    "gender": "male",
+    "book": "vampirism:pyromaniacs_diary"
   },
   {
     "player": "edelvveiss",
@@ -67,7 +68,8 @@
     "name_translations": {
       "ru_ru": "Маркус Грид"
     },
-    "gender": "male"
+    "gender": "male",
+    "book": "vampirism:ashes_of_past_dawns"
   },
   {
     "player": "random",

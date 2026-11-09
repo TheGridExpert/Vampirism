@@ -3,6 +3,8 @@ package de.teamlapen.vampirism.common.world.entity.hunter;
 import de.teamlapen.faction.api.factions.lord.LordTitles;
 import de.teamlapen.faction.common.core.FactionDataComponents;
 import de.teamlapen.vampirism.VampirismMod;
+import de.teamlapen.vampirism.api.world.entity.VampireBookLootProvider;
+import de.teamlapen.vampirism.api.world.items.components.IVampireBook;
 import de.teamlapen.vampirism.common.core.ModAttachments;
 import de.teamlapen.vampirism.common.core.ModEntities;
 import de.teamlapen.vampirism.common.core.ModFactions;
@@ -10,6 +12,7 @@ import de.teamlapen.vampirism.common.util.SupporterManager;
 import de.teamlapen.vampirism.common.util.supporter.Supporter;
 import de.teamlapen.vampirism.common.world.entity.hunter.squad.HunterGroupData;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.EntitySpawnReason;
@@ -20,7 +23,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import org.jetbrains.annotations.Nullable;
 
-public class AdvancedHunter extends Hunter {
+import java.util.Optional;
+
+public class AdvancedHunter extends Hunter implements VampireBookLootProvider {
 
     public AdvancedHunter(EntityType<? extends PathfinderMob> entityType, Level level) {
         super(entityType, level);
@@ -67,6 +72,11 @@ public class AdvancedHunter extends Hunter {
     protected Component getTypeName() {
         Component title = getTitle();
         return title == null ? getPersonalName() : Component.empty().append(title).append(" ").append(getPersonalName());
+    }
+
+    @Override
+    public Optional<Holder<IVampireBook>> getBookLootId() {
+        return getData(ModAttachments.SUPPORTER).book();
     }
 
     @Override
