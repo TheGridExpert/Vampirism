@@ -3,6 +3,7 @@ package de.teamlapen.vampirism.common.world.entity.hunter;
 import de.teamlapen.faction.api.factions.village.VillageBanner;
 import de.teamlapen.faction.common.core.FactionDataComponents;
 import de.teamlapen.faction.common.world.effects.FactionBadOmenMobEffect;
+import de.teamlapen.vampirism.REFERENCE;
 import de.teamlapen.vampirism.api.world.entity.hunter.IHunterVariant;
 import de.teamlapen.vampirism.common.core.ModAttributes;
 import de.teamlapen.vampirism.common.core.ModDebugSubscriptions;
@@ -79,6 +80,7 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
     private static final EntityDataAccessor<Integer> DATA_FACTION_LEVEL_ID = SynchedEntityData.defineId(Hunter.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> DATA_IS_CHARGING_CROSSBOW = SynchedEntityData.defineId(Hunter.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Holder<Item>> DATA_QUARREL_TYPE_ID = SynchedEntityData.defineId(Hunter.class, ModEntities.ITEM_HOLDER.get());
+    private static final EntityDataAccessor<ItemStack> DATA_BANNER = SynchedEntityData.defineId(Hunter.class, EntityDataSerializers.ITEM_STACK);
 
     public static final HunterClassType DEFAULT_CLASS_TYPE = HunterClassType.MELEE;
     public static final Holder<IHunterVariant> DEFAULT_VARIANT = ModHunterVariants.HUNTER_5_SLIM;
@@ -93,12 +95,15 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
     public static final String TAG_QUARREL_TYPE = "QuarrelType";
     public static final String TAG_SQUAD_ID = "SquadId";
     public static final String TAG_POST_RADIUS = "PostRadius";
-    public static final String TAG_STASHED_HELMET = "StashedHelmet";
+    public static final String TAG_BANNER = "Banner";
     public static final String TAG_OMINOUS_BANNER = "OminousBanner";
     public static final String TAG_BANNER_COOLDOWN = "BannerCooldownUntil";
 
     private static final int MIN_LEVEL = 1;
-    private static final int MAX_LEVEL = 14;
+    protected static final int MAX_LEVEL = REFERENCE.HIGHEST_HUNTER_LEVEL;
+    protected static final int MAX_LORD_LEVEL = REFERENCE.HIGHEST_HUNTER_LORD;
+    private static final int MAX_TOTAL_LEVEL = MAX_LEVEL + MAX_LORD_LEVEL;
+    private static final float ADVANCED_CHANCE = 0.15F;
     public static final float ARROW_VELOCITY = 2.0F;
 
     public static final float WALK_SPEED = 1.0F;
@@ -123,7 +128,6 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
     private static final int CRUCIFIX_HOLD_TICKS = 10;
 
     private final NonNullList<ItemStack> sheathedWeapons = NonNullList.withSize(2, ItemStack.EMPTY);
-    private ItemStack stashedHelmet = ItemStack.EMPTY;
     private boolean ominousBanner;
     private long bannerCooldownUntil;
     private int crucifixHoldTicks;
@@ -307,6 +311,7 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
         builder.define(DATA_FACTION_LEVEL_ID, DEFAULT_FACTION_LEVEL);
         builder.define(DATA_IS_CHARGING_CROSSBOW, DEFAULT_IS_CHARGING_CROSSBOW);
         builder.define(DATA_QUARREL_TYPE_ID, DEFAULT_QUARREL_TYPE);
+        builder.define(DATA_BANNER, ItemStack.EMPTY);
     }
 
     @Override
@@ -319,7 +324,7 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
         output.store(TAG_QUARREL_TYPE, Item.CODEC, this.entityData.get(DATA_QUARREL_TYPE_ID));
         output.storeNullable(TAG_SQUAD_ID, UUIDUtil.CODEC, this.squadId);
         output.putInt(TAG_POST_RADIUS, this.postRadius);
-        output.store(TAG_STASHED_HELMET, ItemStack.OPTIONAL_CODEC, this.stashedHelmet);
+        output.store(TAG_BANNER, ItemStack.OPTIONAL_CODEC, getBanner());
         output.putBoolean(TAG_OMINOUS_BANNER, this.ominousBanner);
         output.putLong(TAG_BANNER_COOLDOWN, this.bannerCooldownUntil);
     }
@@ -343,7 +348,7 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
         input.read(TAG_QUARREL_TYPE, Item.CODEC).ifPresent(quarrel -> this.entityData.set(DATA_QUARREL_TYPE_ID, quarrel));
         this.squadId = input.read(TAG_SQUAD_ID, UUIDUtil.CODEC).orElse(null);
         this.postRadius = input.getIntOr(TAG_POST_RADIUS, 0);
-        this.stashedHelmet = input.read(TAG_STASHED_HELMET, ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY);
+        this.entityData.set(DATA_BANNER, input.read(TAG_BANNER, ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY));
         this.ominousBanner = input.getBooleanOr(TAG_OMINOUS_BANNER, false);
         this.bannerCooldownUntil = input.getLongOr(TAG_BANNER_COOLDOWN, 0L);
         if (isCrucifix(getMainHandItem())) this.crucifixHoldTicks = 1;
@@ -353,7 +358,8 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
     @SuppressWarnings("deprecation")
     public @Nullable SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, EntitySpawnReason spawnReason, @Nullable SpawnGroupData spawnGroupData) {
         RandomSource random = level.getRandom();
-        HunterGroupData group = spawnGroupData instanceof HunterGroupData data && data.hasRoom() ? data : new HunterGroupData();
+        HunterGroupData group = HunterGroupData.resolve(spawnGroupData);
+        boolean newGroup = group != spawnGroupData;
 
         setHunterClass(group.nextClass(random));
         this.squadId = group.squadId();
@@ -367,6 +373,9 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
         this.needsPostCheck = true;
 
         super.finalizeSpawn(level, difficulty, spawnReason, group);
+        if (newGroup && canSpawnAdvanced(spawnReason) && random.nextFloat() < ADVANCED_CHANCE && group.claimAdvanced()) {
+            AdvancedHunter.spawnInGroup(level, difficulty, spawnReason, group, blockPosition());
+        }
         return group;
     }
 
@@ -414,6 +423,14 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
         assignPost(new BlockPos(center.getX(), getBlockY(), center.getZ()), radius);
     }
 
+    public static EntityType<? extends Hunter> randomType(RandomSource random) {
+        return random.nextFloat() < ADVANCED_CHANCE ? ModEntities.ADVANCED_HUNTER_NEW.get() : ModEntities.NEW_HUNTER.get();
+    }
+
+    private static boolean canSpawnAdvanced(EntitySpawnReason spawnReason) {
+        return spawnReason == EntitySpawnReason.NATURAL || spawnReason == EntitySpawnReason.STRUCTURE;
+    }
+
     private void assignRandomFactionLevel(ServerLevelAccessor level, RandomSource random) {
         float difficultyFactor = switch (level.getDifficulty()) {
             case PEACEFUL -> 2.25f;
@@ -422,11 +439,12 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
             case HARD -> 0.5f;
         };
 
-        float randomFactor = random.nextFloat();
-        float difficultyModifier = (float) Math.pow(randomFactor, difficultyFactor);
+        setFactionLevel(calculateFactionLevel((float) Math.pow(random.nextFloat(), difficultyFactor)));
+    }
 
+    protected int calculateFactionLevel(float difficultyModifier) {
         int levelValue = MIN_LEVEL + Math.round(difficultyModifier * (MAX_LEVEL - MIN_LEVEL));
-        setFactionLevel(Mth.clamp(levelValue, MIN_LEVEL, MAX_LEVEL));
+        return Mth.clamp(levelValue, MIN_LEVEL, MAX_LEVEL);
     }
 
     private void randomizeAttributes(DifficultyInstance difficulty, RandomSource random) {
@@ -467,7 +485,7 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
             case HARD -> 1.3f;
         };
 
-        float levelFactor = 0.6f + (float) Math.pow(factionLevel / 14f, 0.8f) * 1.4f;
+        float levelFactor = 0.6f + (float) Math.pow(factionLevel / (float) MAX_LEVEL, 0.8f) * 1.4f;
         float variance = 0.9f + random.nextFloat() * 0.2f;
 
         return levelFactor * difficultyFactor * variance;
@@ -489,7 +507,7 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
     public int calculateTokens(RandomSource random, int min, int max) {
         float growthPower = 1.1f;
 
-        float progressFactor = (float) Math.pow(getFactionLevel() / 14.0f, growthPower);
+        float progressFactor = (float) Math.pow(getFactionLevel() / (float) MAX_TOTAL_LEVEL, growthPower);
         progressFactor = Mth.clamp(progressFactor, 0.0f, 1.0f);
 
         float base = min + (max - min) * progressFactor;
@@ -608,8 +626,12 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
         return stack.has(FactionDataComponents.IS_FACTION_BANNER);
     }
 
+    public ItemStack getBanner() {
+        return this.entityData.get(DATA_BANNER);
+    }
+
     public boolean hasBanner() {
-        return isBanner(getItemBySlot(EquipmentSlot.HEAD));
+        return !getBanner().isEmpty();
     }
 
     public boolean hasOminousBanner() {
@@ -622,16 +644,13 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
 
     public void equipBanner(ItemStack banner, boolean ominous) {
         if (banner.isEmpty()) return;
-        if (!hasBanner()) this.stashedHelmet = getItemBySlot(EquipmentSlot.HEAD).copy();
-        setItemSlot(EquipmentSlot.HEAD, banner);
+        this.entityData.set(DATA_BANNER, banner);
         this.ominousBanner = ominous;
     }
 
     public ItemStack removeBanner() {
-        if (!hasBanner()) return ItemStack.EMPTY;
-        ItemStack banner = getItemBySlot(EquipmentSlot.HEAD);
-        setItemSlot(EquipmentSlot.HEAD, this.stashedHelmet);
-        this.stashedHelmet = ItemStack.EMPTY;
+        ItemStack banner = getBanner();
+        this.entityData.set(DATA_BANNER, ItemStack.EMPTY);
         this.ominousBanner = false;
         return banner;
     }

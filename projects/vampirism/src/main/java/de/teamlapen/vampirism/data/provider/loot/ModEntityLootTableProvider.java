@@ -101,6 +101,7 @@ public class ModEntityLootTableProvider extends EntityLootSubProvider {
                 ;
         this.add(ADVANCED_HUNTER.get(), advancedHunter);
         this.add(ADVANCED_HUNTER_IMOB.get(), advancedHunter);
+        this.add(ADVANCED_HUNTER_NEW.get(), advancedHunter);
         this.add(DRACULA.get(), LootTable.lootTable()
                 .withPool(LootPool.lootPool()
                         .add(LootItem.lootTableItem(ModItems.SOVEREIGN_BLOOD).apply(SetItemCountFunction.setCount(UniformGenerator.between(15, 48))))

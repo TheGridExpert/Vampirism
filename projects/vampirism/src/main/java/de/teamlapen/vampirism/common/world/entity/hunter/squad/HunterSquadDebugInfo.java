@@ -1,6 +1,7 @@
 package de.teamlapen.vampirism.common.world.entity.hunter.squad;
 
 import de.teamlapen.vampirism.common.core.ModMemoryTypes;
+import de.teamlapen.vampirism.common.world.entity.hunter.AdvancedHunter;
 import de.teamlapen.vampirism.common.world.entity.hunter.Hunter;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -47,7 +48,7 @@ public record HunterSquadDebugInfo(UUID squadId, int leaderId, Optional<Integer>
             lines.add(squad.isRetreating() ? header + " | RETREAT" : header);
         }
         String activity = brain.getActiveNonCoreActivity().map(Activity::getName).orElse("none");
-        lines.add(hunter.getHunterClass().getSerializedName() + " L" + hunter.getFactionLevel() + " | " + activity + " | " + Math.round(hunter.getHealth()) + "/" + Math.round(hunter.getMaxHealth()) + " HP");
+        lines.add(hunter.getHunterClass().getSerializedName() + " L" + hunter.getFactionLevel() + (hunter instanceof AdvancedHunter advanced ? " (lord " + advanced.getLordLevel() + ")" : "") + " | " + activity + " | " + Math.round(hunter.getHealth()) + "/" + Math.round(hunter.getMaxHealth()) + " HP");
         lines.add(describeOrder(brain, order, target));
 
         return new HunterSquadDebugInfo(squad.id(), leader != null ? leader.getId() : hunter.getId(), target.map(LivingEntity::getId), brain.getMemory(ModMemoryTypes.SQUAD_POSITION.get()), lines);

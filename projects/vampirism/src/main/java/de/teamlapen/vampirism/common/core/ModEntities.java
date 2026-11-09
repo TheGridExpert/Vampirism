@@ -69,6 +69,7 @@ public class ModEntities {
 
     // Hunters
     public static final DeferredHolder<EntityType<?>, EntityType<Hunter>> NEW_HUNTER = registerEntityType("hunter_new", Hunter::new, VEnums.HUNTER_CATEGORY.getValue(), b -> b.sized(0.6F, 1.95F));
+    public static final DeferredHolder<EntityType<?>, EntityType<AdvancedHunter>> ADVANCED_HUNTER_NEW = registerEntityType("advanced_hunter_new", AdvancedHunter::new, VEnums.HUNTER_CATEGORY.getValue(), b -> b.sized(0.6F, 1.95F));
     public static final DeferredHolder<EntityType<?>, EntityType<BasicHunterEntity>> HUNTER = registerEntityType("hunter", BasicHunterEntity::new, VEnums.HUNTER_CATEGORY.getValue(), (d) -> d.sized(0.6F, 1.95F));
     public static final DeferredHolder<EntityType<?>, EntityType<BasicHunterEntity.IMob>> HUNTER_IMOB = registerEntityType("hunter_imob", BasicHunterEntity.IMob::new, VEnums.HUNTER_CATEGORY.getValue(), x -> x.sized(0.6f, 1.95f).noSummon());
     public static final DeferredHolder<EntityType<?>, EntityType<AdvancedHunterEntity>> ADVANCED_HUNTER = registerEntityType("advanced_hunter", AdvancedHunterEntity::new, VEnums.HUNTER_CATEGORY.getValue(), b -> b.sized(0.6F, 1.95F));
@@ -154,6 +155,7 @@ public class ModEntities {
 
     static void onRegisterEntityTypeAttributes(EntityAttributeCreationEvent event) {
         event.put(NEW_HUNTER.get(), Hunter.getAttributeBuilder().build());
+        event.put(ADVANCED_HUNTER_NEW.get(), Hunter.getAttributeBuilder().build());
         event.put(ADVANCED_HUNTER.get(), AdvancedHunterEntity.getAttributeBuilder().build());
         event.put(ADVANCED_HUNTER_IMOB.get(), AdvancedHunterEntity.getAttributeBuilder().build());
         event.put(ADVANCED_VAMPIRE.get(), AdvancedVampireEntity.getAttributeBuilder().build());

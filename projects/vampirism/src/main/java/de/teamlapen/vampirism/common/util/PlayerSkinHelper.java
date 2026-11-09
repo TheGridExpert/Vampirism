@@ -68,7 +68,7 @@ public class PlayerSkinHelper {
 
     private void checkMissingSkins(Map<String, PlayerSkin> skins) {
         this.skins.forEach((name, _) -> remoteSkins.remove(name));
-        List<String> list = VampirismMod.services().supporterManager().getSupporter().map(Supporter::player).filter(player -> !skins.containsKey(player)).toList();
+        List<String> list = VampirismMod.services().supporterManager().getSupporter().map(Supporter::player).distinct().filter(player -> !skins.containsKey(player)).toList();
         if (list.isEmpty()) {
             return;
         }

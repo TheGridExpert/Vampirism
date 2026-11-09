@@ -4,6 +4,7 @@ import de.teamlapen.vampirism.common.util.UtilLib;
 import de.teamlapen.vampirism.misc.extension.ISpawnState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
@@ -21,6 +22,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collections;
 import java.util.Random;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * Simple mob spawning logic. More configurable than {@link net.minecraft.world.level.BaseSpawner} but less functional.
@@ -30,8 +32,8 @@ public class SimpleSpawnerLogic<T extends Entity> implements ValueIOSerializable
     private final static Logger LOGGER = LogManager.getLogger();
     private static final int MOB_COUNT_DIV = (int) Math.pow(17.0D, 2.0D);
 
-    @NotNull
-    private final EntityType<T> entityType;
+    private final Class<T> entityClass;
+    private final Function<RandomSource, EntityType<? extends T>> typeSelector;
     @Nullable
     private Consumer<T> onSpawned;
     private int minSpawnDelay = 200;
@@ -48,13 +50,9 @@ public class SimpleSpawnerLogic<T extends Entity> implements ValueIOSerializable
     private MobCategory limitType;
     private final Random rng = new Random();
 
-    public SimpleSpawnerLogic(@NotNull EntityType<T> entityTypeIn) {
-        this.entityType = entityTypeIn;
-    }
-
-    @NotNull
-    public EntityType<T> getEntityType() {
-        return entityType;
+    public SimpleSpawnerLogic(Class<T> entityClass, Function<RandomSource, EntityType<? extends T>> typeSelector) {
+        this.entityClass = entityClass;
+        this.typeSelector = typeSelector;
     }
 
     public int getSpawnedToday() {
@@ -155,13 +153,13 @@ public class SimpleSpawnerLogic<T extends Entity> implements ValueIOSerializable
                 boolean flag1 = false;
 
                 for (int i = 0; i < this.spawnCount; ++i) {
-                    T entity = this.getEntityType().create(level, EntitySpawnReason.SPAWNER);
+                    T entity = this.typeSelector.apply(level.getRandom()).create(level, EntitySpawnReason.SPAWNER);
 
                     if (entity == null) {
                         break;
                     }
 
-                    int j = level.getEntitiesOfClass(entity.getClass(), getSpawningBox(pos).inflate(5)).size();
+                    int j = level.getEntitiesOfClass(this.entityClass, getSpawningBox(pos).inflate(5)).size();
 
                     if (j >= this.maxNearbyEntities) {
                         this.resetTimer();

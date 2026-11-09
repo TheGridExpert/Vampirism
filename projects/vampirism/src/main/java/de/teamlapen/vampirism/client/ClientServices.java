@@ -156,6 +156,7 @@ public class ClientServices extends Services {
         bus.register(this.screenEventHandler);
         bus.register(this.clientEventHandler);
         bus.register(this.playerSkinHelper);
+        bus.addListener(SupporterLanguage::install);
         bus.register(this.clientTooltips);
         bus.addListener(ModDebugEntries::addDebugSubscriptionFlags);
         bus.addListener(ClientTickEvent.Pre.class, _ -> {

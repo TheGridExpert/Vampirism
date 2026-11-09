@@ -3,6 +3,7 @@ package de.teamlapen.vampirism.common.world.entity.hunter.squad;
 import de.teamlapen.vampirism.common.world.entity.hunter.HunterClassType;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.SpawnGroupData;
+import org.jspecify.annotations.Nullable;
 
 import java.util.UUID;
 
@@ -14,6 +15,17 @@ public class HunterGroupData implements SpawnGroupData {
     private final UUID squadId = UUID.randomUUID();
     private int melee;
     private int ranged;
+    private boolean hasAdvanced;
+
+    public static HunterGroupData resolve(@Nullable SpawnGroupData spawnGroupData) {
+        return spawnGroupData instanceof HunterGroupData data && data.hasRoom() ? data : new HunterGroupData();
+    }
+
+    public boolean claimAdvanced() {
+        if (this.hasAdvanced) return false;
+        this.hasAdvanced = true;
+        return true;
+    }
 
     public boolean hasRoom() {
         return this.melee + this.ranged < HunterSquad.MAX_SIZE;
