@@ -28,6 +28,8 @@ import java.util.Optional;
 
 public class AdvancedHunter extends Hunter implements VampireBookLootProvider {
 
+    private static final int LORD_SQUAD_SIZE = 7;
+
     public AdvancedHunter(EntityType<? extends PathfinderMob> entityType, Level level) {
         super(entityType, level);
     }
@@ -64,6 +66,11 @@ public class AdvancedHunter extends Hunter implements VampireBookLootProvider {
     @Override
     protected int calculateFactionLevel(float difficultyModifier) {
         return MAX_LEVEL + Math.min(MAX_LORD_LEVEL, 1 + (int) (difficultyModifier * MAX_LORD_LEVEL));
+    }
+
+    @Override
+    public int getMaxSquadSize() {
+        return LORD_SQUAD_SIZE + (getLordLevel() - 1) / 2;
     }
 
     public int getLordLevel() {

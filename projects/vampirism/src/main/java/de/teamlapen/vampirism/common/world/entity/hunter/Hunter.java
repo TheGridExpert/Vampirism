@@ -104,6 +104,8 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
     protected static final int MAX_LORD_LEVEL = REFERENCE.HIGHEST_HUNTER_LORD;
     private static final int MAX_TOTAL_LEVEL = MAX_LEVEL + MAX_LORD_LEVEL;
     private static final float ADVANCED_CHANCE = 0.15F;
+    public static final int BASE_SQUAD_SIZE = 5;
+    private static final int VETERAN_LEVEL = 12;
     public static final float ARROW_VELOCITY = 2.0F;
 
     public static final float WALK_SPEED = 1.0F;
@@ -435,6 +437,10 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
 
     public boolean isDualWielding() {
         return false;
+    }
+
+    public int getMaxSquadSize() {
+        return getFactionLevel() >= VETERAN_LEVEL ? BASE_SQUAD_SIZE + 1 : BASE_SQUAD_SIZE;
     }
 
     public InteractionHand nextAttackHand() {

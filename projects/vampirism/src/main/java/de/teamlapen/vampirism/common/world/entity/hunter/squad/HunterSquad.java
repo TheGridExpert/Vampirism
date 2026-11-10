@@ -15,8 +15,11 @@ import java.util.*;
 
 public class HunterSquad {
 
-    public static final int MAX_SIZE = 9;
-    private static final int MIN_SIZE = 3;
+    private static final int STABLE_SIZE = 5;
+    private static final double MEMBER_BASE_STRENGTH = 5.0D;
+    private static final double TRANSFER_COST = 4.0D;
+    private static final double COMPOSITION_PENALTY = 6.0D;
+    private static final double MIN_REBALANCE_GAIN = 4.0D;
     private static final int THINK_INTERVAL = 10;
     private static final int ORDER_TTL = 30; // TTL = time to live: ticks before a squad order expires from a hunter's memory
     private static final double MAX_LEADER_DISTANCE = 40.0D;
@@ -81,6 +84,7 @@ public class HunterSquad {
 
         updateHeading();
         kickStragglers();
+        dismissExcessMembers();
         mergeWithVisibleSquads();
         promoteStrongerLeader();
         updateBanner(level);
@@ -132,66 +136,136 @@ public class HunterSquad {
         }
     }
 
+    private void dismissExcessMembers() {
+        int excess = this.members.size() - maxSize();
+        if (excess <= 0) return;
+
+        this.members.stream()
+                .filter(member -> member != this.leader)
+                .sorted(Comparator.comparingInt(HunterSquad::calculateLeadershipScore))
+                .limit(excess)
+                .toList()
+                .forEach(this::detachMember);
+    }
+
+    public int maxSize() {
+        return this.leader != null ? this.leader.getMaxSquadSize() : Hunter.BASE_SQUAD_SIZE;
+    }
+
     private void mergeWithVisibleSquads() {
-        for (Hunter member : List.copyOf(this.members)) {
+        Set<HunterSquad> visible = new LinkedHashSet<>();
+        for (Hunter member : this.members) {
             for (LivingEntity seen : member.getBrain().getMemory(ModMemoryTypes.NEAREST_VISIBLE_HUNTERS.get()).orElse(List.of())) {
                 if (!(seen instanceof Hunter other) || !other.isAlive()) continue;
 
                 HunterSquad otherSquad = other.getSquad();
                 if (otherSquad == null || otherSquad == this || otherSquad.disbanded || !otherSquad.members.contains(other)) continue;
+                visible.add(otherSquad);
+            }
+        }
 
-                if (shouldAbsorb(otherSquad)) {
-                    absorbSquad(otherSquad);
-                } else if (this.members.size() > otherSquad.members.size()) {
-                    sendReinforcements(otherSquad);
-                } else {
-                    otherSquad.sendReinforcements(this);
-                }
+        for (HunterSquad other : visible) {
+            if (this.disbanded || this.leader == null) return;
+            if (other.disbanded) continue;
+
+            if (shouldAbsorb(other)) {
+                absorbSquad(other);
+            } else if (!other.shouldAbsorb(this)) {
+                rebalanceWith(other);
             }
         }
     }
 
-    private void sendReinforcements(HunterSquad recipient) {
-        int needed = MIN_SIZE - recipient.members.size();
-        if (needed <= 0 || recipient.members.isEmpty() || this.members.size() - needed < MIN_SIZE) return;
+    private void rebalanceWith(HunterSquad other) {
+        if (other.leader == null || this.leader.isFighting() || other.leader.isFighting()) return;
 
-        Hunter anchor = recipient.leader != null ? recipient.leader : recipient.members.getFirst();
-        List<Hunter> candidates = new ArrayList<>(this.members.stream()
-                .filter(member -> member != this.leader)
+        List<List<Hunter>> outgoing = listTransfers(this.members, other.leader);
+        List<List<Hunter>> incoming = listTransfers(other.members, this.leader);
+        double bestCost = calculateSplitCost(this.members, other.members, 0) - MIN_REBALANCE_GAIN;
+        List<Hunter> bestOut = null;
+        List<Hunter> bestIn = null;
+
+        for (List<Hunter> out : outgoing) {
+            for (List<Hunter> in : incoming) {
+                if (out.isEmpty() && in.isEmpty()) continue;
+
+                List<Hunter> here = new ArrayList<>(this.members);
+                here.removeAll(out);
+                here.addAll(in);
+                List<Hunter> there = new ArrayList<>(other.members);
+                there.removeAll(in);
+                there.addAll(out);
+                if (!isValidSplit(here, this.members.size()) || !isValidSplit(there, other.members.size())) continue;
+
+                double cost = calculateSplitCost(here, there, out.size() + in.size());
+                if (cost < bestCost) {
+                    bestCost = cost;
+                    bestOut = out;
+                    bestIn = in;
+                }
+            }
+        }
+
+        if (bestOut == null) return;
+        transfer(bestOut, this, other);
+        transfer(bestIn, other, this);
+        electLeader();
+        other.electLeader();
+    }
+
+    private static List<List<Hunter>> listTransfers(List<Hunter> members, Hunter destinationLeader) {
+        List<Hunter> movable = members.stream()
                 .filter(member -> !member.getBrain().hasMemoryValue(ModMemoryTypes.SHOULD_RETREAT.get()))
-                .filter(member -> member.distanceTo(anchor) < MAX_LEADER_DISTANCE)
-                .toList());
+                .filter(member -> member.distanceTo(destinationLeader) < MAX_LEADER_DISTANCE)
+                .toList();
 
-        for (int i = 0; i < needed && !candidates.isEmpty(); i++) {
-            boolean wantRanged = recipient.countByClass(true) < recipient.countByClass(false);
-            Hunter pick = candidates.stream()
-                    .min(Comparator.comparingInt((Hunter member) -> calculateTransferPenalty(member, wantRanged))
-                            .thenComparingDouble(member -> member.distanceToSqr(anchor)))
-                    .orElseThrow();
-            candidates.remove(pick);
-            this.members.remove(pick);
-            clearOrders(pick);
-            recipient.addMember(pick);
+        List<List<Hunter>> transfers = new ArrayList<>();
+        transfers.add(List.of());
+        for (int i = 0; i < movable.size(); i++) {
+            transfers.add(List.of(movable.get(i)));
+            for (int j = i + 1; j < movable.size(); j++) {
+                transfers.add(List.of(movable.get(i), movable.get(j)));
+            }
         }
+        return transfers;
     }
 
-    private int calculateTransferPenalty(Hunter member, boolean wantRanged) {
-        int penalty = member.isRangedClass() == wantRanged ? 0 : 1;
-        if (countByClass(member.isRangedClass()) <= 1) penalty += 2;
-        return penalty;
+    private static boolean isValidSplit(List<Hunter> squad, int originalSize) {
+        if (squad.isEmpty() || squad.size() < Math.min(originalSize, STABLE_SIZE)) return false;
+        Hunter leader = squad.stream().max(Comparator.comparingInt(HunterSquad::calculateLeadershipScore)).orElseThrow();
+        return squad.size() <= leader.getMaxSquadSize();
     }
 
-    private int countByClass(boolean ranged) {
-        int count = 0;
-        for (Hunter member : this.members) {
-            if (member.isRangedClass() == ranged) count++;
+    private static double calculateSplitCost(List<Hunter> first, List<Hunter> second, int transfers) {
+        return Math.abs(calculateStrength(first) - calculateStrength(second)) + transfers * TRANSFER_COST + calculateCompositionPenalty(first) + calculateCompositionPenalty(second);
+    }
+
+    private static double calculateStrength(List<Hunter> squad) {
+        double strength = 0;
+        for (Hunter member : squad) {
+            strength += MEMBER_BASE_STRENGTH + member.getFactionLevel();
         }
-        return count;
+        return strength;
+    }
+
+    private static double calculateCompositionPenalty(List<Hunter> squad) {
+        if (squad.size() < 2) return 0;
+        boolean hasRanged = squad.stream().anyMatch(Hunter::isRangedClass);
+        boolean hasMelee = squad.stream().anyMatch(Hunter::isMeleeClass);
+        return hasRanged && hasMelee ? 0 : COMPOSITION_PENALTY;
+    }
+
+    private static void transfer(List<Hunter> hunters, HunterSquad from, HunterSquad to) {
+        for (Hunter hunter : hunters) {
+            from.members.remove(hunter);
+            clearOrders(hunter);
+            to.addMember(hunter);
+        }
     }
 
     private boolean shouldAbsorb(HunterSquad other) {
         boolean sameId = other.id.equals(this.id);
-        if (!sameId && this.members.size() + other.members.size() > MAX_SIZE) {
+        if (!sameId && this.members.size() + other.members.size() > Math.max(maxSize(), other.maxSize())) {
             return false;
         }
 

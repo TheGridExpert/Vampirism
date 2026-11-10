@@ -1,5 +1,6 @@
 package de.teamlapen.vampirism.common.world.entity.hunter.squad;
 
+import de.teamlapen.vampirism.common.world.entity.hunter.Hunter;
 import de.teamlapen.vampirism.common.world.entity.hunter.HunterClassType;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.SpawnGroupData;
@@ -28,7 +29,7 @@ public class HunterGroupData implements SpawnGroupData {
     }
 
     public boolean hasRoom() {
-        return this.melee + this.ranged < HunterSquad.MAX_SIZE;
+        return this.melee + this.ranged < Hunter.BASE_SQUAD_SIZE + (this.hasAdvanced ? 1 : 0);
     }
 
     public UUID squadId() {
