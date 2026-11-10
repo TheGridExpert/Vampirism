@@ -1,5 +1,6 @@
 package de.teamlapen.vampirism.common.world.entity.hunter;
 
+import de.teamlapen.faction.api.factions.IPlayableFaction;
 import de.teamlapen.faction.api.factions.lord.LordTitles;
 import de.teamlapen.faction.common.core.FactionDataComponents;
 import de.teamlapen.vampirism.VampirismMod;
@@ -47,20 +48,20 @@ public class AdvancedHunter extends Hunter implements VampireBookLootProvider {
     public @Nullable SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, EntitySpawnReason spawnReason, @Nullable SpawnGroupData spawnGroupData) {
         HunterGroupData group = HunterGroupData.resolve(spawnGroupData);
         group.claimAdvanced();
-        setData(ModAttachments.SUPPORTER, VampirismMod.services().supporterManager().getRandomNewHunter(level.getRandom()));
+        setData(ModAttachments.SUPPORTER, VampirismMod.services().supporterManager().getRandomHunter(level.getRandom()));
         return super.finalizeSpawn(level, difficulty, spawnReason, group);
     }
 
     @Override
     protected HunterClassType chooseClass(HunterGroupData group, RandomSource random) {
-        Supporter supporter = getData(ModAttachments.SUPPORTER);
-        if (supporter.dualWielding()) return HunterClassType.MELEE;
-        return supporter.hunterClass().orElseGet(() -> super.chooseClass(group, random));
+        Supporter.Overrides overrides = getData(ModAttachments.SUPPORTER).overrides();
+        if (overrides.dualWielding()) return HunterClassType.MELEE;
+        return overrides.hunterClass().orElseGet(() -> super.chooseClass(group, random));
     }
 
     @Override
     public boolean isDualWielding() {
-        return getData(ModAttachments.SUPPORTER).dualWielding();
+        return getData(ModAttachments.SUPPORTER).overrides().dualWielding();
     }
 
     @Override
@@ -78,7 +79,7 @@ public class AdvancedHunter extends Hunter implements VampireBookLootProvider {
     }
 
     public @Nullable Component getTitle() {
-        return ModFactions.HUNTER.components().getOrDefault(FactionDataComponents.LORD_TITLES, LordTitles.EMPTY).get(getLordLevel(), getData(ModAttachments.SUPPORTER).gender());
+        return ModFactions.HUNTER.components().getOrDefault(FactionDataComponents.LORD_TITLES, LordTitles.EMPTY).get(getLordLevel(), IPlayableFaction.TitleGender.UNKNOWN);
     }
 
     public Component getPersonalName() {

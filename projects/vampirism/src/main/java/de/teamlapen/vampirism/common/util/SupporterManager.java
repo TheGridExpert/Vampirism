@@ -33,10 +33,10 @@ public class SupporterManager {
     private static final Logger LOGGER = LogManager.getLogger();
 
     private static final String NAME_KEY_PREFIX = "supporter.vampirism.";
+    private static final String SUPPORTERS_PATH = "/supporters.json";
 
     private Map<Identifier, List<Supporter>> supporters = new HashMap<>();
-    private List<Supporter> newHunters = List.of();
-    private Map<String, Supporter> newHuntersByPlayer = Map.of();
+    private Map<String, Supporter> supportersByPlayer = Map.of();
 
     /**
      * Returns a randomly picked hunter
@@ -68,10 +68,6 @@ public class SupporterManager {
         loadSupporter(event.getLevel().registryAccess());
     }
 
-    public Supporter getRandomNewHunter(RandomSource random) {
-        return this.newHunters.isEmpty() ? Supporter.FALLBACK : this.newHunters.get(random.nextInt(this.newHunters.size()));
-    }
-
     public static String getNameKey(String player) {
         return NAME_KEY_PREFIX + player;
     }
@@ -79,7 +75,7 @@ public class SupporterManager {
     public @Nullable String findTranslatedName(String key, String language) {
         if (!key.startsWith(NAME_KEY_PREFIX)) return null;
 
-        Supporter supporter = this.newHuntersByPlayer.get(key.substring(NAME_KEY_PREFIX.length()));
+        Supporter supporter = this.supportersByPlayer.get(key.substring(NAME_KEY_PREFIX.length()));
         if (supporter == null) return null;
 
         String exact = supporter.nameTranslations().get(language);
@@ -95,26 +91,26 @@ public class SupporterManager {
     }
 
     public void loadSupporter(RegistryAccess registryAccess) {
-        this.supporters = readSupporters(registryAccess, "/supporters.json").stream().collect(Collectors.groupingBy(Supporter::faction));
-        this.newHunters = readSupporters(registryAccess, "/supporters_new.json").stream().filter(supporter -> supporter.faction().equals(VReference.HUNTER_FACTION_ID)).toList();
-        this.newHuntersByPlayer = this.newHunters.stream().collect(Collectors.toMap(Supporter::player, supporter -> supporter, (first, _) -> first));
+        List<Supporter> supporters = readSupporters(registryAccess);
+        this.supporters = supporters.stream().collect(Collectors.groupingBy(Supporter::faction));
+        this.supportersByPlayer = supporters.stream().collect(Collectors.toMap(Supporter::player, supporter -> supporter, (first, _) -> first));
     }
 
-    private static List<Supporter> readSupporters(RegistryAccess registryAccess, String path) {
-        InputStream inputStream = VampirismMod.class.getResourceAsStream(path);
+    private static List<Supporter> readSupporters(RegistryAccess registryAccess) {
+        InputStream inputStream = VampirismMod.class.getResourceAsStream(SUPPORTERS_PATH);
         if (inputStream == null) return List.of();
 
         try (JsonReader jsonReader = new JsonReader(new InputStreamReader(inputStream))) {
             var ops = RegistryOps.create(JsonOps.INSTANCE, registryAccess);
             return Supporter.CODEC.codec().listOf().parse(ops, JsonParser.parseReader(jsonReader)).getPartialOrThrow();
         } catch (JsonSyntaxException | IOException ex) {
-            LOGGER.error("Failed to retrieve supporters from {}", path, ex);
+            LOGGER.error("Failed to retrieve supporters from {}", SUPPORTERS_PATH, ex);
             return List.of();
         }
     }
 
     public Stream<Supporter> getSupporter() {
-        return Stream.concat(supporters.values().stream().flatMap(List::stream), newHunters.stream());
+        return this.supporters.values().stream().flatMap(List::stream);
     }
 
 }

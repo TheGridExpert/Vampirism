@@ -29,6 +29,33 @@
         "description": "Display name shown in-game for this supporter's entity.",
         "minLength": 1
       },
+      "name_translations": {
+        "type": "object",
+        "description": "Translations of the display name, keyed by language code (e.g. ru_ru). Blank values fall back to name.",
+        "propertyNames": {
+          "pattern": "^[a-z]{2,3}_[a-z0-9]{2,3}$"
+        },
+        "additionalProperties": {
+          "type": "string"
+        }
+      },
+      "overrides": {
+        "type": "object",
+        "description": "Values forced on the supporter's entity instead of being rolled randomly.",
+        "properties": {
+          "hunter_class": {
+            "type": "string",
+            "description": "Hunter class the entity always spawns with.",
+            "enum": ["melee", "ranged"]
+          },
+          "dual_wielding": {
+            "type": "boolean",
+            "description": "Whether the hunter carries a second copy of its melee weapon in the off hand. Forces the melee class.",
+            "default": false
+          }
+        },
+        "additionalProperties": false
+      },
       "status": {
         "type": "string",
         "description": "Supporter category, used by the external supporters website. Not validated/consumed by the mod.",
