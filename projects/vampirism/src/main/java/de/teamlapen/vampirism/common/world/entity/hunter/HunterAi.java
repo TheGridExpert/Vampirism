@@ -87,6 +87,10 @@ public class HunterAi {
             MemoryModuleType.ATTACK_TARGET,
             MemoryModuleType.ATTACK_COOLING_DOWN,
             ModMemoryTypes.PATROL_COOLDOWN.get(),
+            ModMemoryTypes.LOOKOUT_COOLDOWN.get(),
+            ModMemoryTypes.LOOKOUT_SPOT.get(),
+            ModMemoryTypes.LOOKOUT_CANDIDATES.get(),
+            ModMemoryTypes.LOOKOUT_STATUS.get(),
             ModMemoryTypes.REPOSITIONING_COOLDOWN.get(),
             ModMemoryTypes.SHOULD_RETREAT.get(),
             ModMemoryTypes.WEAPONS_UNSHEATHED.get(),
@@ -154,6 +158,7 @@ public class HunterAi {
                 ImmutableList.of(
                         MoveToSquadPosition.create(SPEED_MULTIPLIER_WHEN_FOLLOWING, FORMATION_TOLERANCE),
                         RecoverSquadBanner.create(SPEED_MULTIPLIER_WHEN_FOLLOWING),
+                        new KeepLookout(SPEED_MULTIPLIER_WHEN_FOLLOWING),
                         PatrolAroundHome.create(PATROL_RADIUS, SPEED_MULTIPLIER_WHEN_PATROLLING, SPEED_MULTIPLIER_WHEN_LEADING_RELAXED),
                         new RunOne<>(
                                 ImmutableList.of(

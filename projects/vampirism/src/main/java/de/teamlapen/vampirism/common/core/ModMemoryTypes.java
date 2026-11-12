@@ -6,6 +6,7 @@ import de.teamlapen.vampirism.common.util.serialization.ModCodecs;
 import de.teamlapen.vampirism.common.world.entity.ai.memory.HurtByEntities;
 import de.teamlapen.vampirism.common.world.entity.hunter.squad.PatrolArea;
 import de.teamlapen.vampirism.common.world.entity.ai.system.AiSystem;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.registries.Registries;
@@ -81,6 +82,10 @@ public class ModMemoryTypes {
 
     //<editor-fold desc="Hunter">
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Unit>> PATROL_COOLDOWN = unit("hunter.patrol_cooldown");
+    public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Unit>> LOOKOUT_COOLDOWN = unit("hunter.lookout_cooldown");
+    public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<BlockPos>> LOOKOUT_SPOT = transientMemory("hunter.lookout_spot");
+    public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<List<BlockPos>>> LOOKOUT_CANDIDATES = transientMemory("hunter.lookout_candidates");
+    public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<String>> LOOKOUT_STATUS = transientMemory("hunter.lookout_status");
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Unit>> REPOSITIONING_COOLDOWN = unit("hunter.repositioning_cooldown");
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Unit>> SHOULD_RETREAT = unit("hunter.should_retreat");
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Unit>> WEAPONS_UNSHEATHED = unit("hunter.weapons_unsheathed");

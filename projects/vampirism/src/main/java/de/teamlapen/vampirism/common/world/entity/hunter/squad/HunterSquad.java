@@ -3,6 +3,8 @@ package de.teamlapen.vampirism.common.world.entity.hunter.squad;
 import de.teamlapen.vampirism.common.core.ModMemoryTypes;
 import de.teamlapen.vampirism.common.world.entity.hunter.Hunter;
 import de.teamlapen.vampirism.common.world.entity.hunter.HunterPost;
+import de.teamlapen.vampirism.common.world.entity.hunter.LookoutSpots;
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -28,6 +30,7 @@ public class HunterSquad {
     private static final int THREAT_MEMORY = 60;
     private static final double POST_STRAGGLER_MARGIN = 8.0D;
     private static final int BANNER_MIN_SIZE = 5;
+    private static final int MAX_CACHED_ZONES = 4;
     private static final int BANNER_SUMMON_CHANCE = 60;
     private static final int BANNER_COOLDOWN = 6000;
     private static final double BANNER_RECOVERY_RANGE = 32.0D;
@@ -48,6 +51,8 @@ public class HunterSquad {
     private @Nullable ItemEntity droppedBanner;
     private int bannerPursuitTicks;
     private final Set<UUID> abandonedBanners = new HashSet<>();
+    private final Map<Hunter, BlockPos> lookoutClaims = new HashMap<>();
+    private final Map<PatrolArea, PatrolZone> patrolZones = new HashMap<>();
 
     private HunterSquad(UUID id) {
         this.id = id;
@@ -425,6 +430,31 @@ public class HunterSquad {
 
     public boolean isOnGuard(long gameTime) {
         return gameTime < this.guardUntil;
+    }
+
+    public PatrolZone getPatrolZone(ServerLevel level, PatrolArea area) {
+        long gameTime = level.getGameTime();
+        this.patrolZones.values().removeIf(zone -> zone.isExpired(gameTime));
+        PatrolZone zone = this.patrolZones.get(area);
+        if (zone == null) {
+            if (this.patrolZones.size() >= MAX_CACHED_ZONES) this.patrolZones.clear();
+            zone = PatrolZone.scan(level, area);
+            this.patrolZones.put(area, zone);
+        }
+        return zone;
+    }
+
+    public boolean claimLookoutSpot(Hunter hunter, BlockPos spot) {
+        this.lookoutClaims.keySet().removeIf(member -> !this.members.contains(member));
+        for (Map.Entry<Hunter, BlockPos> claim : this.lookoutClaims.entrySet()) {
+            if (claim.getKey() != hunter && claim.getValue().closerThan(spot, LookoutSpots.MIN_SPOT_SPACING)) return false;
+        }
+        this.lookoutClaims.put(hunter, spot);
+        return true;
+    }
+
+    public void releaseLookoutSpot(Hunter hunter) {
+        this.lookoutClaims.remove(hunter);
     }
 
     public @Nullable HunterPost post() {

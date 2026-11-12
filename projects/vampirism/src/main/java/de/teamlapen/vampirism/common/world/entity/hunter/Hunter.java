@@ -18,6 +18,8 @@ import de.teamlapen.vampirism.common.world.items.CrucifixItem;
 import de.teamlapen.vampirism.common.world.entity.hunter.squad.HunterGroupData;
 import de.teamlapen.vampirism.common.world.entity.hunter.squad.HunterSquad;
 import de.teamlapen.vampirism.common.world.entity.hunter.squad.HunterSquadDebugInfo;
+import de.teamlapen.vampirism.common.world.entity.hunter.squad.PatrolArea;
+import de.teamlapen.vampirism.common.world.entity.hunter.squad.PatrolZone;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.Direction;
@@ -37,6 +39,7 @@ import net.minecraft.util.debug.DebugValueSource;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffects;
@@ -54,11 +57,11 @@ import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -69,6 +72,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -120,11 +124,12 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
     private static final float AIM_FOCUS_PER_SHOT = 0.1F;
     private static final int MAX_AIM_FOCUS_SHOTS = 4;
 
-    private static final int CAMP_POST_RADIUS = 12;
+    private static final int CAMP_POST_RADIUS = 48;
     private static final int CAMPFIRE_SEARCH_RADIUS = 10;
     private static final int CAMPFIRE_SEARCH_HEIGHT = 4;
-    private static final int OUTPOST_MIN_POST_RADIUS = 12;
-    private static final int OUTPOST_MAX_POST_RADIUS = 24;
+    private static final int OUTPOST_POST_RADIUS = 48;
+    private static final int RELAXED_MAX_FALL_DISTANCE = 1;
+    private static final float POST_PATH_LENGTH_FACTOR = 2.0F;
 
     private static final double BANNER_PICKUP_REACH = 1.0D;
     private static final int CRUCIFIX_HOLD_TICKS = 10;
@@ -135,6 +140,7 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
     private long bannerCooldownUntil;
     private int crucifixHoldTicks;
     private boolean offhandAttackNext;
+    private boolean allowingDrops;
     private final Map<Integer, ReachCheck> reachChecks = new HashMap<>();
     private int postRadius;
     private boolean needsPostCheck;
@@ -208,6 +214,7 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
     public void registerDebugValues(ServerLevel level, DebugValueSource.Registration registration) {
         super.registerDebugValues(level, registration);
         registration.register(ModDebugSubscriptions.HUNTER_SQUADS.get(), () -> HunterSquadDebugInfo.of(this));
+        registration.register(ModDebugSubscriptions.HUNTER_LOOKOUTS.get(), () -> HunterLookoutDebugInfo.of(this));
     }
 
     public double calculateVelocityFactor(double gait) {
@@ -232,8 +239,21 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
     }
 
     @Override
+    public boolean removeWhenFarAway(double distanceToClosestPlayer) {
+        return false;
+    }
+
+    @Override
     public int getMaxFallDistance() {
-        return getComfortableFallDistance(0.0F);
+        return getTarget() == null && !this.allowingDrops ? RELAXED_MAX_FALL_DISTANCE : getComfortableFallDistance(0.0F);
+    }
+
+    public boolean isAvoidingDrops() {
+        return getMaxFallDistance() == RELAXED_MAX_FALL_DISTANCE;
+    }
+
+    public void setAllowingDrops(boolean allowingDrops) {
+        this.allowingDrops = allowingDrops;
     }
 
     public boolean canReach(LivingEntity target) {
@@ -356,6 +376,7 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
         input.read(TAG_QUARREL_TYPE, Item.CODEC).ifPresent(quarrel -> this.entityData.set(DATA_QUARREL_TYPE_ID, quarrel));
         this.squadId = input.read(TAG_SQUAD_ID, UUIDUtil.CODEC).orElse(null);
         this.postRadius = input.getIntOr(TAG_POST_RADIUS, 0);
+        updatePostPathLength();
         this.entityData.set(DATA_BANNER, input.read(TAG_BANNER, ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY));
         this.ominousBanner = input.getBooleanOr(TAG_OMINOUS_BANNER, false);
         this.bannerCooldownUntil = input.getLongOr(TAG_BANNER_COOLDOWN, 0L);
@@ -409,6 +430,13 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
         this.getBrain().setMemory(MemoryModuleType.HOME, GlobalPos.of(this.level().dimension(), center));
         this.postRadius = radius;
         this.needsPostCheck = false;
+        updatePostPathLength();
+    }
+
+    private void updatePostPathLength() {
+        if (this.postRadius > 0) {
+            getNavigation().setRequiredPathLength(this.postRadius * POST_PATH_LENGTH_FACTOR);
+        }
     }
 
     public @Nullable HunterPost getPost() {
@@ -420,15 +448,26 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
         return this.postRadius > 0 ? this.postRadius : fallback;
     }
 
+    public @Nullable PatrolZone getPatrolZone() {
+        PatrolArea area = getPatrolArea();
+        if (area == null || this.squad == null || !(level() instanceof ServerLevel serverLevel)) return null;
+        return this.squad.getPatrolZone(serverLevel, area);
+    }
+
+    public @Nullable PatrolArea getPatrolArea() {
+        Brain<Hunter> brain = getBrain();
+        Optional<PatrolArea> ordered = brain.getMemory(ModMemoryTypes.SQUAD_PATROL_AREA.get());
+        if (ordered.isPresent()) return ordered.get();
+        return brain.getMemory(MemoryModuleType.HOME).map(home -> new PatrolArea(home.pos(), getPatrolRadius(HunterAi.PATROL_RADIUS))).orElse(null);
+    }
+
     private void resolveOutpostPost(ServerLevel level) {
         this.needsPostCheck = false;
         StructureStart outpost = level.structureManager().getStructureWithPieceAt(blockPosition(), ModStructureTags.HUNTER_OUTPOST);
         if (!outpost.isValid()) return;
 
-        BoundingBox box = outpost.getBoundingBox();
-        int radius = Mth.clamp(Math.max(box.getXSpan(), box.getZSpan()) / 2, OUTPOST_MIN_POST_RADIUS, OUTPOST_MAX_POST_RADIUS);
-        BlockPos center = box.getCenter();
-        assignPost(new BlockPos(center.getX(), getBlockY(), center.getZ()), radius);
+        BlockPos center = outpost.getBoundingBox().getCenter();
+        assignPost(new BlockPos(center.getX(), getBlockY(), center.getZ()), OUTPOST_POST_RADIUS);
     }
 
     protected HunterClassType chooseClass(HunterGroupData group, RandomSource random) {
@@ -548,6 +587,7 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
     // TODO: FactionRestriction only works for humans and thence npc hunters may not use all of their weapons' potential
 
     public void unsheatheWeapons() {
+        lowerSpyglass();
         putAwayCrucifix();
         ItemStack main = this.sheathedWeapons.get(0);
         if (!main.isEmpty()) {
@@ -563,6 +603,7 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
     }
 
     public void sheatheWeapons() {
+        lowerSpyglass();
         putAwayCrucifix();
         ItemStack main = this.getMainHandItem();
         ItemStack off = this.getOffhandItem();
@@ -585,6 +626,25 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
         }
     }
 
+    public boolean raiseSpyglass() {
+        if (!getMainHandItem().isEmpty()) return false;
+        setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.SPYGLASS));
+        startUsingItem(InteractionHand.MAIN_HAND);
+        playSound(SoundEvents.SPYGLASS_USE);
+        return true;
+    }
+
+    public void lowerSpyglass() {
+        if (!getMainHandItem().is(Items.SPYGLASS)) return;
+        stopUsingItem();
+        setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+        playSound(SoundEvents.SPYGLASS_STOP_USING);
+    }
+
+    public boolean isUsingSpyglass() {
+        return isUsingItem() && getUseItem().is(Items.SPYGLASS);
+    }
+
     private static boolean isCrucifix(ItemStack stack) {
         return stack.getItem() instanceof CrucifixItem;
     }
@@ -594,6 +654,7 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
     }
 
     public ItemStack drawCrucifix() {
+        lowerSpyglass();
         ItemStack crucifix = getSheathedCrucifix();
         ItemStack main = getMainHandItem();
         if (crucifix.isEmpty() || (!main.isEmpty() && !this.sheathedWeapons.get(0).isEmpty())) return ItemStack.EMPTY;
@@ -629,6 +690,7 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
 
     @Override
     public void die(DamageSource source) {
+        lowerSpyglass();
         boolean ominous = !this.dead && hasOminousBanner();
         super.die(source);
         if (ominous && this.dead && level() instanceof ServerLevel serverLevel) {

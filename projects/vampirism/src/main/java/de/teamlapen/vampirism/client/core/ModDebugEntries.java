@@ -4,6 +4,7 @@ import de.teamlapen.vampirism.api.util.VIdentifier;
 import de.teamlapen.vampirism.common.util.Helper;
 import de.teamlapen.vampirism.common.world.entity.player.vampire.VampireLeveling;
 import de.teamlapen.vampirism.common.world.entity.player.vampire.VampirePlayer;
+import de.teamlapen.vampirism.client.renderer.HunterLookoutDebugRenderer;
 import de.teamlapen.vampirism.client.renderer.HunterSquadDebugRenderer;
 import de.teamlapen.vampirism.common.core.ModDebugSubscriptions;
 import net.minecraft.client.Minecraft;
@@ -26,21 +27,27 @@ public class ModDebugEntries {
 
     public static final Identifier PASSIVE_LEVELING = VIdentifier.mod("passive_leveling");
     public static final Identifier HUNTER_SQUADS = VIdentifier.mod("hunter_squads");
+    public static final Identifier HUNTER_LOOKOUTS = VIdentifier.mod("hunter_lookouts");
 
     public static void registerDebugEntries(RegisterDebugEntriesEvent event) {
         event.register(PASSIVE_LEVELING, new PassiveLevelingEntry());
         event.includeInProfile(PASSIVE_LEVELING, DebugScreenProfile.DEFAULT, DebugScreenEntryStatus.NEVER);
         event.register(HUNTER_SQUADS, new DebugEntryNoop());
+        event.register(HUNTER_LOOKOUTS, new DebugEntryNoop());
     }
 
     public static void registerDebugRenderers(RegisterDebugRenderersEvent event) {
         if (isEnabled(HUNTER_SQUADS)) {
             event.register(HunterSquadDebugRenderer::new);
         }
+        if (isEnabled(HUNTER_LOOKOUTS)) {
+            event.register(_ -> new HunterLookoutDebugRenderer());
+        }
     }
 
     public static void addDebugSubscriptionFlags(AddDebugSubscriptionFlagsEvent event) {
         event.addFlag(ModDebugSubscriptions.HUNTER_SQUADS, isEnabled(HUNTER_SQUADS));
+        event.addFlag(ModDebugSubscriptions.HUNTER_LOOKOUTS, isEnabled(HUNTER_LOOKOUTS));
     }
 
     private static boolean isEnabled(Identifier entry) {

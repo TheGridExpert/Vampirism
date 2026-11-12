@@ -1,5 +1,7 @@
 package de.teamlapen.vampirism.common.world.entity.ai.navigation;
 
+import de.teamlapen.vampirism.common.world.entity.hunter.Hunter;
+import de.teamlapen.vampirism.common.world.entity.hunter.squad.PatrolZone;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
@@ -7,15 +9,20 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.PathNavigationRegion;
+import net.minecraft.world.level.block.LadderBlock;
+import net.minecraft.world.level.pathfinder.Node;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.level.pathfinder.PathFinder;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Set;
 
 public class HunterPathNavigation extends GroundPathNavigation {
 
     private static final int PROBE_RADIUS_OFFSET = 16;
+    private static final double MIN_PROGRESS = 2.0D;
+    private static final double LADDER_NODE_TOLERANCE = 0.25D;
 
     private PathFinder probeFinder;
 
@@ -29,6 +36,62 @@ public class HunterPathNavigation extends GroundPathNavigation {
         this.nodeEvaluator.setCanPassDoors(true);
         this.probeFinder = new PathFinder(this.nodeEvaluator, pMaxVisitedNodes);
         return this.probeFinder;
+    }
+
+    @Override
+    protected boolean canUpdatePath() {
+        return super.canUpdatePath() || isOnLadder();
+    }
+
+    @Override
+    protected void followThePath() {
+        if (this.path == null || !isOnLadder()) {
+            super.followThePath();
+            return;
+        }
+
+        BlockPos feet = this.mob.blockPosition();
+        while (!this.path.isDone()) {
+            Node next = this.path.getNextNode();
+            boolean inColumn = next.x == feet.getX() && next.z == feet.getZ();
+            if (!inColumn || Math.abs(this.mob.getY() - next.y) >= LADDER_NODE_TOLERANCE) break;
+            this.path.advance();
+        }
+        this.doStuckDetection(this.getTempMobPos());
+    }
+
+    private boolean isOnLadder() {
+        return this.mob.onClimbable() && this.level.getBlockState(this.mob.blockPosition()).getBlock() instanceof LadderBlock;
+    }
+
+    @Override
+    protected @Nullable Path createPath(Set<BlockPos> targets, int radiusOffset, boolean above, int reachRange, float maxPathLength) {
+        Path path = super.createPath(targets, radiusOffset, above, reachRange, maxPathLength);
+        if (!(this.mob instanceof Hunter hunter) || !hunter.isAvoidingDrops() || !isStranded(hunter, path, targets)) return path;
+
+        hunter.setAllowingDrops(true);
+        try {
+            Path fallback = super.createPath(targets, radiusOffset, above, reachRange, maxPathLength);
+            return fallback != null ? fallback : path;
+        } finally {
+            hunter.setAllowingDrops(false);
+        }
+    }
+
+    private boolean isStranded(Hunter hunter, @Nullable Path path, Set<BlockPos> targets) {
+        PatrolZone zone = hunter.getPatrolZone();
+        if (zone != null && zone.size() > 1) return !zone.contains(hunter.blockPosition()) && !makesProgress(path, targets);
+        return !makesProgress(path, targets);
+    }
+
+    private boolean makesProgress(@Nullable Path path, Set<BlockPos> targets) {
+        if (path == null) return false;
+        if (path.canReach()) return true;
+
+        Node end = path.getEndNode();
+        if (end == null) return false;
+        BlockPos start = this.mob.blockPosition();
+        return targets.stream().anyMatch(target -> Math.sqrt(end.asBlockPos().distSqr(target)) + MIN_PROGRESS <= Math.sqrt(start.distSqr(target)));
     }
 
     public boolean canReach(Entity target, int reachRange) {

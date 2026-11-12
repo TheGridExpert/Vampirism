@@ -13,8 +13,10 @@ import net.minecraft.world.entity.ai.memory.NearestVisibleLivingEntities;
 import net.minecraft.world.entity.ai.sensing.Sensor;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
@@ -23,6 +25,8 @@ public class HunterSpecificSensor extends Sensor<LivingEntity> {
     private static final double NOTICE_RANGE_FACTOR = 0.75D;
     private static final double WATER_VISIBILITY_FACTOR = 0.25D;
     private static final double ALLY_TARGET_RANGE = 15.0D;
+    private static final double SPYGLASS_RANGE_FACTOR = 2.5D;
+    private static final double SPYGLASS_CONE_COS = Math.cos(Math.toRadians(20.0D));
 
     @Override
     public Set<MemoryModuleType<?>> requires() {
@@ -62,6 +66,10 @@ public class HunterSpecificSensor extends Sensor<LivingEntity> {
             }
         }
 
+        if (hunter.isUsingSpyglass()) {
+            addSpottedThroughSpyglass(level, hunter, getSpyglassRange(hunter), hostiles);
+        }
+
         brain.setMemory(ModMemoryTypes.NEAREST_VISIBLE_HUNTERS.get(), hunters);
         brain.setMemory(ModMemoryTypes.NEAREST_VISIBLE_HOSTILES.get(), hostiles);
         brain.setMemory(ModMemoryTypes.NEAREST_VISIBLE_INFECTED_ENTITIES.get(), infectedEntities);
@@ -77,6 +85,22 @@ public class HunterSpecificSensor extends Sensor<LivingEntity> {
                 });
             }
         }
+    }
+
+    private static double getSpyglassRange(Hunter hunter) {
+        return hunter.getAttributeValue(Attributes.FOLLOW_RANGE) * NOTICE_RANGE_FACTOR * SPYGLASS_RANGE_FACTOR;
+    }
+
+    private static void addSpottedThroughSpyglass(ServerLevel level, Hunter hunter, double range, List<LivingEntity> hostiles) {
+        Vec3 eye = hunter.getEyePosition();
+        Vec3 view = hunter.getViewVector(1.0F);
+        level.getEntitiesOfClass(LivingEntity.class, hunter.getBoundingBox().inflate(range), target -> {
+            if (target == hunter || !target.isAlive() || target.isInvisible() || hostiles.contains(target)) return false;
+            Vec3 toTarget = target.getEyePosition().subtract(eye);
+            double distanceSqr = toTarget.lengthSqr();
+            if (distanceSqr > range * range || toTarget.normalize().dot(view) < SPYGLASS_CONE_COS) return false;
+            return HunterAi.isEnemy(target, hunter) && hunter.hasLineOfSight(target) && !isSeenThroughWater(level, hunter, target);
+        }).stream().sorted(Comparator.comparingDouble(hunter::distanceToSqr)).forEach(hostiles::add);
     }
 
     private static boolean isNoticeable(ServerLevel level, Hunter hunter, LivingEntity target, double noticeRange) {

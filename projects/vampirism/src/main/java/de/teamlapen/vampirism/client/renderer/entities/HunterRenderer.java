@@ -3,6 +3,7 @@ package de.teamlapen.vampirism.client.renderer.entities;
 import com.mojang.blaze3d.vertex.PoseStack;
 import de.teamlapen.vampirism.client.VampirismModClient;
 import de.teamlapen.vampirism.client.models.entities.ClothedModel;
+import de.teamlapen.vampirism.client.renderer.entities.layers.HunterItemInHandLayer;
 import de.teamlapen.vampirism.client.renderer.entities.state.AvatarLikeRenderState;
 import de.teamlapen.vampirism.common.core.ModAttachments;
 import de.teamlapen.vampirism.common.world.entity.hunter.AdvancedHunter;
@@ -12,15 +13,20 @@ import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.ArmorModelSet;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.core.ClientAsset;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.player.PlayerModelType;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.entity.player.PlayerSkin;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.common.ItemAbilities;
 import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
@@ -42,6 +48,8 @@ public class HunterRenderer extends DualBipedRenderer<Hunter, HunterRenderer.Hun
                 ArmorModelSet.bake(ModelLayers.PLAYER_SLIM_ARMOR, context.getModelSet(), x -> new ClothedModel<>(x, true)),
                 ArmorModelSet.bake(ModelLayers.PLAYER_ARMOR, context.getModelSet(), x -> new ClothedModel<>(x, false)),
                 context.getEquipmentRenderer()));
+        this.layers.removeIf(layer -> layer instanceof ItemInHandLayer);
+        this.addLayer(new HunterItemInHandLayer(this));
     }
 
     @Override
@@ -60,8 +68,28 @@ public class HunterRenderer extends DualBipedRenderer<Hunter, HunterRenderer.Hun
         super.extractRenderState(hunter, state, partialTick);
         state.skin = findSkin(hunter);
         extractBanner(hunter, state);
+        extractHeldOnHead(hunter, state);
         Component title = hunter instanceof AdvancedHunter advanced && !advanced.hasCustomName() ? advanced.getTitle() : null;
         state.title = title == null ? null : title.copy().withColor(TITLE_COLOR);
+    }
+
+    @Override
+    protected HumanoidModel.ArmPose getArmPose(Hunter hunter, HumanoidArm arm) {
+        InteractionHand hand = arm == hunter.getMainArm() ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
+        if (hunter.isUsingItem() && hunter.getUsedItemHand() == hand && hunter.getItemInHand(hand).canPerformAction(ItemAbilities.SPYGLASS_SCOPE)) {
+            return HumanoidModel.ArmPose.SPYGLASS;
+        }
+        return super.getArmPose(hunter, arm);
+    }
+
+    private void extractHeldOnHead(Hunter hunter, HunterRenderState state) {
+        state.heldOnHead.clear();
+        if (!state.isUsingItem) return;
+
+        ItemStack useItem = hunter.getItemInHand(state.useItemHand);
+        if (useItem.canPerformAction(ItemAbilities.SPYGLASS_SCOPE)) {
+            this.itemModelResolver.updateForLiving(state.heldOnHead, useItem, ItemDisplayContext.HEAD, hunter);
+        }
     }
 
     private void extractBanner(Hunter hunter, HunterRenderState state) {
@@ -98,5 +126,6 @@ public class HunterRenderer extends DualBipedRenderer<Hunter, HunterRenderer.Hun
 
     public static class HunterRenderState extends AvatarLikeRenderState {
         public @Nullable Component title;
+        public final ItemStackRenderState heldOnHead = new ItemStackRenderState();
     }
 }
