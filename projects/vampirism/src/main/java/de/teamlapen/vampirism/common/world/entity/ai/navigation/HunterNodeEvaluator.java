@@ -71,7 +71,7 @@ public class HunterNodeEvaluator extends WalkNodeEvaluator {
             if (isLadder(x, y, z)) return createClimbNode(x, y, z);
             if (isLadder(x, y - 1, z)) return createClimbNode(x, y - 1, z);
         }
-        if (node == null) return null;
+        if (node == null || node.costMalus < 0.0F) return node;
 
         if (node.type == PathType.WALKABLE && this.currentContext.level().getFluidState(node.asBlockPos()).is(FluidTags.WATER)) {
             node.costMalus = Math.max(node.costMalus, FORD_MALUS);
@@ -95,8 +95,9 @@ public class HunterNodeEvaluator extends WalkNodeEvaluator {
 
     @Override
     public int getNeighbors(Node[] neighbors, Node node) {
-        int count = super.getNeighbors(neighbors, node);
-        if (!isLadder(node.x, node.y, node.z)) return count;
+        boolean onLadder = isLadder(node.x, node.y, node.z);
+        int count = filterNeighbors(neighbors, super.getNeighbors(neighbors, node), node, onLadder);
+        if (!onLadder) return count;
 
         if (count < neighbors.length && isLadder(node.x, node.y + 1, node.z) && hasBodySpace(node.x, node.y + 1, node.z)) {
             count = addIfValid(neighbors, count, createClimbNode(node.x, node.y + 1, node.z), node);
@@ -105,6 +106,18 @@ public class HunterNodeEvaluator extends WalkNodeEvaluator {
             count = addIfValid(neighbors, count, createClimbNode(node.x, node.y - 1, node.z), node);
         }
         return count;
+    }
+
+    private int filterNeighbors(Node[] neighbors, int count, Node current, boolean onLadder) {
+        int kept = 0;
+        for (int i = 0; i < count; i++) {
+            Node neighbor = neighbors[i];
+            boolean diagonal = neighbor.x != current.x && neighbor.z != current.z;
+            if (diagonal && (onLadder || isLadder(neighbor.x, neighbor.y, neighbor.z))) continue;
+            if (onLadder && (neighbor.y < current.y || neighbor.costMalus < 0.0F || neighbor.type == PathType.OPEN || neighbor.type == PathType.BLOCKED)) continue;
+            neighbors[kept++] = neighbor;
+        }
+        return kept;
     }
 
     private int addIfValid(Node[] neighbors, int count, Node candidate, Node current) {

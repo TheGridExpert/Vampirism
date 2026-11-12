@@ -372,7 +372,9 @@ public class HunterSquad {
     }
 
     public void tickBannerPursuit() {
-        if (this.droppedBanner == null || ++this.bannerPursuitTicks < BANNER_RECOVERY_TIMEOUT) return;
+        if (this.droppedBanner == null) return;
+        this.bannerPursuitTicks++;
+        if (this.bannerPursuitTicks < BANNER_RECOVERY_TIMEOUT) return;
 
         this.abandonedBanners.add(this.droppedBanner.getUUID());
         setDroppedBanner(null);

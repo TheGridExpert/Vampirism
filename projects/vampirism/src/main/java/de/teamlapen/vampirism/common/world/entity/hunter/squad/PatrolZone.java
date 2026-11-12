@@ -3,8 +3,6 @@ package de.teamlapen.vampirism.common.world.entity.hunter.squad;
 import it.unimi.dsi.fastutil.longs.Long2IntMap;
 import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongArrayFIFOQueue;
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
-import it.unimi.dsi.fastutil.longs.LongSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -21,12 +19,12 @@ public class PatrolZone {
 
     private final long scannedAt;
     private final Long2IntMap surfaces;
-    private final LongSet ladders;
+    private final Long2IntMap ladderTops;
 
-    private PatrolZone(long scannedAt, Long2IntMap surfaces, LongSet ladders) {
+    private PatrolZone(long scannedAt, Long2IntMap surfaces, Long2IntMap ladderTops) {
         this.scannedAt = scannedAt;
         this.surfaces = surfaces;
-        this.ladders = ladders;
+        this.ladderTops = ladderTops;
     }
 
     public static PatrolZone scan(ServerLevel level, PatrolArea area) {
@@ -35,7 +33,7 @@ public class PatrolZone {
         Long2IntMap surfaces = new Long2IntOpenHashMap();
         surfaces.defaultReturnValue(Integer.MIN_VALUE);
         LongArrayFIFOQueue queue = new LongArrayFIFOQueue();
-        LongSet ladders = new LongOpenHashSet();
+        Long2IntMap ladderTops = new Long2IntOpenHashMap();
 
         if (level.hasChunkAt(center)) {
             long start = key(center.getX(), center.getZ());
@@ -65,12 +63,12 @@ public class PatrolZone {
                         || isLadderLink(level, x, z, surface, nextSurface);
                 if (!connected || !isWalkableColumn(level, nx, nextSurface, nz)) continue;
 
-                if (isLadder(level, nx, nextSurface - 1, nz)) ladders.add(next);
+                if (isLadder(level, nx, nextSurface, nz)) ladderTops.put(next, findLadderTop(level, nx, nextSurface, nz));
                 surfaces.put(next, nextSurface);
                 queue.enqueue(next);
             }
         }
-        return new PatrolZone(level.getGameTime(), surfaces, ladders);
+        return new PatrolZone(level.getGameTime(), surfaces, ladderTops);
     }
 
     public boolean isExpired(long gameTime) {
@@ -83,21 +81,21 @@ public class PatrolZone {
 
     public boolean hasColumn(int x, int z) {
         long key = key(x, z);
-        return this.surfaces.containsKey(key) && !this.ladders.contains(key);
+        return this.surfaces.containsKey(key) && !this.ladderTops.containsKey(key);
     }
 
     public boolean contains(BlockPos pos) {
         long key = key(pos.getX(), pos.getZ());
         int surface = this.surfaces.get(key);
         if (surface == Integer.MIN_VALUE) return false;
-        if (this.ladders.contains(key)) return pos.getY() <= surface;
+        if (this.ladderTops.containsKey(key)) return pos.getY() >= surface - MAX_VERTICAL_TOLERANCE && pos.getY() <= this.ladderTops.get(key) + 1;
         return Math.abs(pos.getY() - surface) <= MAX_VERTICAL_TOLERANCE;
     }
 
     public void forEachStandableColumn(ColumnVisitor visitor) {
         for (Long2IntMap.Entry entry : this.surfaces.long2IntEntrySet()) {
             long key = entry.getLongKey();
-            if (!this.ladders.contains(key)) visitor.visit(getX(key), entry.getIntValue(), getZ(key));
+            if (!this.ladderTops.containsKey(key)) visitor.visit(getX(key), entry.getIntValue(), getZ(key));
         }
     }
 
@@ -106,13 +104,16 @@ public class PatrolZone {
     }
 
     private static boolean isLadderLink(ServerLevel level, int ladderX, int ladderZ, int ladderSurface, int otherSurface) {
-        int y = ladderSurface - 1;
-        if (!isLadder(level, ladderX, y, ladderZ)) return false;
+        if (!isLadder(level, ladderX, ladderSurface, ladderZ)) return false;
+        return Math.abs(otherSurface - (findLadderTop(level, ladderX, ladderSurface, ladderZ) + 1)) <= MAX_STEP;
+    }
 
-        while (isLadder(level, ladderX, y - 1, ladderZ)) {
-            y--;
+    private static int findLadderTop(ServerLevel level, int x, int bottom, int z) {
+        int y = bottom;
+        while (isLadder(level, x, y + 1, z)) {
+            y++;
         }
-        return Math.abs(otherSurface - y) <= MAX_STEP;
+        return y;
     }
 
     private static boolean isLadder(ServerLevel level, int x, int y, int z) {

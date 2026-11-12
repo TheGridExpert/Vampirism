@@ -163,7 +163,8 @@ public class KeepLookout extends Behavior<Hunter> {
         }
 
         if (brain.hasMemoryValue(MemoryModuleType.WALK_TARGET)) return;
-        if (brain.hasMemoryValue(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE) || ++this.walkAttempts >= MAX_WALK_ATTEMPTS) {
+        this.walkAttempts++;
+        if (brain.hasMemoryValue(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE) || this.walkAttempts >= MAX_WALK_ATTEMPTS) {
             this.spots.reject(this.spot);
             if (this.spot.equals(this.favourite)) this.favourite = null;
             this.failed = true;

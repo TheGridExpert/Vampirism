@@ -1,8 +1,10 @@
 package de.teamlapen.vampirism.common.world.entity.ai.navigation;
 
 import de.teamlapen.vampirism.common.world.entity.hunter.Hunter;
+import de.teamlapen.vampirism.common.world.entity.hunter.HunterMoveControl;
 import de.teamlapen.vampirism.common.world.entity.hunter.squad.PatrolZone;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -13,6 +15,7 @@ import net.minecraft.world.level.block.LadderBlock;
 import net.minecraft.world.level.pathfinder.Node;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.level.pathfinder.PathFinder;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.Nullable;
 
@@ -23,8 +26,11 @@ public class HunterPathNavigation extends GroundPathNavigation {
     private static final int PROBE_RADIUS_OFFSET = 16;
     private static final double MIN_PROGRESS = 2.0D;
     private static final double LADDER_NODE_TOLERANCE = 0.25D;
+    private static final double EDGE_NODE_TOLERANCE = 0.25D;
+    private static final double FALL_TOLERANCE = 0.5D;
 
     private PathFinder probeFinder;
+    private @Nullable Path dropPath;
 
     public HunterPathNavigation(Mob mob, Level level) {
         super(mob, level);
@@ -43,13 +49,34 @@ public class HunterPathNavigation extends GroundPathNavigation {
         return super.canUpdatePath() || isOnLadder();
     }
 
+    public boolean isFollowingDropPath() {
+        return this.path != null && this.path == this.dropPath;
+    }
+
+    @Override
+    public void tick() {
+        if (!isDone() && hasFallenUnexpectedly()) stop();
+        super.tick();
+    }
+
+    private boolean hasFallenUnexpectedly() {
+        if (this.mob.onGround() || this.mob.onClimbable() || this.mob.isInLiquid() || isFollowingDropPath()) return false;
+        return this.mob.fallDistance > this.mob.getMaxFallDistance() + FALL_TOLERANCE;
+    }
+
     @Override
     protected void followThePath() {
-        if (this.path == null || !isOnLadder()) {
+        if (this.path == null) return;
+        if (isOnLadder()) {
+            followLadder();
+        } else if (isNearDrop()) {
+            followPrecisely();
+        } else {
             super.followThePath();
-            return;
         }
+    }
 
+    private void followLadder() {
         BlockPos feet = this.mob.blockPosition();
         while (!this.path.isDone()) {
             Node next = this.path.getNextNode();
@@ -60,8 +87,30 @@ public class HunterPathNavigation extends GroundPathNavigation {
         this.doStuckDetection(this.getTempMobPos());
     }
 
+    private void followPrecisely() {
+        Vec3 mobPos = this.getTempMobPos();
+        Node next = this.path.getNextNode();
+        double dx = Math.abs(this.mob.getX() - (next.x + 0.5D));
+        double dz = Math.abs(this.mob.getZ() - (next.z + 0.5D));
+        if (dx <= EDGE_NODE_TOLERANCE && dz <= EDGE_NODE_TOLERANCE && Math.abs(this.mob.getY() - next.y) < 1.0D) {
+            this.path.advance();
+        }
+        this.doStuckDetection(mobPos);
+    }
+
+    private boolean isNearDrop() {
+        if (!(this.mob instanceof Hunter hunter) || isFollowingDropPath()) return false;
+        BlockPos feet = this.mob.blockPosition();
+        int maxFall = hunter.getMaxFallDistance();
+        for (Direction direction : Direction.Plane.HORIZONTAL) {
+            if (!HunterMoveControl.hasSupport(this.level, feet.getX() + direction.getStepX(), feet.getY(), feet.getZ() + direction.getStepZ(), maxFall)) return true;
+        }
+        return false;
+    }
+
     private boolean isOnLadder() {
-        return this.mob.onClimbable() && this.level.getBlockState(this.mob.blockPosition()).getBlock() instanceof LadderBlock;
+        BlockPos feet = this.mob.blockPosition();
+        return this.level.getBlockState(feet).getBlock() instanceof LadderBlock || this.level.getBlockState(feet.below()).getBlock() instanceof LadderBlock;
     }
 
     @Override
@@ -72,7 +121,9 @@ public class HunterPathNavigation extends GroundPathNavigation {
         hunter.setAllowingDrops(true);
         try {
             Path fallback = super.createPath(targets, radiusOffset, above, reachRange, maxPathLength);
-            return fallback != null ? fallback : path;
+            if (fallback == null) return path;
+            this.dropPath = fallback;
+            return fallback;
         } finally {
             hunter.setAllowingDrops(false);
         }

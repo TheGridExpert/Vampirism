@@ -129,6 +129,7 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
     private static final int CAMPFIRE_SEARCH_HEIGHT = 4;
     private static final int OUTPOST_POST_RADIUS = 48;
     private static final int RELAXED_MAX_FALL_DISTANCE = 1;
+    private static final double LOOKOUT_HOLD_DISTANCE_SQR = 1.5D * 1.5D;
     private static final float POST_PATH_LENGTH_FACTOR = 2.0F;
 
     private static final double BANNER_PICKUP_REACH = 1.0D;
@@ -155,6 +156,7 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
         this.getNavigation().setCanFloat(true);
         this.getNavigation().setRequiredPathLength(48.0F);
         this.moveControl = new HunterMoveControl(this);
+        this.jumpControl = new HunterJumpControl(this);
     }
 
     public static boolean checkHunterSpawnRules(EntityType<Hunter> entityType, LevelAccessor level, EntitySpawnReason spawnReason, BlockPos pos, RandomSource random) {
@@ -202,8 +204,9 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
         profilerFiller.pop();
         HunterAi.updateActivity(this);
 
-        if (this.crucifixHoldTicks > 0 && --this.crucifixHoldTicks == 0) {
-            putAwayCrucifix();
+        if (this.crucifixHoldTicks > 0) {
+            this.crucifixHoldTicks--;
+            if (this.crucifixHoldTicks == 0) putAwayCrucifix();
         }
         handleNaturalRegeneration(level);
 
@@ -244,8 +247,23 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
     }
 
     @Override
+    public boolean isPushable() {
+        return super.isPushable() && !isAtLookoutSpot();
+    }
+
+    private boolean isAtLookoutSpot() {
+        return getBrain().getMemory(ModMemoryTypes.LOOKOUT_SPOT.get())
+                .filter(spot -> spot.distToCenterSqr(getX(), getY(), getZ()) < LOOKOUT_HOLD_DISTANCE_SQR)
+                .isPresent();
+    }
+
+    @Override
     public int getMaxFallDistance() {
-        return getTarget() == null && !this.allowingDrops ? RELAXED_MAX_FALL_DISTANCE : getComfortableFallDistance(0.0F);
+        return getTarget() == null && !this.allowingDrops ? RELAXED_MAX_FALL_DISTANCE : getDropFallDistance();
+    }
+
+    public int getDropFallDistance() {
+        return getComfortableFallDistance(0.0F);
     }
 
     public boolean isAvoidingDrops() {
