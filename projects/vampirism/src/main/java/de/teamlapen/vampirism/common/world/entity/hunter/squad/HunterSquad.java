@@ -4,6 +4,7 @@ import de.teamlapen.vampirism.common.core.ModMemoryTypes;
 import de.teamlapen.vampirism.common.world.entity.hunter.Hunter;
 import de.teamlapen.vampirism.common.world.entity.hunter.HunterPost;
 import de.teamlapen.vampirism.common.world.entity.hunter.LookoutSpots;
+import de.teamlapen.vampirism.common.world.entity.hunter.routine.PastimePlanner;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
@@ -93,6 +94,7 @@ public class HunterSquad {
         mergeWithVisibleSquads();
         promoteStrongerLeader();
         updateBanner(level);
+        PastimePlanner.tick(level, this);
 
         if (this.members.size() < 2) return;
 

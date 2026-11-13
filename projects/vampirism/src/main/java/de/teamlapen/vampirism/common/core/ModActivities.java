@@ -27,6 +27,7 @@ public class ModActivities {
     public static final DeferredHolder<Activity, Activity> DRACULA_BAT_SWARM_DASH = create("dracula.bat_swarm_dash");
 
     public static final DeferredHolder<Activity, Activity> HUNTER_EVADE = create("hunter.evade");
+    public static final DeferredHolder<Activity, Activity> HUNTER_FISH = create("hunter.fish");
 
     private static DeferredHolder<Activity, Activity> create(String name) {
         return ACTIVITIES.register(name, () -> new Activity(VIdentifier.modString(name)));

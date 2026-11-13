@@ -214,7 +214,7 @@ public class LookoutSpots {
         return total / 4.0D;
     }
 
-    private static boolean canStandAt(ServerLevel level, BlockPos spot) {
+    public static boolean canStandAt(ServerLevel level, BlockPos spot) {
         BlockPos below = spot.below();
         BlockState ground = level.getBlockState(below);
         if (ground.getBlock() instanceof TentBlock || ground.is(BlockTags.CAMPFIRES) || !ground.getFluidState().isEmpty()) return false;

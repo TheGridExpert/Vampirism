@@ -67,7 +67,8 @@ public class KeepLookout extends Behavior<Hunter> {
                 ModMemoryTypes.SQUAD_POSITION.get(), MemoryStatus.VALUE_ABSENT,
                 ModMemoryTypes.CURE_TARGET.get(), MemoryStatus.VALUE_ABSENT,
                 ModMemoryTypes.WEAPONS_UNSHEATHED.get(), MemoryStatus.VALUE_ABSENT,
-                ModMemoryTypes.SHOULD_RETREAT.get(), MemoryStatus.VALUE_ABSENT
+                ModMemoryTypes.SHOULD_RETREAT.get(), MemoryStatus.VALUE_ABSENT,
+                ModMemoryTypes.PASTIME.get(), MemoryStatus.VALUE_ABSENT
         ), MAX_DURATION);
         this.speed = speed;
     }
@@ -137,7 +138,8 @@ public class KeepLookout extends Behavior<Hunter> {
         return !this.failed && gameTime < this.phaseEnd && hunter.isRangedClass()
                 && !brain.hasMemoryValue(MemoryModuleType.ATTACK_TARGET)
                 && !brain.hasMemoryValue(ModMemoryTypes.SQUAD_POSITION.get())
-                && !brain.hasMemoryValue(ModMemoryTypes.SHOULD_RETREAT.get());
+                && !brain.hasMemoryValue(ModMemoryTypes.SHOULD_RETREAT.get())
+                && !brain.hasMemoryValue(ModMemoryTypes.PASTIME.get());
     }
 
     @Override

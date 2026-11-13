@@ -4,6 +4,8 @@ import com.mojang.serialization.Codec;
 import de.teamlapen.vampirism.REFERENCE;
 import de.teamlapen.vampirism.common.util.serialization.ModCodecs;
 import de.teamlapen.vampirism.common.world.entity.ai.memory.HurtByEntities;
+import de.teamlapen.vampirism.common.world.entity.hunter.routine.FishingSpot;
+import de.teamlapen.vampirism.common.world.entity.hunter.routine.Pastime;
 import de.teamlapen.vampirism.common.world.entity.hunter.squad.PatrolArea;
 import de.teamlapen.vampirism.common.world.entity.ai.system.AiSystem;
 import net.minecraft.core.BlockPos;
@@ -104,6 +106,10 @@ public class ModMemoryTypes {
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Vec3>> SQUAD_POSITION = transientMemory("hunter.squad_position");
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Unit>> SQUAD_RETREAT = transientMemory("hunter.squad_retreat");
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<PatrolArea>> SQUAD_PATROL_AREA = transientMemory("hunter.squad_patrol_area");
+    public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Long>> PLANNED_PERIOD = longInt("hunter.planned_period");
+    public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Pastime>> PASTIME = transientMemory("hunter.pastime");
+    public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Integer>> PASTIME_DURATION = transientMemory("hunter.pastime_duration");
+    public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<FishingSpot>> FISHING_SPOT = transientMemory("hunter.fishing_spot");
     //</editor-fold>
 
 

@@ -1,6 +1,7 @@
 package de.teamlapen.vampirism.common.world.entity.hunter.brain;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.util.Pair;
 import de.teamlapen.vampirism.common.core.ModActivities;
 import de.teamlapen.vampirism.common.core.ModEntities;
@@ -19,6 +20,7 @@ import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.behavior.*;
 import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.sensing.Sensor;
 import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.monster.Monster;
@@ -109,7 +111,11 @@ public class HunterAi {
             ModMemoryTypes.SQUAD_TARGET.get(),
             ModMemoryTypes.SQUAD_POSITION.get(),
             ModMemoryTypes.SQUAD_RETREAT.get(),
-            ModMemoryTypes.SQUAD_PATROL_AREA.get()
+            ModMemoryTypes.SQUAD_PATROL_AREA.get(),
+            ModMemoryTypes.PLANNED_PERIOD.get(),
+            ModMemoryTypes.PASTIME.get(),
+            ModMemoryTypes.PASTIME_DURATION.get(),
+            ModMemoryTypes.FISHING_SPOT.get()
     );
 
     @SuppressWarnings("deprecation")
@@ -123,6 +129,7 @@ public class HunterAi {
         return List.of(
                 initCoreActivity(),
                 initPatrolActivity(),
+                initFishActivity(),
                 initFightActivity(),
                 initRetreatActivity(),
                 initEvadeActivity()
@@ -173,6 +180,18 @@ public class HunterAi {
                         CureTargetIfClose.create(CURING_RANGE, STARE_TICKS_AFTER_CURING),
                         StartAttacking.create((_, _) -> true, HunterAi::findNearestValidAttackTarget)
                 )
+        );
+    }
+
+    private static ActivityData<Hunter> initFishActivity() {
+        return ActivityData.create(
+                ModActivities.HUNTER_FISH.get(),
+                5,
+                ImmutableList.of(
+                        new GoFishing(SPEED_MULTIPLIER_WHEN_FOLLOWING),
+                        StartAttacking.create((_, _) -> true, HunterAi::findNearestValidAttackTarget)
+                ),
+                ImmutableSet.of(Pair.of(ModMemoryTypes.FISHING_SPOT.get(), MemoryStatus.VALUE_PRESENT))
         );
     }
 
@@ -237,6 +256,7 @@ public class HunterAi {
                 ModActivities.HUNTER_EVADE.get(),
                 Activity.AVOID,
                 Activity.FIGHT,
+                ModActivities.HUNTER_FISH.get(),
                 Activity.IDLE
         ));
 

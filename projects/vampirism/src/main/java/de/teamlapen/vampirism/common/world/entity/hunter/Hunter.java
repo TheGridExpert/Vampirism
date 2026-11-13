@@ -107,6 +107,7 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
     public static final String TAG_BANNER = "Banner";
     public static final String TAG_OMINOUS_BANNER = "OminousBanner";
     public static final String TAG_BANNER_COOLDOWN = "BannerCooldownUntil";
+    public static final String TAG_FISHING_INTEREST = "FishingInterest";
 
     private static final int MIN_LEVEL = 1;
     protected static final int MAX_LEVEL = REFERENCE.HIGHEST_HUNTER_LEVEL;
@@ -155,9 +156,11 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
     private int focusShots;
     private @Nullable HunterSquad squad;
     private @Nullable UUID squadId;
+    private float fishingInterest;
 
     public Hunter(EntityType<? extends PathfinderMob> entityType, Level level) {
         super(entityType, level);
+        this.fishingInterest = this.random.nextFloat();
         this.getNavigation().setCanOpenDoors(true);
         this.getNavigation().setCanFloat(true);
         this.getNavigation().setRequiredPathLength(48.0F);
@@ -194,6 +197,12 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
     @Override
     public @Nullable LivingEntity getTarget() {
         return this.getTargetFromBrain();
+    }
+
+    @Override
+    public void aiStep() {
+        this.updateSwingTime();
+        super.aiStep();
     }
 
     @Override
@@ -375,6 +384,7 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
         output.store(TAG_BANNER, ItemStack.OPTIONAL_CODEC, getBanner());
         output.putBoolean(TAG_OMINOUS_BANNER, this.ominousBanner);
         output.putLong(TAG_BANNER_COOLDOWN, this.bannerCooldownUntil);
+        output.putFloat(TAG_FISHING_INTEREST, this.fishingInterest);
     }
 
     @Override
@@ -404,6 +414,7 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
         this.entityData.set(DATA_BANNER, input.read(TAG_BANNER, ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY));
         this.ominousBanner = input.getBooleanOr(TAG_OMINOUS_BANNER, false);
         this.bannerCooldownUntil = input.getLongOr(TAG_BANNER_COOLDOWN, 0L);
+        this.fishingInterest = input.getFloatOr(TAG_FISHING_INTEREST, this.fishingInterest);
         if (isCrucifix(getMainHandItem())) this.crucifixHoldTicks = 1;
     }
 
@@ -621,6 +632,7 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
 
     public void unsheatheWeapons() {
         lowerSpyglass();
+        putAwayFishingRod();
         putAwayCrucifix();
         ItemStack main = this.sheathedWeapons.get(0);
         if (!main.isEmpty()) {
@@ -637,6 +649,7 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
 
     public void sheatheWeapons() {
         lowerSpyglass();
+        putAwayFishingRod();
         putAwayCrucifix();
         ItemStack main = this.getMainHandItem();
         ItemStack off = this.getOffhandItem();
@@ -678,6 +691,21 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
         return isUsingItem() && getUseItem().is(Items.SPYGLASS);
     }
 
+    public boolean takeOutFishingRod() {
+        if (getMainHandItem().is(Items.FISHING_ROD)) return true;
+        if (!getMainHandItem().isEmpty()) return false;
+        setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.FISHING_ROD));
+        return true;
+    }
+
+    public void putAwayFishingRod() {
+        if (getMainHandItem().is(Items.FISHING_ROD)) setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+    }
+
+    public float getFishingInterest() {
+        return this.fishingInterest;
+    }
+
     private static boolean isCrucifix(ItemStack stack) {
         return stack.getItem() instanceof CrucifixItem;
     }
@@ -688,6 +716,7 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
 
     public ItemStack drawCrucifix() {
         lowerSpyglass();
+        putAwayFishingRod();
         ItemStack crucifix = getSheathedCrucifix();
         ItemStack main = getMainHandItem();
         if (crucifix.isEmpty() || (!main.isEmpty() && !this.sheathedWeapons.get(0).isEmpty())) return ItemStack.EMPTY;
@@ -724,6 +753,7 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
     @Override
     public void die(DamageSource source) {
         lowerSpyglass();
+        putAwayFishingRod();
         boolean ominous = !this.dead && hasOminousBanner();
         super.die(source);
         if (ominous && this.dead && level() instanceof ServerLevel serverLevel) {
