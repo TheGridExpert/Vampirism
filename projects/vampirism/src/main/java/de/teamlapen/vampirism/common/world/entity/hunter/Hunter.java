@@ -59,6 +59,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Blocks;
@@ -130,6 +131,7 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
     private static final int OUTPOST_POST_RADIUS = 48;
     private static final int RELAXED_MAX_FALL_DISTANCE = 1;
     private static final double LOOKOUT_HOLD_DISTANCE_SQR = 1.5D * 1.5D;
+    private static final double ENGAGE_MARGIN = 4.0D;
     private static final float POST_PATH_LENGTH_FACTOR = 2.0F;
 
     private static final double BANNER_PICKUP_REACH = 1.0D;
@@ -477,6 +479,16 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
         Optional<PatrolArea> ordered = brain.getMemory(ModMemoryTypes.SQUAD_PATROL_AREA.get());
         if (ordered.isPresent()) return ordered.get();
         return brain.getMemory(MemoryModuleType.HOME).map(home -> new PatrolArea(home.pos(), getPatrolRadius(HunterAi.PATROL_RADIUS))).orElse(null);
+    }
+
+    public boolean isWithinEngageRange(Vec3 pos) {
+        PatrolArea area = getPatrolArea();
+        double centerX = area != null ? area.center().getX() + 0.5D : getX();
+        double centerZ = area != null ? area.center().getZ() + 0.5D : getZ();
+        double range = (area != null ? area.radius() : HunterAi.PATROL_RADIUS) + ENGAGE_MARGIN;
+        double dx = pos.x - centerX;
+        double dz = pos.z - centerZ;
+        return dx * dx + dz * dz <= range * range;
     }
 
     private void resolveOutpostPost(ServerLevel level) {

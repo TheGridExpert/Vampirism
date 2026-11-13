@@ -4,6 +4,7 @@ import de.teamlapen.vampirism.common.core.ModEffects;
 import de.teamlapen.vampirism.common.core.ModMemoryTypes;
 import de.teamlapen.vampirism.common.world.entity.hunter.Hunter;
 import de.teamlapen.vampirism.common.world.entity.hunter.HunterAi;
+import de.teamlapen.vampirism.common.world.entity.hunter.HunterThreats;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.Brain;
@@ -60,7 +61,7 @@ public class HunterSpecificSensor extends Sensor<LivingEntity> {
             }
 
             if (HunterAi.isEnemy(target, hunter)) {
-                hostiles.add(target);
+                if (!HunterThreats.isDistraction(hunter, target)) hostiles.add(target);
             } else if (target.hasEffect(ModEffects.SANGUINARE)) {
                 infectedEntities.add(target);
             }
@@ -99,7 +100,7 @@ public class HunterSpecificSensor extends Sensor<LivingEntity> {
             Vec3 toTarget = target.getEyePosition().subtract(eye);
             double distanceSqr = toTarget.lengthSqr();
             if (distanceSqr > range * range || toTarget.normalize().dot(view) < SPYGLASS_CONE_COS) return false;
-            return HunterAi.isEnemy(target, hunter) && hunter.hasLineOfSight(target) && !isSeenThroughWater(level, hunter, target);
+            return HunterAi.isEnemy(target, hunter) && !HunterThreats.isDistraction(hunter, target) && hunter.hasLineOfSight(target) && !isSeenThroughWater(level, hunter, target);
         }).stream().sorted(Comparator.comparingDouble(hunter::distanceToSqr)).forEach(hostiles::add);
     }
 

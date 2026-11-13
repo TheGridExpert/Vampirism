@@ -1,6 +1,7 @@
 package de.teamlapen.vampirism.common.world.entity.hunter;
 
 import de.teamlapen.vampirism.common.tags.ModEntityTags;
+import de.teamlapen.vampirism.common.util.Helper;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -12,6 +13,11 @@ public class HunterThreats {
 
     public static final double EXPLOSIVE_MIN_SHOOT_DISTANCE = 10.0D;
     public static final double CHARGED_EXPLOSIVE_MIN_SHOOT_DISTANCE = 14.0D;
+
+    public static boolean isDistraction(Hunter hunter, LivingEntity target) {
+        if (Helper.isVampire(target) || hunter.getLastHurtByMob() == target || isProvoked(target)) return false;
+        return !hunter.isWithinEngageRange(target.position());
+    }
 
     public static boolean isExplosive(LivingEntity entity) {
         return entity.is(ModEntityTags.HUNTER_THREAT_EXPLOSIVE);
