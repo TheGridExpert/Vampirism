@@ -7,7 +7,6 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.StringRepresentable;
 import net.neoforged.fml.common.asm.enumextension.IExtensibleEnum;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Locale;
 
@@ -43,7 +42,7 @@ public enum HunterClassType implements StringRepresentable, IExtensibleEnum {
         return MELEE;
     }
 
-    public static @NotNull HunterClassType get(String value) {
+    public static HunterClassType get(String value) {
         try {
             return HunterClassType.valueOf(value.toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException e) {
@@ -61,7 +60,7 @@ public enum HunterClassType implements StringRepresentable, IExtensibleEnum {
     }
 
     @Override
-    public @NotNull String getSerializedName() {
+    public String getSerializedName() {
         return name;
     }
 }

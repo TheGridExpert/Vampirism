@@ -1,4 +1,4 @@
-package de.teamlapen.vampirism.common.world.entity.hunter;
+package de.teamlapen.vampirism.common.world.entity.hunter.brain;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Pair;
@@ -8,6 +8,7 @@ import de.teamlapen.vampirism.common.core.ModMemoryTypes;
 import de.teamlapen.vampirism.common.core.ModSensors;
 import de.teamlapen.vampirism.common.util.Helper;
 import de.teamlapen.vampirism.common.world.entity.ai.behaviour.*;
+import de.teamlapen.vampirism.common.world.entity.hunter.Hunter;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.TimeUtil;
@@ -128,7 +129,7 @@ public class HunterAi {
         );
     }
 
-    protected static void initMemories(Hunter hunter) {
+    public static void initMemories(Hunter hunter) {
         GlobalPos globalpos = GlobalPos.of(hunter.level().dimension(), hunter.blockPosition());
         hunter.getBrain().setMemory(MemoryModuleType.HOME, globalpos);
     }

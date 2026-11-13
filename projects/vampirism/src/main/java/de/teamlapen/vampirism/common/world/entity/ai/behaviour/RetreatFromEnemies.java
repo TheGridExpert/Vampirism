@@ -3,7 +3,7 @@ package de.teamlapen.vampirism.common.world.entity.ai.behaviour;
 import de.teamlapen.vampirism.common.core.ModMemoryTypes;
 import de.teamlapen.vampirism.common.util.Helper;
 import de.teamlapen.vampirism.common.world.entity.hunter.Hunter;
-import de.teamlapen.vampirism.common.world.entity.hunter.HunterThreats;
+import de.teamlapen.vampirism.common.world.entity.hunter.brain.HunterThreats;
 import net.minecraft.util.Mth;
 import net.minecraft.util.Unit;
 import net.minecraft.world.entity.LivingEntity;

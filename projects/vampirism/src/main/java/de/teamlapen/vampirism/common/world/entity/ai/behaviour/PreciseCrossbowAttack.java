@@ -5,7 +5,7 @@ import de.teamlapen.vampirism.common.core.ModAttributes;
 import de.teamlapen.vampirism.common.core.ModMemoryTypes;
 import de.teamlapen.vampirism.common.world.entity.QuarrelEntity;
 import de.teamlapen.vampirism.common.world.entity.hunter.Hunter;
-import de.teamlapen.vampirism.common.world.entity.hunter.HunterThreats;
+import de.teamlapen.vampirism.common.world.entity.hunter.brain.HunterThreats;
 import de.teamlapen.vampirism.misc.mixin.accessor.CrossbowItemAccessor;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;

@@ -1,4 +1,4 @@
-package de.teamlapen.vampirism.common.world.entity.hunter;
+package de.teamlapen.vampirism.common.world.entity.hunter.brain;
 
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.control.JumpControl;

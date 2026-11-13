@@ -1,7 +1,8 @@
-package de.teamlapen.vampirism.common.world.entity.hunter;
+package de.teamlapen.vampirism.common.world.entity.hunter.brain;
 
 import de.teamlapen.vampirism.common.tags.ModEntityTags;
 import de.teamlapen.vampirism.common.util.Helper;
+import de.teamlapen.vampirism.common.world.entity.hunter.Hunter;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;

@@ -1,7 +1,7 @@
 package de.teamlapen.vampirism.common.world.entity.hunter.squad.tactic;
 
 import de.teamlapen.vampirism.common.world.entity.hunter.Hunter;
-import de.teamlapen.vampirism.common.world.entity.hunter.HunterThreats;
+import de.teamlapen.vampirism.common.world.entity.hunter.brain.HunterThreats;
 import de.teamlapen.vampirism.common.world.entity.hunter.squad.HunterSquad;
 import de.teamlapen.vampirism.common.world.entity.hunter.squad.SquadContext;
 import de.teamlapen.vampirism.common.world.entity.hunter.squad.SquadTactic;

@@ -1,6 +1,7 @@
-package de.teamlapen.vampirism.common.world.entity.hunter;
+package de.teamlapen.vampirism.common.world.entity.hunter.brain;
 
 import de.teamlapen.vampirism.common.world.entity.ai.navigation.HunterPathNavigation;
+import de.teamlapen.vampirism.common.world.entity.hunter.Hunter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;

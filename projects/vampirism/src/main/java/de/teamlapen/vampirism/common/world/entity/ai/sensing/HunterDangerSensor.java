@@ -1,7 +1,7 @@
 package de.teamlapen.vampirism.common.world.entity.ai.sensing;
 
 import de.teamlapen.vampirism.common.core.ModMemoryTypes;
-import de.teamlapen.vampirism.common.world.entity.hunter.HunterThreats;
+import de.teamlapen.vampirism.common.world.entity.hunter.brain.HunterThreats;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.Brain;

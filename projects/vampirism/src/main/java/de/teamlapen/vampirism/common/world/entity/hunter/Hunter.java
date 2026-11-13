@@ -14,6 +14,9 @@ import de.teamlapen.vampirism.common.core.ModHunterVariants;
 import de.teamlapen.vampirism.common.core.ModItems;
 import de.teamlapen.vampirism.common.core.ModMemoryTypes;
 import de.teamlapen.vampirism.common.world.entity.ai.navigation.HunterPathNavigation;
+import de.teamlapen.vampirism.common.world.entity.hunter.brain.HunterAi;
+import de.teamlapen.vampirism.common.world.entity.hunter.brain.HunterJumpControl;
+import de.teamlapen.vampirism.common.world.entity.hunter.brain.HunterMoveControl;
 import de.teamlapen.vampirism.common.world.items.CrucifixItem;
 import de.teamlapen.vampirism.common.world.entity.hunter.squad.HunterGroupData;
 import de.teamlapen.vampirism.common.world.entity.hunter.squad.HunterSquad;
@@ -78,6 +81,7 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 //TODO: Review despawn rules when new advanced hunters and new camps are added
+@SuppressWarnings("deprecation")
 public class Hunter extends PathfinderMob implements CrossbowAttackMob {
 
     private static final EntityDataAccessor<String> DATA_CLASS_TYPE_ID = SynchedEntityData.defineId(Hunter.class, EntityDataSerializers.STRING);
@@ -284,7 +288,7 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
         if (this.reachChecks.size() >= MAX_REACH_CHECKS) {
             this.reachChecks.values().removeIf(old -> now - old.time() >= REACH_CHECK_TTL);
         }
-        boolean reachable = this.getNavigation() instanceof HunterPathNavigation navigation && navigation.canReach(target, REACH_RANGE);
+        boolean reachable = this.getNavigation() instanceof HunterPathNavigation pathNavigation && pathNavigation.canReach(target, REACH_RANGE);
         this.reachChecks.put(target.getId(), new ReachCheck(now, reachable));
         return reachable;
     }
@@ -477,8 +481,7 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
     public @Nullable PatrolArea getPatrolArea() {
         Brain<Hunter> brain = getBrain();
         Optional<PatrolArea> ordered = brain.getMemory(ModMemoryTypes.SQUAD_PATROL_AREA.get());
-        if (ordered.isPresent()) return ordered.get();
-        return brain.getMemory(MemoryModuleType.HOME).map(home -> new PatrolArea(home.pos(), getPatrolRadius(HunterAi.PATROL_RADIUS))).orElse(null);
+        return ordered.orElseGet(() -> brain.getMemory(MemoryModuleType.HOME).map(home -> new PatrolArea(home.pos(), getPatrolRadius(HunterAi.PATROL_RADIUS))).orElse(null));
     }
 
     public boolean isWithinEngageRange(Vec3 pos) {

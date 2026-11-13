@@ -1,7 +1,7 @@
 package de.teamlapen.vampirism.common.world.entity.ai.navigation;
 
 import de.teamlapen.vampirism.common.world.entity.hunter.Hunter;
-import de.teamlapen.vampirism.common.world.entity.hunter.HunterMoveControl;
+import de.teamlapen.vampirism.common.world.entity.hunter.brain.HunterMoveControl;
 import de.teamlapen.vampirism.common.world.entity.hunter.squad.PatrolZone;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

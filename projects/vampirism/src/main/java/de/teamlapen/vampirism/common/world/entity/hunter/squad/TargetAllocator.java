@@ -1,7 +1,7 @@
 package de.teamlapen.vampirism.common.world.entity.hunter.squad;
 
 import de.teamlapen.vampirism.common.world.entity.hunter.Hunter;
-import de.teamlapen.vampirism.common.world.entity.hunter.HunterThreats;
+import de.teamlapen.vampirism.common.world.entity.hunter.brain.HunterThreats;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 
