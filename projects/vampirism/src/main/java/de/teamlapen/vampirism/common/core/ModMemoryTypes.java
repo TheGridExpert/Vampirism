@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import de.teamlapen.vampirism.REFERENCE;
 import de.teamlapen.vampirism.common.util.serialization.ModCodecs;
 import de.teamlapen.vampirism.common.world.entity.ai.memory.HurtByEntities;
+import de.teamlapen.vampirism.common.world.entity.hunter.routine.BrewingStation;
 import de.teamlapen.vampirism.common.world.entity.hunter.routine.FishingSpot;
 import de.teamlapen.vampirism.common.world.entity.hunter.routine.Pastime;
 import de.teamlapen.vampirism.common.world.entity.hunter.squad.PatrolArea;
@@ -110,6 +111,10 @@ public class ModMemoryTypes {
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Pastime>> PASTIME = transientMemory("hunter.pastime");
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Integer>> PASTIME_DURATION = transientMemory("hunter.pastime_duration");
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<FishingSpot>> FISHING_SPOT = transientMemory("hunter.fishing_spot");
+    public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Unit>> POTION_COOLDOWN = transientMemory("hunter.potion_cooldown");
+    public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<BrewingStation>> BREWING_STATION = MEMORY_MODULES.register("hunter.brewing_station", () -> new MemoryModuleType<>(Optional.of(BrewingStation.CODEC)));
+    public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Unit>> BREWING = transientMemory("hunter.brewing");
+    public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Unit>> BREWING_SEARCH_COOLDOWN = transientMemory("hunter.brewing_search_cooldown");
     //</editor-fold>
 
 

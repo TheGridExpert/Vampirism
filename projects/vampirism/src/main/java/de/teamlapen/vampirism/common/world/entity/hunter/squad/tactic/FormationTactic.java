@@ -26,6 +26,7 @@ public class FormationTactic implements SquadTactic {
         List<Hunter> column = new ArrayList<>(melee.subList(0, (melee.size() + 1) / 2));
         column.addAll(ranged);
         column.addAll(melee.subList((melee.size() + 1) / 2, melee.size()));
+        column.addAll(context.freeMembers(hunter -> hunter != leader && hunter.isAlchemistClass()));
 
         Vec3 heading = context.front();
         Vec3 side = context.side();

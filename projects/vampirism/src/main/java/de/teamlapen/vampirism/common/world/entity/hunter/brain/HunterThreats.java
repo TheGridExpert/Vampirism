@@ -75,12 +75,12 @@ public class HunterThreats {
 
     public static boolean isWorthEngaging(Hunter hunter, LivingEntity target) {
         if (isSubmerged(target)) return isActiveThreat(target);
-        if (hunter.isRangedClass() && isActiveThreat(target)) return true;
+        if (!hunter.isMeleeClass() && isActiveThreat(target)) return true;
         return hunter.canReach(target);
     }
 
     public static boolean canEngage(Hunter hunter, LivingEntity target) {
-        return hunter.isRangedClass() ? canShoot(target) : canMelee(target);
+        return hunter.isMeleeClass() ? canMelee(target) : canShoot(target);
     }
 
     public static double calculatePower(LivingEntity entity) {

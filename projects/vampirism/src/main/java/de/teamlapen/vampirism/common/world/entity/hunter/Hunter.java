@@ -17,6 +17,7 @@ import de.teamlapen.vampirism.common.world.entity.ai.navigation.HunterPathNaviga
 import de.teamlapen.vampirism.common.world.entity.hunter.brain.HunterAi;
 import de.teamlapen.vampirism.common.world.entity.hunter.brain.HunterJumpControl;
 import de.teamlapen.vampirism.common.world.entity.hunter.brain.HunterMoveControl;
+import de.teamlapen.vampirism.common.world.entity.hunter.routine.BrewingStations;
 import de.teamlapen.vampirism.common.world.items.CrucifixItem;
 import de.teamlapen.vampirism.common.world.entity.hunter.squad.HunterGroupData;
 import de.teamlapen.vampirism.common.world.entity.hunter.squad.HunterSquad;
@@ -25,6 +26,7 @@ import de.teamlapen.vampirism.common.world.entity.hunter.squad.PatrolArea;
 import de.teamlapen.vampirism.common.world.entity.hunter.squad.PatrolZone;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.UUIDUtil;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.Holder;
@@ -108,6 +110,8 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
     public static final String TAG_OMINOUS_BANNER = "OminousBanner";
     public static final String TAG_BANNER_COOLDOWN = "BannerCooldownUntil";
     public static final String TAG_FISHING_INTEREST = "FishingInterest";
+    public static final String TAG_POTIONS = "Potions";
+    public static final String TAG_BREW_PROGRESS = "BrewProgress";
 
     private static final int MIN_LEVEL = 1;
     protected static final int MAX_LEVEL = REFERENCE.HIGHEST_HUNTER_LEVEL;
@@ -115,6 +119,7 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
     private static final int MAX_TOTAL_LEVEL = MAX_LEVEL + MAX_LORD_LEVEL;
     private static final float ADVANCED_CHANCE = 0.15F;
     public static final int BASE_SQUAD_SIZE = 5;
+    private static final double COMPANION_RADIUS = 24.0D;
     private static final int VETERAN_LEVEL = 12;
     public static final float ARROW_VELOCITY = 2.0F;
 
@@ -143,6 +148,10 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
     private static final int CRUCIFIX_HOLD_TICKS = 10;
     public static final int CRUCIFIX_SLOT = 2;
 
+    public static final int MAX_POTIONS = 12;
+    private static final int FIELD_BREW_TICKS = 800;
+    private static final int STATION_BREW_TICKS = 300;
+
     private final NonNullList<ItemStack> sheathedWeapons = NonNullList.withSize(3, ItemStack.EMPTY);
     private boolean ominousBanner;
     private long bannerCooldownUntil;
@@ -157,6 +166,8 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
     private @Nullable HunterSquad squad;
     private @Nullable UUID squadId;
     private float fishingInterest;
+    private int potions = MAX_POTIONS;
+    private float brewProgress;
 
     public Hunter(EntityType<? extends PathfinderMob> entityType, Level level) {
         super(entityType, level);
@@ -223,6 +234,7 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
             this.crucifixHoldTicks--;
             if (this.crucifixHoldTicks == 0) putAwayCrucifix();
         }
+        if (isAlchemistClass()) tickBrewing();
         handleNaturalRegeneration(level);
 
         super.customServerAiStep(level);
@@ -233,6 +245,7 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
         super.registerDebugValues(level, registration);
         registration.register(ModDebugSubscriptions.HUNTER_SQUADS.get(), () -> HunterSquadDebugInfo.of(this));
         registration.register(ModDebugSubscriptions.HUNTER_LOOKOUTS.get(), () -> HunterLookoutDebugInfo.of(this));
+        registration.register(ModDebugSubscriptions.HUNTER_INFO.get(), () -> HunterDebugInfo.of(this));
     }
 
     public double calculateVelocityFactor(double gait) {
@@ -385,6 +398,8 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
         output.putBoolean(TAG_OMINOUS_BANNER, this.ominousBanner);
         output.putLong(TAG_BANNER_COOLDOWN, this.bannerCooldownUntil);
         output.putFloat(TAG_FISHING_INTEREST, this.fishingInterest);
+        output.putInt(TAG_POTIONS, this.potions);
+        output.putFloat(TAG_BREW_PROGRESS, this.brewProgress);
     }
 
     @Override
@@ -415,6 +430,8 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
         this.ominousBanner = input.getBooleanOr(TAG_OMINOUS_BANNER, false);
         this.bannerCooldownUntil = input.getLongOr(TAG_BANNER_COOLDOWN, 0L);
         this.fishingInterest = input.getFloatOr(TAG_FISHING_INTEREST, this.fishingInterest);
+        this.potions = Mth.clamp(input.getIntOr(TAG_POTIONS, MAX_POTIONS), 0, MAX_POTIONS);
+        this.brewProgress = input.getFloatOr(TAG_BREW_PROGRESS, 0.0F);
         if (isCrucifix(getMainHandItem())) this.crucifixHoldTicks = 1;
     }
 
@@ -515,7 +532,8 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
     }
 
     protected HunterClassType chooseClass(HunterGroupData group, RandomSource random) {
-        return group.nextClass(random);
+        int companions = level().getEntitiesOfClass(Hunter.class, getBoundingBox().inflate(COMPANION_RADIUS), other -> other != this && other.isAlive() && !other.isAlchemistClass()).size();
+        return group.nextClass(random, companions);
     }
 
     public boolean isDualWielding() {
@@ -566,7 +584,7 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
         float damageFactor = gaussianFactor(random, 1.0f + levelFactor * 0.85f, 0.2f);
         float healthFactor = gaussianFactor(random, 1.0f + levelFactor * 0.75f, 0.2f);
 
-        if (isRangedClass()) {
+        if (!isMeleeClass()) {
             followRangeFactor *= gaussianFactor(random, 1.15f, 0.1f);
         }
 
@@ -650,6 +668,7 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
     public void sheatheWeapons() {
         lowerSpyglass();
         putAwayFishingRod();
+        putAwayPotion();
         putAwayCrucifix();
         ItemStack main = this.getMainHandItem();
         ItemStack off = this.getOffhandItem();
@@ -706,6 +725,64 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
         return this.fishingInterest;
     }
 
+    public boolean holdPotion(ItemStack potion) {
+        if (!getMainHandItem().isEmpty()) return false;
+        setItemInHand(InteractionHand.MAIN_HAND, potion);
+        return true;
+    }
+
+    public boolean isHoldingPotion() {
+        return getMainHandItem().has(DataComponents.POTION_CONTENTS);
+    }
+
+    public boolean drinkPotion(ItemStack potion) {
+        if (!getMainHandItem().isEmpty()) return false;
+        setItemInHand(InteractionHand.MAIN_HAND, potion);
+        startUsingItem(InteractionHand.MAIN_HAND);
+        return true;
+    }
+
+    public void putAwayPotion() {
+        ItemStack held = getMainHandItem();
+        if (!held.has(DataComponents.POTION_CONTENTS) && !held.is(Items.GLASS_BOTTLE)) return;
+        if (isUsingItem()) stopUsingItem();
+        setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+    }
+
+    public int getPotionCount() {
+        return this.potions;
+    }
+
+    public boolean hasPotions() {
+        return this.potions > 0;
+    }
+
+    public boolean isOutOfPotions() {
+        return isAlchemistClass() && this.potions <= 0;
+    }
+
+    public boolean needsPotions() {
+        return this.potions < MAX_POTIONS;
+    }
+
+    public void consumePotion() {
+        if (this.potions > 0) this.potions--;
+    }
+
+    private void tickBrewing() {
+        if (!needsPotions()) {
+            this.brewProgress = 0.0F;
+            return;
+        }
+
+        int ticksPerPotion = getBrain().hasMemoryValue(ModMemoryTypes.BREWING.get()) ? STATION_BREW_TICKS : FIELD_BREW_TICKS;
+        this.brewProgress += 1.0F / ticksPerPotion;
+        if (this.brewProgress < 1.0F) return;
+
+        this.brewProgress -= 1.0F;
+        this.potions++;
+    }
+
     private static boolean isCrucifix(ItemStack stack) {
         return stack.getItem() instanceof CrucifixItem;
     }
@@ -717,6 +794,7 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
     public ItemStack drawCrucifix() {
         lowerSpyglass();
         putAwayFishingRod();
+        putAwayPotion();
         ItemStack crucifix = getSheathedCrucifix();
         ItemStack main = getMainHandItem();
         if (crucifix.isEmpty() || (!main.isEmpty() && !this.sheathedWeapons.get(0).isEmpty())) return ItemStack.EMPTY;
@@ -754,6 +832,8 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
     public void die(DamageSource source) {
         lowerSpyglass();
         putAwayFishingRod();
+        putAwayPotion();
+        if (level() instanceof ServerLevel serverLevel) BrewingStations.release(serverLevel, this);
         boolean ominous = !this.dead && hasOminousBanner();
         super.die(source);
         if (ominous && this.dead && level() instanceof ServerLevel serverLevel) {
@@ -908,6 +988,7 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
         boolean hasRangedWeapon = isRangedHunterWeapon(this.getMainHandItem()) || isRangedHunterWeapon(this.getOffhandItem()) || this.sheathedWeapons.stream().anyMatch(this::isRangedHunterWeapon);
 
         HunterClassType currentClass = getHunterClass();
+        if (currentClass == HunterClassType.ALCHEMIST) return;
         HunterClassType evaluatedClass = hasRangedWeapon ? HunterClassType.RANGED : HunterClassType.MELEE;
 
         if (currentClass != evaluatedClass) {
@@ -942,5 +1023,9 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
 
     public boolean isRangedClass() {
         return getHunterClass() == HunterClassType.RANGED;
+    }
+
+    public boolean isAlchemistClass() {
+        return getHunterClass() == HunterClassType.ALCHEMIST;
     }
 }

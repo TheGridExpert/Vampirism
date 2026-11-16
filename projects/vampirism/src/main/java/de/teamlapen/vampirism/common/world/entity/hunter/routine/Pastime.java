@@ -4,7 +4,7 @@ import net.minecraft.util.RandomSource;
 import org.jspecify.annotations.Nullable;
 
 public enum Pastime {
-    FISHING(0.2F, 0.1F);
+    FISHING(0.3F, 0.1F);
 
     private final float morningChance;
     private final float eveningChance;

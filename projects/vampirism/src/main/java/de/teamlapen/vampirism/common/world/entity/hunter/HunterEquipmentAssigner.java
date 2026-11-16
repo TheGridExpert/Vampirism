@@ -102,16 +102,8 @@ public class HunterEquipmentAssigner {
         int weaponTokens = hunter.calculateTokens(random, 0, 10);
         int secondaryTokens = hunter.calculateTokens(random, 0, 5);
 
-        boolean weaponEquipped = false;
-        for (int i = mainWeapons.length - 1; i >= 0; i--) {
-            if (weaponTokens >= mainWeapons[i].getSecond()) {
-                hunter.setSheathedWeapon(new ItemStack(mainWeapons[i].getFirst()), 0);
-                weaponEquipped = true;
-                break;
-            }
-        }
-        if (!weaponEquipped) {
-            hunter.setSheathedWeapon(new ItemStack(mainWeapons[0].getFirst()), 0);
+        if (!hunter.isAlchemistClass()) {
+            assignMainWeapon(hunter, mainWeapons, weaponTokens);
         }
         if (isMelee && hunter.isDualWielding()) {
             hunter.setSheathedWeapon(hunter.getSheathedWeapon(0).copy(), 1);
@@ -142,10 +134,20 @@ public class HunterEquipmentAssigner {
             }
         }
 
-        if (!isMelee && random.nextFloat() <= 0.3f) {
+        if (hunter.isRangedClass() && random.nextFloat() <= 0.3f) {
             Item quarrel = chooseRandomQuarrel(level.getDifficulty(), random);
             hunter.setQuarrelType(quarrel);
         }
+    }
+
+    private static void assignMainWeapon(Hunter hunter, Pair<ItemLike, Integer>[] mainWeapons, int weaponTokens) {
+        for (int i = mainWeapons.length - 1; i >= 0; i--) {
+            if (weaponTokens >= mainWeapons[i].getSecond()) {
+                hunter.setSheathedWeapon(new ItemStack(mainWeapons[i].getFirst()), 0);
+                return;
+            }
+        }
+        hunter.setSheathedWeapon(new ItemStack(mainWeapons[0].getFirst()), 0);
     }
 
     private static void setArmorSlot(Hunter hunter, int index, ItemStack item) {

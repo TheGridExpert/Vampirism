@@ -36,9 +36,9 @@ public class MeleeTokenTactic implements SquadTactic {
         List<Hunter> fighters = context.freeMembers(Hunter::isMeleeClass);
         if (fighters.isEmpty()) return;
 
-        List<Hunter> ranged = context.rangedMembers();
-        List<Vec3> protect = ranged.isEmpty() ? List.of(context.squadCenter()) : ranged.stream().map(Hunter::position).toList();
-        int baseTokens = ranged.isEmpty() ? TOKENS_WITHOUT_SUPPORT : TOKENS_WITH_SUPPORT;
+        List<Hunter> backline = context.backlineMembers();
+        List<Vec3> protect = backline.isEmpty() ? List.of(context.squadCenter()) : backline.stream().map(Hunter::position).toList();
+        int baseTokens = context.rangedMembers().isEmpty() ? TOKENS_WITHOUT_SUPPORT : TOKENS_WITH_SUPPORT;
 
         List<LivingEntity> targets = context.threats().stream()
                 .filter(HunterThreats::canMelee)

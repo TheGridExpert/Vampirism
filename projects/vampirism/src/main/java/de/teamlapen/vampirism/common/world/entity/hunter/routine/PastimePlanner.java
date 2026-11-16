@@ -88,6 +88,7 @@ public class PastimePlanner {
         Brain<Hunter> brain = hunter.getBrain();
         return !hunter.isFighting() && !hunter.isRetreating() && hunter.getPatrolArea() != null
                 && !brain.hasMemoryValue(ModMemoryTypes.PASTIME.get())
+                && !brain.hasMemoryValue(ModMemoryTypes.BREWING_STATION.get())
                 && !brain.hasMemoryValue(ModMemoryTypes.SHOULD_RETREAT.get());
     }
 

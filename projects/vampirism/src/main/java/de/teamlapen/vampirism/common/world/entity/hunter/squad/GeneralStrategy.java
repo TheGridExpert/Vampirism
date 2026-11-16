@@ -11,6 +11,7 @@ public class GeneralStrategy implements SquadStrategy {
     private final List<SquadTactic> tactics = List.of(
             new GroupRetreatTactic(),
             new RearGuardTactic(),
+            new SupportTactic(),
             new FocusFireTactic(),
             new MeleeTokenTactic(),
             new HoldEngagementTactic(),

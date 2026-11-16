@@ -28,6 +28,7 @@ public class ModActivities {
 
     public static final DeferredHolder<Activity, Activity> HUNTER_EVADE = create("hunter.evade");
     public static final DeferredHolder<Activity, Activity> HUNTER_FISH = create("hunter.fish");
+    public static final DeferredHolder<Activity, Activity> HUNTER_BREW = create("hunter.brew");
 
     private static DeferredHolder<Activity, Activity> create(String name) {
         return ACTIVITIES.register(name, () -> new Activity(VIdentifier.modString(name)));

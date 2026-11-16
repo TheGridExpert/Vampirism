@@ -50,6 +50,9 @@ public class HunterAi {
     private static final double TOO_CLOSE_ATTACK_DISTANCE = 1.0D;
     private static final double MIN_RANGE_ATTACK_DISTANCE = 7.5D;
     private static final double MAX_RANGE_ATTACK_DISTANCE = 15.0D;
+    private static final double MIN_SUPPORT_DISTANCE = 5.0D;
+    private static final double MAX_SUPPORT_DISTANCE = 8.0D;
+    private static final double ALCHEMIST_WATCH_THREAT_DISTANCE = 6.0D;
 
     private static final float SPEED_MULTIPLIER_WHEN_RETREATING = Hunter.RUN_SPEED;
     private static final float RETREAT_HEALTH_PERCENT = 0.25F;
@@ -115,7 +118,11 @@ public class HunterAi {
             ModMemoryTypes.PLANNED_PERIOD.get(),
             ModMemoryTypes.PASTIME.get(),
             ModMemoryTypes.PASTIME_DURATION.get(),
-            ModMemoryTypes.FISHING_SPOT.get()
+            ModMemoryTypes.FISHING_SPOT.get(),
+            ModMemoryTypes.POTION_COOLDOWN.get(),
+            ModMemoryTypes.BREWING_STATION.get(),
+            ModMemoryTypes.BREWING.get(),
+            ModMemoryTypes.BREWING_SEARCH_COOLDOWN.get()
     );
 
     @SuppressWarnings("deprecation")
@@ -130,6 +137,7 @@ public class HunterAi {
                 initCoreActivity(),
                 initPatrolActivity(),
                 initFishActivity(),
+                initBrewActivity(),
                 initFightActivity(),
                 initRetreatActivity(),
                 initEvadeActivity()
@@ -154,6 +162,7 @@ public class HunterAi {
                         new HandleHunterWeapons.Sheathe(),
                         RepelWithCrucifix.create(CRUCIFIX_TRIGGER_DISTANCE, CRUCIFIX_FLEE_TICKS, CRUCIFIX_MELEE_HEALTH_PERCENT),
                         FollowSquadTarget.create(),
+                        new UsePotions(),
                         new MoveToPatrolTarget(MIN_PATROL_COOLDOWN, MAX_PATROL_COOLDOWN)
                 )
         );
@@ -167,6 +176,7 @@ public class HunterAi {
                         MoveToSquadPosition.create(SPEED_MULTIPLIER_WHEN_FOLLOWING, FORMATION_TOLERANCE),
                         RecoverSquadBanner.create(SPEED_MULTIPLIER_WHEN_FOLLOWING),
                         new KeepLookout(SPEED_MULTIPLIER_WHEN_FOLLOWING),
+                        FindBrewingStation.create(),
                         PatrolAroundHome.create(PATROL_RADIUS, SPEED_MULTIPLIER_WHEN_PATROLLING, SPEED_MULTIPLIER_WHEN_LEADING_RELAXED),
                         new RunOne<>(
                                 ImmutableList.of(
@@ -195,6 +205,18 @@ public class HunterAi {
         );
     }
 
+    private static ActivityData<Hunter> initBrewActivity() {
+        return ActivityData.create(
+                ModActivities.HUNTER_BREW.get(),
+                5,
+                ImmutableList.of(
+                        new BrewPotions(SPEED_MULTIPLIER_WHEN_FOLLOWING),
+                        StartAttacking.create((_, _) -> true, HunterAi::findNearestValidAttackTarget)
+                ),
+                ImmutableSet.of(Pair.of(ModMemoryTypes.BREWING_STATION.get(), MemoryStatus.VALUE_PRESENT))
+        );
+    }
+
     private static ActivityData<Hunter> initFightActivity() {
         return ActivityData.create(
                 Activity.FIGHT,
@@ -203,6 +225,8 @@ public class HunterAi {
                         new HandleHunterWeapons.Unsheathe(),
                         ifMelee(StopAttackingIfTargetInvalid.create((_, target) -> !HunterThreats.canMelee(target) && !HunterThreats.shouldLure(target))),
                         ifRanged(StopAttackingIfTargetInvalid.create((_, target) -> !HunterThreats.canShoot(target) && !HunterThreats.shouldLure(target))),
+                        ifAlchemist(StopAttackingIfTargetInvalid.create((_, target) -> !HunterThreats.canShoot(target) && !HunterThreats.shouldLure(target))),
+                        ifAlchemist(WatchFight.create(ALCHEMIST_WATCH_THREAT_DISTANCE)),
                         withoutMemory(ModMemoryTypes.SQUAD_TARGET.get(), SwitchAttackTargetIfCloser.create(ModMemoryTypes.NEAREST_VISIBLE_HOSTILES.get())),
                         new CheckHealthAndRetreat(RETREAT_HEALTH_PERCENT),
                         MoveToSquadPosition.create(SPEED_MULTIPLIER_WHEN_CHASING_TARGET, COMBAT_POSITION_TOLERANCE),
@@ -210,7 +234,8 @@ public class HunterAi {
                         ifMelee(DistanceMeleeAttack.create(MELEE_ATTACK_COOLDOWN, TOO_CLOSE_ATTACK_DISTANCE)),
                         ifMelee(unlessLuring(withoutMemory(ModMemoryTypes.SQUAD_POSITION.get(), SetWalkTargetFromAttackTargetIfTargetOutOfReach.create(SPEED_MULTIPLIER_WHEN_CHASING_TARGET)))),
                         new PreciseCrossbowAttack(),
-                        ifRanged(unlessLuring(withoutMemory(ModMemoryTypes.SQUAD_POSITION.get(), MaintainDistanceFromTarget.create(SPEED_MULTIPLIER_WHEN_DISTANCING_RANGED, MIN_RANGE_ATTACK_DISTANCE, MAX_RANGE_ATTACK_DISTANCE))))
+                        ifRanged(unlessLuring(withoutMemory(ModMemoryTypes.SQUAD_POSITION.get(), MaintainDistanceFromTarget.create(SPEED_MULTIPLIER_WHEN_DISTANCING_RANGED, MIN_RANGE_ATTACK_DISTANCE, MAX_RANGE_ATTACK_DISTANCE)))),
+                        ifAlchemist(unlessLuring(withoutMemory(ModMemoryTypes.SQUAD_POSITION.get(), MaintainDistanceFromTarget.create(SPEED_MULTIPLIER_WHEN_DISTANCING_RANGED, MIN_SUPPORT_DISTANCE, MAX_SUPPORT_DISTANCE))))
                 ),
                 MemoryModuleType.ATTACK_TARGET
         );
@@ -256,6 +281,7 @@ public class HunterAi {
                 ModActivities.HUNTER_EVADE.get(),
                 Activity.AVOID,
                 Activity.FIGHT,
+                ModActivities.HUNTER_BREW.get(),
                 ModActivities.HUNTER_FISH.get(),
                 Activity.IDLE
         ));
@@ -371,6 +397,15 @@ public class HunterAi {
 
     public static OneShot<Hunter> ifRanged(OneShot<Hunter> trigger) {
         return BehaviorBuilder.triggerIf(Hunter::isRangedClass, trigger);
+    }
+
+    public static OneShot<Hunter> ifAlchemist(OneShot<Hunter> trigger) {
+        return BehaviorBuilder.triggerIf(Hunter::isAlchemistClass, trigger);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <E extends LivingEntity> OneShot<E> ifAlchemist(BehaviorControl<? extends E> trigger) {
+        return BehaviorBuilder.triggerIf(entity -> entity instanceof Hunter hunter && hunter.isAlchemistClass(), (OneShot<E>) trigger);
     }
 
     @SuppressWarnings("unchecked")

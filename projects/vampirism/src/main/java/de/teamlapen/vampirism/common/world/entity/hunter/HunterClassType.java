@@ -12,7 +12,8 @@ import java.util.Locale;
 
 public enum HunterClassType implements StringRepresentable, IExtensibleEnum {
     MELEE("melee", 6),
-    RANGED("ranged", 4);
+    RANGED("ranged", 4),
+    ALCHEMIST("alchemist", 0);
 
     public static final Codec<HunterClassType> CODEC = StringRepresentable.fromEnum(HunterClassType::values);
     public static final StreamCodec<ByteBuf, HunterClassType> STREAM_CODEC = ByteBufCodecs.STRING_UTF8.map(HunterClassType::get, HunterClassType::getSerializedName);

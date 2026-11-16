@@ -20,7 +20,7 @@ public class ScreenTactic implements SquadTactic {
     public void apply(SquadContext context) {
         if (!context.hasThreats()) return;
 
-        Vec3 anchor = context.rangedCenter();
+        Vec3 anchor = context.backlineCenter();
         List<Hunter> guards = context.freeMembers(Hunter::isMeleeClass).stream()
                 .sorted(Comparator.comparingDouble(hunter -> hunter.position().subtract(anchor).dot(context.side())))
                 .toList();

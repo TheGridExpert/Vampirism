@@ -25,7 +25,7 @@ public class CheckHealthAndRetreat extends Behavior<Hunter> {
 
     @Override
     protected boolean checkExtraStartConditions(ServerLevel level, Hunter hunter) {
-        return hunter.getHealth() < hunter.getMaxHealth() * retreatHealthPercent;
+        return hunter.getHealth() < hunter.getMaxHealth() * retreatHealthPercent || hunter.isOutOfPotions();
     }
 
     @Override

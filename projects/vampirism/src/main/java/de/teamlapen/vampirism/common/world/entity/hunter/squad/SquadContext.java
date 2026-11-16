@@ -184,6 +184,20 @@ public class SquadContext {
         return ranged.isEmpty() ? this.squadCenter : averagePosition(ranged);
     }
 
+    public List<Hunter> backlineMembers() {
+        return this.members.stream().filter(hunter -> !hunter.isMeleeClass()).toList();
+    }
+
+    public Vec3 backlineCenter() {
+        List<Hunter> backline = backlineMembers();
+        return backline.isEmpty() ? this.squadCenter : averagePosition(backline);
+    }
+
+    public Vec3 frontlineCenter() {
+        List<Hunter> frontline = this.members.stream().filter(hunter -> !hunter.isAlchemistClass()).toList();
+        return frontline.isEmpty() ? this.squadCenter : averagePosition(frontline);
+    }
+
     public Vec3 findSafeGround(Vec3 pos, double referenceY) {
         int x = Mth.floor(pos.x);
         int z = Mth.floor(pos.z);
