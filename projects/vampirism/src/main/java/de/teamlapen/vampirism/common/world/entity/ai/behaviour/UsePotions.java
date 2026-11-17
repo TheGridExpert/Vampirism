@@ -48,6 +48,7 @@ public class UsePotions extends Behavior<Hunter> {
 
     private static final int AIM_TICKS = 12;
     private static final int FAILED_AIM_COOLDOWN = 10;
+    private static final int IDLE_RECHECK = 8;
 
     private @Nullable Plan plan;
     private @Nullable Plan aiming;
@@ -68,7 +69,11 @@ public class UsePotions extends Behavior<Hunter> {
     protected boolean checkExtraStartConditions(ServerLevel level, Hunter hunter) {
         if (!hunter.isAlchemistClass() || !hunter.hasPotions() || !hunter.getMainHandItem().isEmpty() || hunter.isUsingItem()) return false;
         this.plan = choosePlan(hunter);
-        return this.plan != null;
+        if (this.plan == null) {
+            hunter.getBrain().setMemoryWithExpiry(ModMemoryTypes.POTION_COOLDOWN.get(), Unit.INSTANCE, IDLE_RECHECK);
+            return false;
+        }
+        return true;
     }
 
     @Override
