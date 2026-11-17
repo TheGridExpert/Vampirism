@@ -130,9 +130,9 @@ public class HunterPathNavigation extends GroundPathNavigation {
     }
 
     private boolean isStranded(Hunter hunter, @Nullable Path path, Set<BlockPos> targets) {
+        if (makesProgress(path, targets)) return false;
         PatrolZone zone = hunter.getPatrolZone();
-        if (zone != null && zone.size() > 1) return !zone.contains(hunter.blockPosition()) && !makesProgress(path, targets);
-        return !makesProgress(path, targets);
+        return zone == null || zone.size() <= 1 || !zone.contains(hunter.blockPosition());
     }
 
     private boolean makesProgress(@Nullable Path path, Set<BlockPos> targets) {
