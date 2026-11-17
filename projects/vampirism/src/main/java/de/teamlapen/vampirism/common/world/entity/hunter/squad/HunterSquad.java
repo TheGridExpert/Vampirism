@@ -23,6 +23,7 @@ public class HunterSquad {
     private static final double TRANSFER_COST = 4.0D;
     private static final double COMPOSITION_PENALTY = 6.0D;
     private static final double MIN_REBALANCE_GAIN = 4.0D;
+    private static final int REBALANCE_RECHECK = 200;
     private static final int THINK_INTERVAL = 10;
     private static final int ORDER_TTL = 30; // TTL = time to live: ticks before a squad order expires from a hunter's memory
     private static final double MAX_LEADER_DISTANCE = 40.0D;
@@ -54,6 +55,7 @@ public class HunterSquad {
     private final Set<UUID> abandonedBanners = new HashSet<>();
     private final Map<Hunter, BlockPos> lookoutClaims = new HashMap<>();
     private final Map<PatrolArea, PatrolZone> patrolZones = new HashMap<>();
+    private final Map<HunterSquad, RebalanceCheck> rebalanceChecks = new HashMap<>();
 
     private HunterSquad(UUID id) {
         this.id = id;
@@ -91,7 +93,7 @@ public class HunterSquad {
         updateHeading();
         kickStragglers();
         dismissExcessMembers();
-        mergeWithVisibleSquads();
+        mergeWithVisibleSquads(level.getGameTime());
         promoteStrongerLeader();
         updateBanner(level);
         PastimePlanner.tick(level, this);
@@ -159,7 +161,7 @@ public class HunterSquad {
         return this.leader != null ? this.leader.getMaxSquadSize() : Hunter.BASE_SQUAD_SIZE;
     }
 
-    private void mergeWithVisibleSquads() {
+    private void mergeWithVisibleSquads(long gameTime) {
         Set<HunterSquad> visible = new LinkedHashSet<>();
         for (Hunter member : this.members) {
             for (LivingEntity seen : member.getBrain().getMemory(ModMemoryTypes.NEAREST_VISIBLE_HUNTERS.get()).orElse(List.of())) {
@@ -177,9 +179,30 @@ public class HunterSquad {
 
             if (shouldAbsorb(other)) {
                 absorbSquad(other);
-            } else if (!other.shouldAbsorb(this)) {
+            } else if (!other.shouldAbsorb(this) && needsRebalanceCheck(other, gameTime)) {
                 rebalanceWith(other);
             }
+        }
+    }
+
+    private boolean needsRebalanceCheck(HunterSquad other, long gameTime) {
+        this.rebalanceChecks.entrySet().removeIf(entry -> entry.getKey().disbanded || gameTime - entry.getValue().time() >= REBALANCE_RECHECK);
+        RebalanceCheck check = new RebalanceCheck(rosterSignature(), other.rosterSignature(), gameTime);
+        RebalanceCheck previous = this.rebalanceChecks.get(other);
+        if (previous != null && previous.matches(check) && gameTime - previous.time() < REBALANCE_RECHECK) return false;
+
+        this.rebalanceChecks.put(other, check);
+        return true;
+    }
+
+    private int rosterSignature() {
+        return 31 * this.members.hashCode() + System.identityHashCode(this.leader);
+    }
+
+    private record RebalanceCheck(int ownRoster, int otherRoster, long time) {
+
+        boolean matches(RebalanceCheck other) {
+            return this.ownRoster == other.ownRoster && this.otherRoster == other.otherRoster;
         }
     }
 
