@@ -32,7 +32,7 @@ public class RetreatFromEnemies {
     private static final double ROUTE_PENALTY = 3.0D;
     private static final int FLEE_RANGE = 8;
     private static final int VERTICAL_RANGE = 7;
-    private static final int DIRECTIONS = 16;
+    private static final int DIRECTIONS = 8; // TODO: Check if 8 is enough, hunters may retreat in a bad direction. Raise to 12 if it occurs
     private static final int REPLAN_COOLDOWN = 10;
 
     public static OneShot<Hunter> create(float speedModifier, double minFleeDistance, double safeDistance) {
