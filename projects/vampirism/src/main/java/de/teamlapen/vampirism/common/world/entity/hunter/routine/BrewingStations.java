@@ -26,8 +26,10 @@ import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @EventBusSubscriber(modid = REFERENCE.MODID)
 public class BrewingStations {
@@ -39,25 +41,34 @@ public class BrewingStations {
 
     public static @Nullable BrewingStation find(ServerLevel level, Hunter hunter) {
         BlockPos origin = hunter.blockPosition();
+        Set<BlockPos> claimed = collectClaims(level, hunter);
         List<BlockPos> workstations = BlockPos.betweenClosedStream(origin.offset(-SEARCH_RADIUS, -SEARCH_HEIGHT, -SEARCH_RADIUS), origin.offset(SEARCH_RADIUS, SEARCH_HEIGHT, SEARCH_RADIUS))
                 .filter(pos -> isWorkstation(level.getBlockState(pos)))
                 .map(BlockPos::immutable)
+                .filter(pos -> !claimed.contains(pos))
                 .sorted(Comparator.comparingDouble(pos -> pos.distSqr(origin)))
                 .toList();
         for (BlockPos pos : workstations) {
-            if (!isClaimed(level, hunter, pos) && canReach(hunter, pos)) return new BrewingStation(pos, false, false);
+            if (canReach(hunter, pos)) return new BrewingStation(pos, false, false);
         }
 
-        return findPlacementSpot(level, hunter).map(pos -> new BrewingStation(pos, true, false)).orElse(null);
+        return findPlacementSpot(level, hunter, claimed).map(pos -> new BrewingStation(pos, true, false)).orElse(null);
     }
 
-    private static Optional<BlockPos> findPlacementSpot(ServerLevel level, Hunter hunter) {
+    private static Optional<BlockPos> findPlacementSpot(ServerLevel level, Hunter hunter, Set<BlockPos> claimed) {
         BlockPos origin = hunter.blockPosition();
         return BlockPos.betweenClosedStream(origin.offset(-PLACE_RADIUS, -1, -PLACE_RADIUS), origin.offset(PLACE_RADIUS, 1, PLACE_RADIUS))
-                .filter(pos -> !pos.equals(origin) && canPlaceAt(level, pos) && hasStandingRoom(level, pos))
+                .filter(pos -> !pos.equals(origin) && !claimed.contains(pos) && canPlaceAt(level, pos) && hasStandingRoom(level, pos))
                 .map(BlockPos::immutable)
-                .filter(pos -> !isClaimed(level, hunter, pos))
                 .min(Comparator.comparingDouble(pos -> pos.distSqr(origin)));
+    }
+
+    private static Set<BlockPos> collectClaims(ServerLevel level, Hunter hunter) {
+        Set<BlockPos> claimed = new HashSet<>();
+        for (Hunter other : level.getEntitiesOfClass(Hunter.class, hunter.getBoundingBox().inflate(SEARCH_RADIUS + CLAIM_SEARCH_RADIUS), other -> other != hunter)) {
+            other.getBrain().getMemory(ModMemoryTypes.BREWING_STATION.get()).ifPresent(station -> claimed.add(station.pos()));
+        }
+        return claimed;
     }
 
     public static boolean canPlaceAt(ServerLevel level, BlockPos pos) {
@@ -103,12 +114,6 @@ public class BrewingStations {
                 .filter(BrewingStation::placed)
                 .filter(station -> level.getBlockState(station.pos()).is(Blocks.BREWING_STAND))
                 .ifPresent(station -> level.removeBlock(station.pos(), false));
-    }
-
-    private static boolean isClaimed(ServerLevel level, Hunter hunter, BlockPos pos) {
-        return !level.getEntitiesOfClass(Hunter.class, new AABB(pos).inflate(CLAIM_SEARCH_RADIUS), other -> other != hunter && other.getBrain().getMemory(ModMemoryTypes.BREWING_STATION.get())
-                .map(station -> station.pos().equals(pos))
-                .orElse(false)).isEmpty();
     }
 
     private static @Nullable Hunter findOwner(ServerLevel level, BlockPos pos) {

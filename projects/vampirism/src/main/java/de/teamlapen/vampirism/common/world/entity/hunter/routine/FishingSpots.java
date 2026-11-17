@@ -55,8 +55,9 @@ public class FishingSpots {
             if (isFishableIce(level, stand.below())) ice.add(stand.below());
         });
 
-        if (!shore.isEmpty()) return groupOnShore(level, scout, shore, count);
-        if (!ice.isEmpty() && isCold(level, area.center())) return groupOnIce(level, scout, area, ice, count);
+        List<BlockPos> claimed = collectClaims(level, scout, area);
+        if (!shore.isEmpty()) return groupOnShore(scout, shore, claimed, count);
+        if (!ice.isEmpty() && isCold(level, area.center())) return groupOnIce(level, scout, area, ice, claimed, count);
         return List.of();
     }
 
@@ -79,7 +80,7 @@ public class FishingSpots {
         }
     }
 
-    private static List<FishingSpot> groupOnShore(ServerLevel level, Hunter scout, List<ScoredSpot> shore, int count) {
+    private static List<FishingSpot> groupOnShore(Hunter scout, List<ScoredSpot> shore, List<BlockPos> claimed, int count) {
         shore.sort(Comparator.comparingDouble(ScoredSpot::score).reversed());
 
         List<FishingSpot> checked = new ArrayList<>();
@@ -87,7 +88,7 @@ public class FishingSpots {
             if (checked.size() >= MAX_PATH_CHECKS) break;
             FishingSpot anchor = candidate.spot();
             if (checked.stream().anyMatch(other -> other.stand().closerThan(anchor.stand(), MIN_ANCHOR_SPACING))) continue;
-            if (isClaimed(level, scout, anchor.stand())) continue;
+            if (isClaimed(claimed, anchor.stand(), CLAIM_DISTANCE)) continue;
 
             checked.add(anchor);
             if (!canReach(scout, anchor.stand())) continue;
@@ -100,14 +101,14 @@ public class FishingSpots {
                     .forEach(spot -> {
                         if (group.size() >= count) return;
                         if (group.stream().anyMatch(other -> other.stand().closerThan(spot.stand(), MIN_NEIGHBOUR_SPACING) || other.water().equals(spot.water()))) return;
-                        if (!isClaimed(level, scout, spot.stand())) group.add(spot);
+                        if (!isClaimed(claimed, spot.stand(), CLAIM_DISTANCE)) group.add(spot);
                     });
             return group;
         }
         return List.of();
     }
 
-    private static List<FishingSpot> groupOnIce(ServerLevel level, Hunter scout, PatrolArea area, List<BlockPos> ice, int count) {
+    private static List<FishingSpot> groupOnIce(ServerLevel level, Hunter scout, PatrolArea area, List<BlockPos> ice, List<BlockPos> claimed, int count) {
         Set<BlockPos> sheet = new HashSet<>(ice);
         RandomSource random = scout.getRandom();
         List<BlockPos> middles = ice.stream()
@@ -118,7 +119,7 @@ public class FishingSpots {
         for (BlockPos middle : middles) {
             if (checked.size() >= MAX_PATH_CHECKS) break;
             if (checked.stream().anyMatch(other -> other.closerThan(middle, MIN_ANCHOR_SPACING))) continue;
-            if (isClaimed(level, scout, middle.above(), GROUP_SEPARATION)) continue;
+            if (isClaimed(claimed, middle.above(), GROUP_SEPARATION)) continue;
 
             checked.add(middle);
             if (!canReach(scout, middle.above())) continue;
@@ -233,15 +234,20 @@ public class FishingSpots {
         return path != null && path.canReach();
     }
 
-    private static boolean isClaimed(ServerLevel level, Hunter scout, BlockPos stand) {
-        return isClaimed(level, scout, stand, CLAIM_DISTANCE);
+    private static List<BlockPos> collectClaims(ServerLevel level, Hunter scout, PatrolArea area) {
+        AABB box = new AABB(area.center()).inflate(area.radius() + GROUP_SEPARATION);
+        List<BlockPos> claimed = new ArrayList<>();
+        for (Hunter other : level.getEntitiesOfClass(Hunter.class, box, other -> other != scout)) {
+            other.getBrain().getMemory(ModMemoryTypes.FISHING_SPOT.get()).ifPresent(spot -> claimed.add(spot.stand()));
+        }
+        return claimed;
     }
 
-    private static boolean isClaimed(ServerLevel level, Hunter scout, BlockPos stand, double distance) {
-        AABB box = new AABB(stand).inflate(distance);
-        return !level.getEntitiesOfClass(Hunter.class, box, other -> other != scout && other.getBrain().getMemory(ModMemoryTypes.FISHING_SPOT.get())
-                .map(claimed -> claimed.stand().closerThan(stand, distance))
-                .orElse(false)).isEmpty();
+    private static boolean isClaimed(List<BlockPos> claimed, BlockPos stand, double distance) {
+        for (BlockPos other : claimed) {
+            if (other.closerThan(stand, distance)) return true;
+        }
+        return false;
     }
 
     private record ScoredSpot(FishingSpot spot, double score) {
