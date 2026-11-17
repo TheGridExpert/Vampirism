@@ -6,11 +6,13 @@ import de.teamlapen.vampirism.common.world.entity.hunter.squad.PatrolArea;
 import de.teamlapen.vampirism.common.world.entity.hunter.squad.SquadContext;
 import de.teamlapen.vampirism.common.world.entity.hunter.squad.SquadOrder;
 import de.teamlapen.vampirism.common.world.entity.hunter.squad.SquadTactic;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
 
 public class RelaxedPatrolTactic implements SquadTactic {
 
     private static final int LEADER_AREA_RADIUS = 8;
+    private static final int AREA_GRID = 4;
     private static final double LEASH_DISTANCE = 14.0D;
     private static final double CATCH_UP_DISTANCE = 4.0D;
 
@@ -36,8 +38,14 @@ public class RelaxedPatrolTactic implements SquadTactic {
         }
     }
 
+    private static BlockPos snapToGrid(BlockPos pos) {
+        int x = Math.floorDiv(pos.getX(), AREA_GRID) * AREA_GRID + AREA_GRID / 2;
+        int z = Math.floorDiv(pos.getZ(), AREA_GRID) * AREA_GRID + AREA_GRID / 2;
+        return new BlockPos(x, pos.getY(), z);
+    }
+
     private static void assignLeaderPatrol(SquadContext context, Hunter leader) {
-        PatrolArea area = new PatrolArea(leader.blockPosition(), LEADER_AREA_RADIUS);
+        PatrolArea area = new PatrolArea(snapToGrid(leader.blockPosition()), LEADER_AREA_RADIUS);
         for (Hunter hunter : context.freeMembers(member -> member != leader)) {
             SquadOrder order = context.claimOrder(hunter).patrolArea(area);
             if (hunter.distanceTo(leader) > LEASH_DISTANCE) {
