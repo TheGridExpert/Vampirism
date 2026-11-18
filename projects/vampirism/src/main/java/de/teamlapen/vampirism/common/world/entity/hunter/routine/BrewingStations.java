@@ -49,24 +49,40 @@ public class BrewingStations {
                 .sorted(Comparator.comparingDouble(pos -> pos.distSqr(origin)))
                 .toList();
         for (BlockPos pos : workstations) {
-            if (canReach(hunter, pos)) return new BrewingStation(pos, false, false);
+            if (canReach(hunter, pos)) return BrewingStation.existing(pos);
         }
 
-        return findPlacementSpot(level, hunter, claimed).map(pos -> new BrewingStation(pos, true, false)).orElse(null);
+        return findPlacementSpot(level, hunter, claimed);
     }
 
-    private static Optional<BlockPos> findPlacementSpot(ServerLevel level, Hunter hunter, Set<BlockPos> claimed) {
+    private static @Nullable BrewingStation findPlacementSpot(ServerLevel level, Hunter hunter, Set<BlockPos> claimed) {
         BlockPos origin = hunter.blockPosition();
-        return BlockPos.betweenClosedStream(origin.offset(-PLACE_RADIUS, -1, -PLACE_RADIUS), origin.offset(PLACE_RADIUS, 1, PLACE_RADIUS))
-                .filter(pos -> !pos.equals(origin) && !claimed.contains(pos) && canPlaceAt(level, pos) && hasStandingRoom(level, pos))
+        List<BlockPos> candidates = BlockPos.betweenClosedStream(origin.offset(-PLACE_RADIUS, -1, -PLACE_RADIUS), origin.offset(PLACE_RADIUS, 1, PLACE_RADIUS))
+                .filter(pos -> !pos.equals(origin) && !claimed.contains(pos) && canPlaceAt(level, pos))
                 .map(BlockPos::immutable)
-                .min(Comparator.comparingDouble(pos -> pos.distSqr(origin)));
+                .sorted(Comparator.comparingDouble(pos -> pos.distSqr(origin)))
+                .toList();
+        for (BlockPos pos : candidates) {
+            Optional<BlockPos> stand = findStandingSpot(level, pos, origin, claimed);
+            if (stand.isPresent()) return BrewingStation.portable(pos, stand.get());
+        }
+        return null;
+    }
+
+    private static Optional<BlockPos> findStandingSpot(ServerLevel level, BlockPos station, BlockPos origin, Set<BlockPos> claimed) {
+        return Direction.Plane.HORIZONTAL.stream()
+                .map(station::relative)
+                .filter(stand -> !claimed.contains(stand) && LookoutSpots.canStandAt(level, stand))
+                .min(Comparator.comparingDouble(stand -> stand.distSqr(origin)));
     }
 
     private static Set<BlockPos> collectClaims(ServerLevel level, Hunter hunter) {
         Set<BlockPos> claimed = new HashSet<>();
         for (Hunter other : level.getEntitiesOfClass(Hunter.class, hunter.getBoundingBox().inflate(SEARCH_RADIUS + CLAIM_SEARCH_RADIUS), other -> other != hunter)) {
-            other.getBrain().getMemory(ModMemoryTypes.BREWING_STATION.get()).ifPresent(station -> claimed.add(station.pos()));
+            other.getBrain().getMemory(ModMemoryTypes.BREWING_STATION.get()).ifPresent(station -> {
+                claimed.add(station.pos());
+                claimed.add(station.stand());
+            });
         }
         return claimed;
     }
@@ -76,10 +92,6 @@ public class BrewingStations {
         return level.getBlockState(pos).isAir()
                 && level.getBlockState(below).isFaceSturdy(level, below, Direction.UP)
                 && level.isUnobstructed(Blocks.BREWING_STAND.defaultBlockState(), pos, CollisionContext.empty());
-    }
-
-    private static boolean hasStandingRoom(ServerLevel level, BlockPos pos) {
-        return Direction.Plane.HORIZONTAL.stream().anyMatch(direction -> LookoutSpots.canStandAt(level, pos.relative(direction)));
     }
 
     public static boolean isWorkstation(BlockState state) {

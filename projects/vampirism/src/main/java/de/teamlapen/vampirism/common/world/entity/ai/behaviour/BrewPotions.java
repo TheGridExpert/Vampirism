@@ -26,11 +26,15 @@ public class BrewPotions extends Behavior<Hunter> {
     private static final int MAX_TRAVEL_TICKS = 400;
     private static final double REACH_DISTANCE_SQR = 2.5D * 2.5D;
     private static final double MAX_HEIGHT_DIFFERENCE = 1.5D;
+    private static final double STAND_ARRIVAL_DISTANCE_SQR = 1.0D;
+    private static final int MAX_POSITIONING_TICKS = 20;
+    private static final double POSITIONED_DISTANCE_SQR = 0.15D * 0.15D;
+    private static final double POSITIONING_SPEED = 0.5D;
     private static final int MIN_STIR_INTERVAL = 40;
     private static final int MAX_STIR_INTERVAL = 100;
 
     private enum Phase {
-        WALKING, BREWING
+        WALKING, POSITIONING, BREWING
     }
 
     private final float speed;
@@ -63,7 +67,8 @@ public class BrewPotions extends Behavior<Hunter> {
         this.finished = false;
         brain.eraseMemory(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);
         setPhase(Phase.WALKING, gameTime, MAX_TRAVEL_TICKS);
-        brain.setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(this.station.pos(), this.speed, 1));
+        WalkTarget target = this.station.portable() ? new WalkTarget(this.station.stand(), this.speed, 0) : new WalkTarget(this.station.pos(), this.speed, 1);
+        brain.setMemory(MemoryModuleType.WALK_TARGET, target);
     }
 
     @Override
@@ -84,6 +89,10 @@ public class BrewPotions extends Behavior<Hunter> {
             tickWalking(level, hunter, gameTime);
             return;
         }
+        if (this.phase == Phase.POSITIONING) {
+            tickPositioning(level, hunter, gameTime);
+            return;
+        }
 
         BlockPos pos = this.station.pos();
         Vec3 center = Vec3.atCenterOf(pos);
@@ -101,9 +110,15 @@ public class BrewPotions extends Behavior<Hunter> {
 
     private void tickWalking(ServerLevel level, Hunter hunter, long gameTime) {
         Brain<Hunter> brain = hunter.getBrain();
-        BlockPos pos = this.station.pos();
-        if (isWithinReach(hunter, pos)) {
-            arrive(level, hunter, gameTime);
+        boolean arrived = this.station.portable() ? isNear(hunter, this.station.stand(), STAND_ARRIVAL_DISTANCE_SQR) : isNear(hunter, this.station.pos(), REACH_DISTANCE_SQR);
+        if (arrived) {
+            brain.eraseMemory(MemoryModuleType.WALK_TARGET);
+            hunter.getNavigation().stop();
+            if (this.station.portable()) {
+                setPhase(Phase.POSITIONING, gameTime, MAX_POSITIONING_TICKS);
+            } else {
+                arrive(level, hunter, gameTime);
+            }
             return;
         }
         if (gameTime >= this.phaseEnd || !brain.hasMemoryValue(MemoryModuleType.WALK_TARGET)) {
@@ -111,11 +126,19 @@ public class BrewPotions extends Behavior<Hunter> {
         }
     }
 
+    private void tickPositioning(ServerLevel level, Hunter hunter, long gameTime) {
+        Vec3 stand = Vec3.atBottomCenterOf(this.station.stand());
+        double dx = stand.x - hunter.getX();
+        double dz = stand.z - hunter.getZ();
+        if (dx * dx + dz * dz > POSITIONED_DISTANCE_SQR && gameTime < this.phaseEnd) {
+            hunter.getMoveControl().setWantedPosition(stand.x, stand.y, stand.z, POSITIONING_SPEED);
+            return;
+        }
+        arrive(level, hunter, gameTime);
+    }
+
     private void arrive(ServerLevel level, Hunter hunter, long gameTime) {
         Brain<Hunter> brain = hunter.getBrain();
-        brain.eraseMemory(MemoryModuleType.WALK_TARGET);
-        hunter.getNavigation().stop();
-
         BlockPos pos = this.station.pos();
         if (this.station.portable() && !this.station.placed()) {
             if (!BrewingStations.canPlaceAt(level, pos)) {
@@ -134,10 +157,10 @@ public class BrewPotions extends Behavior<Hunter> {
         setPhase(Phase.BREWING, gameTime, nextStirInterval(hunter.getRandom()));
     }
 
-    private static boolean isWithinReach(Hunter hunter, BlockPos pos) {
+    private static boolean isNear(Hunter hunter, BlockPos pos, double distanceSqr) {
         double dx = hunter.getX() - (pos.getX() + 0.5D);
         double dz = hunter.getZ() - (pos.getZ() + 0.5D);
-        return dx * dx + dz * dz <= REACH_DISTANCE_SQR && Math.abs(hunter.getY() - pos.getY()) <= MAX_HEIGHT_DIFFERENCE;
+        return dx * dx + dz * dz <= distanceSqr && Math.abs(hunter.getY() - pos.getY()) <= MAX_HEIGHT_DIFFERENCE;
     }
 
     private void setPhase(Phase phase, long gameTime, int duration) {
