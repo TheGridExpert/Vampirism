@@ -10,15 +10,8 @@ import java.util.UUID;
 
 public class HunterGroupData implements SpawnGroupData {
 
-    private static final int MELEE_SHARE = 5;
-    private static final int RANGED_SHARE = 4;
-    private static final int MIN_NON_ALCHEMIST_COMPANIONS = 2;
-    private static final float ALCHEMIST_CHANCE = RANGED_SHARE / (float) (MELEE_SHARE + RANGED_SHARE) / 2.0F;
-
     private final UUID squadId = UUID.randomUUID();
-    private int melee;
-    private int ranged;
-    private int alchemists;
+    private int size;
     private boolean hasAdvanced;
 
     public static HunterGroupData resolve(@Nullable SpawnGroupData spawnGroupData) {
@@ -32,31 +25,15 @@ public class HunterGroupData implements SpawnGroupData {
     }
 
     public boolean hasRoom() {
-        return this.melee + this.ranged + this.alchemists < Hunter.BASE_SQUAD_SIZE + (this.hasAdvanced ? 1 : 0);
+        return this.size < Hunter.BASE_SQUAD_SIZE + (this.hasAdvanced ? 1 : 0);
     }
 
     public UUID squadId() {
         return this.squadId;
     }
 
-    public HunterClassType nextClass(RandomSource random, int nonAlchemistCompanions) {
-        if (nonAlchemistCompanions >= MIN_NON_ALCHEMIST_COMPANIONS && random.nextFloat() < ALCHEMIST_CHANCE) {
-            this.alchemists++;
-            return HunterClassType.ALCHEMIST;
-        }
-
-        HunterClassType type;
-        if (this.melee + this.ranged == 0) {
-            type = HunterClassType.getRandom(random);
-        } else {
-            type = (this.melee + 1) * RANGED_SHARE <= (this.ranged + 1) * MELEE_SHARE ? HunterClassType.MELEE : HunterClassType.RANGED;
-        }
-
-        if (type == HunterClassType.RANGED) {
-            this.ranged++;
-        } else {
-            this.melee++;
-        }
-        return type;
+    public HunterClassType nextClass(RandomSource random) {
+        this.size++;
+        return HunterClassType.getRandom(random);
     }
 }

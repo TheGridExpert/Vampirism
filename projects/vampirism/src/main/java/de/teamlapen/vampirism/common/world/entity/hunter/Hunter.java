@@ -119,7 +119,6 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
     private static final int MAX_TOTAL_LEVEL = MAX_LEVEL + MAX_LORD_LEVEL;
     private static final float ADVANCED_CHANCE = 0.15F;
     public static final int BASE_SQUAD_SIZE = 5;
-    private static final double COMPANION_RADIUS = 24.0D;
     private static final int VETERAN_LEVEL = 12;
     public static final float ARROW_VELOCITY = 2.0F;
 
@@ -532,8 +531,7 @@ public class Hunter extends PathfinderMob implements CrossbowAttackMob {
     }
 
     protected HunterClassType chooseClass(HunterGroupData group, RandomSource random) {
-        int companions = level().getEntitiesOfClass(Hunter.class, getBoundingBox().inflate(COMPANION_RADIUS), other -> other != this && other.isAlive() && !other.isAlchemistClass()).size();
-        return group.nextClass(random, companions);
+        return group.nextClass(random);
     }
 
     public boolean isDualWielding() {
