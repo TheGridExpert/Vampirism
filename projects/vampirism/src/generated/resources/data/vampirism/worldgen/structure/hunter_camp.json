@@ -1,0 +1,44 @@
+{
+  "type": "vampirism:hunter_camp",
+  "biomes": "#vampirism:has_structure/hunter_camp",
+  "campfire_pool": "vampirism:hunter_camp/campfires",
+  "cold_biomes": "#c:is_cold",
+  "cold_tower_pool": "vampirism:hunter_camp/cold_watchtowers",
+  "core_offset": {
+    "type": "minecraft:uniform",
+    "max_inclusive": 7,
+    "min_inclusive": 5
+  },
+  "flagpole_pool": "vampirism:hunter_camp/flagpoles",
+  "jigsaw_depth": {
+    "type": "minecraft:uniform",
+    "max_inclusive": 4,
+    "min_inclusive": 2
+  },
+  "max_height_difference": 4,
+  "search_radius": 2,
+  "spawn_overrides": {},
+  "step": "surface_structures",
+  "tent_distance": [
+    12,
+    20
+  ],
+  "tent_pool": "vampirism:hunter_camp/tents",
+  "tents": {
+    "type": "minecraft:uniform",
+    "max_inclusive": 3,
+    "min_inclusive": 2
+  },
+  "terrain_adaptation": "beard_thin",
+  "tower_distance": [
+    18,
+    26
+  ],
+  "tower_pool": "vampirism:hunter_camp/watchtowers",
+  "towers": {
+    "type": "minecraft:uniform",
+    "max_inclusive": 3,
+    "min_inclusive": 2
+  },
+  "tree_free_radius": 24
+}

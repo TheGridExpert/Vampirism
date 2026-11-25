@@ -28,6 +28,7 @@
     "SweetBerryBushBlockMixin",
     "ThrowablePotionItemMixin",
     "ThrownPotionMixin",
+    "TreeFeaturesMixin",
     "VibrationSystemUserMixin",
     "WorldGenSettingsMixin",
     "accessor.AnimationStateAccessor",

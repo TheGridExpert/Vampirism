@@ -14,7 +14,9 @@ import de.teamlapen.vampirism.common.world.structures.crypt.CryptStructure;
 import de.teamlapen.vampirism.common.world.structures.crypt.CryptStructurePieces;
 import de.teamlapen.vampirism.common.world.structures.draculacastle.DraculaCastlePieces;
 import de.teamlapen.vampirism.common.world.structures.draculacastle.DraculaCastleStructure;
-import de.teamlapen.vampirism.common.world.structures.huntercamp.HunterCampPieces;
+import de.teamlapen.vampirism.common.world.structures.huntercamp.HunterCampClearing;
+import de.teamlapen.vampirism.common.world.structures.huntercamp.HunterCampPiece;
+import de.teamlapen.vampirism.common.world.structures.huntercamp.HunterCampPools;
 import de.teamlapen.vampirism.common.world.structures.huntercamp.HunterCampStructure;
 import de.teamlapen.vampirism.common.world.structures.hunteroutpost.*;
 import de.teamlapen.vampirism.common.world.structures.mother.MotherPiece;
@@ -32,11 +34,14 @@ import de.teamlapen.vampirism.common.world.structures.vampirehut.VampireHutStruc
 import de.teamlapen.vampirism.common.world.structures.velmorraportal.VelmorraPortalPools;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
+import net.minecraft.core.Vec3i;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.data.worldgen.Pools;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.util.InclusiveRange;
 import net.minecraft.util.random.WeightedList;
+import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.minecraft.world.level.block.Block;
@@ -49,16 +54,19 @@ import net.minecraft.world.level.levelgen.structure.*;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceType;
 import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadStructurePlacement;
 import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadType;
+import net.minecraft.world.level.levelgen.structure.placement.StructurePlacement;
 import net.minecraft.world.level.levelgen.structure.placement.StructurePlacementType;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 import net.minecraft.world.level.levelgen.structure.structures.JigsawStructure;
 import net.minecraft.world.level.levelgen.structure.templatesystem.*;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static de.teamlapen.vampirism.common.world.structures.VanillaStructureModifications.singleJigsawPieceFunction;
@@ -79,9 +87,8 @@ public class ModStructures {
 
     public static final DeferredHolder<StructurePlacementType<?>, StructurePlacementType<SingleOccurrenceStructurePlacement>> SINGLE_OCCURRENCE_PLACEMENT_TYPE = STRUCTURE_PLACEMENT_TYPES.register("single_occurrence", () -> () -> SingleOccurrenceStructurePlacement.CODEC);
 
-    public static final DeferredHolder<StructurePieceType, StructurePieceType> HUNTER_CAMP_FIREPLACE = STRUCTURE_PIECES.register("hunter_camp_fireplace", () -> (StructurePieceType.ContextlessType) HunterCampPieces.Fireplace::new);
-    public static final DeferredHolder<StructurePieceType, StructurePieceType> HUNTER_CAMP_TENT = STRUCTURE_PIECES.register("hunter_camp_tent", () -> (StructurePieceType.ContextlessType) HunterCampPieces.Tent::new);
-    public static final DeferredHolder<StructurePieceType, StructurePieceType> HUNTER_CAMP_SPECIAL = STRUCTURE_PIECES.register("hunter_camp_craftingtable", () -> (StructurePieceType.ContextlessType) HunterCampPieces.SpecialBlock::new);
+    public static final DeferredHolder<StructurePieceType, StructurePieceType> HUNTER_CAMP_PIECE = STRUCTURE_PIECES.register("hunter_camp", () -> HunterCampPiece::new);
+    public static final DeferredHolder<StructurePieceType, StructurePieceType> HUNTER_CAMP_CLEARING = STRUCTURE_PIECES.register("hunter_camp_clearing", () -> HunterCampClearing::new);
     public static final DeferredHolder<StructurePieceType, StructurePieceType> VAMPIRE_HUT_PIECE = STRUCTURE_PIECES.register("vampire_hut", () -> (StructurePieceType.StructureTemplateType) VampireHutPieces.VampireHutPiece::new);
     public static final DeferredHolder<StructurePieceType, StructurePieceType> VAMPIRE_ALTAR_PIECE = STRUCTURE_PIECES.register("vampire_altar", () -> (StructurePieceType.StructureTemplateType) VampireAltarPieces.VampireAltarPiece::new);
     public static final DeferredHolder<StructurePieceType, StructurePieceType> MOTHER_PIECE = STRUCTURE_PIECES.register("mother", () -> (StructurePieceType.ContextlessType) MotherPiece::new);
@@ -146,6 +153,7 @@ public class ModStructures {
 
         context.register(HUNTER_TRAINER, new StructureTemplatePool(empty, Lists.newArrayList(Pair.of(singleJigsawPieceFunction(processorList, "village/entities/hunter_trainer"), 1)), StructureTemplatePool.Projection.RIGID));
         CryptStructurePieces.bootstrap(context);
+        HunterCampPools.bootstrap(context);
         HunterOutpostPools.bootstrap(context);
         VelmorraPortalPools.bootstrap(context);
     }
@@ -169,8 +177,7 @@ public class ModStructures {
         HolderGetter<StructureSet> structureSetLookup = context.lookup(Registries.STRUCTURE_SET);
         HolderGetter<Biome> biomeLookup = context.lookup(Registries.BIOME);
         var villageSet = structureSetLookup.getOrThrow(BuiltinStructureSets.VILLAGES);
-        // hunter camp holder is not available in data generation see ModFeatures#createStructures
-//         context.register(HUNTER_CAMP_SET, new StructureSet(structureLookup.getOrThrow(HUNTER_CAMP), new RandomSpreadStructurePlacement(Vec3i.ZERO, StructurePlacement.FrequencyReductionMethod.DEFAULT, 1.0F, 1724616580, Optional.of(new StructurePlacement.ExclusionZone(villageSet,2)),9, 4, RandomSpreadType.LINEAR)));
+        context.register(HUNTER_CAMP_SET, new StructureSet(structureLookup.getOrThrow(HUNTER_CAMP), new RandomSpreadStructurePlacement(Vec3i.ZERO, StructurePlacement.FrequencyReductionMethod.DEFAULT, 1.0F, 1724616580, Optional.of(new StructurePlacement.ExclusionZone(villageSet, 2)), 9, 6, RandomSpreadType.LINEAR)));
         context.register(VAMPIRE_HUT_SET, new StructureSet(structureLookup.getOrThrow(VAMPIRE_HUT), new RandomSpreadStructurePlacement(32, 10, RandomSpreadType.LINEAR, 1937195837)));
         context.register(VAMPIRE_ALTAR_SET, new StructureSet(structureLookup.getOrThrow(VAMPIRE_ALTAR), new RandomSpreadStructurePlacement(32, 15, RandomSpreadType.LINEAR, 573190874)));
         context.register(MOTHER_SET, new StructureSet(structureLookup.getOrThrow(MOTHER), new RandomSpreadStructurePlacement(48, 6, RandomSpreadType.TRIANGULAR, 1897236459)));
@@ -184,9 +191,10 @@ public class ModStructures {
         HolderGetter<Biome> lookup = context.lookup(Registries.BIOME);
         HolderGetter<StructureTemplatePool> lookup1 = context.lookup(Registries.TEMPLATE_POOL);
 
-        // it is currently not possible to create a not holder in datagen see https://github.com/MinecraftForge/MinecraftForge/issues/9629
-        // this file is not generated, but added through the main source set
-//        context.register(HUNTER_CAMP, new HunterCampStructure(new Structure.StructureSettings.Builder(new AndHolderSet<>(List.of(lookup.getOrThrow(ModBiomeTags.HasStructure.HUNTER_TENT), new NotHolderSet<>(context.registryLookup(Registries.BIOME).orElseThrow(),lookup.getOrThrow(ModBiomeTags.IS_FACTION_BIOME))))).terrainAdapation(TerrainAdjustment.BEARD_THIN).build()));
+        context.register(HUNTER_CAMP, new HunterCampStructure(
+                new Structure.StructureSettings.Builder(lookup.getOrThrow(ModBiomeTags.HasStructure.HUNTER_CAMP)).generationStep(GenerationStep.Decoration.SURFACE_STRUCTURES).terrainAdapation(TerrainAdjustment.BEARD_THIN).build(),
+                lookup1.getOrThrow(HunterCampPools.CAMPFIRES), lookup1.getOrThrow(HunterCampPools.FLAGPOLES), lookup1.getOrThrow(HunterCampPools.TENTS), lookup1.getOrThrow(HunterCampPools.WATCHTOWERS), lookup1.getOrThrow(HunterCampPools.COLD_WATCHTOWERS), lookup.getOrThrow(Tags.Biomes.IS_COLD),
+                UniformInt.of(2, 3), UniformInt.of(2, 3), UniformInt.of(5, 7), new InclusiveRange<>(12, 20), new InclusiveRange<>(18, 26), 2, 4, 24, UniformInt.of(2, 4)));
         context.register(VAMPIRE_HUT, new VampireHutStructure(new Structure.StructureSettings.Builder(lookup.getOrThrow(ModBiomeTags.HasStructure.VAMPIRE_HUT)).terrainAdapation(TerrainAdjustment.NONE).build()));
         context.register(HUNTER_OUTPOST_PLAINS, new JigsawStructure(new Structure.StructureSettings.Builder(lookup.getOrThrow(ModBiomeTags.HasStructure.HUNTER_OUTPOST_PLAINS)).spawnOverrides(Map.of(VEnums.HUNTER_CATEGORY.getValue(), new StructureSpawnOverride(StructureSpawnOverride.BoundingBoxType.PIECE, WeightedList.<MobSpawnSettings.SpawnerData>builder().add(new MobSpawnSettings.SpawnerData(ModEntities.HUNTER.get(), 2, 4), 80).add(new MobSpawnSettings.SpawnerData(ModEntities.ADVANCED_HUNTER.get(), 1, 22), 20).build()))).generationStep(GenerationStep.Decoration.SURFACE_STRUCTURES).terrainAdapation(TerrainAdjustment.BEARD_THIN).build(), lookup1.getOrThrow(PlainsHunterOutpostPools.START), 7, ConstantHeight.of(VerticalAnchor.absolute(0)), true, Heightmap.Types.WORLD_SURFACE_WG));
         context.register(HUNTER_OUTPOST_DESERT, new JigsawStructure(new Structure.StructureSettings.Builder(lookup.getOrThrow(ModBiomeTags.HasStructure.HUNTER_OUTPOST_DESERT)).spawnOverrides(Map.of(VEnums.HUNTER_CATEGORY.getValue(), new StructureSpawnOverride(StructureSpawnOverride.BoundingBoxType.PIECE, WeightedList.<MobSpawnSettings.SpawnerData>builder().add(new MobSpawnSettings.SpawnerData(ModEntities.HUNTER.get(), 2, 4), 80).add(new MobSpawnSettings.SpawnerData(ModEntities.ADVANCED_HUNTER.get(), 1, 22), 20).build()))).generationStep(GenerationStep.Decoration.SURFACE_STRUCTURES).terrainAdapation(TerrainAdjustment.BEARD_THIN).build(), lookup1.getOrThrow(DesertHunterOutpostPools.START), 7, ConstantHeight.of(VerticalAnchor.absolute(0)), true, Heightmap.Types.WORLD_SURFACE_WG));

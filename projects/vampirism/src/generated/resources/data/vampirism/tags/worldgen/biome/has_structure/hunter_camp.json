@@ -1,0 +1,9 @@
+{
+  "remove": [
+    "#vampirism:has_faction/vampire",
+    "minecraft:pale_garden"
+  ],
+  "values": [
+    "#minecraft:is_overworld"
+  ]
+}

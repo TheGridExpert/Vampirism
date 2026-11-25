@@ -15,7 +15,7 @@ public class ModBiomeTags {
     }
 
     public static class HasStructure {
-        public static final TagKey<Biome> HUNTER_TENT = tag("has_structure/hunter_tent");
+        public static final TagKey<Biome> HUNTER_CAMP = tag("has_structure/hunter_camp");
         public static final TagKey<Biome> VAMPIRE_DUNGEON = tag("has_structure/vampire_dungeon");
         public static final TagKey<Biome> VAMPIRE_HUT = tag("has_structure/vampire_hut");
         public static final TagKey<Biome> HUNTER_OUTPOST_PLAINS = tag("has_structure/outpost/plains");

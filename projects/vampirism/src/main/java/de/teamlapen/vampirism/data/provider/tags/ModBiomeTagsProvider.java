@@ -8,7 +8,6 @@ import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.BiomeTagsProvider;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.world.level.biome.Biomes;
-import net.minecraft.world.level.dimension.DimensionType;
 import net.neoforged.neoforge.common.Tags;
 import org.jetbrains.annotations.NotNull;
 
@@ -23,7 +22,9 @@ public class ModBiomeTagsProvider extends BiomeTagsProvider {
     @SuppressWarnings("unchecked")
     @Override
     protected void addTags(HolderLookup.@NotNull Provider holderProvider) {
-        tag(ModBiomeTags.HasStructure.HUNTER_TENT).addTags(BiomeTags.IS_BADLANDS, BiomeTags.IS_FOREST, BiomeTags.IS_TAIGA).add(Biomes.PLAINS, Biomes.DESERT, Biomes.MEADOW, Biomes.SNOWY_PLAINS, Biomes.SPARSE_JUNGLE).remove(Biomes.PALE_GARDEN);
+        tag(ModBiomeTags.HasStructure.HUNTER_CAMP)
+                .addTags(BiomeTags.IS_OVERWORLD).remove(ModBiomeTags.HasFaction.IS_VAMPIRE_BIOME).remove(Biomes.PALE_GARDEN);
+                //.addTags(BiomeTags.IS_BADLANDS, BiomeTags.IS_FOREST, BiomeTags.IS_TAIGA).add(Biomes.PLAINS, Biomes.DESERT, Biomes.MEADOW, Biomes.SNOWY_PLAINS, Biomes.SPARSE_JUNGLE).remove(Biomes.PALE_GARDEN);
         tag(ModBiomeTags.HasFaction.IS_FACTION_BIOME).addTags(ModBiomeTags.HasFaction.IS_VAMPIRE_BIOME, ModBiomeTags.HasFaction.IS_HUNTER_BIOME);
         tag(ModBiomeTags.HasFaction.IS_VAMPIRE_BIOME).add(ModBiomes.VAMPIRE_FOREST, ModBiomes.VELMORRA);
         tag(ModBiomeTags.HasFaction.IS_HUNTER_BIOME);
