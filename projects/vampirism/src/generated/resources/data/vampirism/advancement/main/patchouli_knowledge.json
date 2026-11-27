@@ -211,6 +211,21 @@
       },
       "trigger": "minecraft:inventory_changed"
     },
+    "has_prymara": {
+      "conditions": {
+        "items": [
+          {
+            "items": "vampirism:vampire_book",
+            "predicates": {
+              "vampirism:vampire_book": {
+                "id": "vampirism:prymara"
+              }
+            }
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
     "has_pyromaniacs_diary": {
       "conditions": {
         "items": [
@@ -341,6 +356,9 @@
     ],
     [
       "has_observation_on_vampires"
+    ],
+    [
+      "has_prymara"
     ],
     [
       "has_pyromaniacs_diary"

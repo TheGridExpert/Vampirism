@@ -26,6 +26,7 @@ public class ModVampireBooks {
     public static final ResourceKey<IVampireBook> INFUSION_BREAKTHROUGH = createKey("infusion_breakthrough");
     public static final ResourceKey<IVampireBook> MORAL_DISTORTION = createKey("moral_distortion");
     public static final ResourceKey<IVampireBook> CASE_STUDY_ONE = createKey("case_study_one");
+    public static final ResourceKey<IVampireBook> PRYMARA = createKey("prymara");
     public static final ResourceKey<IVampireBook> WANTED = createKey("wanted");
     public static final ResourceKey<IVampireBook> CASE_FILE_144 = createKey("case_file_144");
 
@@ -54,6 +55,7 @@ public class ModVampireBooks {
         register(context, builder(MORAL_DISTORTION).translatableAuthor("marcus_grid"));
         register(context, builder(INFUSION_BREAKTHROUGH).translatableAuthor("hnat_feldsher"));
         register(context, builder(CASE_STUDY_ONE));
+        register(context, builder(PRYMARA).translatableAuthor("gabriel"));
         register(context, builder(WANTED).literalAuthor("Kae din Saarin"));
         register(context, builder(CASE_FILE_144).translatableAuthor("guard_nenna"));
 

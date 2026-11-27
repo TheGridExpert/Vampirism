@@ -45,6 +45,7 @@ public class ModVampireBookTagsProvider extends KeyTagProvider<IVampireBook> {
                 INFUSION_BREAKTHROUGH,
                 MORAL_DISTORTION,
                 CASE_STUDY_ONE,
+                PRYMARA,
                 DEAR_MARTHA,
                 WANTED,
                 CASE_FILE_144
